@@ -1,6 +1,6 @@
-**VQ Marketplace API**
+#VQ Marketplace API
 
-# Overview
+## Overview
 VQ Marketplace API is a web services layer of VQ marketplace developed with NodeJS. We use [Express Framework](http://expressjs.com/) for buiding on top of it. The Web Services communicate with a mySQL database.
 
 Some parts of the application have been wrapped as modules and open-sourced. You will find our repos here:
@@ -20,9 +20,9 @@ In the whole application, you will see a lot of use of the 'async' library, whic
 
 Also, for modeling the data and DB drived, we use [Sequelize](http://sequelize.com/).
 
-# System setup
+## System setup
 
-## Ubuntu
+### Ubuntu
 Install the required packages with apt-get package manager. If you do not know what it is, read about it here [https://wiki.ubuntuusers.de/apt/apt-get/](https://wiki.ubuntuusers.de/apt/apt-get/).
 ```
 sudo apt-get install git // git version management
@@ -54,6 +54,31 @@ npm run start:local
 ## Deployment
 @todo
 
+## API Endpoints
+@todo
+
+## Development
+
+### Folder Structure
+**app.js**
+
+Entry point of ST Web Services.
+
+**./app/config/**
+
+**./app/routes/**
+
+Declaration of our RESTful API. Here you will find the open paths of the API, like 'GET /task' or 'POST /task'
+
+**./app/models/**
+
+Sequelize models
+
+**./app/controllers**
+Controllers combine complex business logic.
+
+**./app/events**
+
 ### Branching model
 1. Never push to 'master'
 2. Never push to 'dev'
@@ -69,35 +94,9 @@ npm run start:local
 We follow the following branching model:
 [http://nvie.com/posts/a-successful-git-branching-model/](http://nvie.com/posts/a-successful-git-branching-model/)
 
-
-### Folder Structure
-**app.js**
-
-Entry point of ST Web Services.
-
-**./app/config/**
-
-
-
-**./app/routes/**
-
-Declaration of our RESTful API. Here you will find the open paths of the API, like 'GET /task' or 'POST /task'
-
-**./app/models/**
-
-Sequelize models
-
-**./app/controllers**
-Controllers combine complex business logic.
-
-**./app/events**
-
-# API Endpoints
-@todo
-
-# Licence
+## Licence
 MIT.
 
-# Contributors
+## Contributors
 [VQ LABS](https://vq-labs.com)
 
