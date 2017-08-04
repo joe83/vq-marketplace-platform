@@ -1,0 +1,18 @@
+{
+    "port": "PORT",
+    "db": "ST_MONGODB",
+    "viciauth.app_key": "ST_VA_APP_KEY",
+    "viciauth.api_key": "ST_VA_API_KEY",
+    "mangopay.clientId": "ST_MANGOPAY_CLIENT_ID",
+    "mangopay.companyName": "ST_MANGOPAY_COMPANY_NAME",
+    "mangopay.email": "ST_MANGOPAY_EMAIL",
+    "mangopay.passphrase": "ST_MANGOPAY_PASSPHRASE",
+    "mangopay.production": "ST_MANGOPAY_PRODUCTION",
+    "s3.bucket": "ST_S3_BUCKET",
+    "s3.region": "ST_S3_REGION",
+    "s3.accessKeyId": "ST_S3_ACCESS_KEY_ID",
+    "s3.secretAccessKey": "ST_S3_SECRET_ACCESS_KEY",
+    "mandrill": "ST_MANDRILL_API_SECRET",
+    "oneSignal.appId" : "ST_ONE_SIGNAL_APP_ID",
+    "oneSignal.token" : "ST_ONE_SIGNAL_TOKEN"
+}

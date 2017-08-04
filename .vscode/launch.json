@@ -1,0 +1,43 @@
+{
+    // Use IntelliSense to learn about possible Node.js debug attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "debug:local",
+            "program": "${workspaceRoot}/app.js",
+            "cwd": "${workspaceRoot}",
+            "env": {
+                "ST_VA_APP_KEY": "test",
+                "ST_VA_API_KEY": "test",
+                "ST_ENV": "local"
+            }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "debug:production",
+            "program": "${workspaceRoot}/app.js",
+            "cwd": "${workspaceRoot}",
+            "env": {
+                "ST_ENV": "production"
+            }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Task created Event",
+            "program": "${workspaceRoot}/app/events/taskCreated.js",
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "node",
+            "request": "attach",
+            "name": "An den Prozess anfügen",
+            "port": 8080
+        }
+    ]
+}

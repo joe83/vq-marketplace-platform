@@ -1,0 +1,9 @@
+apps/st-invoice/tmp/
+bower_components/
+node_modules/
+apidoc/
+# our credentials
+.credentials
+# mac bullshit
+.DS_Store
+npm-debug.log

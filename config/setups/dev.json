@@ -1,0 +1,18 @@
+{
+    "production": false,
+    "port": [ ":", ":PORT", ":ST_PORT", 4060 ],
+    "db": null,
+    "secret" : null,
+    "mangopay.clientId": null,
+    "mangopay.companyName": null,
+    "mangopay.email": null,
+    "mangopay.passphrase": null,
+    "mangopay.production": false,
+    "s3.bucket": "studentask",
+    "s3.region": "eu-central-1",
+    "s3.accessKeyId": null,
+    "s3.secretAccessKey": null,
+    "mandrill": null,
+    "oneSignal.appId" : null,
+    "oneSignal.token" : null
+}
