@@ -1,4 +1,4 @@
-#VQ Marketplace API
+# VQ Marketplace API
 
 ## Overview
 VQ Marketplace API is a web services layer of VQ marketplace developed with NodeJS. We use [Express Framework](http://expressjs.com/) for buiding on top of it. The Web Services communicate with a mySQL database.
