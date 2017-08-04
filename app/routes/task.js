@@ -143,11 +143,13 @@ module.exports = app => {
         isLoggedIn,
         (req, res) => {
             models.taskComment
-                .create({
-                    comment: req.body.comment
-                })
-                .then(data => sendResponse(res, null, data))
-                .catch(err => sendResponse(res, err));
+            .create({
+                comment: req.body.comment,
+                userId: req.user.id,
+                taskId: req.params.taskId
+            })
+            .then(data => sendResponse(res, null, data))
+            .catch(err => sendResponse(res, err));
         });
 
    app.post('/api/task/:taskId/category',
@@ -286,7 +288,20 @@ module.exports = app => {
                 .then(location => cb(null, location), err => cb(err)),
             cb => 
                 models.taskTiming
-                .findAll({ where: { taskId: req.params.taskId } })
+                .findAll({ where: {
+                    taskId: req.params.taskId
+                }})
+                .then(timing => cb(null, timing), err => cb(err)),
+            cb => 
+                models.taskComment
+                .findAll({
+                    where: {
+                        taskId: req.params.taskId
+                    },
+                    include: [{
+                        model: models.user
+                    }]
+                })
                 .then(timing => cb(null, timing), err => cb(err))
         ], (err, data) => {
             if (err) {
@@ -299,6 +314,7 @@ module.exports = app => {
             task.images = JSON.parse(JSON.stringify(data[2]));
             task.location = JSON.parse(JSON.stringify(data[3]));
             task.timing = JSON.parse(JSON.stringify(data[4]));
+            task.comments = JSON.parse(JSON.stringify(data[5]));
 
             return res.send(task);
         })

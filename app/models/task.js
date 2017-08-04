@@ -38,6 +38,7 @@ module.exports = (sequelize, DataTypes) => {
             Task.hasMany(models.taskCategory);
             Task.hasMany(models.taskImage);
             Task.hasMany(models.taskLocation);
+            Task.hasMany(models.taskComment);
             Task.hasMany(models.taskTiming);
             Task.hasMany(models.request);
         }
