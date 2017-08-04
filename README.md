@@ -5,15 +5,13 @@ VQ Marketplace API is a web services layer of VQ marketplace developed with Node
 
 Some parts of the application have been wrapped as modules and open-sourced. You will find our repos here:
 
-* Listly [https://github.com/vq-labs/listly](https://github.com/viciqloud/listly)
-
-* vq-auth [https://github.com/vq-labs/vq-auth](https://github.com/viciqloud/vq-auth)
+* [nodejs-authentication-microservice ](https://github.com/vq-labs/nodejs-authentication-microservice)
 
 The application communicates with some external services: payments provider, email services etc.
 Here is the complete list of the services that are used:
 
-* Mandrill Docs  [https://mandrillapp.com/api/docs/](https://mandrillapp.com/api/docs/)
-* Listly (viciqloud) [https://github.com/viciqloud/listly](https://github.com/viciqloud/listly)
+* Mandrill
+* Stripe
 
 ## Important libraries used
 In the whole application, you will see a lot of use of the 'async' library, which helps us mange the flow of the callbacks.
@@ -53,6 +51,9 @@ In order to start locally the VQ Web Services, you need to run the command:
 npm run start:local
 ```
 
+## Deployment
+@todo
+
 ### Branching model
 1. Never push to 'master'
 2. Never push to 'dev'
@@ -71,6 +72,7 @@ We follow the following branching model:
 
 ### Folder Structure
 **app.js**
+
 Entry point of ST Web Services.
 
 **./app/config/**
@@ -78,9 +80,11 @@ Entry point of ST Web Services.
 
 
 **./app/routes/**
+
 Declaration of our RESTful API. Here you will find the open paths of the API, like 'GET /task' or 'POST /task'
 
 **./app/models/**
+
 Sequelize models
 
 **./app/controllers**
@@ -88,12 +92,12 @@ Controllers combine complex business logic.
 
 **./app/events**
 
-#API Endpoints
+# API Endpoints
 @todo
 
-#Licence
+# Licence
 MIT.
 
-#Contributors
+# Contributors
 [VQ LABS](https://vq-labs.com)
 
