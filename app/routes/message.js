@@ -16,7 +16,7 @@ module.exports = app => {
     app.post("/api/request", isLoggedIn, (req, res) => {
         models.request
             .create({
-                status: 0,
+                status: models.request.REQUEST_STATUS.PENDING,
                 taskId: req.body.taskId,
                 fromUserId: req.user.id,
                 toUserId: req.body.toUserId

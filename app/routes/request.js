@@ -8,18 +8,18 @@ const async = require('async');
 
 module.exports = app => {
     /*
-	app.get("/api/request", isLoggedIn, (req, res) => {
-        models.request
-            .findAll({ where: {
-                ownerUserId: req.user.id
-            }})
-            .then(data => {
-                res.send(data)
-            })
-            .catch(err => {
-                res.status(500).send(err)
-            });
-    });
+        app.get("/api/request", isLoggedIn, (req, res) => {
+            models.request
+                .findAll({ where: {
+                    ownerUserId: req.user.id
+                }})
+                .then(data => {
+                    res.send(data)
+                })
+                .catch(err => {
+                    res.status(500).send(err)
+                });
+        });
     */
 
 	app.get("/api/request", isLoggedIn, (req, res) => {

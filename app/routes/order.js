@@ -11,13 +11,30 @@ module.exports = app => {
         isLoggedIn,
         (req, res) => {
             const order = req.body;
+            var createdOrder = null;
 
             order.userId = req.user.id;
 
-            models.order
-                .create(order)
-                .then(data => sendResponse(res, null, data))
-                .catch(err => sendResponse(res, err));
+            async.waterfall([
+                cb => models.order
+                    .create(order)
+                    .then(rCreatedOrder => {
+                        createdOrder = rCreatedOrder;
+
+                        cb();
+                    }, cb),
+                cb => models.request
+                    .update({
+                        status: models.request.REQUEST_STATUS.ACCEPTED
+                    }, {
+                        where: {
+                            id: order.requestId
+                        }
+                    })
+                    .then(() => cb(), cb)
+            ], err => {
+                sendResponse(res, err, createdOrder);
+            })
         });
 
     app.get(`/api/${RESOURCE}`,
@@ -71,18 +88,41 @@ module.exports = app => {
             .catch(err => sendResponse(res, err));
         });
 
-    app.put('/api/order/:orderId', isLoggedIn, (req, res) => {
-        models.order
-            .update({
-                status: 10
-            }, {
-                where: {
-                    id: req.params.orderId
-                }
-            })
-            .then(
-                data => responseController.sendResponse(res, null, data), 
-                err => responseController.sendResponse(res, err)
-            );
-    });
+    /**
+     * Settles the order and the underlying request
+     */
+    app.put('/api/order/:orderId',
+        isLoggedIn,
+        (req, res) =>
+        async.waterfall([
+            cb => models.order
+                .update({
+                    status: models.order.ORDER_STATUS.SETTLED
+                }, {
+                    where: {
+                        id: req.params.orderId
+                    }
+                })
+                .then(order => {
+                    models.order
+                    .findById(req.params.orderId)
+                    .then(order => {
+                        cb(null, order.requestId)
+                    }, cb);
+                }, cb),
+            (requestId, cb) => {
+                models.request
+                .update({
+                    status: models.request.REQUEST_STATUS.SETTLED
+                }, {
+                    where: {
+                        id: requestId
+                    }
+                })
+                .then(() => cb(), cb)
+            }
+        ], err => {
+            responseController.sendResponse(res, err)
+        })
+    );
 };

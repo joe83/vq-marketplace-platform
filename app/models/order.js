@@ -1,8 +1,20 @@
 module.exports = (sequelize, DataTypes) => {
+  const ORDER_STATUS = {
+    PENDING: '0',
+    MARKED_DONE: '10',
+    SETTLED: '15',
+    CANCELED: '25'
+  };
+
   const Order = sequelize.define("order", {
       status: {
-        type: DataTypes.INTEGER,
-        default: 0
+        type: DataTypes.ENUM(
+          ORDER_STATUS.PENDING,
+          ORDER_STATUS.MARKED_DONE,
+          ORDER_STATUS.SETTLED,
+          ORDER_STATUS.CANCELED
+        ),
+        default: ORDER_STATUS.PENDING
       },
       amount: {
         type: DataTypes.INTEGER,
@@ -23,6 +35,8 @@ module.exports = (sequelize, DataTypes) => {
         }
       }
   });
+
+  Order.ORDER_STATUS = ORDER_STATUS;
 
   return Order;
 };
