@@ -134,7 +134,10 @@ module.exports = app => {
         isLoggedIn,
         (req, res) => {
             models.task
-                .create({ taskType: 1, userId: req.user.id })
+                .create({
+                    taskType: 1,
+                    userId: req.user.id
+                })
                 .then(task => sendResponse(res, null, task))
                 .catch(err => sendResponse(res, err));
         });
@@ -210,7 +213,7 @@ module.exports = app => {
                 }
             }))
             .then(() => new Promise((resolve, reject) =>
-                async.each(req.body, (timing, cb) => {
+                async.each(req.body.dates, (timing, cb) => {
                     try {
                         timing = new Date(timing).toISOString().slice(0, 19).replace('T', ' ');
                     } catch(err) {
@@ -219,6 +222,7 @@ module.exports = app => {
 
                     return models.taskTiming
                         .create({
+                            duration: req.body.duration,
                             date: timing,
                             type: '',
                             taskId: req.params.taskId
@@ -331,7 +335,7 @@ module.exports = app => {
         req.body.userId = undefined;
 
         Object.keys(req.body).filter(itemKey => {
-            if ([ 'id', 'userId', 'categories' ].indexOf(itemKey) !== -1) {
+            if ([ 'id', 'userId', 'categories', 'duration' ].indexOf(itemKey) !== -1) {
                 delete req.body[itemKey];
             }
         });

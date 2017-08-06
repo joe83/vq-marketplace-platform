@@ -83,18 +83,37 @@ module.exports = app => {
     });
 
     app.put('/api/request/:requestId', isLoggedIn, (req, res) => {
-        models.request
-            .update({
-                status: String(req.body.status)
-            }, {
-                where: {
-                    id: Number(req.params.requestId),
-                    fromUserId: req.user.id
+        const newStatus = String(req.body.status);
+        const requestId = req.params.requestId;
+
+        async.waterfall([
+            cb => models.request
+                .update({
+                    status: newStatus
+                }, {
+                    where: {
+                        id: Number(req.params.requestId),
+                        fromUserId: req.user.id
+                    }
+                })
+                .then(() => cb(), cb),
+            cb => {
+                if (newStatus !== models.request.REQUEST_STATUS.MARKED_DONE) {
+                    return cb();
                 }
-            })
-            .then(
-                data => sendResponse(res, null, data), 
-                err => sendResponse(res, err)
-            );
+
+                if (newStatus === models.request.REQUEST_STATUS.MARKED_DONE) {
+                       models.order
+                        .update({
+                            status: models.order.ORDER_STATUS.MARKED_DONE
+                        }, {
+                            where: {
+                                requestId: requestId
+                            }
+                        })
+                        .then(() => cb(), cb)
+                }
+            }
+        ], err => sendResponse(res, err));
     });
 };
