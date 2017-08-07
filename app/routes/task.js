@@ -276,11 +276,20 @@ module.exports = app => {
         async.parallel([
             cb => 
                 models.task
-                .findAll({ where: { id: req.params.taskId } })
+                .findAll({
+                    where: {
+                        id: req.params.taskId
+                    },
+                    include: [{
+                        model: models.user
+                    }]
+                })
                 .then(task => task[0] ? cb(null, task[0]) : cb('Not found')),
             cb => 
                 models.taskCategory
-                .findAll({ where: { taskId: req.params.taskId } })
+                .findAll({ where: {
+                    taskId: req.params.taskId
+                }})
                 .then(categories => cb(null, categories), err => cb(err)),
             cb => 
                 models.taskImage
@@ -306,7 +315,18 @@ module.exports = app => {
                         model: models.user
                     }]
                 })
-                .then(timing => cb(null, timing), err => cb(err))
+                .then(timing => cb(null, timing), err => cb(err)),
+            cb => models.request
+                .findAll({
+                    where: {
+                        $and: [
+                            {
+                                taskId: req.params.taskId
+                            }
+                        ]
+                    }
+                })
+                .then(requests => cb(null, requests), err => cb(err))
         ], (err, data) => {
             if (err) {
                 return res.status(400).send(err);
@@ -319,6 +339,7 @@ module.exports = app => {
             task.location = JSON.parse(JSON.stringify(data[3]));
             task.timing = JSON.parse(JSON.stringify(data[4]));
             task.comments = JSON.parse(JSON.stringify(data[5]));
+            task.requests = JSON.parse(JSON.stringify(data[6]));
 
             return res.send(task);
         })

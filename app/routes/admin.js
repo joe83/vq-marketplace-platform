@@ -49,7 +49,7 @@ module.exports = app => {
 		(req, res) => {
 			models.user
             .update({
-                status: 20
+                status: models.user.USER_STATUS.BLOCKED
             }, {
                 where: {
                     id: req.params.userId
@@ -67,7 +67,7 @@ module.exports = app => {
 		(req, res) => {
 			models.user
             .update({
-                status: 10
+                status: models.user.USER_STATUS.VERIFIED
             }, {
                 where: {
                     id: req.params.userId

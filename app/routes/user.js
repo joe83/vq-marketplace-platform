@@ -44,13 +44,29 @@ module.exports = app => {
   });
 
   app.put('/api/user/:userId', isLoggedIn, (req, res) => {
+    const mutableFields = [
+      'firstName',
+      'lastName',
+      'bio',
+      'website',
+      'imageUrl'
+    ];
+    
+    const updateObj = {};
+
+    try {
+      Object
+      .keys(req.body)
+      .filter(_ => mutableFields.indexOf(_) !== -1)
+      .forEach(fieldKey => {
+        updateObj[fieldKey] = req.body[fieldKey];
+      })
+    } catch(err) {
+      return responseController.sendResponse(res, err)
+    }
+
     models.user
-      .update({ 
-          firstName: req.body.firstName,
-          lastName: req.body.lastName,
-          bio: req.body.bio,
-          website: req.body.website
-      }, {
+      .update(updateObj, {
           where: {
               id: req.params.userId
           }

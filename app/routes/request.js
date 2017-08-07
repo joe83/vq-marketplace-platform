@@ -25,18 +25,43 @@ module.exports = app => {
 	app.get("/api/request", isLoggedIn, (req, res) => {
         const userId = req.user.id;
 
+        const where = {
+            $and: [{
+                $or: [
+                    {
+                        fromUserId: userId
+                    }, {
+                        toUserId: userId
+                    }
+                ]
+            }]
+        };
+
+        if (req.query.view === 'in_progress') {
+            where.$and.push({ $or: [
+                { status: models.request.REQUEST_STATUS.ACCEPTED },
+                { status: models.request.REQUEST_STATUS.MARKED_DONE }
+            ]});
+        }
+
+        if (req.query.view === 'pending') {
+            where.$and.push({ 
+                $or: [
+                    { status: models.request.REQUEST_STATUS.PENDING }
+                ]
+            });
+        }
+
+        if (req.query.view === 'completed') {
+            where.$and.push({
+                $or: [
+                    { status: models.request.REQUEST_STATUS.SETTLED }
+                ]
+            });
+        }
+
         models.request
-            .findAll({
-                where: {
-                    $or: [
-                        {
-                            fromUserId: userId
-                        }, {
-                            toUserId: userId
-                        }
-                    ]
-                }
-            })
+            .findAll({ where })
             .then(data => async.forEachLimit(data, 5, (item, cb) => {
                 async.waterfall([
                     cb => models.message.findOne({
@@ -44,7 +69,11 @@ module.exports = app => {
                             requestId: item.id
                         }
                     }).then(msg => {
-                        item.dataValues.lastMsg = msg;
+                        try {
+                            item.dataValues.lastMsg = msg;
+                        } catch (err){
+
+                        }
 
                         cb();
                     }, cb),

@@ -41,12 +41,29 @@ module.exports = app => {
         isLoggedIn,
         (req, res) => {
             const userId = req.user.id;
+            const where = {
+                $and: [
+                    { userId }
+                ]
+            };
+
+            if (req.query.view === 'in_progress') {
+                where.$and.push({ $or: [
+                    { status: models.order.ORDER_STATUS.PENDING },
+                    { status: models.order.ORDER_STATUS.ACCEPTED },
+                    { status: models.order.ORDER_STATUS.MARKED_DONE }
+                ]})
+            }
+
+            if (req.query.view === 'completed') {
+                where.$and.push({ $or: [
+                    { status: models.order.ORDER_STATUS.SETTLED }
+                ]})
+            }
 
             models.order
             .findAll({
-                where: {
-                    userId: userId
-                },
+                where,
                 include: [
                     {
                         model: models.user
