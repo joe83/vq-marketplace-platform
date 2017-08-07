@@ -48,17 +48,22 @@ module.exports = app => {
             };
 
             if (req.query.view === 'in_progress') {
-                where.$and.push({ $or: [
-                    { status: models.order.ORDER_STATUS.PENDING },
-                    { status: models.order.ORDER_STATUS.ACCEPTED },
-                    { status: models.order.ORDER_STATUS.MARKED_DONE }
-                ]})
+                where.$and.push({
+                    $or: [
+                        { status: models.order.ORDER_STATUS.PENDING },
+                        { status: models.order.ORDER_STATUS.MARKED_DONE }
+                    ]
+                });
             }
 
             if (req.query.view === 'completed') {
-                where.$and.push({ $or: [
-                    { status: models.order.ORDER_STATUS.SETTLED }
-                ]})
+                where.$and.push({
+                    $or: [
+                        {
+                            status: models.order.ORDER_STATUS.SETTLED
+                        }
+                    ]
+                });
             }
 
             models.order

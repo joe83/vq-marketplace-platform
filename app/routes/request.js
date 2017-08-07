@@ -7,20 +7,53 @@ const models  = require('../models/models');
 const async = require('async');
 
 module.exports = app => {
-    /*
-        app.get("/api/request", isLoggedIn, (req, res) => {
-            models.request
-                .findAll({ where: {
-                    ownerUserId: req.user.id
-                }})
-                .then(data => {
-                    res.send(data)
+    app.post("/api/request", isLoggedIn, (req, res) => {
+        const message = req.body.message;
+        const taskId = req.body.taskId;
+        const userId = req.user.id;
+        var task = null;
+
+        async.waterfall([
+            cb => models.task
+                .findById(taskId)
+                .then(rTask => {
+                    task = rTask;
+
+                    if (!task) {
+                        return cb({
+                            code: 400
+                        });
+                    }
+
+                    cb();
+                }, cb),
+            cb => models.request
+                .create({
+                    status: models.request.REQUEST_STATUS.PENDING,
+                    taskId: taskId,
+                    fromUserId: userId,
+                    toUserId: task.userId
                 })
-                .catch(err => {
-                    res.status(500).send(err)
-                });
+                .then(request => models.message.create({ 
+                    requestId: request.id,
+                    taskId: taskId,
+                    fromUserId: userId,
+                    toUserId: task.userId,
+                    message
+                }, err => res.status(400).send(err)))
+                .then(rMessage => {
+                    cb(null, rMessage);
+                }, cb)
+            ], (err, rMessage) => {
+            if (err) {
+                return res.status(400).send(err)
+            }
+
+            res.send(rMessage);
+
+            requestEmitter.emit('new-request', taskId, userId, message);
         });
-    */
+    });
 
 	app.get("/api/request", isLoggedIn, (req, res) => {
         const userId = req.user.id;

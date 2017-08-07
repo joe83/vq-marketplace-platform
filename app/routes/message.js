@@ -11,28 +11,6 @@ const models  = require('../models/models');
 module.exports = app => {
    
     /**
-     * Create request and sends message
-     */       
-    app.post("/api/request", isLoggedIn, (req, res) => {
-        models.request
-            .create({
-                status: models.request.REQUEST_STATUS.PENDING,
-                taskId: req.body.taskId,
-                fromUserId: req.user.id,
-                toUserId: req.body.toUserId
-            })
-            .then(request => models.message.create({ 
-                requestId: request.id,
-                taskId: req.body.taskId,
-                fromUserId: req.user.id,
-                toUserId: req.body.toUserId,
-                message: req.body.message
-            }, err => res.status(400).send(err)))
-            .then(message => new Promise(resolve => resolve(res.send(message))), err => res.status(400).send(err))
-            .then(() => requestEmitter.emit('new-request', req.body.taskId, req.user.id, req.body.message))
-    });
-
-    /**
      * Send message
      */
     app.post("/api/request/:requestId/message", isLoggedIn, (req, res) => models.message.create({
