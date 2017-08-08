@@ -7,3 +7,4 @@ apidoc/
 # mac bullshit
 .DS_Store
 npm-debug.log
+.elasticbeanstalk/config.yml
