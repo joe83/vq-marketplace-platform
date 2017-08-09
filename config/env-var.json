@@ -1,8 +1,10 @@
 {
     "port": "PORT",
-    "db": "ST_MONGODB",
+    "db": "ST_DB",
     "viciauth.app_key": "ST_VA_APP_KEY",
     "viciauth.api_key": "ST_VA_API_KEY",
+    "viciauth.host": "ST_VA_HOST",
+    "viciauth.port": "ST_VA_PORT",
     "mangopay.clientId": "ST_MANGOPAY_CLIENT_ID",
     "mangopay.companyName": "ST_MANGOPAY_COMPANY_NAME",
     "mangopay.email": "ST_MANGOPAY_EMAIL",
@@ -14,5 +16,10 @@
     "s3.secretAccessKey": "ST_S3_SECRET_ACCESS_KEY",
     "mandrill": "ST_MANDRILL_API_SECRET",
     "oneSignal.appId" : "ST_ONE_SIGNAL_APP_ID",
-    "oneSignal.token" : "ST_ONE_SIGNAL_TOKEN"
+    "oneSignal.token" : "ST_ONE_SIGNAL_TOKEN",
+    "listly.dbHostName": "LISTLY_DB_HOST_NAME",
+    "listly.dbPort": "LISTLY_DB_PORT",
+    "listly.dbPassword": "LISTLY_DB_PASSWORD",
+    "listly.dbDatabase": "LISTLY_DB_DATABASE",
+    "listly.mandrillSecretKey": "LISTLY_MANDRILL_SECRET_KEY"
 }

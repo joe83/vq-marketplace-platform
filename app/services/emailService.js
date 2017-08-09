@@ -1,8 +1,8 @@
-var randtoken = require('rand-token');
-var stRender = require("st-render");
-var mandrill = require('mandrill-api/mandrill');
+const randtoken = require('rand-token');
+const stRender = require("st-render");
+const mandrill = require('mandrill-api/mandrill');
 const config = require("../config/configProvider.js")();
-var cust = require("../config/customizing.js");
+const cust = require("../config/customizing.js");
 const custProvider = require("../config/custProvider.js");
 var templateDir = __dirname + "/../../email-templates/templates/";
 var layoutPath = __dirname + "/../../email-templates/layout.ejs";

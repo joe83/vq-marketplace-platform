@@ -1,8 +1,9 @@
-var fs        = require("fs");
-var path      = require("path");
-var Sequelize = require("sequelize");
+const fs = require("fs");
+const path = require("path");
+const Sequelize = require("sequelize");
+const config = require("../config/configProvider.js")();
 
-var sequelize = new Sequelize(process.env.ST_ENV.toLowerCase() === 'production' ? process.env.ST_DB : 'mysql://root:kurwa@localhost:3306/vq', {
+var sequelize = new Sequelize(config.db, {
   dialect: 'mysql',
   pool: {
     max: 5,
