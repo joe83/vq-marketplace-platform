@@ -3,8 +3,8 @@ const ViciAuth = require('ViciAuthSDK')({
 	appKey : config['viciauth.app_key'],
 	apiKey : config['viciauth.api_key'],
 }, null, null, {
-	host: process.env.ST_ENV !== 'production' ? 'localhost' : null,
-	port: process.env.ST_ENV !== 'production' ? 5000 : null
+	host: config['viciauth.host'] || 'localhost',
+	port: config['viciauth.port'] || 5000
 });
 
 module.exports = ViciAuth;
