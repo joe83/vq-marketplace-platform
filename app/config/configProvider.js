@@ -1,8 +1,33 @@
 const envVars = require('../../config/env-var.json');
 const env = process.env.ST_ENV ? process.env.ST_ENV.toLowerCase() : 'local';
-const config = require(`../../config/setups/${env}.json`);
 
-console.log(config);
+let config;
+
+if (env === 'production') {
+	// null is replaced by env variables
+	config = {
+		"production": true,
+		"port": null,
+		"db": null,
+		"secret" : null,
+		"viciauth.app_key": null,
+		"viciauth.api_key": null,
+		"viciauth.host": null,
+		"viciauth.port": null,
+		"s3.bucket": null,
+		"s3.region": null,
+		"s3.accessKeyId": null,
+		"s3.secretAccessKey": null,
+		"mandrill": null,
+		"listly.dbHostName": null,
+		"listly.dbPort": null,
+		"listly.dbPassword": null,
+		"listly.dbDatabase": null,
+		"listly.mandrillSecretKey": null
+	}
+} else {
+	config = require(`../../config/setups/${env}.json`);
+}
 
 Object.keys(config)
 .forEach(configKey => {
