@@ -1,7 +1,6 @@
 const envVars = require('../../config/env-var.json');
 const env = process.env.ST_ENV ? process.env.ST_ENV.toLowerCase() : 'local';
-
-let config;
+var config;
 
 if (env === 'production') {
 	// null is replaced by env variables
