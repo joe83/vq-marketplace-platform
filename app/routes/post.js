@@ -13,7 +13,7 @@ module.exports = app => {
 		.findOne({ code: req.params.code })
 		.then(data => res.send(data)));
 
-    app.get("/api/post/:code/id", /* isLoggedIn, isAdmin, */ (req, res) => models.post
+    app.get("/api/post/:postId/id", /* isLoggedIn, isAdmin, */ (req, res) => models.post
 		.findById(req.params.postId)
 		.then(data => res.send(data)));
 
