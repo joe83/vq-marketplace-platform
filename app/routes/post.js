@@ -10,7 +10,11 @@ module.exports = app => {
 		.then(data => res.send(data)));
 
 	app.get("/api/post/:code/code", /* isLoggedIn, isAdmin, */ (req, res) => models.post
-		.findOne({ code: req.params.code })
+		.findOne({ 
+            where: {
+                code: req.params.code
+            }
+        })
 		.then(data => res.send(data)));
 
     app.get("/api/post/:postId/id", /* isLoggedIn, isAdmin, */ (req, res) => models.post
