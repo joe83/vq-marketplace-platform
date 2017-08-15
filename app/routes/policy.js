@@ -4,9 +4,13 @@ const async = require("async");
 const cust = require("../config/customizing.js");
 const models = require("../models/models.js");
 const emailService = require("../services/emailService.js");
+const cryptoService = require("../services/cryptoService");
 const NewsletterService = require("../services/NewsletterService.js");
 const responseController = require("../controllers/responseController.js");
 const vqAuth = require("../config/vqAuthProvider");
+const userEmitter = require("../events/user");
+const CryptoJS = require("crypto-js");
+const config = require("../config/configProvider.js")();
 
 module.exports = app => {
 	var isLoggedIn = responseController.isLoggedIn;
@@ -77,11 +81,122 @@ module.exports = app => {
 
 				responseController
 					.sendResponse(res, err, vqAuthUser);
+
+				const emittedUser = JSON.parse(JSON.stringify(user));
+
+				emittedUser.emails = [ email ];
+				userEmitter.emit('created', emittedUser);
 			});
 		});
 
-	app.post("/api/verify/email", (req, res) => {
+	app.post("/api/verify/resend-email", isLoggedIn, (req, res) => {	
+		var email = req.body.email;
+		var userId = req.body.userId;
+
+		var user;
+		var emails;
+		var vqUserId;
+
+		async.waterfall([
+			cb => {
+				if (userId) {
+					return models.user
+						.findById(userId)
+						.then(rUser => {
+							user = rUser;
+							vqUserId = user.vqUserId;
+						
+							cb();
+						}, cb);
+				}
+
+				vqAuth
+				.getAuthUserIdFromEmail(email, (err, rUserEmail) => {
+					if (err) {
+						return cb(err);
+					}
 		
+					vqUserId = rUserEmail.userId;
+				});
+			}, 
+			cb => {
+				if (email) {
+					return cb();
+				}
+
+				vqAuth
+				.getEmailsFromUserId(vqUserId, (err, rUserEmails) => {
+					if (err) {
+						return cb(err);
+					}
+
+					vqUserId = rUserEmails[0].userId;
+					emails = rUserEmails.map(_ => _.email);
+				
+
+					models.user
+						.findOne({
+							vqUserId: vqUserId
+						})
+						.then(rUser => {
+							user = rUser;
+
+							cb();
+						}, cb);
+				});
+			}], err => {
+				const VERIFICATION_TOKEN = cryptoService.encodeObj({
+					id: userId
+				});
+				
+				const VERIFICATION_LINK = 
+					`${config.serverUrl || 'http://localhost:8080'}/api/verify/email?code=${VERIFICATION_TOKEN}`;
+				
+				return emailService
+					.sendWelcome({
+						emails
+					}, VERIFICATION_LINK);
+			});
+	});
+
+	app.get("/api/verify/email", (req, res) => {
+		var encryptedToken = req.query.code;
+		var user;
+
+		try {
+			encryptedToken = encryptedToken.split(' ').join('+');
+			
+			user = cryptoService.decodeObj(encryptedToken);
+		} catch(err) {
+			return res.status(400).send({
+				err: 'Could not verify'
+			});
+		}
+		
+		models
+		.user
+		.update({
+			status: models.user.USER_STATUS.VERIFIED
+		}, {
+			where: {
+				id: user.id
+			}
+		});
+
+		models
+		.appConfig
+		.findOne({
+			where: {
+				fieldKey: 'DOMAIN'
+			}
+		})
+		.then(configField => {
+			if (configField) {
+				return res.redirect(configField.fieldValue);
+			}
+			
+			return res.redirect('https://vq-labs.com');
+		});
 	});
 	
 	app.post('/api/login', (req, res) => {
@@ -110,8 +225,16 @@ module.exports = app => {
 			.then(rUser => {
 				User.user = rUser ? rUser.dataValues : null;
 
-				if (rUser.status == 20) {
+				if (rUser.status == '20') {
 					return cb(cust.errorCodes.USER_BLOCKED);
+				}
+
+				if (rUser.status !== models.user.USER_STATUS.VERIFIED) {
+					return cb({
+						token: User.token,
+						user: User.user,
+						err: cust.errorCodes.USER_NOT_VERIFIED
+					});
 				}
 
 				return cb();

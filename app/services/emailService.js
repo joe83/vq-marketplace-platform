@@ -1,14 +1,50 @@
 const randtoken = require('rand-token');
 const stRender = require("st-render");
+const ejs = require("ejs");
 const mandrill = require('mandrill-api/mandrill');
 const config = require("../config/configProvider.js")();
 const cust = require("../config/customizing.js");
 const custProvider = require("../config/custProvider.js");
 var templateDir = __dirname + "/../../email-templates/templates/";
 var layoutPath = __dirname + "/../../email-templates/layout.ejs";
+const unescape = require('unescape');
 
 var mandrill_client = new mandrill.Mandrill(config.mandrill);
 var renderer = stRender(templateDir, layoutPath);
+
+const models = require("../models/models.js");
+
+const getEmailBody = code => models.post
+	.findOne({ where: {
+		$and: [
+			{
+				type: 'email',
+			}, {
+				code
+			}
+		]
+	}});
+
+const sendWelcome = (user, VERIFICATION_LINK) => {
+	getEmailBody('welcome')
+	.then(emailBody => {
+		const params = {};
+
+		const compiledEmail = ejs.compile(unescape(emailBody.body))({
+			VERIFICATION_LINK
+		});
+
+		params.subject = emailBody.title;
+
+		return sendEmail(compiledEmail, [
+			user.emails[0]
+		], params, (err, res) => {
+			if (err) {
+				console.error(err);
+			}
+		});
+	});
+};
 
 function notifyAdminAboutNewUser (emails, user) {
 	custProvider.getConfig().then(config => {
@@ -129,52 +165,58 @@ function sendNewRelevantTaskInfo (emails, Task) {
 }
 
 
-var getMessagePrototype = function() {
-	return {
-		"from_email": "noreply@studentask.de",
-		"from_name": "TalentWand",
-		"to": [ ],
-		"headers": {
-			"Reply-To": "support@studentask.de"
-		},
-		"important": false,
-		"global_merge_vars": [],
-		"metadata": {
-			"website": "www.talentwand.de"
-		},
-		"recipient_metadata": [{}],
-	};
-};
+const getMessagePrototype = () => new Promise((resolve, reject) => {
+	models
+		.appConfig
+		.findAll()
+		.then(config => {
+			return resolve({
+				"from_email": "noreply@vq-labs.com",
+				"from_name": config.NAME || "VQ LABS",
+				"to": [ ],
+				"headers": {
+					"Reply-To": config.SUPPORT_EMAIL
+				},
+				"important": false,
+				"global_merge_vars": [],
+				"metadata": {
+					"website": config.DOMAIN
+				},
+				"recipient_metadata": [{}],
+			});
+		}, reject);
+});
 
 function sendEmail (html, tEmails, params, callback) {
-	const message = getMessagePrototype();
-
-	message.subject = params.subject;
-	message.html = html;
-	message.text = html;
-	message.to = tEmails.map(email => { 
-		return { email, type: "to" };
+	getMessagePrototype()
+	.then(message => {
+		message.subject = params.subject;
+		message.html = html;
+		message.text = html;
+		message.to = tEmails.map(email => { 
+			return { email, type: "to" };
+		});
+	
+		var lAsync = false;
+		var ip_pool = "Main Pool";
+	
+		mandrill_client.messages
+		.send({ 
+			"message": message,
+			"async": lAsync,
+			"ip_pool": ip_pool
+		}, result => {
+			console.log(result);
+	
+			if (callback) {
+				callback(null, result);
+			}
+		}, e => {
+			console.log('A mandrill error occurred: ' + e.name + ' - ' + e.message);
+	
+			return callback(e);
+		});	
 	});
-
-	var lAsync = false;
-	var ip_pool = "Main Pool";
-
-	mandrill_client.messages
-	.send({ 
-		"message": message,
-		"async": lAsync,
-		"ip_pool": ip_pool
-	}, result => {
-		console.log(result);
-
-		if (callback) {
-			callback(null, result);
-		}
-	}, e => {
-		console.log('A mandrill error occurred: ' + e.name + ' - ' + e.message);
-
-		return callback(e);
-	});	
 }
 
 function sendFromTemplate(templateName, message, callback) {
@@ -362,24 +404,7 @@ var sendEmailTemplate = function(tmpl, email){
 	});
 };
 
-const sendWelcome = User => {
-	const params = {};
-	const emailHTML = renderer("welcome", {
-		user: User
-	});
 
-	params.subject = "Welcome";
-
-	if (User.profile.firstName) {
-		params.subject += ` ${User.profile.firstName}`;
-	}
-
-	return sendEmail(emailHTML, [ User.emails[0].address ], params, (err, res) => {
-		if (err) {
-			console.error(err);
-		}	
-	});
-};
 
 const sendNewTaskInternal = function() {
 

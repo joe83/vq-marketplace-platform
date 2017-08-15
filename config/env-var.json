@@ -1,6 +1,8 @@
 {
     "port": "PORT",
     "db": "ST_DB",
+    "secret": "VQ_SECRET",
+    "serverUrl": "SERVER_URL",
     "viciauth.app_key": "ST_VA_APP_KEY",
     "viciauth.api_key": "ST_VA_API_KEY",
     "viciauth.host": "ST_VA_HOST",

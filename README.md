@@ -54,6 +54,11 @@ npm run start:local
 ## Deployment
 @todo
 
+## Configuration
+
+***NAME***<br>
+Name of the marketplace - Will appear as a sender of the emails.
+
 ## API Endpoints
 @todo
 

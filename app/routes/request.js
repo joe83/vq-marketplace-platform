@@ -51,7 +51,7 @@ module.exports = app => {
 
             res.send(rMessage);
 
-            requestEmitter.emit('new-request', taskId, userId, message);
+            // requestEmitter.emit('new-request', taskId, userId, message);
         });
     });
 

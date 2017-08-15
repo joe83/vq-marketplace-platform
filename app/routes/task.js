@@ -2,6 +2,7 @@ const async = require('async');
 const sendResponse = require("../controllers/responseController.js").sendResponse;
 const identifyUser = require("../controllers/responseController.js").identifyUser;
 const isLoggedIn = require("../controllers/responseController.js").isLoggedIn;
+const isLoggedInAndVerified = require("../controllers/responseController.js").isLoggedInAndVerified;
 const cust = require("../config/customizing.js");
 const models  = require('../models/models');
 
@@ -131,7 +132,7 @@ module.exports = app => {
             });
 
     app.post('/api/task',
-        isLoggedIn,
+        isLoggedInAndVerified,
         (req, res) => {
             models.task
                 .create({

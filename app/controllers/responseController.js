@@ -20,7 +20,7 @@ function isAuth(req) {
 	}
 }
 
-function parseUserFactory (loginRequired, adminRequired) {
+function parseUserFactory (loginRequired, adminRequired, requiredStatus) {
 	return (req, res, next) => new Promise((resolve, reject) => {
 			const authToken = req.headers['x-auth-token'];
 
@@ -52,11 +52,18 @@ function parseUserFactory (loginRequired, adminRequired) {
 							return reject(cust.errorCodes.NOT_AUTHENTIFICATIED.httpCode);
 						}
 
-						if (user.status == 20) {
+						if (user.status == '20') {
 							res.status(cust.errorCodes.USER_BLOCKED.httpCode)
 							.send(cust.errorCodes.USER_BLOCKED);
 					
 							return reject(cust.errorCodes.USER_BLOCKED.httpCode);
+						}
+
+						if (requiredStatus && user.status !== requiredStatus) {
+							res.status(cust.errorCodes.NO_RIGHTS.httpCode)
+							.send(cust.errorCodes.NO_RIGHTS);
+					
+							return reject(cust.errorCodes.NO_RIGHTS.httpCode);
 						}
 
 						req.user = user.dataValues;
@@ -91,13 +98,15 @@ function parseUserFactory (loginRequired, adminRequired) {
 }
 
 const isLoggedIn = parseUserFactory(true, false);
+const isLoggedInAndVerified = parseUserFactory(true, false, '10');
 const isAdmin = parseUserFactory(true, true);
 const identifyUser = parseUserFactory(false, false);
 
 module.exports = {
-	isAdmin: isAdmin,
-	isLoggedIn: isLoggedIn,
-	identifyUser : identifyUser,
+	isAdmin,
+	isLoggedIn,
+	isLoggedInAndVerified,
+	identifyUser,
 	sendResponse: (res, err, data) => {
 		if (err) {
 			console.error(err);

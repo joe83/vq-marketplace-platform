@@ -1,3 +1,4 @@
+const randomstring = require('randomstring');
 const envVars = require('../../config/env-var.json');
 const env = process.env.ST_ENV ? process.env.ST_ENV.toLowerCase() : 'local';
 var config;
@@ -76,6 +77,11 @@ Object.keys(config)
 			}
 	}
 });
+
+// this will work only with one instance, but we use always 1 instance for testing
+if (!config.secret) {
+	config.secret = randomstring.generate(64);
+}
 
 config.requireEmailVerification = config.production === true || config.production === "true";
 

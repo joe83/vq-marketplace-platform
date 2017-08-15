@@ -1,4 +1,9 @@
 var errorCodes = {
+	NO_RIGHTS: {
+		httpCode: 401,
+		code: "NO_RIGHTS",
+		desc: "User has not rights."
+	},					
 	BAD_REQUEST: {
 		httpCode: 400,
 		code: "BAD_REQUEST",
@@ -39,6 +44,12 @@ var errorCodes = {
 		codeNo: 4012,
 		code: "BLOCKED",
 		desc: "Tried to access with blocked account."
+	},
+	USER_NOT_VERIFIED: {
+		httpCode: 401,
+		codeNo: 4011,
+		code: "USER_NOT_VERIFIED",
+		desc: "You need to verify your email."
 	},
 	NOT_AUTHENTIFICATIED: {
 		httpCode: 401,
