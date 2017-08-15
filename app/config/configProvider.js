@@ -10,6 +10,7 @@ if (env === 'production') {
 		"port": null,
 		"db": null,
 		"secret" : null,
+		"serverUrl" : null,
 		"viciauth.app_key": null,
 		"viciauth.api_key": null,
 		"viciauth.host": null,
