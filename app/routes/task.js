@@ -83,7 +83,7 @@ module.exports = app => {
 
                 if (req.query.status) {
                     query.where.$and.push({
-                        status: req.query.status
+                        status: String(req.query.status)
                     });
                 }
                 
@@ -95,7 +95,7 @@ module.exports = app => {
 
                 if (req.query.taskType) {
                     query.where.$and.push({
-                        status: req.query.taskType
+                        taskType: req.query.taskType
                     });
                 }
             }
