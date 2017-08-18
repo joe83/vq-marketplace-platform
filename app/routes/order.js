@@ -14,6 +14,7 @@ module.exports = app => {
             var createdOrder = null;
 
             order.userId = req.user.id;
+            order.status = models.order.ORDER_STATUS.PENDING;
 
             async.waterfall([
                 cb => models.order
@@ -29,6 +30,15 @@ module.exports = app => {
                     }, {
                         where: {
                             id: order.requestId
+                        }
+                    })
+                    .then(() => cb(), cb),
+                cb => models.task
+                    .update({
+                        status: models.task.TASK_STATUS.BOOKED
+                    }, {
+                        where: {
+                            id: order.taskId
                         }
                     })
                     .then(() => cb(), cb)

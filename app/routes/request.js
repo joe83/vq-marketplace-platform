@@ -2,12 +2,13 @@ const resCtrl = require("../controllers/responseController.js");
 const cust = require("../config/customizing.js");
 const isLoggedIn = resCtrl.isLoggedIn;
 const sendResponse = resCtrl.sendResponse;
+const isLoggedInAndVerified = resCtrl.isLoggedInAndVerified;
 const isAdmin = resCtrl.isAdmin;
 const models  = require('../models/models');
 const async = require('async');
 
 module.exports = app => {
-    app.post("/api/request", isLoggedIn, (req, res) => {
+    app.post("/api/request", isLoggedIn, isLoggedInAndVerified, (req, res) => {
         const message = req.body.message;
         const taskId = req.body.taskId;
         const userId = req.user.id;

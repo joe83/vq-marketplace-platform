@@ -59,31 +59,6 @@ const getTaskAdditionalInfo = taskId => new Promise((resolve, reject) => async.p
 }));
 
 module.exports = app => {
-    /**
- * @api {get} /user/:id Request User information
- * @apiName GetUser
- * @apiGroup User
- *
- * @apiParam {Number} id Users unique ID.
- *
- * @apiSuccess {String} firstname Firstname of the User.
- * @apiSuccess {String} lastname  Lastname of the User.
- *
- * @apiSuccessExample Success-Response:
- *     HTTP/1.1 200 OK
- *     {
- *       "firstname": "John",
- *       "lastname": "Doe"
- *     }
- *
- * @apiError UserNotFound The id of the User was not found.
- *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 404 Not Found
- *     {
- *       "error": "UserNotFound"
- *     }
- */
 	app.get('/api/task', 
         identifyUser, 
         (req, res) => {
@@ -93,15 +68,36 @@ module.exports = app => {
                 query.include = [
                     { 
                         model: models.taskCategory,
-                        where: { code: req.query.category }
+                        where: {
+                            code: req.query.category
+                        }
                     }
                 ];
+
+                delete req.query.category;
             }
 
             if (req.query) {
-                delete req.query.category;
+                query.where = {};
+                query.where.$and = [];
 
-                query.where = req.query;
+                if (req.query.status) {
+                    query.where.$and.push({
+                        status: req.query.status
+                    });
+                }
+                
+                if (req.query.userId) {
+                    query.where.$and.push({
+                        userId: req.query.userId
+                    });
+                }
+
+                if (req.query.taskType) {
+                    query.where.$and.push({
+                        status: req.query.taskType
+                    });
+                }
             }
 
             return models.task
@@ -136,6 +132,7 @@ module.exports = app => {
         (req, res) => {
             models.task
                 .create({
+                    status: models.task.TASK_STATUS.CREATION_IN_PROGRESS,
                     taskType: 1,
                     userId: req.user.id
                 })
@@ -356,11 +353,16 @@ module.exports = app => {
         req.body.id = undefined;
         req.body.userId = undefined;
 
-        Object.keys(req.body).filter(itemKey => {
+        Object.keys(req.body)
+        .filter(itemKey => {
             if ([ 'id', 'userId', 'categories', 'duration' ].indexOf(itemKey) !== -1) {
                 delete req.body[itemKey];
             }
         });
+
+        const updatedFields = req.body;
+
+        updatedFields.status = String(updatedFields.status);
 
         isMyTask(taskId, userId)
         .then(() => models.task.update(req.body, {

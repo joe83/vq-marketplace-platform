@@ -1,8 +1,9 @@
 module.exports = (sequelize, DataTypes) => {
   const TASK_STATUS = {
-    ACTIVE: 0,
-    INACTIVE: 103,
-    CREATION_IN_PROGRESS: 10
+    ACTIVE: '0',
+    INACTIVE: '103',
+    CREATION_IN_PROGRESS: '10',
+    BOOKED: '20'
   };
 
   const PRICE_TYPE = {
@@ -28,7 +29,13 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(2048) 
     },
     status: {
-      type: DataTypes.INTEGER, defaultValue: TASK_STATUS.CREATION_IN_PROGRESS
+      type: DataTypes.ENUM(
+        TASK_STATUS.ACTIVE,
+        TASK_STATUS.INACTIVE,
+        TASK_STATUS.CREATION_IN_PROGRESS,
+        TASK_STATUS.BOOKED
+      ),
+      defaultValue: TASK_STATUS.CREATION_IN_PROGRESS
     }
   }, {
     tableName: 'task',
@@ -44,6 +51,8 @@ module.exports = (sequelize, DataTypes) => {
         }
     }
   });
+
+  Task.TASK_STATUS = TASK_STATUS;
 
   return Task;
 };
