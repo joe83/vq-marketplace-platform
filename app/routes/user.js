@@ -30,7 +30,7 @@ module.exports = app => {
     );
   });
 
-  app.get('/api/user/:userId/:propType', (req, res) => {
+  app.get('/api/user/:userId/props/:propType', (req, res) => {
     models.userProperty.findAll({
       where: { 
           userId: req.params.userId,

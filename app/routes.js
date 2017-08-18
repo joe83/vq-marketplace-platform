@@ -164,5 +164,6 @@ module.exports = app => {
 	require('./routes/request.js')(app);
 	require('./routes/billing_address.js')(app);
 	require('./routes/order.js')(app);
+	require('./routes/review.js')(app);
 };
 

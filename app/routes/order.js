@@ -47,6 +47,41 @@ module.exports = app => {
             })
         });
 
+    app.get(`/api/${RESOURCE}/:${RESOURCE}Id`,
+        isLoggedIn,
+        (req, res) => {
+            const orderId = req.params.orderId;
+            const userId = req.user.id;
+            const where = {
+                $and: [
+                    { userId },
+                    { id: orderId  }
+                ]
+            };
+
+            models.order
+            .findOne({
+                where,
+                include: [
+                    {
+                        model: models.user
+                    },
+                    {
+                        model: models.request,
+                    },
+                    {
+                        model: models.task
+                    },
+                    {
+                        model: models.review
+                    }
+                ]
+            })
+            .then(order => {
+                return sendResponse(res, null, order);
+            }, err => sendResponse(res, err));
+        });
+
     app.get(`/api/${RESOURCE}`,
         isLoggedIn,
         (req, res) => {
@@ -88,11 +123,15 @@ module.exports = app => {
                     },
                     {
                         model: models.task
+                    },
+                    {
+                        model: models.review
                     }
                 ]
             })
             .then(orders => {
-                orders = orders.filter(order => order.request);
+                orders = orders
+                    .filter(order => order.request);
                 
                 async.eachLimit(orders, 3, (order, cb) => {
                     const fromUserId = order.request.fromUserId;

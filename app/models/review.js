@@ -1,10 +1,10 @@
 module.exports = (sequelize, DataTypes) => {
   const Review = sequelize.define("review", {
       body: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(2048),
       },
       rate: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.ENUM('0', '1', '2', '3', '4', '5'),
       }
   }, {
       tableName: 'review',

@@ -32,6 +32,7 @@ module.exports = (sequelize, DataTypes) => {
           Order.belongsTo(models.task)
           Order.belongsTo(models.request);
           Order.belongsTo(models.billingAddress);
+          Order.hasOne(models.review);
         }
       }
   });

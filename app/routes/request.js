@@ -88,21 +88,29 @@ module.exports = app => {
 
         if (req.query.view === 'completed') {
             where.$and.push({
-                $or: [
-                    { status: models.request.REQUEST_STATUS.SETTLED }
-                ]
+                $or: [{
+                    status: models.request.REQUEST_STATUS.SETTLED
+                }]
             });
         }
 
         models.request
-            .findAll({ where })
-            .then(data => async.forEachLimit(data, 5, (item, cb) => {
+            .findAll({
+                where,
+                include: [
+                    { model: models.review }
+                ]
+            })
+            .then(data => async
+                .forEachLimit(data, 5, (item, cb) => {
                 async.waterfall([
-                    cb => models.message.findOne({
+                    cb => models.message
+                    .findOne({
                         where: {
                             requestId: item.id
                         }
-                    }).then(msg => {
+                    })
+                    .then(msg => {
                         try {
                             item.dataValues.lastMsg = msg;
                         } catch (err){
