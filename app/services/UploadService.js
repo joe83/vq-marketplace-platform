@@ -22,11 +22,7 @@ module.exports = (account, bucket) => {
             });
     });
   
-    return {
-        uploadToBucket: uploadToBucket
-    };
-
-    function uploadToBucket (rawBuffer, namespace, fileFormat, width, height, callback) {
+    const uploadToBucket = (rawBuffer, namespace, fileFormat, width, height, callback) => {
         convertPicture(rawBuffer, fileFormat, width, height)
             .then(buffer => {
                     const key = `${namespace}/${randomToken(32)}.jpeg`;
@@ -38,8 +34,16 @@ module.exports = (account, bucket) => {
                     };
 
                     s3.upload(params, (err, pres) => {
-                        return callback(err, pres.Location);
+                        if (err) {
+                            return callback(err);
+                        }
+
+                        return callback(null, pres.Location);
                     });
             });
-    }
+    };
+
+    return {
+        uploadToBucket
+    };
 };

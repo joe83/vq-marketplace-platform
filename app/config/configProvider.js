@@ -27,7 +27,27 @@ if (env === 'production') {
 		"listly.mandrillSecretKey": null
 	}
 } else {
-	config = require(`../../config/setups/${env}.json`);
+	config = {
+		"production": false,
+		"port": 8080,
+		"db": 'mysql://root:kurwa@localhost:3306/vq',
+		"secret" : 'test',
+		"serverUrl" : 'http://localhost:8080',
+		"viciauth.app_key": 'test',
+		"viciauth.api_key": 'test',
+		"viciauth.host": 'localhost',
+		"viciauth.port": 5000,
+		"s3.bucket": null,
+		"s3.region": 'eu-central-1',
+		"s3.accessKeyId": null,
+		"s3.secretAccessKey": null,
+		"mandrill": null,
+		"listly.dbHostName": 'test',
+		"listly.dbPort": 'test',
+		"listly.dbPassword": 'test',
+		"listly.dbDatabase": 'test',
+		"listly.mandrillSecretKey": 'test'
+	};
 }
 
 Object.keys(config)
