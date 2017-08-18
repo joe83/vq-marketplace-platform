@@ -16,7 +16,7 @@ if (env === 'production') {
 		"viciauth.host": null,
 		"viciauth.port": null,
 		"s3.bucket": null,
-		"s3.region": null,
+		"s3.region": 'eu-central-1',
 		"s3.accessKeyId": null,
 		"s3.secretAccessKey": null,
 		"mandrill": null,

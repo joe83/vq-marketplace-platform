@@ -2,7 +2,7 @@ const randomToken = require('random-token');
 const sharp = require('sharp');
 const s3 = require("../config/bucket.js");
 
-module.exports = (account, bucket) => {
+module.exports = bucket => {
     const convertPicture = (buffer, fileFormat, width, height) => new Promise((resolve, reject) => {
         sharp(buffer)
             .resize(width, height, {

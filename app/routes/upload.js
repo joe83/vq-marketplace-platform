@@ -4,7 +4,7 @@ var UploadService = require("../services/UploadService");
 var responseController = require("../controllers/responseController");
 var isLoggedIn = responseController.isLoggedIn;
 
-var uploader = UploadService('viciqloud', 'egamix');
+var uploader = UploadService('egamix');
 
 module.exports = app => {
     app.post('/api/upload/image', isLoggedIn, multer().single('file'), (req, res) => {
