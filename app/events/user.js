@@ -13,12 +13,13 @@ const config = require("../config/configProvider.js")();
 
 module.exports = userEmitter;
 
-userEmitter.on('created', user => {
-    // the default value for private key sucks...
-    const VERIFICATION_TOKEN = cryptoService.encodeObj(user);
+    userEmitter
+    .on('created', user => {
+        // the default value for private key sucks...
+        const VERIFICATION_TOKEN = cryptoService.encodeObj(user);
 
-    const VERIFICATION_LINK = 
-        `${process.env.SERVER_URL || 'http://localhost:8080'}/api/verify/email?code=${VERIFICATION_TOKEN}`;
+        const VERIFICATION_LINK = 
+            `${process.env.SERVER_URL || 'http://localhost:8080'}/api/verify/email?code=${VERIFICATION_TOKEN}`;
 
-    return emailService.sendWelcome(user, VERIFICATION_LINK);
-});
+        return emailService.sendWelcome(user, VERIFICATION_LINK);
+    });

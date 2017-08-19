@@ -29,6 +29,7 @@ module.exports = (sequelize, DataTypes) => {
       classMethods: {
         associate: models => {
           Request.belongsTo(models.user, { as: 'fromUser', constraints: true });
+          Request.belongsTo(models.user, { as: 'toUser', constraints: true });
           Request.hasOne(models.review);
           Request.hasOne(models.order);
         }

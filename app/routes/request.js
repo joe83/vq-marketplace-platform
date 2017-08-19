@@ -1,3 +1,4 @@
+const async = require('async');
 const resCtrl = require("../controllers/responseController.js");
 const cust = require("../config/customizing.js");
 const isLoggedIn = resCtrl.isLoggedIn;
@@ -5,20 +6,22 @@ const sendResponse = resCtrl.sendResponse;
 const isLoggedInAndVerified = resCtrl.isLoggedInAndVerified;
 const isAdmin = resCtrl.isAdmin;
 const models  = require('../models/models');
-const async = require('async');
+const requestEmitter = require("../events/request");
+const emailService = require("../services/emailService");
 
 module.exports = app => {
     app.post("/api/request", isLoggedIn, isLoggedInAndVerified, (req, res) => {
         const message = req.body.message;
         const taskId = req.body.taskId;
-        const userId = req.user.id;
-        var task = null;
+        const fromUserId = req.user.id;
+        var task, toUserId, request;
 
         async.waterfall([
             cb => models.task
                 .findById(taskId)
                 .then(rTask => {
                     task = rTask;
+                    toUserId = rTask.userId;
 
                     if (!task) {
                         return cb({
@@ -31,30 +34,34 @@ module.exports = app => {
             cb => models.request
                 .create({
                     status: models.request.REQUEST_STATUS.PENDING,
-                    taskId: taskId,
-                    fromUserId: userId,
-                    toUserId: task.userId
+                    taskId,
+                    fromUserId,
+                    toUserId
                 })
-                .then(request => models.message.create({ 
-                    requestId: request.id,
-                    taskId: taskId,
-                    fromUserId: userId,
-                    toUserId: task.userId,
-                    message
-                }, err => res.status(400).send(err)))
-                .then(rMessage => {
-                    cb(null, rMessage);
-                }, cb)
+                .then(rRequest => {
+                    request = rRequest;
+
+                    models.message.create({
+                        requestId: request.id,
+                        taskId,
+                        fromUserId,
+                        toUserId,
+                        message
+                    })
+                    .then(rMessage => {
+                        cb(null, rMessage);
+                    }, cb)
+                })
             ], (err, rMessage) => {
-            if (err) {
-                return res.status(400).send(err)
-            }
+                if (err) {
+                    return res.status(400).send(err)
+                }
 
-            res.send(rMessage);
+                res.send(rMessage);
 
-            // requestEmitter.emit('new-request', taskId, userId, message);
+                requestEmitter.emit('new-request', request.id);
+            });
         });
-    });
 
 	app.get("/api/request", isLoggedIn, (req, res) => {
         const userId = req.user.id;
