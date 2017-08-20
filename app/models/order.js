@@ -28,8 +28,8 @@ module.exports = (sequelize, DataTypes) => {
       tableName: 'order',
       classMethods: {
         associate: models => {
-          Order.belongsTo(models.user)
-          Order.belongsTo(models.task)
+          Order.belongsTo(models.user);
+          Order.belongsTo(models.task);
           Order.belongsTo(models.request);
           Order.belongsTo(models.billingAddress);
           Order.hasOne(models.review);

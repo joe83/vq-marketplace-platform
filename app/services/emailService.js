@@ -31,6 +31,10 @@ const getEmailAndSend = (emailCode, email, ACTION_URL) => getEmailBody(emailCode
 		const params = {};
 		var compiledEmail;
 
+		if (!emailBody) {
+			return console.error(`Email template "emailCode" has not been found`);
+		}
+
 		try {
 			compiledEmail = ejs.compile(unescape(emailBody.body))({
 				ACTION_URL

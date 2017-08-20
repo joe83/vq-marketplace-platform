@@ -7,7 +7,7 @@ const isLoggedInAndVerified = resCtrl.isLoggedInAndVerified;
 const isAdmin = resCtrl.isAdmin;
 const models  = require('../models/models');
 const requestEmitter = require("../events/request");
-const emailService = require("../services/emailService");
+const orderEmitter = require("../events/order");
 
 module.exports = app => {
     app.post("/api/request", isLoggedIn, isLoggedInAndVerified, (req, res) => {
@@ -162,7 +162,9 @@ module.exports = app => {
 
     app.put('/api/request/:requestId', isLoggedIn, (req, res) => {
         const newStatus = String(req.body.status);
+        const userId = req.user.id;
         const requestId = req.params.requestId;
+        let request;
 
         async.waterfall([
             cb => models.request
@@ -171,10 +173,14 @@ module.exports = app => {
                 }, {
                     where: {
                         id: Number(req.params.requestId),
-                        fromUserId: req.user.id
+                        fromUserId: userId
                     }
                 })
-                .then(() => cb(), cb),
+                .then(rRequest => {
+                    request = rRequest;
+
+                    cb();
+                }, cb),
             cb => {
                 if (newStatus !== models.request.REQUEST_STATUS.MARKED_DONE) {
                     return cb();
@@ -192,6 +198,16 @@ module.exports = app => {
                         .then(() => cb(), cb)
                 }
             }
-        ], err => sendResponse(res, err));
+        ], err => {
+            sendResponse(res, err);
+
+            if (newStatus === models.request.REQUEST_STATUS.MARKED_DONE) {
+                requestEmitter
+                    .emit('request-marked-as-done', requestId);
+
+                orderEmitter
+                    .emit('order-marked-as-done', request.orderId)
+            }
+        });
     });
 };

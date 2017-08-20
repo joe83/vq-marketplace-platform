@@ -12,9 +12,105 @@ class DefaultEmitter extends EventEmitter {}
 
 const requestEmitter = new DefaultEmitter();
 
-requestEmitter.on('new-request-message', (fromUserId, toUserId, taskId, message) => {
-	// EmailService.sendNewChatMessageReceived(results);
-});
+const getRequestOwnerEmails = (requestId, cb) => {
+    let emails, request;
+
+    return async.waterfall([
+        cb => models
+            .request
+            .findOne({
+                where: {
+                    id: requestId
+                },
+                include: [
+                    { model: models.user, as: 'fromUser' }
+                ]
+            })
+            .then(rRequest => {
+                request = rRequest;
+
+                return cb();
+            }, cb),
+        cb => vqAuth
+            .getEmailsFromUserId(request.fromUser.vqUserId, (err, rUserEmails) => {
+                if (err) {
+                    return cb(err);
+                }
+
+                emails = rUserEmails
+                    .map(_ => _.email);
+
+                cb();
+            })
+        ], err => {
+            cb(err, {
+                request,
+                emails
+            });
+        });
+};
+
+const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
+	return requestId => {
+		var user, request;
+		var emails;
+		var ACTION_URL;
+
+		async.waterfall([
+			cb => getRequestOwnerEmails(requestId, (err, data) => {
+                if (err) {
+                    return cb(err);
+                }
+
+                emails = data.emails;
+                request = data.order;
+
+				return cb();
+            }),
+			cb => models
+				.appConfig
+				.findOne({
+					where: {
+						fieldKey: 'DOMAIN'
+					}
+				})
+				.then(configField => {
+					configField = configField || {};
+					
+					const domain = configField.fieldValue || 'http://localhost:3000';
+
+					ACTION_URL = 
+						actionUrlFn(domain, requestId);
+
+					cb();
+				}, cb)
+		], err => {
+			if (err) {
+				return console.error(err);
+			}
+
+			if (emails) {
+				EmailService
+					.getEmailAndSend(emailCode, emails[0], ACTION_URL);
+			}
+		});
+	};
+};
+
+requestEmitter
+	.on('new-request-message', (fromUserId, toUserId, taskId, message) => {
+		// EmailService.sendNewChatMessageReceived(results);
+	});
+
+requestEmitter
+	.on('request-accepted', 
+		requestEventHandlerFactory('request-accepted', (domain, requestId) => `${domain}/app/chat/${requestId}`)
+	);
+
+requestEmitter
+	.on('request-completed', 
+		requestEventHandlerFactory('request-completed', (domain, requestId) => `${domain}/app/chat/${requestId}`)
+	);
 
 requestEmitter
 	.on('new-request', requestId => {

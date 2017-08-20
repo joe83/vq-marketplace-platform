@@ -1,3 +1,4 @@
+const async = require('async');
 const resCtrl = require("../controllers/responseController.js");
 const cust = require("../config/customizing.js");
 const isLoggedIn = resCtrl.isLoggedIn;
@@ -5,7 +6,7 @@ const sendResponse = resCtrl.sendResponse;
 const isLoggedInAndVerified = resCtrl.isLoggedInAndVerified;
 const isAdmin = resCtrl.isAdmin;
 const models  = require('../models/models');
-const async = require('async');
+const reviewEmitter = require("../events/review");
 
 const RESOURCE = 'review';
 
@@ -189,7 +190,9 @@ module.exports = app => {
                     .send(err)
                 }
 
-                return res.send(rReview);
+                res.send(rReview);
+
+                reviewEmitter.emit('review-left', rReview.id);
             });
     });
 
