@@ -159,6 +159,7 @@ module.exports = app => {
 	require('./routes/message.js')(app);
 	require('./routes/policy.js')(app);
 	require('./routes/user.js')(app);
+	require('./routes/user-preference.js')(app);
 	require('./routes/upload.js')(app);
 	require('./routes/task.js')(app);
 	require('./routes/request.js')(app);

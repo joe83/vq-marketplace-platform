@@ -6,7 +6,11 @@ const isAdmin = responseController.isAdmin;
 module.exports = app => {
     app.get("/api/app_task_categories", (req, res) =>
         models.appTaskCategory
-        .findAll({ order: [ 'code' ] })
+        .findAll({
+            order: [
+                'label'
+            ]
+        })
         .then(data => res.status(200).send(data))
         .catch(err => res.status(400).send(err))
     );
