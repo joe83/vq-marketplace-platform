@@ -3,6 +3,8 @@ const responseController = require("../controllers/responseController");
 const models = require('../models/models');
 const isLoggedIn = responseController.isLoggedIn;
 const sendResponse = responseController.sendResponse;
+const orderEmitter = require("../events/order");
+const requestEmitter = require("../events/request");
 
 const RESOURCE = 'order';
 
@@ -11,9 +13,10 @@ module.exports = app => {
         isLoggedIn,
         (req, res) => {
             const order = req.body;
-            var createdOrder = null;
+            var createdOrder;
 
             order.userId = req.user.id;
+            order.status = models.order.ORDER_STATUS.PENDING;
 
             async.waterfall([
                 cb => models.order
@@ -31,10 +34,64 @@ module.exports = app => {
                             id: order.requestId
                         }
                     })
+                    .then(() => cb(), cb),
+                cb => models.task
+                    .update({
+                        status: models.task.TASK_STATUS.BOOKED
+                    }, {
+                        where: {
+                            id: order.taskId
+                        }
+                    })
                     .then(() => cb(), cb)
             ], err => {
-                sendResponse(res, err, createdOrder);
+                if (err) {
+                    return sendResponse(res, err);
+                }
+
+                sendResponse(res, null, createdOrder);
+
+                orderEmitter
+                    .emit('new-order', createdOrder.id);
+
+                requestEmitter
+                    .emit('request-accepted', createdOrder.requestId);
             })
+        });
+
+    app.get(`/api/${RESOURCE}/:${RESOURCE}Id`,
+        isLoggedIn,
+        (req, res) => {
+            const orderId = req.params.orderId;
+            const userId = req.user.id;
+            const where = {
+                $and: [
+                    { userId },
+                    { id: orderId  }
+                ]
+            };
+
+            models.order
+            .findOne({
+                where,
+                include: [
+                    {
+                        model: models.user
+                    },
+                    {
+                        model: models.request,
+                    },
+                    {
+                        model: models.task
+                    },
+                    {
+                        model: models.review
+                    }
+                ]
+            })
+            .then(order => {
+                return sendResponse(res, null, order);
+            }, err => sendResponse(res, err));
         });
 
     app.get(`/api/${RESOURCE}`,
@@ -78,11 +135,15 @@ module.exports = app => {
                     },
                     {
                         model: models.task
+                    },
+                    {
+                        model: models.review
                     }
                 ]
             })
             .then(orders => {
-                orders = orders.filter(order => order.request);
+                orders = orders
+                    .filter(order => order.request);
                 
                 async.eachLimit(orders, 3, (order, cb) => {
                     const fromUserId = order.request.fromUserId;
@@ -115,24 +176,27 @@ module.exports = app => {
      */
     app.put('/api/order/:orderId',
         isLoggedIn,
-        (req, res) =>
+        (req, res) => {
+        var orderId = req.params.orderId;
+        var requestId;
+        var order;
+
         async.waterfall([
             cb => models.order
                 .update({
                     status: models.order.ORDER_STATUS.SETTLED
                 }, {
                     where: {
-                        id: req.params.orderId
+                        id: orderId
                     }
                 })
-                .then(order => {
-                    models.order
-                    .findById(req.params.orderId)
-                    .then(order => {
-                        cb(null, order.requestId)
-                    }, cb);
+                .then(rOrder => {
+                    order = rOrder;
+                    requestId = order.requestId;
+
+                    cb();
                 }, cb),
-            (requestId, cb) => {
+            cb => {
                 models.request
                 .update({
                     status: models.request.REQUEST_STATUS.SETTLED
@@ -144,7 +208,17 @@ module.exports = app => {
                 .then(() => cb(), cb)
             }
         ], err => {
-            responseController.sendResponse(res, err)
-        })
-    );
+            if (err) {
+                return responseController.sendResponse(res, err);
+            }
+           
+            responseController.sendResponse(res, err, order);
+
+            requestEmitter
+                .emit('request-settled', requestId);
+
+            orderEmitter
+                .emit('order-completed', orderId)
+        });
+    });
 };

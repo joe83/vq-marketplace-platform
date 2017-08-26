@@ -5,7 +5,9 @@ VQ Marketplace API is a web services layer of VQ marketplace developed with Node
 
 Some parts of the application have been wrapped as modules and open-sourced. You will find our repos here:
 
-* [nodejs-authentication-microservice ](https://github.com/vq-labs/nodejs-authentication-microservice)
+* [vq-marketplace-web-app](https://github.com/vq-labs/vq-marketplace-web-app) - ReactJS Marketplace Front-End
+* [vq-marketplace-config](https://github.com/vq-labs/vq-marketplace-config) - Default configuration of the marketplace (TaskRabbit copy)
+* [nodejs-authentication-microservice](https://github.com/vq-labs/nodejs-authentication-microservice) - Authentification microservice
 
 The application communicates with some external services: payments provider, email services etc.
 Here is the complete list of the services that are used:
@@ -36,7 +38,7 @@ After installing npm package manager for nodejs, install the following npm packa
 sudo npm install -g gulp // build automation tool
 ```
 
-## Instalation
+## Installation
 Clone the repository into your local developement envirment.
 ```
 git clone https://github.com/vq-labs/vq-marketplace-api.git // clones the repository from remote
@@ -45,14 +47,21 @@ npm install // installs the npm packages from ./package.json
 ```
 
 ## Running
-
 In order to start locally the VQ Web Services, you need to run the command:
 ```
 npm run start:local
 ```
 
+The very first time you run this command, all the data tables in the database will be created. We use Sequelize models for it.
+Ensure that you also run the init scripts at the very beginning:
+```
+node scripts/restore-default-config.js
+node scripts/restore-default-labels.js
+node scripts/restore-default-posts.js
+```
+
 ## Deployment
-@todo
+We deploy the application with Elastic Beanstalk.
 
 ## Configuration
 

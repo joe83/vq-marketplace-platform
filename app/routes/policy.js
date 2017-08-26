@@ -12,6 +12,12 @@ const userEmitter = require("../events/user");
 const CryptoJS = require("crypto-js");
 const config = require("../config/configProvider.js")();
 
+const validateEmail = email => { 
+    var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    
+	return re.test(email);
+};
+
 module.exports = app => {
 	var isLoggedIn = responseController.isLoggedIn;
 	
@@ -20,6 +26,15 @@ module.exports = app => {
 		const password = req.body.password;
 		const userData = {};
 		
+		if (!validateEmail(email)) {
+			return responseController
+			.sendResponse(res, {
+				httpCode: 400,
+				code: 'EMAIL_WRONGLY_FORMATTED',
+				desc: 'Email wrongly formatted'
+			});
+		}
+
 		const propertiesToBeExcluded = [ 'email', 'password', 'repeatPassword' ];
 
 		Object.keys(req.body)

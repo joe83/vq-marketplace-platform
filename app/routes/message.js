@@ -76,9 +76,33 @@ module.exports = app => {
      */
 	app.get("/api/request/:requestId", isLoggedIn, (req, res) => {
         const requestId = Number(req.params.requestId);
-        const result = { users: {} };
+        const result = { 
+            users: {}
+        };
+        let request;
 
         async.waterfall([
+            callback => models.request
+                .findOne({
+                    where: {
+                        id: requestId
+                    }
+                })
+                .then(rRequest => {
+                    if (!rRequest) {
+                        return callback({
+                            code: 'REQUEST_NOT_FOUND',
+                            httpCode: 400,
+                            desc: 'Request not found'
+                        })
+                    }
+
+                    request = rRequest;
+
+                    result.request = request;
+
+                    callback();
+                }, callback),
             callback => getMessages(req.user.id, requestId)
                 .then(messages => {
                     result.messages = messages;
@@ -104,15 +128,7 @@ module.exports = app => {
 
                 return callback();
             }),
-            callback => models.request.findOne({
-                where: {
-                    id: requestId
-                }
-            })
-            .then(request => callback(null, request)),
-            (request, callback) => {
-                result.request = request;
-
+            callback => {
                 models.task.findOne({
                     where: {
                         id: request.taskId

@@ -11,8 +11,7 @@
             "program": "${workspaceRoot}/app.js",
             "cwd": "${workspaceRoot}",
             "env": {
-                "ST_VA_APP_KEY": "test",
-                "ST_VA_API_KEY": "test",
+                "LISTLY_DB_HOST_NAME": "test",
                 "ST_ENV": "local"
             }
         },

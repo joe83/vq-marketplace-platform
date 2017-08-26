@@ -1,23 +1,27 @@
+const async = require('async');
 const resCtrl = require("../controllers/responseController.js");
 const cust = require("../config/customizing.js");
 const isLoggedIn = resCtrl.isLoggedIn;
 const sendResponse = resCtrl.sendResponse;
+const isLoggedInAndVerified = resCtrl.isLoggedInAndVerified;
 const isAdmin = resCtrl.isAdmin;
 const models  = require('../models/models');
-const async = require('async');
+const requestEmitter = require("../events/request");
+const orderEmitter = require("../events/order");
 
 module.exports = app => {
-    app.post("/api/request", isLoggedIn, (req, res) => {
+    app.post("/api/request", isLoggedIn, isLoggedInAndVerified, (req, res) => {
         const message = req.body.message;
         const taskId = req.body.taskId;
-        const userId = req.user.id;
-        var task = null;
+        const fromUserId = req.user.id;
+        var task, toUserId, request;
 
         async.waterfall([
             cb => models.task
                 .findById(taskId)
                 .then(rTask => {
                     task = rTask;
+                    toUserId = rTask.userId;
 
                     if (!task) {
                         return cb({
@@ -30,30 +34,34 @@ module.exports = app => {
             cb => models.request
                 .create({
                     status: models.request.REQUEST_STATUS.PENDING,
-                    taskId: taskId,
-                    fromUserId: userId,
-                    toUserId: task.userId
+                    taskId,
+                    fromUserId,
+                    toUserId
                 })
-                .then(request => models.message.create({ 
-                    requestId: request.id,
-                    taskId: taskId,
-                    fromUserId: userId,
-                    toUserId: task.userId,
-                    message
-                }, err => res.status(400).send(err)))
-                .then(rMessage => {
-                    cb(null, rMessage);
-                }, cb)
+                .then(rRequest => {
+                    request = rRequest;
+
+                    models.message.create({
+                        requestId: request.id,
+                        taskId,
+                        fromUserId,
+                        toUserId,
+                        message
+                    })
+                    .then(rMessage => {
+                        cb(null, rMessage);
+                    }, cb)
+                })
             ], (err, rMessage) => {
-            if (err) {
-                return res.status(400).send(err)
-            }
+                if (err) {
+                    return res.status(400).send(err)
+                }
 
-            res.send(rMessage);
+                res.send(rMessage);
 
-            // requestEmitter.emit('new-request', taskId, userId, message);
+                requestEmitter.emit('new-request', request.id);
+            });
         });
-    });
 
 	app.get("/api/request", isLoggedIn, (req, res) => {
         const userId = req.user.id;
@@ -87,21 +95,29 @@ module.exports = app => {
 
         if (req.query.view === 'completed') {
             where.$and.push({
-                $or: [
-                    { status: models.request.REQUEST_STATUS.SETTLED }
-                ]
+                $or: [{
+                    status: models.request.REQUEST_STATUS.SETTLED
+                }]
             });
         }
 
         models.request
-            .findAll({ where })
-            .then(data => async.forEachLimit(data, 5, (item, cb) => {
+            .findAll({
+                where,
+                include: [
+                    { model: models.review }
+                ]
+            })
+            .then(data => async
+                .forEachLimit(data, 5, (item, cb) => {
                 async.waterfall([
-                    cb => models.message.findOne({
+                    cb => models.message
+                    .findOne({
                         where: {
                             requestId: item.id
                         }
-                    }).then(msg => {
+                    })
+                    .then(msg => {
                         try {
                             item.dataValues.lastMsg = msg;
                         } catch (err){
@@ -146,7 +162,9 @@ module.exports = app => {
 
     app.put('/api/request/:requestId', isLoggedIn, (req, res) => {
         const newStatus = String(req.body.status);
+        const userId = req.user.id;
         const requestId = req.params.requestId;
+        let request;
 
         async.waterfall([
             cb => models.request
@@ -155,10 +173,14 @@ module.exports = app => {
                 }, {
                     where: {
                         id: Number(req.params.requestId),
-                        fromUserId: req.user.id
+                        fromUserId: userId
                     }
                 })
-                .then(() => cb(), cb),
+                .then(rRequest => {
+                    request = rRequest;
+
+                    cb();
+                }, cb),
             cb => {
                 if (newStatus !== models.request.REQUEST_STATUS.MARKED_DONE) {
                     return cb();
@@ -176,6 +198,16 @@ module.exports = app => {
                         .then(() => cb(), cb)
                 }
             }
-        ], err => sendResponse(res, err));
+        ], err => {
+            sendResponse(res, err);
+
+            if (newStatus === models.request.REQUEST_STATUS.MARKED_DONE) {
+                requestEmitter
+                    .emit('request-marked-as-done', requestId);
+
+                orderEmitter
+                    .emit('order-marked-as-done', request.orderId)
+            }
+        });
     });
 };

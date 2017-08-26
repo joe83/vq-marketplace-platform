@@ -15,15 +15,45 @@ var renderer = stRender(templateDir, layoutPath);
 const models = require("../models/models.js");
 
 const getEmailBody = code => models.post
-	.findOne({ where: {
-		$and: [
-			{
-				type: 'email',
-			}, {
-				code
-			}
-		]
+	.findOne({ 
+		where: {
+			$and: [
+				{
+					type: 'email',
+				}, {
+					code
+				}
+			]
 	}});
+
+const getEmailAndSend = (emailCode, email, ACTION_URL) => getEmailBody(emailCode)
+	.then(emailBody => {
+		const params = {};
+		var compiledEmail;
+
+		if (!emailBody) {
+			return console.error(`Email template "emailCode" has not been found`);
+		}
+
+		try {
+			compiledEmail = ejs.compile(unescape(emailBody.body))({
+				ACTION_URL
+			});
+		} catch (err) {
+			return console.error(err);
+		}
+		
+
+		params.subject = emailBody.title;
+
+		return sendEmail(compiledEmail, [
+			email
+		], params, (err, res) => {
+			if (err) {
+				console.error(err);
+			}
+		});
+	});
 
 const sendWelcome = (user, VERIFICATION_LINK) => {
 	getEmailBody('welcome')
@@ -434,6 +464,7 @@ const sendNewTaskInternal = function() {
 };
 
 module.exports = {
+	getEmailAndSend,
 	notifyAdminAboutNewUser: notifyAdminAboutNewUser,
 	sendEmail: sendEmail,
 	sendEmailTemplate: sendEmailTemplate,

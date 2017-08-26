@@ -2,7 +2,7 @@ const randomToken = require('random-token');
 const sharp = require('sharp');
 const s3 = require("../config/bucket.js");
 
-module.exports = (account, bucket) => {
+module.exports = bucket => {
     const convertPicture = (buffer, fileFormat, width, height) => new Promise((resolve, reject) => {
         sharp(buffer)
             .resize(width, height, {
@@ -22,11 +22,7 @@ module.exports = (account, bucket) => {
             });
     });
   
-    return {
-        uploadToBucket: uploadToBucket
-    };
-
-    function uploadToBucket (rawBuffer, namespace, fileFormat, width, height, callback) {
+    const uploadToBucket = (rawBuffer, namespace, fileFormat, width, height, callback) => {
         convertPicture(rawBuffer, fileFormat, width, height)
             .then(buffer => {
                     const key = `${namespace}/${randomToken(32)}.jpeg`;
@@ -38,8 +34,16 @@ module.exports = (account, bucket) => {
                     };
 
                     s3.upload(params, (err, pres) => {
-                        return callback(err, pres.Location);
+                        if (err) {
+                            return callback(err);
+                        }
+
+                        return callback(null, pres.Location);
                     });
             });
-    }
+    };
+
+    return {
+        uploadToBucket
+    };
 };
