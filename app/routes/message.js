@@ -79,7 +79,7 @@ module.exports = app => {
         const result = { 
             users: {}
         };
-        let request;
+        var request;
 
         async.waterfall([
             callback => models.request

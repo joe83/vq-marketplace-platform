@@ -28,7 +28,7 @@ module.exports = app => {
         const rate = String(req.body.rate);
         const body = req.body.body;
 
-        let orderId, requestId, reviewType;
+        var orderId, requestId, reviewType;
         const whereObj = {};
 
         if (req.body.orderId) {
@@ -48,7 +48,7 @@ module.exports = app => {
             })
         }
 
-        let order, request;
+        var order, request;
 
         async.waterfall([
             cb => {

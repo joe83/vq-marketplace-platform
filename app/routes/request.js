@@ -164,7 +164,7 @@ module.exports = app => {
         const newStatus = String(req.body.status);
         const userId = req.user.id;
         const requestId = req.params.requestId;
-        let request;
+        var request;
 
         async.waterfall([
             cb => models.request

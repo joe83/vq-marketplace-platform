@@ -82,13 +82,10 @@ module.exports = app => {
                             code: req.query.category
                         }
                     }
-<<<<<<< HEAD
+
                 );
-=======
-                ];
 
                 delete req.query.category;
->>>>>>> b261f182352cbc23c239ebd79a6614cd279d4a10
             }
 
             if (req.query) {
@@ -363,7 +360,6 @@ module.exports = app => {
     app.put('/api/task/:taskId', isLoggedIn, (req, res) => {
         const taskId = req.params.taskId;
         const userId = String(req.user.id);
-<<<<<<< HEAD
         const updatedTask = req.body;
 
 
@@ -375,32 +371,21 @@ module.exports = app => {
             'br'
         ]);
 
-        Object.keys(req.body)
-        .filter(itemKey => {
-            if ([ 
-                'id',
-                'userId',
-                'categories',
-                'duration'
-            ].indexOf(itemKey) !== -1) {
+        const fieldsToBeExcluded = [  'id', 'userId', 'categories', 'duration' ];
+
+        Object.keys(updatedTask)
+        .forEach(itemKey => {
+            if (fieldsToBeExcluded.indexOf(itemKey) !== -1) {
                 delete updatedTask[itemKey];
-=======
-
-        req.body.id = undefined;
-        req.body.userId = undefined;
-
-        Object.keys(req.body)
-        .filter(itemKey => {
-            if ([ 'id', 'userId', 'categories', 'duration' ].indexOf(itemKey) !== -1) {
-                delete req.body[itemKey];
->>>>>>> b261f182352cbc23c239ebd79a6614cd279d4a10
             }
         });
 
         const updatedFields = req.body;
 
-        updatedFields.status = String(updatedFields.status);
-
+        if (updatedTask.status) {
+            updatedTask.status = String(updatedTask.status);
+        }
+        
         isMyTask(taskId, userId)
         .then(() => models.task.update(updatedTask, {
             where: {
