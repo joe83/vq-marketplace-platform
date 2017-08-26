@@ -20,8 +20,10 @@ module.exports = app => {
 		const password = req.body.password;
 		const userData = {};
 		
+		const propertiesToBeExcluded = [ 'email', 'password', 'repeatPassword' ];
+
 		Object.keys(req.body)
-			.filter(prop => [ 'email', 'password' ].indexOf(prop) === -1)
+			.filter(prop => propertiesToBeExcluded.indexOf(prop) === -1)
 			.forEach(prop => {
 				userData[prop] = req.body[prop];
 			});
@@ -220,6 +222,9 @@ module.exports = app => {
 			cb => models.user.findOne({
 				where: {
 					vqUserId: User.userId
+				},
+				include: {
+					model: models.userProperty
 				}
 			})
 			.then(rUser => {

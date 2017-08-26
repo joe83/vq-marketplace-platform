@@ -28,6 +28,7 @@ module.exports = (sequelize, DataTypes) => {
       tableName: 'request',
       classMethods: {
         associate: models => {
+          Request.belongsTo(models.task);
           Request.belongsTo(models.user, { as: 'fromUser', constraints: true })
         }
       }

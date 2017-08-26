@@ -10,3 +10,4 @@ config/setups/*
 # mac bullshit
 .DS_Store
 npm-debug.log
+package-lock.json

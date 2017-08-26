@@ -5,6 +5,7 @@ const isLoggedIn = require("../controllers/responseController.js").isLoggedIn;
 const isLoggedInAndVerified = require("../controllers/responseController.js").isLoggedInAndVerified;
 const cust = require("../config/customizing.js");
 const models  = require('../models/models');
+const striptags = require('striptags');
 
 const isMyTask = (taskId, myUserId) => {
     return models.task.findOne({
@@ -89,13 +90,22 @@ module.exports = app => {
         (req, res) => {
             const query = {};
 
+            query.include = [];
+
+            query.include.push({
+                model: models.request,
+                include: [
+                    { model: models.user, as: 'fromUser' }
+                ]
+            });
+
             if (req.query && req.query.category) {
-                query.include = [
+                query.include.push(
                     { 
                         model: models.taskCategory,
                         where: { code: req.query.category }
                     }
-                ];
+                );
             }
 
             if (req.query) {
@@ -352,18 +362,31 @@ module.exports = app => {
     app.put('/api/task/:taskId', isLoggedIn, (req, res) => {
         const taskId = req.params.taskId;
         const userId = String(req.user.id);
+        const updatedTask = req.body;
 
-        req.body.id = undefined;
-        req.body.userId = undefined;
 
-        Object.keys(req.body).filter(itemKey => {
-            if ([ 'id', 'userId', 'categories', 'duration' ].indexOf(itemKey) !== -1) {
-                delete req.body[itemKey];
+        updatedTask.id = undefined;
+        updatedTask.userId = undefined;
+
+        updatedTask.description = striptags(updatedTask.description, [
+            'p',
+            'br'
+        ]);
+
+        Object.keys(req.body)
+        .filter(itemKey => {
+            if ([ 
+                'id',
+                'userId',
+                'categories',
+                'duration'
+            ].indexOf(itemKey) !== -1) {
+                delete updatedTask[itemKey];
             }
         });
 
         isMyTask(taskId, userId)
-        .then(() => models.task.update(req.body, {
+        .then(() => models.task.update(updatedTask, {
             where: {
                 id: taskId 
             } 

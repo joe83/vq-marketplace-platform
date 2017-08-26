@@ -42,7 +42,10 @@ function parseUserFactory (loginRequired, adminRequired, requiredStatus) {
 					.findOne({ 
 						where: {
 							vqUserId: rAuthUser.userId
-						}
+						},
+						include: [
+							{ model: models.userProperty }
+						]
 					})
 					.then(user => {
 						if (!user) {

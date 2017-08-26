@@ -1,3 +1,4 @@
+const async = require('async');
 /**
  * Customizing model for application labels (i18n)
  */
@@ -24,50 +25,77 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   // expansion of model
-  appLabel.updateFactory = () => (labelKey, labelGroup, labelValue, lang) => appLabel
-        .findOne({ where: { $and: [ { labelKey }, { lang } ] }})
-        .then(obj => {
-          if (!obj) {
-            return appLabel.create({ labelKey, labelGroup, labelValue, lang });
-          }
+  appLabel.updateFactory = () => (labelKey, labelGroup, labelValue, lang) =>
+        new Promise((resolve, reject) => {
+          appLabel
+          .findOne({ where: { $and: [ { labelKey }, { lang } ] }})
+          .then(obj => {
+            if (!obj) {
+              return appLabel
+                .create({ labelKey, labelGroup, labelValue, lang })
+                .then(resolve, reject)
+            }
 
-          obj.labelValue !== labelValue && appLabel.update({ labelGroup, labelValue, lang }, { where: { id: obj.id } });
+            if (obj.labelValue !== labelValue) {
+              return appLabel
+              .update({ labelGroup, labelValue, lang }, { where: { id: obj.id } })
+              .then(resolve, reject);
+            }
+
+            return resolve();
+          });
+      });
+
+  appLabel.upsertFactory = () => (labelKey, labelGroup, labelValue, lang) =>
+        new Promise((resolve, reject) => {
+          appLabel
+          .findOne({ where: { $and: [ { labelKey }, { lang } ] }})
+          .then(obj => {
+            !obj &&
+            appLabel
+            .create({ labelKey, labelGroup, labelValue, lang })
+            .then(resolve, reject)
+          }, reject);
         });
-
-  appLabel.upsertFactory = () => (labelKey, labelGroup, labelValue, lang) => appLabel
-        .findOne({ where: { $and: [ { labelKey }, { lang } ] }})
-        .then(obj => !obj && appLabel.create({ labelKey, labelGroup, labelValue, lang }));
+        
 
   appLabel.bulkCreateOrUpdate = (labels, forceUpdate) => new Promise(resolve => {
       const upsert = forceUpdate ? appLabel.updateFactory() : appLabel.upsertFactory();
       
-      labels.forEach(label => {
+      async.eachLimit(labels, 5, (label, cb) => {
         if (!label.labelKey) {
           return;
         }
 
         var labelGroup =  label.labelGroup ? label.labelGroup.toUpperCase() : null;
-        upsert(label.labelKey.toUpperCase(), labelGroup, label.labelValue, label.lang);
-      });
-  
-      return resolve();
+
+        upsert(
+          label.labelKey.toUpperCase(),
+          labelGroup,
+          label.labelValue,
+          label.lang
+        )
+        .then(() => cb(), cb);
+
+      }, resolve);
   });
 
   // init of the table / ensuring default labels exist
   appLabel.addDefaultLangLabels = (lang, force) => {
-    const defaultLabels = marketplaceConfig.i18n(lang);
-    const labelGroups = marketplaceConfig.labelGroups();
-    const batchLabels = Object.keys(defaultLabels)
-    .map(labelKey => {
-      return {
-        labelKey,
-        labelGroup: labelGroups[labelKey],
-        labelValue: defaultLabels[labelKey],
-        lang
-      };
-    });
+      const defaultLabels = marketplaceConfig.i18n(lang);
+      const labelGroups = marketplaceConfig.labelGroups();
+      
+      const batchLabels = Object.keys(defaultLabels)
+        .map(labelKey => {
+          return {
+            labelKey,
+            labelGroup: labelGroups[labelKey],
+            labelValue: defaultLabels[labelKey],
+            lang
+          };
+        });
 
-    appLabel.bulkCreateOrUpdate(batchLabels, force);
+      return appLabel.bulkCreateOrUpdate(batchLabels, force);
   };
 
   return appLabel;

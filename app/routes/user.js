@@ -30,19 +30,6 @@ module.exports = app => {
     );
   });
 
-  app.get('/api/user/:userId/:propType', (req, res) => {
-    models.userProperty.findAll({
-      where: { 
-          userId: req.params.userId,
-          propType: req.params.propType
-      }
-    })
-    .then(
-      data => responseController.sendResponse(res, null, data), 
-      err => responseController.sendResponse(res, err)
-    );
-  });
-
   app.put('/api/user/:userId', isLoggedIn, (req, res) => {
     const mutableFields = [
       'firstName',

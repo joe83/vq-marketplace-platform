@@ -18,7 +18,7 @@ userEmitter.on('created', user => {
     const VERIFICATION_TOKEN = cryptoService.encodeObj(user);
 
     const VERIFICATION_LINK = 
-        `${process.env.SERVER_URL || 'http://localhost:8080'}/api/verify/email?code=${VERIFICATION_TOKEN}`;
+        `${config.serverUrl || 'http://localhost:8080'}/api/verify/email?code=${VERIFICATION_TOKEN}`;
 
     return emailService.sendWelcome(user, VERIFICATION_LINK);
 });
