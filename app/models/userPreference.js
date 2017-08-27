@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-    const UserCategoryPreference = sequelize.define("userPreference", {
+    const UserPreference = sequelize.define("userPreference", {
         value: {
             type: DataTypes.STRING,
             required: true
@@ -12,11 +12,11 @@ module.exports = (sequelize, DataTypes) => {
       tableName: 'userPreference',
       classMethods: {
         associate: models => {
-            UserCategoryPreference.belongsTo(models.user);
+            UserPreference.belongsTo(models.user);
         }
       }
     });
   
-    return UserCategoryPreference;
+    return UserPreference;
   };
   

@@ -132,7 +132,11 @@ module.exports = app => {
                 models.task.findOne({
                     where: {
                         id: request.taskId
-                    }
+                    },
+                    include: [
+                        { model: models.taskTiming },
+                        { model: models.taskLocation }
+                    ]
                 }).then(task => {
                     result.task = task;
 

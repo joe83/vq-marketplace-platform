@@ -70,10 +70,15 @@ module.exports = app => {
             query.include.push({
                 model: models.request,
                 include: [
-                    { model: models.user, as: 'fromUser' }
+                    { model: models.user, as: 'fromUser' },
                 ]
             });
 
+            query.include.push({
+                model: models.taskTiming
+            });
+
+            
             if (req.query && req.query.category) {
                 query.include.push(
                     { 
@@ -362,14 +367,12 @@ module.exports = app => {
         const userId = String(req.user.id);
         const updatedTask = req.body;
 
-
-        updatedTask.id = undefined;
-        updatedTask.userId = undefined;
-
-        updatedTask.description = striptags(updatedTask.description, [
-            'p',
-            'br'
-        ]);
+        /*
+            updatedTask.description = striptags(updatedTask.description, [
+                'p',
+                'br'
+            ]);
+        */
 
         const fieldsToBeExcluded = [  'id', 'userId', 'categories', 'duration' ];
 

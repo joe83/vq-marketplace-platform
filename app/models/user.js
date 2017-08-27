@@ -64,6 +64,7 @@ module.exports = (sequelize, DataTypes) => {
     classMethods: {
         associate: models => {
           User.hasMany(models.userProperty);
+          User.hasMany(models.userPreference);
         }
     }
   });

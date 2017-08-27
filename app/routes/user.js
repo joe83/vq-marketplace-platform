@@ -22,10 +22,24 @@ module.exports = app => {
       where:
         { 
           id: req.params.userId 
-        }
+        },
+        include: [
+          { model: models.userProperty },
+          { model: models.userPreference }
+        ]
     })
     .then(
-      data => responseController.sendResponse(res, null, data), 
+      user => {
+        user = JSON.parse(JSON.stringify(user));
+        user.userProperties.forEach(_ => {
+
+          const prop = _;
+
+          prop.propValue = Boolean(prop.propValue);
+        });
+
+        return responseController.sendResponse(res, null, user)
+      }, 
       err => responseController.sendResponse(res, err)
     );
   });

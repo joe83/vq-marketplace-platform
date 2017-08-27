@@ -147,7 +147,10 @@ module.exports = app => {
                     models.task.findOne({
                         where: {
                             id: item.taskId
-                        }
+                        },
+                        include: [
+                            { model: models.taskTiming }
+                        ]
                     }).then(task => {
                         item.dataValues.task = task;
 

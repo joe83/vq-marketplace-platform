@@ -40,7 +40,32 @@ module.exports = app => {
 		.then(data => res.send(data)));
 
 	app.get("/api/admin/user", isLoggedIn, isAdmin, (req, res) => models.user
-		.findAll({})
+		.findAll({
+			order: '"createdAt" DESC',
+			include: [
+				{ model: models.userProperty },
+				{ model: models.userPreference }
+			]
+		})
+		.then(data => res.send(data)));
+
+	app.get("/api/admin/request", isLoggedIn, isAdmin, (req, res) => models.request
+		.findAll({
+			order: '"createdAt" DESC',
+			include: [
+				{ model: models.task },
+				{ model: models.user, as: 'fromUser' }
+			]
+		})
+		.then(data => res.send(data)));
+
+	app.get("/api/admin/order", isLoggedIn, isAdmin, (req, res) => models.request
+		.findAll({
+			order: '"createdAt" DESC',
+			include: [
+				{ model: models.task }
+			]
+		})
 		.then(data => res.send(data)));
 
 	app.put("/api/admin/user/:userId/block", 
