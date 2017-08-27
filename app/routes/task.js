@@ -385,9 +385,9 @@ module.exports = app => {
 
         const updatedFields = req.body;
 
-        if (updatedTask.status) {
-            updatedTask.status = String(updatedTask.status);
-        }
+        
+        updatedTask.status = updatedTask.status ? String(updatedTask.status) : '0';
+     
         
         isMyTask(taskId, userId)
         .then(() => models.task.update(updatedTask, {
