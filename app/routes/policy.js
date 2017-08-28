@@ -7,6 +7,7 @@ const emailService = require("../services/emailService.js");
 const cryptoService = require("../services/cryptoService");
 const NewsletterService = require("../services/NewsletterService.js");
 const responseController = require("../controllers/responseController.js");
+const sendResponse = responseController.sendResponse;
 const vqAuth = require("../config/vqAuthProvider");
 const userEmitter = require("../events/user");
 const CryptoJS = require("crypto-js");
@@ -106,7 +107,46 @@ module.exports = app => {
 			});
 		});
 
-	app.post("/api/verify/resend-email", isLoggedIn, (req, res) => {	
+	app.post("/api/auth/reset-password", (req, res) => {
+		const code = req.body.code;
+		const newPassword = req.body.newPassword;
+		const repeatNewPassword = req.body.repeatNewPassword;
+
+		if (newPassword !== repeatNewPassword) {
+			return sendResponse(res, { code: 'PASSWORDS_DO_NOT_MATCH' });
+		}
+
+		vqAuth
+		.resetPassword(code, newPassword, err =>
+			sendResponse(res, err, { ok: true })
+		);
+	});
+
+	app.post("/api/auth/request-password-reset", (req, res) => {
+		const email = req.body.email;
+
+		vqAuth
+		.requestPasswordReset(email, (err, rUserResetCode) => {
+			if (err) {
+				console.error(err);
+
+				return sendResponse(res, err);
+			}
+
+			const resetCode = rUserResetCode.code;
+			const urlBase = config.domain || 'http://localhost:3000';
+
+			const ACTION_URL = 
+			`${urlBase}/app/change-password?code=${resetCode}`;
+
+			emailService
+				.getEmailAndSend(emailService.EMAILS.PASSWORD_RESET, email, ACTION_URL);
+
+			return sendResponse(res, err, {});
+		});
+	});
+
+	app.post("/api/verify/resend-email", isLoggedIn, (req, res) => {
 		var email = req.body.email;
 		var userId = req.body.userId;
 
@@ -150,7 +190,6 @@ module.exports = app => {
 					vqUserId = rUserEmails[0].userId;
 					emails = rUserEmails.map(_ => _.email);
 				
-
 					models.user
 						.findOne({
 							vqUserId: vqUserId
@@ -269,7 +308,8 @@ module.exports = app => {
 		var newPassword = req.body.newPassword;
 		var token = req.auth.token;
 
-		vqAuth.changePassword(token, currentPassword, newPassword, err => {
+		vqAuth
+		.changePassword(token, currentPassword, newPassword, err => {
 			return responseController.sendResponse(res, err, { ok: true });
 		});
 	});

@@ -374,7 +374,12 @@ module.exports = app => {
             ]);
         */
 
-        const fieldsToBeExcluded = [  'id', 'userId', 'categories', 'duration' ];
+        const fieldsToBeExcluded = [ 
+            'id',
+            'userId',
+            'categories',
+            'duration'
+        ];
 
         Object.keys(updatedTask)
         .forEach(itemKey => {
