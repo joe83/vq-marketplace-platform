@@ -134,15 +134,26 @@ module.exports = app => {
 			}
 
 			const resetCode = rUserResetCode.code;
-			const urlBase = config.domain || 'http://localhost:3000';
 
-			const ACTION_URL = 
-			`${urlBase}/app/change-password?code=${resetCode}`;
-
-			emailService
+			models.appConfig
+			.findOne({
+				where: {
+					fieldKey: 'DOMAIN'
+				}
+			})
+			.then(configField => {
+				configField = configField || {};
+				
+				const urlBase = configField.fieldValue || 'http://localhost:3000';
+				
+				const ACTION_URL = 
+				`${urlBase}/app/change-password?code=${resetCode}`;
+	
+				emailService
 				.getEmailAndSend(emailService.EMAILS.PASSWORD_RESET, email, ACTION_URL);
-
-			return sendResponse(res, err, {});
+			}, err => console.error(err));
+			
+			sendResponse(res, err, {});
 		});
 	});
 
