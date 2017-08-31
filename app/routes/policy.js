@@ -284,13 +284,18 @@ module.exports = app => {
 					return cb();
 				});
 			},
-			cb => models.user.findOne({
+			cb => models.user
+			.findOne({
 				where: {
 					vqUserId: User.userId
 				},
-				include: {
-					model: models.userProperty
-				}
+				include: [
+					{
+						model: models.userProperty
+					}, {
+						model: models.userPreference
+					}
+				]
 			})
 			.then(rUser => {
 				User.user = rUser ? rUser.dataValues : null;

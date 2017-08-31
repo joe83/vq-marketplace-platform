@@ -6,6 +6,7 @@ const sendResponse = resCtrl.sendResponse;
 const isLoggedInAndVerified = resCtrl.isLoggedInAndVerified;
 const isAdmin = resCtrl.isAdmin;
 const models  = require('../models/models');
+const requestCtrl = require("../controllers/requestCtrl");
 const requestEmitter = require("../events/request");
 const orderEmitter = require("../events/order");
 
@@ -29,7 +30,7 @@ module.exports = app => {
                         });
                     }
 
-                    cb();
+                    return cb();
                 }, cb),
             cb => models.request
                 .create({
@@ -167,50 +168,10 @@ module.exports = app => {
         const newStatus = String(req.body.status);
         const userId = req.user.id;
         const requestId = req.params.requestId;
-        var request;
-
-        async.waterfall([
-            cb => models.request
-                .update({
-                    status: newStatus
-                }, {
-                    where: {
-                        id: Number(req.params.requestId),
-                        fromUserId: userId
-                    }
-                })
-                .then(rRequest => {
-                    request = rRequest;
-
-                    cb();
-                }, cb),
-            cb => {
-                if (newStatus !== models.request.REQUEST_STATUS.MARKED_DONE) {
-                    return cb();
-                }
-
-                if (newStatus === models.request.REQUEST_STATUS.MARKED_DONE) {
-                       models.order
-                        .update({
-                            status: models.order.ORDER_STATUS.MARKED_DONE
-                        }, {
-                            where: {
-                                requestId: requestId
-                            }
-                        })
-                        .then(() => cb(), cb)
-                }
-            }
-        ], err => {
-            sendResponse(res, err);
-
-            if (newStatus === models.request.REQUEST_STATUS.MARKED_DONE) {
-                requestEmitter
-                    .emit('request-marked-as-done', requestId);
-
-                orderEmitter
-                    .emit('order-marked-as-done', request.orderId)
-            }
-        });
+       
+        requestCtrl
+            .changeRequestStatus(requestId, newStatus, userId, (err, request) => {
+                sendResponse(res, err);
+            });
     });
 };

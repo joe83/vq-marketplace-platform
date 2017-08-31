@@ -5,7 +5,7 @@ const isLoggedIn = responseController.isLoggedIn;
 const sendResponse = responseController.sendResponse;
 const orderEmitter = require("../events/order");
 const requestEmitter = require("../events/request");
-
+const orderCtrl = require("../controllers/orderCtrl");
 const RESOURCE = 'order';
 
 module.exports = app => {
@@ -145,28 +145,29 @@ module.exports = app => {
                 orders = orders
                     .filter(order => order.request);
                 
-                async.eachLimit(orders, 3, (order, cb) => {
-                    const fromUserId = order.request.fromUserId;
-                    
-                    models.user.findOne({
-                        where: {
-                            id: fromUserId
-                        },
-                        include: [
-                            {
-                                model: models.userProperty
-                            }
-                        ]
-                    })
-                    .then(user => {
-                        order = order.dataValues;
-                        order.fromUser = user.dataValues;
+                async
+                    .eachLimit(orders, 3, (order, cb) => {
+                        const fromUserId = order.request.fromUserId;
+                        
+                        models.user.findOne({
+                            where: {
+                                id: fromUserId
+                            },
+                            include: [
+                                {
+                                    model: models.userProperty
+                                }
+                            ]
+                        })
+                        .then(user => {
+                            order = order.dataValues;
+                            order.fromUser = user.dataValues;
 
-                        cb();
-                    }, cb);
-                }, err => {
-                    sendResponse(res, err, orders);
-                })
+                            cb();
+                        }, cb);
+                    }, err => {
+                        sendResponse(res, err, orders);
+                    });
             })
             .catch(err => sendResponse(res, err));
         });
@@ -178,47 +179,9 @@ module.exports = app => {
         isLoggedIn,
         (req, res) => {
         var orderId = req.params.orderId;
-        var requestId;
-        var order;
-
-        async.waterfall([
-            cb => models.order
-                .update({
-                    status: models.order.ORDER_STATUS.SETTLED
-                }, {
-                    where: {
-                        id: orderId
-                    }
-                })
-                .then(rOrder => {
-                    order = rOrder;
-                    requestId = order.requestId;
-
-                    cb();
-                }, cb),
-            cb => {
-                models.request
-                .update({
-                    status: models.request.REQUEST_STATUS.SETTLED
-                }, {
-                    where: {
-                        id: requestId
-                    }
-                })
-                .then(() => cb(), cb)
-            }
-        ], err => {
-            if (err) {
-                return responseController.sendResponse(res, err);
-            }
-           
-            responseController.sendResponse(res, err, order);
-
-            requestEmitter
-                .emit('request-settled', requestId);
-
-            orderEmitter
-                .emit('order-completed', orderId)
+        
+        orderCtrl.settleOrder(orderId, req.user.id, (err, order) => {
+            sendResponse(res, err, order);
         });
     });
 };

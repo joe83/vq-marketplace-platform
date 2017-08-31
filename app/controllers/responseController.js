@@ -44,7 +44,8 @@ function parseUserFactory (loginRequired, adminRequired, requiredStatus) {
 							vqUserId: rAuthUser.userId
 						},
 						include: [
-							{ model: models.userProperty }
+							{ model: models.userProperty },
+							{ model: models.userPreference }
 						]
 					})
 					.then(user => {

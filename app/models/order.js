@@ -20,6 +20,12 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         default: 0
       },
+      autoSettlementStartedAt: {
+        type: DataTypes.DATE
+      },
+      settledAt: {
+        type: DataTypes.DATE
+      },
       currency: {
         type: DataTypes.ENUM('PLN', 'HUF', 'EUR'),
         default: 0
