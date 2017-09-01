@@ -10,7 +10,7 @@ const changeRequestStatus = (requestId, newStatus, userId, cb) => {
     userId = Number(userId);
     requestId = Number(requestId);
 
-    var request, oldRequest;
+    var request, order, oldRequest;
 
     var autoSettlementEnabled = false;
 
@@ -57,17 +57,25 @@ const changeRequestStatus = (requestId, newStatus, userId, cb) => {
             }
             
             if (newStatus === models.request.REQUEST_STATUS.MARKED_DONE) {
-                    const autoSettlementStartedAt = new Date().toISOString().slice(0, 19).replace('T', ' ');
-                    models.order
-                    .update({
-                        autoSettlementStartedAt,
-                        status: models.order.ORDER_STATUS.MARKED_DONE
-                    }, {
-                        where: {
-                            requestId: requestId
-                        }
-                    })
-                    .then(() => cb(), cb)
+                const autoSettlementStartedAt = new Date().toISOString().slice(0, 19).replace('T', ' ');
+                
+                // @TODO - support for 1 request - 1 order relation. Need for more pricing models.
+                models.order
+                .findOne({
+                    where: {
+                        requestId
+                    }
+                })
+                .then(rOrder => {
+                    order = rOrder;
+
+                    order
+                        .updateAttributes({
+                            autoSettlementStartedAt,
+                            status: models.order.ORDER_STATUS.MARKED_DONE
+                        })
+                        .then(_ => cb(), cb)
+                }, cb);
             }
         }
     ], err => {
@@ -80,7 +88,7 @@ const changeRequestStatus = (requestId, newStatus, userId, cb) => {
                 .emit('request-marked-as-done', requestId);
 
             orderEmitter
-                .emit('order-marked-as-done', request.orderId)
+                .emit('order-marked-as-done', order.id)
         }
 
         return cb();
