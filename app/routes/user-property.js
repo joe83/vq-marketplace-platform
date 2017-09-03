@@ -33,10 +33,11 @@ module.exports = app => {
   });
 
   app.post('/api/user/:userId/property', isLoggedIn, (req, res) => {
+    const userId = req.user.id;
     const propValue = req.body.propValue;
     const propKey = req.body.propKey;
     const property = {
-        userId: req.user.id,
+        userId,
         propValue,
         propKey
     };
@@ -46,9 +47,12 @@ module.exports = app => {
     async
         .waterfall([
             cb => models.userProperty.findOne({
-                where: { 
-                    userId: req.params.userId,
-                    propKey: req.params.propKey
+                where: {
+                    $and: [
+                        { userId },
+                        { propKey: property.propKey }
+                    ]
+                    
                 }
             })
             .then(prop => cb(null, prop), cb),
@@ -59,10 +63,11 @@ module.exports = app => {
                         .update({
                             propValue 
                         }, {
-                            where: { 
-                                userId: req.params.userId,
-                                propKey: req.params.propKey,
-                                propValue
+                            where: {
+                                $and: [
+                                    { userId },
+                                    { propKey: property.propKey }
+                                ]
                             }
                         })
                         .then(updatedProperty => {
