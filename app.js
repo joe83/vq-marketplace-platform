@@ -23,6 +23,7 @@ app.use((req, res, next) => {
 });
 
 require('./app/routes.js')(app);
+require('./app/workers/index.js').registerWorkers();
 
 logAppInfo();
 
@@ -33,7 +34,7 @@ models.seq.sync().then(() => {
 		var host = server.address().address;
 		var port = server.address().port;
 
-		console.log(`st-api listening at port ${port}`);
+		console.log(`VQ-Marketplace API listening at port ${port}`);
 		console.log("API config:", config);
 	});
 });
@@ -42,9 +43,9 @@ module.exports.closeServer = closeServer;
     
 function logAppInfo () {
 	if (config.production === true) {
-		console.log("---------------------------------------------");
-		console.log("[WARNING] THIS API RUNS IN PRODUCTION MODE..");
-		console.log("---------------------------------------------");
+		console.log("-------------------------------------------------");
+		console.log("[PRODUCTION MODE] THIS API RUNS IN PRODUCTION MODE..");
+		console.log("-------------------------------------------------");
 	}
 }
 

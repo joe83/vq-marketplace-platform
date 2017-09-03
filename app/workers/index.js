@@ -65,14 +65,14 @@ const taskAutoSettlement = () => {
 };
 
 const registerWorkers = () => {
-    console.log('[WORKER] Initiating...');
+    console.log('[WORKERS] Initiating...');
     
     // will run every hours
     setInterval(() => {
         taskAutoSettlement();
     }, TIME_INTERVAL);
 
-    console.log('[WORKER] Started.');
+    console.log('[WORKERS] Started.');
 };
 
 if (module.parent) {
