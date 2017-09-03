@@ -116,7 +116,8 @@ module.exports = app => {
                     .findOne({
                         where: {
                             requestId: item.id
-                        }
+                        },
+                        order: [[ 'createdAt', 'DESC' ]]
                     })
                     .then(msg => {
                         try {

@@ -178,10 +178,11 @@ module.exports = app => {
     app.put('/api/order/:orderId',
         isLoggedIn,
         (req, res) => {
-        var orderId = req.params.orderId;
-        
-        orderCtrl.settleOrder(orderId, req.user.id, (err, order) => {
-            sendResponse(res, err, order);
+            const orderId = req.params.orderId;
+            
+            orderCtrl
+                .settleOrder(orderId, req.user.id, (err, order) => {
+                sendResponse(res, err, order);
+            });
         });
-    });
 };
