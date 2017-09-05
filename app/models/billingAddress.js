@@ -36,6 +36,10 @@ module.exports = (sequelize, DataTypes) => {
     region: { 
         type: DataTypes.STRING
     },
+    taxNumber: {
+        type: DataTypes.STRING,
+        required: false
+    },
     default: { 
         type: DataTypes.BOOLEAN, default: false
     }

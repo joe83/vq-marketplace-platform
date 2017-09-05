@@ -366,6 +366,7 @@ module.exports = app => {
         const taskId = req.params.taskId;
         const userId = String(req.user.id);
         const updatedTask = req.body;
+        const newStatus = updatedTask.status;
 
         /*
             updatedTask.description = striptags(updatedTask.description, [
@@ -390,16 +391,24 @@ module.exports = app => {
 
         const updatedFields = req.body;
 
-        
-        updatedTask.status = updatedTask.status ? String(updatedTask.status) : '0';
-     
+        updatedTask.status = updatedTask.status ? String(updatedTask.status) : '0';     
         
         isMyTask(taskId, userId)
         .then(() => models.task.update(updatedTask, {
             where: {
-                id: taskId 
+                $and: [
+                    { id: taskId },
+                    { userId }
+                ]
             } 
         }))
-        .then(task => sendResponse(res, null, { ok: true }), err => sendResponse(res, err));
+        .then(task => {
+            sendResponse(res, null, { ok: true });
+
+            if (newStatus === models.task.TASK_STATUS.INACTIVE) {
+                
+            }
+
+        }, err => sendResponse(res, err));
     });
 };
