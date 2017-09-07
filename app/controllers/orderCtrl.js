@@ -33,6 +33,9 @@ const settleOrder = (orderId, userId, cb) => {
                     return cb('WRONG_STATUS');
                 }
 
+                order = rOrder;
+                requestId = order.requestId;
+
                 return cb();
             }, cb),
         cb => models.order
@@ -44,12 +47,7 @@ const settleOrder = (orderId, userId, cb) => {
                     id: orderId
                 }
             })
-            .then(rOrder => {
-                order = rOrder;
-                requestId = order.requestId;
-
-                cb();
-            }, cb),
+            .then(() => cb(), cb),
         cb => {
             models.request
             .update({

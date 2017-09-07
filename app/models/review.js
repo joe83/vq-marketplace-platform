@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
           Review.belongsTo(models.user, {
               as: 'toUser'
           });
-          Review.belongsTo(models.task)
+          Review.belongsTo(models.task);
           Review.belongsTo(models.request);
           Review.belongsTo(models.order);
         }

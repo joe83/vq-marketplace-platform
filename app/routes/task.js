@@ -122,25 +122,47 @@ module.exports = app => {
                     (resolve, reject) => {
                         tasks = JSON.parse(JSON.stringify(rTasks));
 
-                        async.eachLimit(tasks, 5, (task, cb) => {
+                        models
+                        .appTaskCategory
+                        .findAll()
+                        .then(categories => {
+                            async.eachLimit(tasks, 5, (task, cb) => {
                                 getTaskAdditionalInfo(task.id)
                                 .then(taskAdditionalInfo => {
                                     task.categories = taskAdditionalInfo.categories;
+                                    
+                                    try {
+                                        task.categories = task.categories
+                                        .map(_ => {
+                                            _.imageUrl = categories
+                                                .find(category => category.code === _.code)
+                                                .imageUrl
+
+                                            return _;
+                                        });
+                                    } catch (err) {
+
+                                    }
+
                                     task.images = taskAdditionalInfo.images;
                                     task.location = taskAdditionalInfo.location;
 
                                     return cb();
-                                }, err => cb(err));
-                        }, err => {
-                            if (err) {
-                                return reject(err);
-                            }
-
-                            return resolve(tasks);
-                        });
+                                }, cb);
+                            }, err => {
+                                if (err) {
+                                    return reject(err);
+                                }
+    
+                                return resolve(tasks);
+                            });
+                        });  
                     })
                 )
-                .then(tasks =>  sendResponse(res, null, tasks), err => sendResponse(res, err))
+                .then(
+                    tasks =>  sendResponse(res, null, tasks),
+                    err => sendResponse(res, err)
+                )
             });
 
     app.post('/api/task',

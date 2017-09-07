@@ -86,7 +86,12 @@ module.exports = app => {
                 .findOne({
                     where: {
                         id: requestId
-                    }
+                    },
+                    include: [{
+                        model: models.order
+                    }, {
+                        model: models.review
+                    }]
                 })
                 .then(rRequest => {
                     if (!rRequest) {
