@@ -1,20 +1,21 @@
-var responseController = require("../controllers/responseController.js");
-var cust = require("../config/customizing.js");
+const responseController = require("../controllers/responseController.js");
+const cust = require("../config/customizing.js");
 
-var identifyUser = responseController.identifyUser;
-var isLoggedIn = responseController.isLoggedIn;
+const identifyUser = responseController.identifyUser;
+const isLoggedIn = responseController.isLoggedIn;
+const sendResponse = responseController.sendResponse;
 
 var models = require("../models/models.js");
 
 module.exports = app => {
   function pong (req, res, next) {
-    responseController.sendResponse(res);
+    sendResponse(res);
     
     next();
   }
 
   app.get('/api/me', isLoggedIn, (req, res) => {
-      return responseController.sendResponse(res, null, req.user);
+      return sendResponse(res, null, req.user);
   });
 
   app.get('/api/user/:userId', (req, res) => {
@@ -38,9 +39,9 @@ module.exports = app => {
           prop.propValue = Boolean(prop.propValue);
         });
 
-        return responseController.sendResponse(res, null, user)
+        return sendResponse(res, null, user)
       }, 
-      err => responseController.sendResponse(res, err)
+      err => sendResponse(res, err)
     );
   });
 
@@ -63,7 +64,7 @@ module.exports = app => {
         updateObj[fieldKey] = req.body[fieldKey];
       })
     } catch(err) {
-      return responseController.sendResponse(res, err)
+      return sendResponse(res, err)
     }
 
     models.user
@@ -73,8 +74,25 @@ module.exports = app => {
           }
       })
       .then(
-        data => responseController.sendResponse(res, null, data), 
-        err => responseController.sendResponse(res, err)
+        data => sendResponse(res, null, data), 
+        err => sendResponse(res, err)
+      );
+  });
+
+  /**
+   * Deactivates user account
+   */
+  app.delete('/api/user/:userId', isLoggedIn, (req, res) => {
+      models.user.destroy({
+            where: {
+                id: req.user.id
+            }
+      })
+      .then(
+        _ => {
+          return sendResponse(res, null, {});
+        }, 
+        err => sendResponse(res, err)
       );
   });
 };

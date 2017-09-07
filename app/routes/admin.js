@@ -1,5 +1,6 @@
 const resCtrl = require("../controllers/responseController.js");
 const cust = require("../config/customizing.js");
+const vqAuth = require("../config/vqAuthProvider");
 const isLoggedIn = resCtrl.isLoggedIn;
 const isAdmin = resCtrl.isAdmin;
 const sendResponse = resCtrl.sendResponse;
@@ -30,7 +31,6 @@ setInterval(() => {
 
 setTimeout(() => prepareReports(), 5000);
 
-
 module.exports = app => {
 	app.get("/api/admin/report", isLoggedIn, isAdmin, (req, res) => models.report
 		.findAll({
@@ -48,6 +48,31 @@ module.exports = app => {
 			]
 		})
 		.then(data => res.send(data)));
+
+	app.get("/api/admin/user/:userId/emails", (req, res) => {
+		const userId = req.params.userId;
+
+		models
+			.user
+			.findById(userId)
+			.then(user => {
+				if (!user) {
+					return res.status(404).send("NOT_FOUND");
+				}
+
+				vqAuth
+					.getEmailsFromUserId(user.vqUserId, (err, rUserEmails) => {
+						if (err) {
+							return cb(err);
+						}
+			
+						emails = rUserEmails
+							.map(_ => _.email);
+			
+						res.status(200).send(emails);
+					});
+			}, err => res.status(500).send(err));
+	})
 
 	app.get("/api/admin/request", isLoggedIn, isAdmin, (req, res) => models.request
 		.findAll({

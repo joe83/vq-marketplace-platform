@@ -298,6 +298,10 @@ module.exports = app => {
 				]
 			})
 			.then(rUser => {
+				if (!rUser) {
+					return cb(cust.errorCodes.USER_DELETED);
+				}
+
 				User.user = rUser ? rUser.dataValues : null;
 
 				if (rUser.status == '20') {

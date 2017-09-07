@@ -49,7 +49,13 @@ var errorCodes = {
 		httpCode: 401,
 		codeNo: 4011,
 		code: "USER_NOT_VERIFIED",
-		desc: "You need to verify your email."
+		desc: "You need to verify your email. Contact administrator."
+	},
+	USER_DELETED: {
+		httpCode: 401,
+		codeNo: 4011,
+		code: "USER_DELETED",
+		desc: "This account has been deleted."
 	},
 	NOT_AUTHENTIFICATIED: {
 		httpCode: 401,

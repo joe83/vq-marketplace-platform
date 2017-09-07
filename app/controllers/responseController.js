@@ -21,19 +21,17 @@ function isAuth(req) {
 }
 
 function parseUserFactory (loginRequired, adminRequired, requiredStatus) {
-	return (req, res, next) => new Promise((resolve, reject) => {
+	return (req, res, next) => {
 			const authToken = req.headers['x-auth-token'];
 
 			vqAuth
 			.checkToken(authToken, (err, rAuthUser) => {
 				if (err) {
 					if (loginRequired || adminRequired) {
-						res.status(cust.errorCodes.NOT_AUTHENTIFICATIED.httpCode)
+						return res.status(cust.errorCodes.NOT_AUTHENTIFICATIED.httpCode)
 							.send(cust.errorCodes.NOT_AUTHENTIFICATIED);
-
-						return reject(cust.errorCodes.NOT_AUTHENTIFICATIED.httpCode);
 					}
-					
+
 					return next();	
 				}
 
@@ -50,55 +48,44 @@ function parseUserFactory (loginRequired, adminRequired, requiredStatus) {
 					})
 					.then(user => {
 						if (!user) {
-							res.status(cust.errorCodes.NOT_AUTHENTIFICATIED.httpCode)
-							.send(cust.errorCodes.NOT_AUTHENTIFICATIED);
-						
-							return reject(cust.errorCodes.NOT_AUTHENTIFICATIED.httpCode);
+							return res.status(cust.errorCodes.NOT_AUTHENTIFICATIED.httpCode)
+								.send(cust.errorCodes.NOT_AUTHENTIFICATIED);
 						}
 
 						if (user.status == '20') {
-							res.status(cust.errorCodes.USER_BLOCKED.httpCode)
-							.send(cust.errorCodes.USER_BLOCKED);
-					
-							return reject(cust.errorCodes.USER_BLOCKED.httpCode);
+							return res.status(cust.errorCodes.USER_BLOCKED.httpCode)
+								.send(cust.errorCodes.USER_BLOCKED);
 						}
 
 						if (requiredStatus && user.status !== requiredStatus) {
-							res.status(cust.errorCodes.NO_RIGHTS.httpCode)
-							.send(cust.errorCodes.NO_RIGHTS);
-					
-							return reject(cust.errorCodes.NO_RIGHTS.httpCode);
+							return res.status(cust.errorCodes.NO_RIGHTS.httpCode)
+								.send(cust.errorCodes.NO_RIGHTS);
 						}
 
 						req.user = user.dataValues;
 
 						if (adminRequired && !req.user.isAdmin) {
-							res.status(cust.errorCodes.NOT_AUTHENTIFICATIED.httpCode)
-							.send(cust.errorCodes.NOT_AUTHENTIFICATIED);
-					
-							return reject(cust.errorCodes.NOT_AUTHENTIFICATIED.httpCode);
+							return res.status(cust.errorCodes.NOT_AUTHENTIFICATIED.httpCode)
+								.send(cust.errorCodes.NOT_AUTHENTIFICATIED);
 						}
 
-						return next ? next() : resolve();
+						return next();
 					}, err => {
 						if (err) {
-							res.status(cust.errorCodes.DATABASE_ERROR.httpCode)
+							return res.status(cust.errorCodes.DATABASE_ERROR.httpCode)
 							.send(cust.errorCodes.DATABASE_ERROR);
-		
-							return reject(cust.errorCodes.DATABASE_ERROR.httpCode);
 						}
 					});
 				} else {
 					if (loginRequired || adminRequired) {
-						res.status(cust.errorCodes.NOT_AUTHENTIFICATIED.httpCode).send(cust.errorCodes.NOT_AUTHENTIFICATIED);
-						
-						return reject(cust.errorCodes.NOT_AUTHENTIFICATIED.httpCode);
+						return res.status(cust.errorCodes.NOT_AUTHENTIFICATIED.httpCode)
+							.send(cust.errorCodes.NOT_AUTHENTIFICATIED);
 					}
 					
-					return next ? next() : resolve();
+					return next()
 				}
 			});
-		});
+		};
 }
 
 const isLoggedIn = parseUserFactory(true, false);
