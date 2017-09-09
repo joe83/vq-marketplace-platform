@@ -70,12 +70,19 @@ module.exports = app => {
             query.include.push({
                 model: models.request,
                 include: [
-                    { model: models.user, as: 'fromUser' },
+                    { 
+                        model: models.user,
+                        as: 'fromUser'
+                    }
                 ]
             });
 
             query.include.push({
                 model: models.taskTiming
+            });
+
+            query.include.push({
+                model: models.taskLocation
             });
 
             
@@ -323,9 +330,11 @@ module.exports = app => {
                 .then(task => task[0] ? cb(null, task[0]) : cb('Not found')),
             cb => 
                 models.taskCategory
-                .findAll({ where: {
-                    taskId: req.params.taskId
-                }})
+                .findAll({ 
+                    where: {
+                        taskId: req.params.taskId
+                    }
+                })
                 .then(categories => cb(null, categories), err => cb(err)),
             cb => 
                 models.taskImage

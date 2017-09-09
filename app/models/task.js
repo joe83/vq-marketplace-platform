@@ -3,7 +3,8 @@ module.exports = (sequelize, DataTypes) => {
     ACTIVE: '0',
     INACTIVE: '103',
     CREATION_IN_PROGRESS: '10',
-    BOOKED: '20'
+    BOOKED: '20',
+    SPAM: '99'
   };
 
   const PRICE_TYPE = {
@@ -33,7 +34,8 @@ module.exports = (sequelize, DataTypes) => {
         TASK_STATUS.ACTIVE,
         TASK_STATUS.INACTIVE,
         TASK_STATUS.CREATION_IN_PROGRESS,
-        TASK_STATUS.BOOKED
+        TASK_STATUS.BOOKED,
+        TASK_STATUS.SPAM
       ),
       defaultValue: TASK_STATUS.CREATION_IN_PROGRESS
     }

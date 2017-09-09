@@ -5,7 +5,7 @@ module.exports = (sequelize, DataTypes) => {
     tableName: 'taskCategory',
     classMethods: {
         associate: models => {
-            TaskCategory.belongsTo(models.task);
+          TaskCategory.belongsTo(models.task);
         }
     }
   });

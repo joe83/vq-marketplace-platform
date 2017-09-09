@@ -11,7 +11,10 @@ module.exports = app => {
 		next();
 	}
 
-	app.get('/', (req, res) => res.send('VQ is up and running'));
+	app.get('/', (req, res) =>
+		res
+		.send('VQ is up and running')
+	);
 
 	var getSkills = (req, res) => {
 		var Skills = [

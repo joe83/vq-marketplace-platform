@@ -59,6 +59,10 @@ module.exports = (sequelize, DataTypes) => {
     imageUrl: {
       type: DataTypes.STRING
     },
+    avgReviewRate: {
+      type: DataTypes.FLOAT,
+      default: 3
+    }
   }, {
     paranoid: true,
     tableName: 'user',
@@ -66,6 +70,9 @@ module.exports = (sequelize, DataTypes) => {
         associate: models => {
           User.hasMany(models.userProperty);
           User.hasMany(models.userPreference);
+          User.hasMany(models.review, {
+            foreignKey: 'toUserId'
+          });
         }
     }
   });

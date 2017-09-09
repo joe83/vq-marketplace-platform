@@ -134,7 +134,15 @@ module.exports = app => {
                         model: models.request,
                     },
                     {
-                        model: models.task
+                        model: models.task,
+                        include: [
+                            {
+                                model: models.taskLocation
+                            },
+                            {
+                                model: models.taskTiming
+                            }
+                        ]
                     },
                     {
                         model: models.review
@@ -147,24 +155,46 @@ module.exports = app => {
                 
                 async
                     .eachLimit(orders, 3, (order, cb) => {
+                        const data = {};
                         const fromUserId = order.request.fromUserId;
-                        
-                        models.user.findOne({
-                            where: {
-                                id: fromUserId
-                            },
-                            include: [
-                                {
-                                    model: models.userProperty
-                                }
-                            ]
-                        })
-                        .then(user => {
-                            order = order.dataValues;
-                            order.fromUser = user.dataValues;
+                        const task = order.task;
 
-                            cb();
-                        }, cb);
+                        async.parallel([
+                            cb =>
+                                models.taskCategory
+                                .findAll({
+                                    where: {
+                                        taskId: task.id
+                                    }
+                                })
+                                .then(categories => {
+                                    task.dataValues.categories = categories;
+    
+                                    return cb();
+                                }, cb),
+                            cb => models.user.findOne({
+                                where: {
+                                    id: fromUserId
+                                },
+                                include: [
+                                    {
+                                        model: models.userProperty
+                                    }
+                                ]
+                            })
+                            .then(user => {
+                                order = order.dataValues;
+                                order.fromUser = user.dataValues;
+    
+                                return cb();
+                            }, cb)
+                        ], err => {
+                            if (err) {
+                                return cb(err);
+                            }
+    
+                            return cb();
+                        });
                     }, err => {
                         sendResponse(res, err, orders);
                     });

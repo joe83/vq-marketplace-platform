@@ -6,6 +6,9 @@ const isAdmin = resCtrl.isAdmin;
 const sendResponse = resCtrl.sendResponse;
 const models  = require('../models/models');
 
+const userEmitter = require("../events/user");
+const taskEmitter = require("../events/task");
+
 const analyzeEntityNo = entityName =>
 	models[entityName].findAndCountAll({})
 	.then(result => {
@@ -76,13 +79,47 @@ module.exports = app => {
 
 	app.get("/api/admin/request", isLoggedIn, isAdmin, (req, res) => models.request
 		.findAll({
-			order: '"createdAt" DESC',
+			order: [[ 'createdAt', 'DESC' ]],
 			include: [
 				{ model: models.task },
 				{ model: models.user, as: 'fromUser' }
 			]
 		})
 		.then(data => res.send(data)));
+
+	app.get("/api/admin/task", isLoggedIn, isAdmin, (req, res) => models.task
+		.findAll({
+			order: [[ 'createdAt', 'DESC' ]],
+			include: []
+		})
+		.then(data => res.send(data)));
+
+		app.put("/api/admin/task/:taskId/spam", 
+			isLoggedIn,
+			isAdmin,
+			(req, res) => {
+				models
+				.task
+				.findById(req.params.taskId)
+				.then(
+					task => {
+						if (!task) {
+							return sendResponse(res, 'NOT_FOUND');
+						}
+						
+						task
+							.update({
+								status: models.task.TASK_STATUS.SPAM
+							});
+
+						sendResponse(res, null, task);
+
+						taskEmitter
+							.emit('marked-spam', task);
+					}, 
+					err => sendResponse(res, err)
+				);
+			});
 
 	app.get("/api/admin/order", isLoggedIn, isAdmin, (req, res) => models.request
 		.findAll({
@@ -97,18 +134,21 @@ module.exports = app => {
 		isLoggedIn,
 		isAdmin,
 		(req, res) => {
-			models.user
-            .update({
-                status: models.user.USER_STATUS.BLOCKED
-            }, {
-                where: {
-                    id: req.params.userId
-                }
-            })
-            .then(
-                data => sendResponse(res, null, data), 
-                err => sendResponse(res, err)
-            );
+			models
+			.user.findById(req.params.userId)
+			.then(user => {
+				if (!user) {
+					return sendResponse(res, "NOT_FOUND");
+				}
+
+				user.update({
+					status: models.user.USER_STATUS.BLOCKED
+				});
+
+				sendResponse(res, null, user);
+
+				userEmitter.emit('blocked', user);
+			}, err => sendResponse(res, err));
 		});
 	
 	app.put("/api/admin/user/:userId/unblock", 

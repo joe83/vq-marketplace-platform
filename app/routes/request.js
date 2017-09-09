@@ -105,6 +105,7 @@ module.exports = app => {
         models.request
             .findAll({
                 where,
+                order: [[ 'createdAt', 'DESC' ]],
                 include: [
                     { model: models.review }
                 ]
@@ -146,22 +147,56 @@ module.exports = app => {
                     });
                 },
                 cb => {
-                    models.task.findOne({
-                        where: {
-                            id: item.taskId
-                        },
-                        include: [
-                            { model: models.taskTiming }
-                        ]
-                    }).then(task => {
-                        item.dataValues.task = task;
+                    const data = {};
 
-                        cb();
+                    async.parallel([
+                        cb => {
+                            models.task.findOne({
+                                where: {
+                                    id: item.taskId
+                                },
+                                include: [
+                                    { model: models.taskTiming },
+                                    { model: models.taskLocation },
+                                ]
+                            })
+                            .then(task => {
+                                data.task = task;
+
+                                return cb();
+                            }, cb);
+                        },
+                        cb =>
+                            models.taskCategory
+                            .findAll({
+                                where: {
+                                    taskId: item.taskId
+                                }
+                            })
+                            .then(categories => {
+                                data.categories = categories;
+
+                                return cb(null, categories);
+                            }, cb)
+                    ], err => {
+                        if (err) {
+                            return cb(err);
+                        }
+
+
+                        data.task.dataValues.categories = data.categories;
+
+                        item.dataValues.task = data.task;
+
+                        return cb();
                     });
-                }], cb)
+                }
+            ], cb);
             }, err => err ? res.status(500).send(err) : res.send(data)))
             .catch(err => {
-                res.status(500).send(err)
+                res
+                    .status(500)
+                    .send(err);
             });
     });
 
