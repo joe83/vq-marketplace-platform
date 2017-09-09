@@ -113,6 +113,11 @@ requestEmitter
 	);
 
 requestEmitter
+	.on('request-declined',
+	requestEventHandlerFactory('request-declined', (domain, requestId) => `${domain}/app/dashboard`)
+);
+
+requestEmitter
 	.on('new-request', requestId => {
 		var fromUser, toUser, request;
 		var requestSentEmails;

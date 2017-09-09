@@ -5,6 +5,23 @@ const models  = require('../models/models');
 const requestEmitter = require("../events/request");
 const orderEmitter = require("../events/order");
 
+const declineRequest = (requestId, cb) => {
+    const newStatus = models.request.REQUEST_STATUS.DECLINED;
+
+    models
+    .request
+    .findById(requestId)
+    .then(request => {
+        request
+        .update({
+            status: models.request.REQUEST_STATUS.DECLINED
+        });
+
+        requestEmitter.emit('request-declined', request.id);
+    });
+
+};
+
 const changeRequestStatus = (requestId, newStatus, userId, cb) => {
     newStatus = String(newStatus);
     userId = Number(userId);
@@ -96,5 +113,6 @@ const changeRequestStatus = (requestId, newStatus, userId, cb) => {
 };
 
 module.exports = {
-    changeRequestStatus
+    changeRequestStatus,
+    declineRequest
 };

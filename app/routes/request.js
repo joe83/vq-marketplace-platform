@@ -69,11 +69,23 @@ module.exports = app => {
 
         const where = {
             $and: [{
-                $or: [
+                $and: [
                     {
-                        fromUserId: userId
-                    }, {
-                        toUserId: userId
+                        $or: [
+                            { status: models.request.REQUEST_STATUS.PENDING },
+                            { status: models.request.REQUEST_STATUS.ACCEPTED },
+                            { status: models.request.REQUEST_STATUS.MARKED_DONE }
+                        ]
+                    },
+                    {
+                        $or: [
+                            
+                            {
+                                fromUserId: userId
+                            }, {
+                                toUserId: userId
+                            }
+                        ]
                     }
                 ]
             }]

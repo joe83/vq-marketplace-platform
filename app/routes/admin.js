@@ -5,7 +5,7 @@ const isLoggedIn = resCtrl.isLoggedIn;
 const isAdmin = resCtrl.isAdmin;
 const sendResponse = resCtrl.sendResponse;
 const models  = require('../models/models');
-
+const requestCtrl = require("../controllers/requestCtrl");
 const userEmitter = require("../events/user");
 const taskEmitter = require("../events/task");
 
@@ -116,6 +116,14 @@ module.exports = app => {
 
 						taskEmitter
 							.emit('marked-spam', task);
+
+						task.getRequests()
+						.then(requests => {
+							requests.forEach(request => {
+								requestCtrl
+								.declineRequest(request.id, err => console.error(err));
+							});
+						}, err => console.error(err));
 					}, 
 					err => sendResponse(res, err)
 				);
