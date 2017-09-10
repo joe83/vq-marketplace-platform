@@ -74,6 +74,16 @@ const settleOrder = (orderId, userId, cb) => {
     });
 };
 
-module.exports = {
-    settleOrder
-};
+if (module.parent) {
+    module.exports = {
+        settleOrder
+    };
+} else {
+    settleOrder(process.argv[2], process.argv[3], err => {
+        if (err) {
+            return console.error(err);
+        }
+        
+        console.log("SUCCESS");
+    });
+}

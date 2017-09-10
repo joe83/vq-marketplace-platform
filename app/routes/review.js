@@ -220,14 +220,41 @@ module.exports = app => {
                 ]
             })
             .then(reviews => {
-                console.log(reviews);
-                res.send(reviews);
+                async.eachSeries(reviews, (review, cb) => {
+                    models.review
+                        .findOne({
+                            where: {
+                                $and: [
+                                    { taskId: review.taskId },
+                                    { fromUserId: review.toUserId },
+                                ]
+                            }
+                        })
+                        .then(oppositeReview => {
+                            if (oppositeReview) {
+                                review.dataValues.canBeShown = true;
+
+                                return cb();
+                            }
+
+                            delete review.dataValues.rate;
+                            delete review.dataValues.body;
+
+                            return cb();
+                        });
+                }, () => {
+                    res.send(reviews);
+                }, err => {
+                    res
+                        .status(400)
+                        .send(err);
+                });
             }, err => {
                 console.log(err);
 
                 res
-                .status(500)
-                .send(err);
+                    .status(400)
+                    .send(err);
             });
         });
 };

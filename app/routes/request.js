@@ -74,12 +74,11 @@ module.exports = app => {
                         $or: [
                             { status: models.request.REQUEST_STATUS.PENDING },
                             { status: models.request.REQUEST_STATUS.ACCEPTED },
-                            { status: models.request.REQUEST_STATUS.MARKED_DONE }
+                            { status: models.request.REQUEST_STATUS.MARKED_DONE },
+                            { status: models.request.REQUEST_STATUS.SETTLED }
                         ]
-                    },
-                    {
+                    }, {
                         $or: [
-                            
                             {
                                 fromUserId: userId
                             }, {
@@ -119,7 +118,8 @@ module.exports = app => {
                 where,
                 order: [[ 'createdAt', 'DESC' ]],
                 include: [
-                    { model: models.review }
+                    { model: models.review },
+                    { model: models.order }
                 ]
             })
             .then(data => async

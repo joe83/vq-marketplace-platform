@@ -202,6 +202,31 @@ module.exports = app => {
             .catch(err => sendResponse(res, err));
         });
 
+    app.put('/api/order/:orderId/actions/cancel-autosettlement',
+        isLoggedIn,
+        (req, res) => {
+            const orderId = req.params.orderId;
+            const userId = req.user.id;
+
+            models.order
+                .update({
+                    autoSettlementStartedAt: null
+                }, {
+                    where: {
+                        $and: [
+                            {
+                                id: orderId
+                            }, {
+                                userId
+                            }
+                        ]
+                    }
+                })
+                .then(order => {
+                    sendResponse(res, null, { ok: 'ok' });
+                }, err => sendResponse(res, err));
+        });
+
     /**
      * Settles the order and the underlying request
      */

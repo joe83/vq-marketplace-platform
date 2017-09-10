@@ -21,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
         default: 0
       },
       autoSettlementStartedAt: {
+        allowNull: true,
         type: DataTypes.DATE
       },
       settledAt: {

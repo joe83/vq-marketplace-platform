@@ -87,6 +87,25 @@ module.exports = app => {
 		})
 		.then(data => res.send(data)));
 
+	app.get("/api/admin/request/:requestId/messages", isLoggedIn, isAdmin, (req, res) =>
+		models
+		.message
+		.findAll({
+			order: [[ 'createdAt', 'DESC' ]],
+			include: [
+				// { model: models.task },
+				{ model: models.user, as: 'fromUser' }
+			],
+			where: {
+				requestId: req.params.requestId
+			}
+		})
+		.then(data => {
+			return res.send(data)
+		}, err => {
+			return res.status(400).send(err);
+		}));
+
 	app.get("/api/admin/task", isLoggedIn, isAdmin, (req, res) => models.task
 		.findAll({
 			order: [[ 'createdAt', 'DESC' ]],
