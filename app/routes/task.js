@@ -60,7 +60,7 @@ const getTaskAdditionalInfo = taskId => new Promise((resolve, reject) => async.p
 }));
 
 module.exports = app => {
-	app.get('/api/task', 
+	app.get('/api/task',
         identifyUser, 
         (req, res) => {
             const query = {};
@@ -167,6 +167,30 @@ module.exports = app => {
                 )
                 .then(
                     tasks =>  sendResponse(res, null, tasks),
+                    err => sendResponse(res, err)
+                )
+            });
+    
+        app.get('/api/task/location/last',
+        isLoggedIn, 
+        (req, res) => {
+            return models.taskLocation
+                .findOne({
+                    order: '"createdAt" DESC',
+                    include: [
+                        {
+                            model: models.task,
+                            include: [
+                                {
+                                    model: models.user,
+                                    require: true
+                                }
+                            ]
+                        }
+                    ]
+                })
+                .then(lastLocation =>
+                    sendResponse(res, null, lastLocation),
                     err => sendResponse(res, err)
                 )
             });

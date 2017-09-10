@@ -222,4 +222,30 @@ module.exports = app => {
                 sendResponse(res, err);
             });
     });
+
+    app.get('/api/request/:requestId/order', isLoggedIn, (req, res) => {
+        const requestId = req.params.requestId;
+
+        models.order
+            .findOne({
+                requestId: req.params.requestId
+            })
+            .then(order => {
+                sendResponse(res, null, order);
+            }, err => sendResponse(res, err));
+    });
+
+    app.get('/api/order/:orderId/request', isLoggedIn, (req, res) => {
+        const orderId = req.params.orderId;
+
+        models.order
+            .findById(orderId)
+            .then(order => {
+                models.request
+                .findById(order.requestId)
+                .then(request => {
+                    return sendResponse(res, null, request);
+                }, err => sendResponse(res, err))
+            }, err => sendResponse(res, err))
+    });
 };

@@ -240,6 +240,8 @@ module.exports = app => {
                             delete review.dataValues.rate;
                             delete review.dataValues.body;
 
+                            review.dataValues.body;
+                            
                             return cb();
                         });
                 }, () => {
