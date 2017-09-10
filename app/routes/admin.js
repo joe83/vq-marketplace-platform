@@ -142,6 +142,8 @@ module.exports = app => {
 		isLoggedIn,
 		isAdmin,
 		(req, res) => {
+			const userId = req.params.userId;
+
 			models
 			.user.findById(req.params.userId)
 			.then(user => {
@@ -149,13 +151,116 @@ module.exports = app => {
 					return sendResponse(res, "NOT_FOUND");
 				}
 
-				user.update({
-					status: models.user.USER_STATUS.BLOCKED
-				});
+				models
+				.request
+				.findOne({
+					where: {
+						$and: [
+							{
+								$or: [
+									{ fromUserId: userId },
+									{ toUserId: userId }
+								]
+							}, {
+								$or: [
+									{ status: models.request.REQUEST_STATUS.ACCEPTED },
+									{ status: models.request.REQUEST_STATUS.MARKED_DONE }
+								]
+							}
+						]
+					}
+				})
+				.then(outstandingRequest => {
+					if (outstandingRequest) {
+						return sendResponse(res, {
+							code: "CANNOT_BLOCK"
+						});
+					}
 
-				sendResponse(res, null, user);
+					console.log('[ADMIN] Blocking user.');
 
-				userEmitter.emit('blocked', user);
+					user.update({
+						status: models.user.USER_STATUS.BLOCKED
+					});
+
+					console.log('[ADMIN] Setting active tasks of the blocked user to INACTIVE.');
+					models.task.update({
+						status: models.task.TASK_STATUS.INACTIVE
+					}, {
+						where: {
+							$and: [
+								{
+									userId
+								}, {
+									$or: [
+										{ 
+											status: models.task.TASK_STATUS.CREATION_IN_PROGRESS
+										}, { 
+											status: models.task.TASK_STATUS.PENDING
+										}
+									]
+								}
+							]
+						}
+					})
+					.then(_ => _, err => {
+						console.error(err);
+					});
+					
+					console.log('[ADMIN] Setting pending request to the blocked user to DECLINED.');
+					models
+					.request
+					.update({
+						status: models.request.REQUEST_STATUS.DECLINED
+					}, {
+						where: {
+							$and: [
+								{
+									toUserId: userId
+								}, {
+									$or: [
+										{
+											status: models.request.REQUEST_STATUS.PENDING
+										}
+									]
+								}
+							]
+						}
+					})
+					.then(_ => _, err => {
+						console.error(err);
+					});
+
+					console.log('[ADMIN] Setting pending request to the blocked user to CANCELED.');
+					models
+					.request
+					.update({
+						status: models.request.REQUEST_STATUS.CANCELED
+					}, {
+						where: {
+							$and: [
+								{
+									fromUserId: userId
+								}, {
+									$or: [
+										{
+											status: models.request.REQUEST_STATUS.PENDING
+										}
+									]
+								}
+							]
+						}
+					})
+					.then(_ => _, err => {
+						console.error(err);
+					});
+			
+					sendResponse(res, null, user);
+
+					userEmitter
+						.emit('blocked', user);
+					
+					});
 			}, err => sendResponse(res, err));
 		});
 	

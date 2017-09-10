@@ -72,7 +72,7 @@ module.exports = app => {
                 include: [
                     { 
                         model: models.user,
-                        as: 'fromUser'
+                        as: 'fromUser',
                     }
                 ]
             });
@@ -85,7 +85,6 @@ module.exports = app => {
                 model: models.taskLocation
             });
 
-            
             if (req.query && req.query.category) {
                 query.include.push(
                     { 
