@@ -461,31 +461,20 @@ module.exports = app => {
             } 
         }))
         .then(task => {
-            sendResponse(res, null, { ok: true });
+            sendResponse(res, null, {
+                ok: true
+            });
 
             if (newStatus === models.task.TASK_STATUS.INACTIVE) {
                 // decline all requests
-
-                models.request.findAll({
-                    where: {
-                        $and: [
-                            { taskId: taskId },
-                            { status: models.request.REQUEST_STATUS.PENDING }
-                        ]
+                requestCtrl
+                .declineAllPendingRequestsForTask(taskId, err => {
+                    if (err) {
+                        console.error(err);
                     }
-                })
-                .then(pendingRequests => {
-                    async.eachSeries(pendingRequests, (request, cb) => {
-                        return requestCtrl.declineRequest(request.id, cb);
-                    }, err => {
-                        if (err) {
-                            console.error(err);
-                        }
 
-                        console.log(`[SUCCESS] All pending requests for task ${taskId} have been declined!`);
-                    });
+                    console.log(`[SUCCESS] All pending requests for task ${taskId} have been declined!`);
                 });
-
             }
 
         }, err => sendResponse(res, err));

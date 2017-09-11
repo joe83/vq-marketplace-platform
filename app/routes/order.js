@@ -6,6 +6,7 @@ const sendResponse = responseController.sendResponse;
 const orderEmitter = require("../events/order");
 const requestEmitter = require("../events/request");
 const orderCtrl = require("../controllers/orderCtrl");
+const requestCtrl = require("../controllers/requestCtrl");
 const RESOURCE = 'order';
 
 module.exports = app => {
@@ -35,6 +36,8 @@ module.exports = app => {
                         }
                     })
                     .then(() => cb(), cb),
+                cb => requestCtrl
+                    .declineAllPendingRequestsForTask(order.taskId, cb),
                 cb => models.task
                     .update({
                         status: models.task.TASK_STATUS.BOOKED

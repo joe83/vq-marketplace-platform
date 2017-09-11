@@ -17,9 +17,27 @@ const declineRequest = (requestId, cb) => {
             status: models.request.REQUEST_STATUS.DECLINED
         });
 
-        requestEmitter.emit('request-declined', request.id);
-    });
+        if (cb) {
+            cb();
+        }
 
+        requestEmitter.emit('request-declined', request.id);
+    }, cb);
+};
+
+const declineAllPendingRequestsForTask = (taskId, cb) => {
+    models.request.findAll({
+        where: {
+            $and: [
+                { taskId: taskId },
+                { status: models.request.REQUEST_STATUS.PENDING }
+            ]
+        }
+    }).then(pendingRequests => {
+        async.eachSeries(pendingRequests, (request, cb) => {
+            return declineRequest(request.id, cb);
+        }, cb);
+    });
 };
 
 const changeRequestStatus = (requestId, newStatus, userId, cb) => {
@@ -113,6 +131,7 @@ const changeRequestStatus = (requestId, newStatus, userId, cb) => {
 };
 
 module.exports = {
+    declineAllPendingRequestsForTask,
     changeRequestStatus,
     declineRequest
 };
