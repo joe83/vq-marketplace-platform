@@ -392,7 +392,10 @@ module.exports = app => {
                                 taskId: req.params.taskId
                             }
                         ]
-                    }
+                    },
+                    include: [
+                        { model: models.user, as: 'fromUser' }
+                    ]
                 })
                 .then(requests => cb(null, requests), err => cb(err))
         ], (err, data) => {
