@@ -2,6 +2,7 @@ const async = require('async');
 const sendResponse = require("../controllers/responseController.js").sendResponse;
 const identifyUser = require("../controllers/responseController.js").identifyUser;
 const isLoggedIn = require("../controllers/responseController.js").isLoggedIn;
+const requestCtrl = require("../controllers/requestCtrl.js");
 const isLoggedInAndVerified = require("../controllers/responseController.js").isLoggedInAndVerified;
 const cust = require("../config/customizing.js");
 const models  = require('../models/models');
@@ -463,7 +464,28 @@ module.exports = app => {
             sendResponse(res, null, { ok: true });
 
             if (newStatus === models.task.TASK_STATUS.INACTIVE) {
-                
+                // decline all requests
+
+                models.request.findAll({
+                    where: {
+                        $and: [
+                            { taskId: taskId },
+                            { status: models.request.REQUEST_STATUS.PENDING }
+                        ]
+                    }
+                })
+                .then(pendingRequests => {
+                    async.eachSeries(pendingRequests, (request, cb) => {
+                        return requestCtrl.declineRequest(request.id, cb);
+                    }, err => {
+                        if (err) {
+                            console.error(err);
+                        }
+
+                        console.log(`[SUCCESS] All pending requests for task ${taskId} have been declined!`);
+                    });
+                });
+
             }
 
         }, err => sendResponse(res, err));
