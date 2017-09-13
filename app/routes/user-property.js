@@ -1,8 +1,10 @@
 const async = require('async');
 const responseController = require("../controllers/responseController.js");
 const cust = require("../config/customizing.js");
-const isLoggedIn = responseController.isLoggedIn;
 const models = require("../models/models.js");
+const isLoggedIn = responseController.isLoggedIn;
+const identifyUser = responseController.identifyUser;
+
 
 module.exports = app => {
   function pong (req, res, next) {
@@ -11,7 +13,7 @@ module.exports = app => {
     next();
   }
  
-  app.get('/api/user/:userId/property', (req, res) => {
+  app.get('/api/user/:userId/property', identifyUser, (req, res) => {
     const userId = req.params.userId;
 
     async
@@ -20,10 +22,10 @@ module.exports = app => {
                 .userProperty
                 .findAll({
                     where: { 
-                        userId,
+                        userId
                     }
                 })
-                .then(properties => 
+                .then(properties =>
                     cb(null, properties)
                 , cb)
         ], (err, properties) => {

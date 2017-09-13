@@ -273,16 +273,21 @@ module.exports = app => {
     app.post('/api/task/:taskId/timing',
         isLoggedIn,
         (req, res) => {
+            const taskId = req.params.taskId;
+
             isMyTask(req.params.taskId, req.user.id)
             .then(() => models.taskTiming.destroy({
                 where: {
-                    taskId: req.params.taskId
+                    taskId
                 }
             }))
             .then(() => new Promise((resolve, reject) =>
                 async.each(req.body.dates, (timing, cb) => {
                     try {
-                        timing = new Date(timing).toISOString().slice(0, 19).replace('T', ' ');
+                        timing.date = new Date(timing.date)
+                            .toISOString().slice(0, 19).replace('T', ' ');
+                        timing.endDate = new Date(timing.endDate)
+                            .toISOString().slice(0, 19).replace('T', ' ');
                     } catch(err) {
                         return cb (err);
                     }
@@ -290,9 +295,10 @@ module.exports = app => {
                     return models.taskTiming
                         .create({
                             duration: req.body.duration,
-                            date: timing,
+                            date: timing.date,
+                            endDate: timing.endDate,
                             type: '',
-                            taskId: req.params.taskId
+                            taskId
                         })
                         .then(ok => cb(), err => cb(err))
                 }, err => {
@@ -343,7 +349,7 @@ module.exports = app => {
         async.parallel([
             cb => 
                 models.task
-                .findAll({
+                .findOne({
                     where: {
                         id: req.params.taskId
                     },
@@ -351,7 +357,15 @@ module.exports = app => {
                         model: models.user
                     }]
                 })
-                .then(task => task[0] ? cb(null, task[0]) : cb('Not found')),
+                .then(task => {
+                    if (!task) {
+                        return cb({
+                            code: 'LISTING_NOT_FOUND'
+                        });
+                    }
+
+                    return cb(null, task);
+                }, cb),
             cb => 
                 models.taskCategory
                 .findAll({ 

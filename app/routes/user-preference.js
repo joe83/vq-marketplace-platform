@@ -14,7 +14,9 @@ module.exports = app => {
   }
 
   app.get('/api/user/:userId/preference', (req, res) => {
-    models.userPreference.findAll({ 
+    models
+    .userPreference
+    .findAll({ 
         where: { 
             userId: req.params.userId 
         }
@@ -45,7 +47,7 @@ module.exports = app => {
         userId: req.user.id,
         type: 'category',
         value: req.body.value
-    }
+    };
     
     models.userPreference
     .findOne({

@@ -57,7 +57,7 @@ const settleOrder = (orderId, userId, cb) => {
                     id: requestId
                 }
             })
-            .then(() => cb(), cb)
+            .then(() => cb(), cb);
         }
     ], err => {
         if (err) {
