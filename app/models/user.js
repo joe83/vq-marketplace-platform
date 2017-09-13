@@ -34,7 +34,7 @@ module.exports = (sequelize, DataTypes) => {
     // here it is specified if the user is buyer or seller
     userType: {
       type: DataTypes.INTEGER,
-      default: 0,
+      defaultValue: 0,
       required: true
     },
     firstName: {
@@ -44,7 +44,7 @@ module.exports = (sequelize, DataTypes) => {
     isAdmin: {
       type: DataTypes.BOOLEAN,
       required: false,
-      default: false
+      defaultValue: false
     },
     lastName: {
       type: DataTypes.STRING,
@@ -61,7 +61,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     avgReviewRate: {
       type: DataTypes.FLOAT,
-      default: 3
+      defaultValue: 3
     }
   }, {
     paranoid: true,
