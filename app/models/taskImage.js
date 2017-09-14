@@ -3,12 +3,11 @@ module.exports = (sequelize, DataTypes) => {
     imageUrl: { type: DataTypes.STRING }
   }, {
     tableName: 'taskImage',
-    classMethods: {
-        associate: models => {
-            TaskImage.belongsTo(models.task);
-        }
-    }
   });
+
+  TaskImage.associate = models => {
+    TaskImage.belongsTo(models.task);
+  };
 
   return TaskImage;
 };

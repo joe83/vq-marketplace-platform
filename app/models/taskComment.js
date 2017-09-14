@@ -5,13 +5,12 @@ module.exports = (sequelize, DataTypes) => {
       }
   }, {
       tableName: 'taskComment',
-      classMethods: {
-        associate: models => {
-          TaskComment.belongsTo(models.user);
-          TaskComment.belongsTo(models.task);
-        }
-      }
   });
+
+  TaskComment.associate = models => {
+    TaskComment.belongsTo(models.user);
+    TaskComment.belongsTo(models.task);
+  };
 
   return TaskComment;
 };

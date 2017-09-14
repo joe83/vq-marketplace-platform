@@ -218,8 +218,8 @@ module.exports = app => {
         const requestId = req.params.requestId;
        
         requestCtrl
-            .changeRequestStatus(requestId, newStatus, userId, (err, request) => {
-                sendResponse(res, err);
+            .changeRequestStatus(requestId, newStatus, userId, (err, request) =>{
+                return sendResponse(res, err, request);
             });
     });
 

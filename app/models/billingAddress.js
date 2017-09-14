@@ -45,12 +45,11 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {
     tableName: 'billingAddress',
-    classMethods: {
-        associate: models => {
-            BillingAddress.belongsTo(models.user);
-        }
-    }
   });
+
+  BillingAddress.associate = models => {
+    BillingAddress.belongsTo(models.user);
+  };
 
   return BillingAddress;
 };

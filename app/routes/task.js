@@ -5,11 +5,14 @@ const isLoggedIn = require("../controllers/responseController.js").isLoggedIn;
 const requestCtrl = require("../controllers/requestCtrl.js");
 const isLoggedInAndVerified = require("../controllers/responseController.js").isLoggedInAndVerified;
 const cust = require("../config/customizing.js");
-const models  = require('../models/models');
+const models = require('../models/models');
+const utils = require('../utils');
 const striptags = require('striptags');
 
 const isMyTask = (taskId, myUserId) => {
-    return models.task.findOne({
+    return models
+    .task
+    .findOne({
         where: [
             { id: taskId }
         ]
@@ -36,15 +39,21 @@ const isMyTask = (taskId, myUserId) => {
 const getTaskAdditionalInfo = taskId => new Promise((resolve, reject) => async.parallel([
     cb => 
         models.taskCategory
-        .findAll({ where: { taskId: taskId } })
+        .findAll({
+            where: { taskId: taskId }
+        })
         .then(categories => cb(null, categories), err => cb(err)),
     cb => 
         models.taskImage
-        .findAll({ where: { taskId: taskId } })
+        .findAll({
+            where: { taskId: taskId }
+        })
         .then(images => cb(null, images), err => cb(err)),
     cb => 
         models.taskLocation
-        .findOne({ where: { taskId: taskId } })
+        .findOne({
+            where: { taskId: taskId }
+        })
         .then(location => cb(null, location), err => cb(err))
 ], (err, data) => {
     if (err) {
@@ -66,6 +75,10 @@ module.exports = app => {
         (req, res) => {
             const query = {};
 
+            query.order = [[
+                'createdAt', 'DESC'
+            ]];
+
             query.include = [];
 
             query.include.push({
@@ -78,14 +91,22 @@ module.exports = app => {
                 ]
             });
 
-            query.include.push({
-                model: models.taskTiming
-            });
+            const timingInclude = {
+                model: models.taskTiming,
+            };
 
-            query.include.push({
-                model: models.taskLocation
-            });
-
+            if (req.query.untilNow) {
+                timingInclude.where = {
+                    endDate: {
+                        $gte: utils.transformJSDateToSqlFormat(new Date())
+                    }
+                };
+            }
+            
+            query
+            .include
+            .push(timingInclude);
+            
             if (req.query && req.query.category) {
                 query.include.push(
                     { 
@@ -94,7 +115,6 @@ module.exports = app => {
                             code: req.query.category
                         }
                     }
-
                 );
 
                 delete req.query.category;
@@ -104,8 +124,49 @@ module.exports = app => {
                 query.where = {};
                 query.where.$and = [];
 
+                const lat = req.query.lat;
+                const lng = req.query.lng;
+    
+                if (lat && lng) {
+                    const location = models.seq
+                        .literal(`ST_GeomFromText('POINT(${lat} ${lng})')`);
+
+                    const distance = models.seq
+                        .fn('ST_Distance_Sphere', models.seq.literal('geo'), location);
+
+                    /*
+                    const attributes = Object
+                        .keys(models.taskLocation.attributes);
+
+                     attributes.push([
+                        distance,
+                        'distance'
+                    ]);
+                    */
+
+                    const seqWhereCond = models
+                        .seq
+                        .where(distance, {
+                            $lte: 2000
+                        });
+                   
+                    query.include.push({
+                        model: models.taskLocation,
+                        where: seqWhereCond
+                    });
+                } else {
+                    query.include.push({
+                        model: models.taskLocation
+                    });
+                }
+
+
+
                 if (req.query.status) {
-                    query.where.$and.push({
+                    query
+                    .where
+                    .$and
+                    .push({
                         status: String(req.query.status)
                     });
                 }
@@ -117,9 +178,38 @@ module.exports = app => {
                 }
 
                 if (req.query.taskType) {
-                    query.where.$and.push({
-                        taskType: req.query.taskType
-                    });
+                    query
+                        .where
+                        .$and
+                        .push({
+                            taskType: req.query.taskType
+                        });
+                }
+
+                if (req.query.minPrice || req.query.maxPrice) {
+                    priceAndConditions = [];
+
+                    if (req.query.minPrice) {
+                        query
+                        .where
+                        .$and
+                        .push({
+                            price: {
+                                $gte: Number(req.query.minPrice)
+                            }
+                        });
+                    }
+                    
+                    if (req.query.maxPrice) {
+                        query
+                            .where
+                            .$and
+                            .push({
+                                price: {
+                                    $lte: Number(req.query.maxPrice)
+                                }
+                            });
+                    }
                 }
             }
 
@@ -168,11 +258,13 @@ module.exports = app => {
                 )
                 .then(
                     tasks =>  sendResponse(res, null, tasks),
-                    err => sendResponse(res, err)
+                    err => {
+                        sendResponse(res, err)
+                    }
                 )
             });
     
-        app.get('/api/task/location/last',
+    app.get('/api/task/location/last',
         isLoggedIn, 
         (req, res) => {
             return models.taskLocation
@@ -221,7 +313,7 @@ module.exports = app => {
             .then(data => sendResponse(res, null, data))
             .catch(err => sendResponse(res, err));
         });
-
+        
    app.post('/api/task/:taskId/category',
         isLoggedIn,
         (req, res) => {
@@ -284,10 +376,8 @@ module.exports = app => {
             .then(() => new Promise((resolve, reject) =>
                 async.each(req.body.dates, (timing, cb) => {
                     try {
-                        timing.date = new Date(timing.date)
-                            .toISOString().slice(0, 19).replace('T', ' ');
-                        timing.endDate = new Date(timing.endDate)
-                            .toISOString().slice(0, 19).replace('T', ' ');
+                        timing.date = utils.transformJSDateToSqlFormat(new Date(timing.date));
+                        timing.endDate = utils.transformJSDateToSqlFormat(new Date(timing.endDate));
                     } catch(err) {
                         return cb (err);
                     }
@@ -326,14 +416,28 @@ module.exports = app => {
                 }
             }))
             .then(() => new Promise((resolve, reject) => {
+                const taskLocation = req.body;
+                const lat = taskLocation.lat;
+                const lng = taskLocation.lng;
+
+                const geoPoint = {
+                    type: 'Point',
+                    coordinates: [
+                        lat,
+                        lng
+                    ]
+                };
+
+                taskLocation.geo = geoPoint;
+
                 return models
-                .taskLocation
-                .create(req.body)
-                .then(_ => {
-                    resolve(_);
-                }, _ => {
-                    reject(_);
-                });
+                    .taskLocation
+                    .create(taskLocation)
+                    .then(_ => {
+                        resolve(_);
+                    }, _ => {
+                        reject(_);
+                    });
             }))
             .then(taskLocation => {
                 return sendResponse(res, null, taskLocation);

@@ -40,21 +40,20 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: TASK_STATUS.CREATION_IN_PROGRESS
     }
   }, {
-    tableName: 'task',
-    classMethods: {
-        associate: models => {
-            Task.belongsTo(models.user);
-            Task.hasMany(models.taskCategory);
-            Task.hasMany(models.taskImage);
-            Task.hasMany(models.taskLocation);
-            Task.hasMany(models.taskComment);
-            Task.hasMany(models.taskTiming);
-            Task.hasMany(models.request);
-        }
-    }
+    tableName: 'task'
   });
 
   Task.TASK_STATUS = TASK_STATUS;
+
+  Task.associate = models => {
+    Task.belongsTo(models.user);
+    Task.hasMany(models.taskLocation);
+    Task.hasMany(models.taskCategory);
+    Task.hasMany(models.taskImage);
+    Task.hasMany(models.taskComment);
+    Task.hasMany(models.taskTiming);
+    Task.hasMany(models.request);
+  };
 
   return Task;
 };

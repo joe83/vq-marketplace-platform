@@ -16,12 +16,11 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {
     tableName: 'userProperty',
-    classMethods: {
-        associate: models => {
-            UserProperty.belongsTo(models.user);
-        }
-    }
   });
+
+  UserProperty.associate = models => {
+    UserProperty.belongsTo(models.user);
+  };
 
   return UserProperty;
 };

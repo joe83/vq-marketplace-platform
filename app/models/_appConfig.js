@@ -21,7 +21,8 @@ module.exports = (sequelize, DataTypes) => {
         .findOne({ where: { fieldKey }})
         .then(obj => {
           if (!obj) {
-            return AppConfig.create({ fieldKey, fieldValue });
+            return AppConfig
+              .create({ fieldKey, fieldValue });
           }
 
           obj.fieldValue !== fieldValue && AppConfig.update({ fieldValue }, { where: { id: obj.id } });

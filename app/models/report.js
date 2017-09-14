@@ -9,9 +9,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER
     }
   }, {
-    classMethods: {
-        associate: models => {}
-    }
   });
 
   return Report;

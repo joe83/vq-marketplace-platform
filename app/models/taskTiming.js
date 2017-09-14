@@ -16,13 +16,12 @@ module.exports = (sequelize, DataTypes) => {
       default: 0
     }
   }, {
-    tableName: 'taskTiming',
-    classMethods: {
-        associate: models => {
-            TaskTiming.belongsTo(models.task);
-        }
-    }
+    tableName: 'taskTiming'
   });
+
+  TaskTiming.associate = models => {
+    TaskTiming.belongsTo(models.task);
+  };
 
   return TaskTiming;
 };

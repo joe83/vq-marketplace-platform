@@ -81,7 +81,7 @@ const changeRequestStatus = (requestId, newStatus, userId, cb) => {
                 }
             })
             .then(rRequest => {
-                request = rRequest;
+                // request = rRequest;
 
                 cb();
             }, cb)
@@ -126,7 +126,7 @@ const changeRequestStatus = (requestId, newStatus, userId, cb) => {
                 .emit('order-marked-as-done', order.id)
         }
 
-        return cb();
+        return cb(null, oldRequest);
     });
 };
 

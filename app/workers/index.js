@@ -4,23 +4,28 @@ const orderCtrl = require("../controllers/orderCtrl");
 
 const userCalculateRatings = require("./userCalculateRatings");
 const taskAutoSettlement = require("./taskAutoSettlement");
+const taskAutoCancel = require("./taskAutoCancel");
 
-const ONE_HOUR_INTERVAL = 1000 * 60 * 60;
-const TEN_MINUTES_INTERVAL = 1000 * 60 * 60;
+const WORKER_INTERVAL = 1000 * 60 * 5;
+
 
 const registerWorkers = () => {
     console.log('[WORKERS] Initiating...');
   
     setInterval(() => {   
         taskAutoSettlement();
-    }, 30 * 1000);
+    }, WORKER_INTERVAL);
 
     
     setInterval(() => {   
         userCalculateRatings();
-    }, 30 * 1000);
+    }, WORKER_INTERVAL);
     
 
+    setInterval(() => {   
+        taskAutoCancel();
+    }, WORKER_INTERVAL);
+    
     console.log('[WORKERS] Started.');
 };
 
@@ -31,4 +36,5 @@ if (module.parent) {
 } else {
     taskAutoSettlement();
     userCalculateRatings();
+    taskAutoCancel();
 }

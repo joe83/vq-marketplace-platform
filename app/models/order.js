@@ -32,17 +32,17 @@ module.exports = (sequelize, DataTypes) => {
         default: 0
       }
   }, {
-      tableName: 'order',
-      classMethods: {
-        associate: models => {
-          Order.belongsTo(models.user);
-          Order.belongsTo(models.task);
-          Order.belongsTo(models.request);
-          Order.belongsTo(models.billingAddress);
-          Order.hasOne(models.review);
-        }
-      }
+      tableName: 'order'
   });
+
+
+  Order.associate = models => {
+    Order.belongsTo(models.user);
+    Order.belongsTo(models.task);
+    Order.belongsTo(models.request);
+    Order.belongsTo(models.billingAddress);
+    Order.hasOne(models.review);
+  };
 
   Order.ORDER_STATUS = ORDER_STATUS;
 

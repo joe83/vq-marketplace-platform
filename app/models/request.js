@@ -26,16 +26,15 @@ module.exports = (sequelize, DataTypes) => {
       }
   }, {
       tableName: 'request',
-      classMethods: {
-        associate: models => {
-          Request.belongsTo(models.task);
-          Request.belongsTo(models.user, { as: 'fromUser', constraints: true });
-          Request.belongsTo(models.user, { as: 'toUser', constraints: true });
-          Request.hasOne(models.review);
-          Request.hasOne(models.order);
-        }
-      }
   });
+
+  Request.associate = models => {
+    Request.belongsTo(models.task);
+    Request.belongsTo(models.user, { as: 'fromUser', constraints: true });
+    Request.belongsTo(models.user, { as: 'toUser', constraints: true });
+    Request.hasOne(models.review);
+    Request.hasOne(models.order);
+  };
 
   Request.REQUEST_STATUS = REQUEST_STATUS;
 

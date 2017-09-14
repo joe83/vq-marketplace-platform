@@ -8,6 +8,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.FLOAT,
       required: true
     },
+    geo: {
+       type: DataTypes.GEOMETRY('POINT'),
+       required: true
+    },
     countryCode: { 
       type: DataTypes.STRING,
       required: true
@@ -31,12 +35,11 @@ module.exports = (sequelize, DataTypes) => {
     region: { type: DataTypes.STRING }
   }, {
     tableName: 'taskLocation',
-    classMethods: {
-        associate: models => {
-            TaskLocation.belongsTo(models.task);
-        }
-    }
   });
+
+  TaskLocation.associate = models => {
+    TaskLocation.belongsTo(models.task);
+  };
 
   return TaskLocation;
 };

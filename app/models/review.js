@@ -7,21 +7,20 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.ENUM('0', '1', '2', '3', '4', '5'),
       }
   }, {
-      tableName: 'review',
-      classMethods: {
-        associate: models => {
-          Review.belongsTo(models.user, {
-              as: 'fromUser'
-          });
-          Review.belongsTo(models.user, {
-              as: 'toUser'
-          });
-          Review.belongsTo(models.task);
-          Review.belongsTo(models.request);
-          Review.belongsTo(models.order);
-        }
-      }
+      tableName: 'review'
   });
+
+  Review.associate = models => {
+    Review.belongsTo(models.user, {
+      as: 'fromUser'
+    });
+    Review.belongsTo(models.user, {
+        as: 'toUser'
+    });
+    Review.belongsTo(models.task);
+    Review.belongsTo(models.request);
+    Review.belongsTo(models.order);
+  };
 
   return Review;
 };

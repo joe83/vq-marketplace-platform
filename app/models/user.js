@@ -65,17 +65,16 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {
     paranoid: true,
-    tableName: 'user',
-    classMethods: {
-        associate: models => {
-          User.hasMany(models.userProperty);
-          User.hasMany(models.userPreference);
-          User.hasMany(models.review, {
-            foreignKey: 'toUserId'
-          });
-        }
-    }
+    tableName: 'user'
   });
+
+  User.associate = models => {
+    User.hasMany(models.userProperty);
+    User.hasMany(models.userPreference);
+    User.hasMany(models.review, {
+      foreignKey: 'toUserId'
+    });
+  };
 
   User.USER_STATUS = USER_STATUS;
 
