@@ -106,6 +106,14 @@ const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
 };
 
 orderEmitter
+    .on('closed',
+        orderId =>
+            orderEventHandlerFactory('order-closed',
+                domain => `${domain}/app/dashboard`
+            )(orderId)
+    );
+
+orderEmitter
 	.on('new-order', 
         orderId =>
             orderEventHandlerFactory('new-order', (domain, requestId) => `${domain}/app/chat/${requestId}`)(orderId)

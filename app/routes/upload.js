@@ -7,7 +7,10 @@ var isLoggedIn = responseController.isLoggedIn;
 var uploader = UploadService('egamix');
 
 module.exports = app => {
-    app.post('/api/upload/image', isLoggedIn, multer().single('file'), (req, res) => {
+    app.post('/api/upload/image',
+    isLoggedIn,
+    multer().single('file'),
+    (req, res) => {
         if (!req.file) {
             return res.status(400).send("No files uploaded!");
         }
@@ -21,9 +24,11 @@ module.exports = app => {
             return res.status(400).send("Width or height is not specifed");
         }
 
+        const mimetype = req.file.mimetype.split('/')[1];
+
         async.waterfall([
             fn => uploader
-            .uploadToBucket(imageBuffer, 'st', req.file.mimetype.split('/')[1], width, height, (err, locationPath) => {
+            .uploadToBucket(imageBuffer, 'st', mimetype, width, height, (err, locationPath) => {
                 if (err) {
                     return fn(err, locationPath);
                 }

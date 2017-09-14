@@ -9,7 +9,7 @@ module.exports = bucket => {
                 kernel: sharp.kernel.lanczos2,
                 interpolator: sharp.interpolator.nohalo
             })
-            .background('black')
+            .background('white')
             .embed()
             .toBuffer((err, imgBuffer) => {
                 if (err) {

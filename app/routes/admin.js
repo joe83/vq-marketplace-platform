@@ -44,13 +44,17 @@ module.exports = app => {
 
 	app.get("/api/admin/user", isLoggedIn, isAdmin, (req, res) => models.user
 		.findAll({
-			order: '"createdAt" DESC',
+			order: [[ 'createdAt', 'DESC' ]],
 			include: [
 				{ model: models.userProperty },
 				{ model: models.userPreference }
 			]
 		})
-		.then(data => res.send(data)));
+		.then(data => res.send(data), err => {
+			console.error(err);
+
+			res.status(400).send(err);
+		}));
 
 	app.get("/api/admin/user/:userId/emails", (req, res) => {
 		const userId = req.params.userId;
@@ -113,44 +117,44 @@ module.exports = app => {
 		})
 		.then(data => res.send(data)));
 
-		app.put("/api/admin/task/:taskId/spam", 
-			isLoggedIn,
-			isAdmin,
-			(req, res) => {
-				models
-				.task
-				.findById(req.params.taskId)
-				.then(
-					task => {
-						if (!task) {
-							return sendResponse(res, 'NOT_FOUND');
-						}
-						
-						task
-							.update({
-								status: models.task.TASK_STATUS.SPAM
-							});
+	app.put("/api/admin/task/:taskId/spam", 
+		isLoggedIn,
+		isAdmin,
+		(req, res) => {
+			models
+			.task
+			.findById(req.params.taskId)
+			.then(
+				task => {
+					if (!task) {
+						return sendResponse(res, 'NOT_FOUND');
+					}
+					
+					task
+						.update({
+							status: models.task.TASK_STATUS.SPAM
+						});
 
-						sendResponse(res, null, task);
+					sendResponse(res, null, task);
 
-						taskEmitter
-							.emit('marked-spam', task);
+					taskEmitter
+						.emit('marked-spam', task);
 
-						task.getRequests()
-						.then(requests => {
-							requests.forEach(request => {
-								requestCtrl
-								.declineRequest(request.id, err => console.error(err));
-							});
-						}, err => console.error(err));
-					}, 
-					err => sendResponse(res, err)
-				);
-			});
+					task.getRequests()
+					.then(requests => {
+						requests.forEach(request => {
+							requestCtrl
+							.declineRequest(request.id, err => console.error(err));
+						});
+					}, err => console.error(err));
+				}, 
+				err => sendResponse(res, err)
+			);
+		});
 
 	app.get("/api/admin/order", isLoggedIn, isAdmin, (req, res) => models.request
 		.findAll({
-			order: '"createdAt" DESC',
+			order: [[ 'createdAt', 'DESC' ]],
 			include: [
 				{ model: models.task }
 			]

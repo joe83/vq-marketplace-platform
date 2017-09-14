@@ -2,8 +2,7 @@ const async = require("async");
 const requestCtrl = require("../controllers/requestCtrl.js");
 const models = require("../models/models.js");
 const utils = require('../utils');
-
-
+const taskEmitter = require("../events/task");
 
 const taskAutoCancel = () => {
     var cancelled = 0;
@@ -36,6 +35,8 @@ const taskAutoCancel = () => {
             async
             .eachSeries(tasks, (task, cb) => {
                 cancelled++;
+
+                taskEmitter.emit('cancelled', task);
 
                 task
                 .update({

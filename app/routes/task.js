@@ -8,6 +8,7 @@ const cust = require("../config/customizing.js");
 const models = require('../models/models');
 const utils = require('../utils');
 const striptags = require('striptags');
+const taskEmitter = require("../events/task");
 
 const isMyTask = (taskId, myUserId) => {
     return models
@@ -21,7 +22,7 @@ const isMyTask = (taskId, myUserId) => {
         if (!task) {
             return reject({
                 status: 400, 
-                code: 'TASK_DOES_NOT_EXIT' 
+                code: 'TASK_DOES_NOT_EXIST' 
             });
         }
 
@@ -32,7 +33,7 @@ const isMyTask = (taskId, myUserId) => {
             });
         }
 
-        return resolve();
+        return resolve(task);
     }))
 };
 
@@ -269,7 +270,7 @@ module.exports = app => {
         (req, res) => {
             return models.taskLocation
                 .findOne({
-                    order: '"createdAt" DESC',
+                    order: [[ 'createdAt', 'DESC' ]],
                     include: [
                         {
                             model: models.task,
@@ -569,32 +570,42 @@ module.exports = app => {
 
         updatedTask.status = updatedTask.status ? String(updatedTask.status) : '0';     
         
-        isMyTask(taskId, userId)
-        .then(() => models.task.update(updatedTask, {
-            where: {
-                $and: [
-                    { id: taskId },
-                    { userId }
-                ]
-            } 
-        }))
-        .then(task => {
-            sendResponse(res, null, {
-                ok: true
-            });
+        var task;
 
-            if (newStatus === models.task.TASK_STATUS.INACTIVE) {
-                // decline all requests
-                requestCtrl
-                .declineAllPendingRequestsForTask(taskId, err => {
-                    if (err) {
-                        console.error(err);
-                    }
+        async.waterfall([
+            cb => {
+                isMyTask(taskId, userId)
+                .then(rTask => {
+                    task = rTask;
 
-                    console.log(`[SUCCESS] All pending requests for task ${taskId} have been declined!`);
-                });
+                    cb();
+                }, cb)
+            },
+            cb => {
+                task
+                .update(updatedTask)
+                .then(_ => {
+                    cb();
+                }, cb);
+            },
+            cb => {
+                if (newStatus === models.task.TASK_STATUS.INACTIVE) {
+                    taskEmitter.emit('cancelled', task);
+
+                    requestCtrl
+                    .declineAllPendingRequestsForTask(taskId, err => {
+                        if (err) {
+                            console.error(err);
+                        }
+    
+                        console.log(`[SUCCESS] All pending requests for task ${taskId} have been declined!`);
+                    });
+                }
+
+                cb();
             }
-
-        }, err => sendResponse(res, err));
+        ], err => {
+            sendResponse(res, err, task);
+        });
     });
 };

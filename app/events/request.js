@@ -118,6 +118,14 @@ requestEmitter
 );
 
 requestEmitter
+	.on('closed',
+		requestId =>
+			requestEventHandlerFactory('request-closed',
+				(domain) => `${domain}/app/dashboard`
+			)(requestId)
+	);
+
+requestEmitter
 	.on('new-request', requestId => {
 		var fromUser, toUser, request;
 		var requestSentEmails;

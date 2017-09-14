@@ -117,10 +117,13 @@ module.exports = app => {
             }
 
             if (req.query.view === 'completed') {
-                where.$and.push({
+                where.$and
+                .push({
                     $or: [
                         {
                             status: models.order.ORDER_STATUS.SETTLED
+                        }, {
+                            status: models.order.ORDER_STATUS.CLOSED
                         }
                     ]
                 });
@@ -203,6 +206,68 @@ module.exports = app => {
                     });
             })
             .catch(err => sendResponse(res, err));
+        });
+
+        
+    app.put('/api/order/:orderId/actions/close',
+        isLoggedIn,
+        (req, res) => {
+            const orderId = req.params.orderId;
+            const userId = req.user.id;
+
+            models.order
+            .findOne({
+                where: {
+                    $and: [
+                        {
+                            id: orderId
+                        }, {
+                            userId
+                        }, {
+                            $or: [
+                                {
+                                status: models.order.ORDER_STATUS.MARKED_DONE
+                                }, {
+                                    status: models.order.ORDER_STATUS.PENDING
+                                }
+                            ]
+                        }
+                    ]
+                }
+            })
+            .then(order => {
+                if (!order) {
+                    return sendResponse(res, {
+                        code: 'NOT_FOUND'
+                    });
+                }
+                
+                models
+                    .request
+                    .update({
+                        autoSettlementStartedAt: null,
+                        status: models.request.REQUEST_STATUS.CLOSED
+                    }, {
+                        where: {
+                            id: order.requestId
+                        }
+                    })
+                    .then(data => {
+                        requestEmitter.emit('closed', order.requestId);
+
+                        order
+                        .update({
+                            status: models.order.ORDER_STATUS.CLOSED
+                        })
+                        .then(_ => {
+                            orderEmitter.emit('closed', order.id);
+
+                            sendResponse(res, null, {
+                                ok: 'ok'
+                            });
+                        }, err => sendResponse(res, err));
+                    }, err => sendResponse(res, err));
+            });
         });
 
     app.put('/api/order/:orderId/actions/cancel-autosettlement',

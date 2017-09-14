@@ -10,36 +10,42 @@ const config = require("../config/configProvider.js")();
 const vqAuth = require("../config/vqAuthProvider");
 const models  = require('../models/models');
 
+const handlerFactory = emailCode => task => {
+    models
+    .user
+    .findById(task.userId)
+    .then(user => {
+        if (!user) {
+            return console.error('USER_NOT_FOUND');
+        }
+
+        vqAuth
+            .getEmailsFromUserId(user.vqUserId, (err, rUserEmails) => {
+                if (err) {
+                    return cb(err);
+                }
+
+                const emails = rUserEmails
+                .map(_ => _.email);
+
+                emailService
+                    .getEmailAndSend(emailCode, emails[0]);
+            });
+    }, err => console.error(err));
+};
+
 taskEmitter
-    .on('marked-spam', task => {
-        models
-        .user
-        .findById(task.userId)
-        .then(user => {
-            if (!user) {
-                return console.error('USER_NOT_FOUND');
-            }
+    .on('marked-spam', handlerFactory('task-marked-spam'));
 
-            vqAuth
-                .getEmailsFromUserId(user.vqUserId, (err, rUserEmails) => {
-                    if (err) {
-                        return cb(err);
-                    }
+taskEmitter
+    .on('cancelled', handlerFactory('listing-cancelled'));
 
-                    const emails = rUserEmails
-                    .map(_ => _.email);
 
-                    emailService
-                        .getEmailAndSend('task-marked-spam', emails[0]);
-                });
-        }, err => console.error(err));
-    });
-
-    if (module.parent) {
-        module.exports = taskEmitter;
-    } else {
-        console.log(process.argv[2])
-        console.log(process.argv[3])
-        
-        taskEmitter.emit(process.argv[2], process.argv[3]);
-    }
+if (module.parent) {
+    module.exports = taskEmitter;
+} else {
+    console.log(process.argv[2])
+    console.log(process.argv[3])
+    
+    taskEmitter.emit(process.argv[2], process.argv[3]);
+}

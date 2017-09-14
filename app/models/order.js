@@ -3,7 +3,8 @@ module.exports = (sequelize, DataTypes) => {
     PENDING: '0',
     MARKED_DONE: '10',
     SETTLED: '15',
-    CANCELED: '25'
+    CLOSED: '14',
+    CANCELED: '25',
   };
 
   const Order = sequelize.define("order", {
@@ -12,6 +13,7 @@ module.exports = (sequelize, DataTypes) => {
           ORDER_STATUS.PENDING,
           ORDER_STATUS.MARKED_DONE,
           ORDER_STATUS.SETTLED,
+          ORDER_STATUS.CLOSED,
           ORDER_STATUS.CANCELED
         ),
         default: ORDER_STATUS.PENDING
