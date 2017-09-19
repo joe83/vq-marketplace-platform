@@ -10,6 +10,23 @@ const config = require("../config/configProvider.js")();
 const vqAuth = require("../config/vqAuthProvider");
 const models  = require('../models/models');
 
+const getDomainName = cb => {
+    models
+    .appConfig
+    .findOne({
+        where: {
+            fieldKey: 'DOMAIN'
+        }
+    })
+    .then(configField => {
+        configField = configField || {};
+        
+        const domain = configField.fieldValue || 'http://localhost:3000';
+
+        return cb(null, domain);
+    }, cb);
+};
+
 const handlerFactory = emailCode => task => {
     models
     .user
@@ -36,6 +53,59 @@ const handlerFactory = emailCode => task => {
 
 taskEmitter
     .on('marked-spam', handlerFactory('task-marked-spam'));
+
+taskEmitter
+    .on('new-task', taskId => {
+        if (!taskId) {
+            return console.error('TASK_NOT_FOUND');
+        }
+
+        models.taskCategory.findOne({
+            taskId
+        })
+        .then(taskCategory => {
+            models.userPreference
+            .findAll({
+                value: taskCategory.code
+            })
+            .then(userPreferences => {
+                getDomainName((err, domain) => {
+                    const ACTION_URL = 
+                    `${domain}/app/task/${taskId}`;   
+
+                    async.eachSeries(userPreferences, (userPreference, cb) => {
+                        models
+                        .user
+                        .findById(userPreference.userId)
+                        .then(user => {
+                            vqAuth
+                                .getEmailsFromUserId(user.vqUserId, (err, rUserEmails) => {
+                                    if (err) {
+                                        console.error(err);
+    
+                                        return cb();
+                                    }
+                    
+                                    const emails = rUserEmails
+                                        .map(_ => _.email);
+
+                                    emailService
+                                        .getEmailAndSend('new-task', emails[0], ACTION_URL);
+    
+                                    cb();
+                                });
+                        }, err => {
+                            console.error(err);
+    
+                            cb();
+                        });
+                    }, () => {
+                        console.log("New task emails have been sent!");
+                    });
+                });
+            });
+        });
+    });
 
 taskEmitter
     .on('cancelled', handlerFactory('listing-cancelled'));

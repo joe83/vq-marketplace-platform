@@ -51,7 +51,6 @@
     "rand-token": "~0.3.0",
     "random-token": "0.0.8",
     "randomstring": "^1.1.5",
-    "react-input-range": "^1.2.1",
     "request": "~2.79.0",
     "sequelize": "^4.8.3",
     "sharp": "^0.17.2",

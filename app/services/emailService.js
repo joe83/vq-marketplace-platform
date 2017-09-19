@@ -37,7 +37,7 @@ const getEmailAndSend = (emailCode, email, ACTION_URL) => getEmailBody(emailCode
 		var compiledEmail;
 
 		if (!emailBody) {
-			return console.error(`Email template "emailCode" has not been found`);
+			return console.error(`Email template "${emailCode}" has not been found`);
 		}
 
 		try {

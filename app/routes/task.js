@@ -565,7 +565,7 @@ module.exports = app => {
                 delete updatedTask[itemKey];
             }
         });
-
+        
         const updatedFields = req.body;
 
         updatedTask.status = updatedTask.status ? String(updatedTask.status) : '0';     
@@ -589,8 +589,14 @@ module.exports = app => {
                 }, cb);
             },
             cb => {
+                if (newStatus === models.task.TASK_STATUS.ACTIVE) {
+                    taskEmitter
+                        .emit('new-task', task.id);
+                }
+
                 if (newStatus === models.task.TASK_STATUS.INACTIVE) {
-                    taskEmitter.emit('cancelled', task);
+                    taskEmitter
+                        .emit('cancelled', task);
 
                     requestCtrl
                     .declineAllPendingRequestsForTask(taskId, err => {
