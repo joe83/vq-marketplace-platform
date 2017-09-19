@@ -113,6 +113,12 @@ module.exports = app => {
             });
         }
 
+        if (req.query.userId) {
+            where.$and.push({
+                userId: req.query.userId
+            });
+        }
+
         models.request
             .findAll({
                 where,
