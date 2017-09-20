@@ -170,5 +170,6 @@ module.exports = app => {
 	require('./routes/billing_address.js')(app);
 	require('./routes/order.js')(app);
 	require('./routes/review.js')(app);
+	require('./routes/vq-services.js')(app);
 };
 
