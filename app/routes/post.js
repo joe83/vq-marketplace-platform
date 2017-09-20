@@ -6,7 +6,9 @@ const models  = require('../models/models');
 
 module.exports = app => {
 	app.get("/api/post", /* isLoggedIn, isAdmin, */ (req, res) => models.post
-		.findAll({ where: req.query })
+		.findAll({
+            where: req.query
+        })
 		.then(data => res.send(data)));
 
 	app.get("/api/post/:code/code", /* isLoggedIn, isAdmin, */ (req, res) => models.post

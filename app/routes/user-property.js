@@ -60,20 +60,12 @@ module.exports = app => {
             .then(prop => cb(null, prop), cb),
             (prop, cb) => {
                 if (prop) {
-                    return models
-                        .userProperty
+                    return prop
                         .update({
-                            propValue 
-                        }, {
-                            where: {
-                                $and: [
-                                    { userId },
-                                    { propKey: property.propKey }
-                                ]
-                            }
+                            propValue
                         })
                         .then(updatedProperty => {
-                            commitedProperty = updatedProperty;
+                            commitedProperty = prop;
                             
                             return cb();
                         }, cb);

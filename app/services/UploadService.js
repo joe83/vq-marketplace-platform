@@ -9,8 +9,9 @@ module.exports = bucket => {
                 kernel: sharp.kernel.lanczos2,
                 interpolator: sharp.interpolator.nohalo
             })
-            .background('white')
-            .embed()
+            .crop(sharp.strategy.entropy)
+            // .background('white')
+            // .embed()
             .toBuffer((err, imgBuffer) => {
                 if (err) {
                     console.error(err);

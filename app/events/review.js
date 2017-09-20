@@ -100,12 +100,15 @@ const reviewEventHandlerFactory = (emailCode, actionUrlFn) => {
 		], err => {
 			if (err) {
 				return console.error(err);
-			}
-
-			if (toUserEmails) {
-				EmailService
-					.getEmailAndSend(emailCode, toUserEmails[0], ACTION_URL);
-			}
+            }
+            
+            if (toUserEmails) {
+                emailService
+                .checkIfShouldSendEmail(emailCode, review.toUser.id, () => {
+                    EmailService
+                    .getEmailAndSend(emailCode, toUserEmails[0], ACTION_URL);
+                });
+            }
 		});
 	};
 };

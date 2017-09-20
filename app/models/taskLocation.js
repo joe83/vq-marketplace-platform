@@ -39,6 +39,7 @@ module.exports = (sequelize, DataTypes) => {
 
   TaskLocation.associate = models => {
     TaskLocation.belongsTo(models.task);
+    TaskLocation.belongsTo(models.user);
   };
 
   return TaskLocation;

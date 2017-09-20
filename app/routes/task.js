@@ -264,7 +264,7 @@ module.exports = app => {
                     }
                 )
             });
-    
+
     app.get('/api/task/location/last',
         isLoggedIn, 
         (req, res) => {
@@ -447,6 +447,84 @@ module.exports = app => {
                 return sendResponse(res, err);
             });
         });
+
+    app.post('/api/task-location',
+        isLoggedIn,
+        (req, res) => {
+            const userId = req.user.id;
+            const taskLocation = req.body;
+            const lat = taskLocation.lat;
+            const lng = taskLocation.lng;
+
+            const geoPoint = {
+                type: 'Point',
+                coordinates: [
+                    lat,
+                    lng
+                ]
+            };
+
+            taskLocation.geo = geoPoint;
+
+            models
+            .taskLocation
+            .findOne({
+                where: {
+                    userId
+                }
+            })
+            .then(taskLocationRef => {
+                if (taskLocationRef) {
+                    delete taskLocation.id;
+                    delete taskLocation.createdAt;
+                    delete taskLocation.updatedAt;
+                    delete taskLocation.userId;
+
+                    return taskLocationRef
+                        .update(taskLocation)
+                        .then(_ => {
+                            sendResponse(res, null, taskLocation);
+                        }, _ => {
+                            sendResponse(res, err);
+                        });
+                }
+              
+                return models
+                    .taskLocation
+                    .create({
+                        userId,
+                        countryCode: taskLocation.countryCode,
+                        postalCode: taskLocation.postalCode,
+                        city: taskLocation.city,
+                        street: taskLocation.street,
+                        streetNo: taskLocation.streetNo,
+                        addressAddition: taskLocation.addressAddition,
+                        taxNumber: taskLocation.taxNumber,
+                        lat: taskLocation.lat,
+                        lng: taskLocation.lng,
+                        geo: taskLocation.geo
+                    })
+                    .then(_ => {
+                        sendResponse(res, null, _);
+                    }, err => {
+                        sendResponse(res, err);
+                    });
+            });
+        });
+
+    app.get('/api/task-location', isLoggedIn, (req, res) => {
+        return models
+            .taskLocation
+            .findAll({
+                where: {
+                    userId: req.user.id
+                }
+            })
+            .then(locations =>
+                sendResponse(res, null, locations),
+                err => sendResponse(res, err)
+            )
+    });
 
    app.get('/api/task/:taskId', 
     identifyUser, 

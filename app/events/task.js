@@ -28,27 +28,29 @@ const getDomainName = cb => {
 };
 
 const handlerFactory = emailCode => task => {
-    models
-    .user
-    .findById(task.userId)
-    .then(user => {
-        if (!user) {
-            return console.error('USER_NOT_FOUND');
-        }
-
-        vqAuth
-            .getEmailsFromUserId(user.vqUserId, (err, rUserEmails) => {
-                if (err) {
-                    return cb(err);
-                }
-
-                const emails = rUserEmails
-                .map(_ => _.email);
-
-                emailService
-                    .getEmailAndSend(emailCode, emails[0]);
-            });
-    }, err => console.error(err));
+    emailService.checkIfShouldSendEmail(emailCode, task.userId, () => {
+        models
+        .user
+        .findById(task.userId)
+        .then(user => {
+            if (!user) {
+                return console.error('USER_NOT_FOUND');
+            }
+    
+            vqAuth
+                .getEmailsFromUserId(user.vqUserId, (err, rUserEmails) => {
+                    if (err) {
+                        return cb(err);
+                    }
+    
+                    const emails = rUserEmails
+                    .map(_ => _.email);
+    
+                    emailService
+                        .getEmailAndSend(emailCode, emails[0]);
+                });
+            }, err => console.error(err));
+    });
 };
 
 taskEmitter
@@ -74,11 +76,12 @@ taskEmitter
                     `${domain}/app/task/${taskId}`;   
 
                     async.eachSeries(userPreferences, (userPreference, cb) => {
-                        models
-                        .user
-                        .findById(userPreference.userId)
-                        .then(user => {
-                            vqAuth
+                        emailService.checkIfShouldSendEmail('new-task', user.id, () => {
+                            models
+                            .user
+                            .findById(userPreference.userId)
+                            .then(user => {
+                                vqAuth
                                 .getEmailsFromUserId(user.vqUserId, (err, rUserEmails) => {
                                     if (err) {
                                         console.error(err);
@@ -94,9 +97,12 @@ taskEmitter
     
                                     cb();
                                 });
-                        }, err => {
-                            console.error(err);
-    
+                            }, err => {
+                                console.error(err);
+        
+                                cb();
+                            });
+                        }, () => {
                             cb();
                         });
                     }, () => {

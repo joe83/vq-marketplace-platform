@@ -26,7 +26,8 @@ module.exports = userEmitter;
 
     userEmitter
     .on('blocked', user => {
-        vqAuth
+        emailService.checkIfShouldSendEmail('user-blocked', user.id, () => {
+            vqAuth
             .getEmailsFromUserId(user.vqUserId, (err, rUserEmails) => {
                 if (err) {
                     return cb(err);
@@ -38,4 +39,5 @@ module.exports = userEmitter;
                 emailService
                     .getEmailAndSend('user-blocked', emails[0]);
             });
+        })
     });

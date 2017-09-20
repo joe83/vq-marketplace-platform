@@ -19,6 +19,33 @@ const EMAILS = {
 	PASSWORD_RESET: 'password-reset'
 };
 
+const checkIfShouldSendEmail = (emailCode, userId, cb, shouldNotCb) => models
+	.userProperty
+	.findOne({
+		where: {
+			$and: [
+				{
+					propKey: 'EMAIL_' + emailCode,
+				}, {
+					propValue: '1'
+				}, {
+					userId
+				}
+			]
+		}
+	})
+	.then(isDeactived => {
+		if (!isDeactived) {
+			cb();
+		} else {
+			if (shouldNotCb) {
+				shouldNotCb();
+			}
+		}
+	}, err => {
+		console.error(err);
+	});
+
 const getEmailBody = code => models.post
 	.findOne({ 
 		where: {
@@ -162,6 +189,7 @@ function sendEmail (html, tEmails, params, callback) {
 
 module.exports = {
 	EMAILS,
+	checkIfShouldSendEmail,
 	getEmailAndSend,
 	sendEmail,
 	sendWelcome

@@ -52,7 +52,7 @@ const getRequestOwnerEmails = (requestId, cb) => {
 
 const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
 	return requestId => {
-		var user, request;
+		var user, request, order;
 		var emails;
 		var ACTION_URL;
 
@@ -63,7 +63,8 @@ const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
                 }
 
                 emails = data.emails;
-                request = data.order;
+                order = data.order;
+				request = data.request;
 
 				return cb();
             }),
@@ -90,8 +91,11 @@ const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
 			}
 
 			if (emails) {
-				EmailService
+				emailService
+				.checkIfShouldSendEmail(emailCode, request.fromUser.id, () => {
+					EmailService
 					.getEmailAndSend(emailCode, emails[0], ACTION_URL);
+				});
 			}
 		});
 	};
@@ -193,14 +197,21 @@ requestEmitter
 				return console.error(err);
 			}
 
+
 			if (requestReceivedEmails) {
-				EmailService
+				emailService
+				.checkIfShouldSendEmail('new-request-received', request.toUser.id, () => {
+					EmailService
 					.getEmailAndSend('new-request-received', requestReceivedEmails[0], ACTION_URL);
+				});
 			}
 			
 			if (requestSentEmails) {
-				EmailService
+				emailService
+				.checkIfShouldSendEmail('new-request-sent', request.fromUser.id, () => {
+					EmailService
 					.getEmailAndSend('new-request-sent', requestSentEmails[0], ACTION_URL);
+				});
 			}
 		})
 	});

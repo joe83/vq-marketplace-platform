@@ -23,7 +23,13 @@ const getOrderOwnerEmails = (orderId, cb) => {
                     id: orderId
                 },
                 include: [
-                    { model: models.user }
+                    { model: models.user },
+                    { 
+                        model: models.request,
+                        include: [
+                            { model: models.user, as: 'fromUser' }
+                        ]
+                    }
                 ]
             })
             .then(rOrder => {
@@ -96,8 +102,11 @@ const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
 			}
 
 			if (emails) {
-				EmailService
-					.getEmailAndSend(emailCode, emails[0], ACTION_URL);
+                emailService
+				.checkIfShouldSendEmail(emailCode, order.user.id, () => {
+				    EmailService
+                    .getEmailAndSend(emailCode, emails[0], ACTION_URL);
+                });
 			} else {
                 console.log('No emails to send notification!');
             }
