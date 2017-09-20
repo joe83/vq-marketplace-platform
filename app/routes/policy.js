@@ -259,7 +259,7 @@ module.exports = app => {
 		})
 		.then(configField => {
 			if (configField) {
-				return res.redirect(configField.fieldValue);
+				return res.redirect(configField.fieldValue + '/app/dashboard');
 			}
 			
 			return res.redirect('https://vq-labs.com');
