@@ -91,7 +91,10 @@ module.exports = app => {
                         model: models.order
                     }, {
                         model: models.review
-                    }]
+                    },
+                    { model: models.user, as: 'fromUser' },
+                    { model: models.user, as: 'toUser' }
+                ]
                 })
                 .then(rRequest => {
                     if (!rRequest) {

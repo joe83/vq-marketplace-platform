@@ -4,11 +4,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING
     },
     date: {
-      type: DataTypes.DATE,
+      type: DataTypes.INTEGER(16),
       required: true
     },
     endDate: {
-      type: DataTypes.DATE,
+      type: DataTypes.INTEGER(16),
       required: false
     },
     duration: {

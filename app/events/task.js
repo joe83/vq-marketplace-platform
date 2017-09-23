@@ -62,13 +62,19 @@ taskEmitter
             return console.error('TASK_NOT_FOUND');
         }
 
-        models.taskCategory.findOne({
-            taskId
+        models.taskCategory
+        .findOne({
+            where: {
+                taskId
+            }
         })
         .then(taskCategory => {
-            models.userPreference
+            models
+            .userPreference
             .findAll({
-                value: taskCategory.code
+                where: {
+                    value: taskCategory.code
+                }
             })
             .then(userPreferences => {
                 getDomainName((err, domain) => {

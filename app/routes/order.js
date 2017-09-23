@@ -70,7 +70,7 @@ module.exports = app => {
             const where = {
                 $and: [
                     { userId },
-                    { id: orderId  }
+                    { id: orderId }
                 ]
             };
 
@@ -83,6 +83,10 @@ module.exports = app => {
                     },
                     {
                         model: models.request,
+                        include: [
+                            { model: models.user, as: 'fromUser' },
+                            { model: models.user, as: 'toUser' }
+                        ]
                     },
                     {
                         model: models.task

@@ -9,6 +9,11 @@ const taskAutoCancel = () => {
 
     console.log('[WORKER] Task hourly cancel started.');
 
+    const now = new Date(); 
+    const nowUtc = new Date(
+        now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(),  now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds()
+    );
+
     async.waterfall([
         cb => {
             models.task
@@ -21,7 +26,7 @@ const taskAutoCancel = () => {
                         model: models.taskTiming,
                         where: {
                             endDate: {
-                                $lte: utils.transformJSDateToSqlFormat(new Date())
+                                $lte: nowUtc.getTime() / 1000
                             }
                         }
                     }

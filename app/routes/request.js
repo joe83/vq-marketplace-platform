@@ -30,6 +30,13 @@ module.exports = app => {
                         });
                     }
 
+                    if (task.status !== models.task.TASK_STATUS.ACTIVE) {
+                        return cb({
+                            code: 'TASK_WRONG_STATUS',
+                            desc: 'It cannot send requests to tasks that do not have an ACTIVE status.'                            
+                        });
+                    }
+
                     return cb();
                 }, cb),
             cb => models.request
@@ -75,7 +82,8 @@ module.exports = app => {
                             { status: models.request.REQUEST_STATUS.PENDING },
                             { status: models.request.REQUEST_STATUS.ACCEPTED },
                             { status: models.request.REQUEST_STATUS.MARKED_DONE },
-                            { status: models.request.REQUEST_STATUS.SETTLED }
+                            { status: models.request.REQUEST_STATUS.SETTLED },
+                            { status: models.request.REQUEST_STATUS.CLOSED }
                         ]
                     }, {
                         $or: [
@@ -109,6 +117,8 @@ module.exports = app => {
             where.$and.push({
                 $or: [{
                     status: models.request.REQUEST_STATUS.SETTLED
+                }, {
+                    status: models.request.REQUEST_STATUS.CLOSED
                 }]
             });
         }
@@ -124,6 +134,8 @@ module.exports = app => {
                 where,
                 order: [[ 'createdAt', 'DESC' ]],
                 include: [
+                    { model: models.user, as: 'fromUser' },
+                    { model: models.user, as: 'toUser' },
                     { model: models.review },
                     { model: models.order }
                 ]
@@ -234,7 +246,9 @@ module.exports = app => {
 
         models.order
             .findOne({
-                requestId: req.params.requestId
+                where: {
+                    requestId: req.params.requestId
+                }
             })
             .then(order => {
                 sendResponse(res, null, order);
@@ -248,7 +262,15 @@ module.exports = app => {
             .findById(orderId)
             .then(order => {
                 models.request
-                .findById(order.requestId)
+                .findOne({
+                    where: {
+                        id: order.requestId
+                    },
+                    include: [
+                        { model: models.user, as: 'fromUser' },
+                        { model: models.user, as: 'toUser' }
+                    ]
+                })
                 .then(request => {
                     return sendResponse(res, null, request);
                 }, err => sendResponse(res, err))

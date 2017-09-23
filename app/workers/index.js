@@ -12,10 +12,11 @@ const WORKER_INTERVAL = 1000 * 60 * 5;
 const registerWorkers = () => {
     console.log('[WORKERS] Initiating...');
   
+    /**
     setInterval(() => {   
         taskAutoSettlement();
     }, WORKER_INTERVAL);
-
+    */
     
     setInterval(() => {   
         userCalculateRatings();

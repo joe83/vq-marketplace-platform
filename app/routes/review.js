@@ -53,14 +53,16 @@ module.exports = app => {
         async.waterfall([
             cb => {
                 return models.review
-                    .findOne({ where: {
-                        $and: [
-                            {
-                                fromUserId: userId
-                            },
-                            whereObj
-                        ]
-                    }})
+                    .findOne({ 
+                        where: {
+                            $and: [
+                                {
+                                    fromUserId: userId
+                                },
+                                whereObj
+                            ]
+                        }
+                    })
                     .then(review => {
                         if (review) {
                             return cb({
@@ -101,7 +103,10 @@ module.exports = app => {
                     order = rOrder;
                     request = rOrder.request;
 
-                    if (order.status !== models.order.ORDER_STATUS.SETTLED) {
+                    if (
+                        order.status !== models.order.ORDER_STATUS.SETTLED &&
+                        order.status !== models.order.ORDER_STATUS.CLOSED
+                    ) {
                         return cb({
                             httpCode: 400,
                             code: 'WRONG_ORDER_STATUS_FOR_REVIEW',
@@ -138,7 +143,10 @@ module.exports = app => {
                     request = rRequest;
                     order = rRequest.order;
 
-                    if (request.status !== models.request.REQUEST_STATUS.SETTLED) {
+                    if (
+                        request.status !== models.request.REQUEST_STATUS.SETTLED &&
+                        request.status !== models.request.REQUEST_STATUS.CLOSED
+                    ) {
                         return cb({
                             httpCode: 400,
                             code: 'WRONG_REQUEST_STATUS_FOR_REVIEW',

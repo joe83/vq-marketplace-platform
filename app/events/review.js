@@ -3,7 +3,7 @@
 const EventEmitter = require('events');
 const async = require('async');
 const models = require("../models/models");
-const EmailService = require("../services/emailService.js");
+const emailService = require("../services/emailService.js");
 const config = require("../config/configProvider.js")();
 const vqAuth = require("../config/vqAuthProvider");
 
@@ -105,7 +105,7 @@ const reviewEventHandlerFactory = (emailCode, actionUrlFn) => {
             if (toUserEmails) {
                 emailService
                 .checkIfShouldSendEmail(emailCode, review.toUser.id, () => {
-                    EmailService
+                    emailService
                     .getEmailAndSend(emailCode, toUserEmails[0], ACTION_URL);
                 });
             }

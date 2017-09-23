@@ -96,10 +96,17 @@ module.exports = app => {
                 model: models.taskTiming,
             };
 
+
+
             if (req.query.untilNow) {
+                const now = new Date(); 
+                const nowUtc = new Date(
+                    now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(),  now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds()
+                );
+
                 timingInclude.where = {
                     endDate: {
-                        $gte: utils.transformJSDateToSqlFormat(new Date())
+                        $gte: nowUtc.getTime() / 1000
                     }
                 };
             }
@@ -376,12 +383,7 @@ module.exports = app => {
             }))
             .then(() => new Promise((resolve, reject) =>
                 async.each(req.body.dates, (timing, cb) => {
-                    try {
-                        timing.date = utils.transformJSDateToSqlFormat(new Date(timing.date));
-                        timing.endDate = utils.transformJSDateToSqlFormat(new Date(timing.endDate));
-                    } catch(err) {
-                        return cb (err);
-                    }
+                    timing.endDate = timing.endDate || timing.date;
 
                     return models.taskTiming
                         .create({
@@ -417,27 +419,40 @@ module.exports = app => {
                 }
             }))
             .then(() => new Promise((resolve, reject) => {
-                const taskLocation = req.body;
-                const lat = taskLocation.lat;
-                const lng = taskLocation.lng;
+                models
+                .taskLocation
+                .findOne({
+                    where: {
+                        userId: user.id
+                    }
+                })
+                .then(defaultLocation => {
+                    const taskLocation = req.body;
+                    const lat = taskLocation.lat;
+                    const lng = taskLocation.lng;
 
-                const geoPoint = {
-                    type: 'Point',
-                    coordinates: [
-                        lat,
-                        lng
-                    ]
-                };
+                    const geoPoint = {
+                        type: 'Point',
+                        coordinates: [
+                            lat,
+                            lng
+                        ]
+                    };
 
-                taskLocation.geo = geoPoint;
+                    taskLocation.geo = geoPoint;
 
-                return models
-                    .taskLocation
-                    .create(taskLocation)
-                    .then(_ => {
-                        resolve(_);
-                    }, _ => {
-                        reject(_);
+                    if (!defaultLocation) {
+                        taskLocation.userId = user.id;
+                    }
+
+                    return models
+                        .taskLocation
+                        .create(taskLocation)
+                        .then(_ => {
+                            resolve(_);
+                        }, _ => {
+                            reject(_);
+                        });
                     });
             }))
             .then(taskLocation => {
