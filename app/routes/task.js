@@ -410,12 +410,15 @@ module.exports = app => {
    app.post('/api/task/:taskId/location',
         isLoggedIn,
         (req, res) => {
-            req.body.taskId = req.params.taskId;
+            const userId = req.user.id;
+            const taskId = req.params.taskId;
 
-            isMyTask(req.params.taskId, req.user.id)
+            req.body.taskId = taskId;
+
+            isMyTask(taskId, userId)
             .then(() => models.taskLocation.destroy({
                 where: {
-                    taskId: req.params.taskId
+                    taskId
                 }
             }))
             .then(() => new Promise((resolve, reject) => {
@@ -423,7 +426,7 @@ module.exports = app => {
                 .taskLocation
                 .findOne({
                     where: {
-                        userId: user.id
+                        userId
                     }
                 })
                 .then(defaultLocation => {
@@ -442,7 +445,7 @@ module.exports = app => {
                     taskLocation.geo = geoPoint;
 
                     if (!defaultLocation) {
-                        taskLocation.userId = user.id;
+                        taskLocation.userId = userId;
                     }
 
                     return models

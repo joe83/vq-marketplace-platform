@@ -17,7 +17,6 @@ module.exports = userEmitter;
         // the default value for private key sucks...
         const VERIFICATION_TOKEN = cryptoService.encodeObj(user);
 
-
         const VERIFICATION_LINK = 
         `${config.serverUrl || 'http://localhost:8080'}/api/verify/email?code=${VERIFICATION_TOKEN}`;
 
