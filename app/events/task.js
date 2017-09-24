@@ -82,10 +82,12 @@ taskEmitter
                     `${domain}/app/task/${taskId}`;   
 
                     async.eachSeries(userPreferences, (userPreference, cb) => {
-                        emailService.checkIfShouldSendEmail('new-task', user.id, () => {
+                        const userId = userPreference.userId;
+
+                        emailService.checkIfShouldSendEmail('new-task', userId, () => {
                             models
                             .user
-                            .findById(userPreference.userId)
+                            .findById(userId)
                             .then(user => {
                                 vqAuth
                                 .getEmailsFromUserId(user.vqUserId, (err, rUserEmails) => {
