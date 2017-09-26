@@ -1,10 +1,5 @@
 const async = require('async');
-/**
- * Customizing model for application labels (i18n)
- */
 const marketplaceConfig = require('vq-marketplace-config');
-
-console.log(marketplaceConfig);
 
 module.exports = (sequelize, DataTypes) => {
   const appLabel = sequelize.define("appLabel", {
@@ -81,9 +76,9 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   // init of the table / ensuring default labels exist
-  appLabel.addDefaultLangLabels = (lang, force) => {
-      const defaultLabels = marketplaceConfig.i18n(lang);
-      const labelGroups = marketplaceConfig.labelGroups();
+  appLabel.addDefaultLangLabels = (lang, usecase, force) => {
+      const defaultLabels = marketplaceConfig[usecase].i18n(lang);
+      const labelGroups = marketplaceConfig[usecase].labelGroups();
       
       const batchLabels = Object.keys(defaultLabels)
         .map(labelKey => {

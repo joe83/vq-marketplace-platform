@@ -16,22 +16,23 @@ module.exports = (sequelize, DataTypes) => {
           ORDER_STATUS.CLOSED,
           ORDER_STATUS.CANCELED
         ),
-        default: ORDER_STATUS.PENDING
+        defaultValue: ORDER_STATUS.PENDING
       },
       amount: {
         type: DataTypes.INTEGER,
-        default: 0
+        defaultValue: 0
       },
       autoSettlementStartedAt: {
         allowNull: true,
-        type: DataTypes.DATE
+        type: DataTypes.INTEGER(16),
+        required: false
       },
       settledAt: {
-        type: DataTypes.DATE
+        type: DataTypes.INTEGER(16),
+        required: false
       },
       currency: {
         type: DataTypes.ENUM('PLN', 'HUF', 'EUR'),
-        default: 0
       }
   }, {
       tableName: 'order'

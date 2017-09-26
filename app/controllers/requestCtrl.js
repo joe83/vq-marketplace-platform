@@ -4,6 +4,7 @@ const cust = require("../config/customizing.js");
 const models  = require('../models/models');
 const requestEmitter = require("../events/request");
 const orderEmitter = require("../events/order");
+const utils = require("../utils");
 
 const declineRequest = (requestId, cb) => {
     const newStatus = models.request.REQUEST_STATUS.DECLINED;
@@ -92,7 +93,7 @@ const changeRequestStatus = (requestId, newStatus, userId, cb) => {
             }
             
             if (newStatus === models.request.REQUEST_STATUS.MARKED_DONE) {
-                const autoSettlementStartedAt = new Date().toISOString().slice(0, 19).replace('T', ' ');
+                const autoSettlementStartedAt = utils.getUtcUnixTimeNow();
                 
                 // @TODO - support for 1 request - 1 order relation. Need for more pricing models.
                 models.order

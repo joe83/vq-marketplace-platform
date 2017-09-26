@@ -2,6 +2,7 @@ const async = require('async');
 const models = require('../models/models');
 const orderEmitter = require("../events/order");
 const requestEmitter = require("../events/request");
+const utils = require("../utils");
 
 const settleOrder = (orderId, userId, cb) => {
     var requestId;
@@ -41,7 +42,7 @@ const settleOrder = (orderId, userId, cb) => {
         cb => models.order
             .update({
                 status: models.order.ORDER_STATUS.SETTLED,
-                settledAt: new Date()
+                settledAt: utils.getUtcUnixTimeNow()
             }, {
                 where: {
                     id: orderId

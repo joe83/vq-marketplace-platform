@@ -1,6 +1,7 @@
 const async = require("async");
 const models = require("../models/models.js");
 const orderCtrl = require("../controllers/orderCtrl");
+const utils = require("../utils");
 
 const taskAutoSettlement = () => {
     var settled = 0;
@@ -20,18 +21,17 @@ const taskAutoSettlement = () => {
             }, cb);
         },
         (orders, cb) => {
+            console.log(`Retrieved ${orders.length} orders.`);
             async
             .eachSeries(orders, (order, cb) => {
                 if (!order.autoSettlementStartedAt) {
                     return cb();
                 }
-
-                const timeDiff = Number(new Date) - Number(order.autoSettlementStartedAt);
-                const adjustedTimeDiffInHours = timeDiff / 1000 / 60 / 60;
-
+                
+                const timeDiff = utils.getUtcUnixTimeNow() - order.autoSettlementStartedAt;
+                const adjustedTimeDiffInHours = timeDiff / 1000 / 60 / 60;;
+                
                 if (adjustedTimeDiffInHours >= 8) {
-                    // init settlement
-
                     return orderCtrl
                         .settleOrder(order.id, order.userId, (err, order) => {
                             if (err) {

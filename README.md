@@ -10,10 +10,6 @@ Some parts of the application have been wrapped as modules and open-sourced. You
 * [nodejs-authentication-microservice](https://github.com/vq-labs/nodejs-authentication-microservice) - Authentification microservice
 
 The application communicates with some external services: payments provider, email services etc.
-Here is the complete list of the services that are used:
-
-* Mandrill
-* Stripe
 
 ## Important libraries used
 In the whole application, you will see a lot of use of the 'async' library, which helps us mange the flow of the callbacks.

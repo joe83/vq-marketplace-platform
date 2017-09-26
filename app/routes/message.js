@@ -13,22 +13,36 @@ module.exports = app => {
     /**
      * Send message
      */
-    app.post("/api/request/:requestId/message", isLoggedIn, (req, res) => models.message.create({
+    app.post("/api/request/:requestId/message", isLoggedIn, (req, res) => {
+        let message = String(req.body.message);
+
+        try {
+            message = message
+            .split('<p><br></p>')
+            .filter(_ => _ !== '<p><br></p>')
+            .join('')
+            .replace(/(\r\n|\n|\r)/gm, "");
+        } catch(err) {
+            console.error(err);
+
+            message = '';
+        }
+        
+
+        if (!message || message.length === 0) {
+            return res.status(400).send('EMPTY_MESSAGE');
+        }
+
+        models.message.create({
             requestId: req.params.requestId,
             taskId: req.body.taskId,
             fromUserId: req.user.id,
             toUserId: req.body.toUserId,
-            message: req.body.message
-        })
-        .then(message => new Promise(resolve => {
-            res.send(message);
-
-            return resolve(message);
-        })
-        .then(message => {
-            // requestEmitter.emit('new-request-message', String(req.user._id), req.body.toUserId, req.body.taskId, message);
-        }, err => res.status(400).send(err)
-        )));
+            message
+        }).then(rMessage => {
+            return res.send(rMessage);
+        }, err => res.status(400).send(err))
+    });
 
     const getMessages = (userId, requestId, groupBy) => new Promise((resolve, reject) => {
         const $orArr = [
