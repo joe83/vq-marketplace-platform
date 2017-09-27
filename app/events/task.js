@@ -57,6 +57,9 @@ taskEmitter
     .on('marked-spam', handlerFactory('task-marked-spam'));
 
 taskEmitter
+    .on('task-request-cancelled', handlerFactory('task-request-cancelled'));
+
+taskEmitter
     .on('new-task', taskId => {
         if (!taskId) {
             return console.error('TASK_NOT_FOUND');

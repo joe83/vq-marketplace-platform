@@ -68,7 +68,7 @@ const settleOrder = (orderId, userId, cb) => {
         cb(null, order);
 
         requestEmitter
-            .emit('request-settled', requestId);
+            .emit('request-completed', requestId);
 
         orderEmitter
             .emit('order-completed', orderId)

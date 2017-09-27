@@ -4,11 +4,12 @@ const cust = require("../config/customizing.js");
 const models  = require('../models/models');
 const requestEmitter = require("../events/request");
 const orderEmitter = require("../events/order");
+const taskEmitter = require("../events/task");
 const utils = require("../utils");
 
 const declineRequest = (requestId, cb) => {
     const newStatus = models.request.REQUEST_STATUS.DECLINED;
-
+  
     models
     .request
     .findById(requestId)
@@ -125,6 +126,16 @@ const changeRequestStatus = (requestId, newStatus, userId, cb) => {
 
             orderEmitter
                 .emit('order-marked-as-done', order.id)
+        }
+
+        if (newStatus === models.request.REQUEST_STATUS.CANCELED) {
+            models
+                .task
+                .findById(oldRequest.taskId)
+                .then(rTask => {
+                    taskEmitter
+                        .emit('task-request-cancelled', rTask);
+                });
         }
 
         return cb(null, oldRequest);

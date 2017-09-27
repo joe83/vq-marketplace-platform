@@ -15,4 +15,6 @@ const getConfig = () => new Promise((resolve, reject) => {
         }, err => reject(err))
 });
 
-module.exports = { getConfig: getConfig }; 
+module.exports = { 
+    getConfig
+}; 

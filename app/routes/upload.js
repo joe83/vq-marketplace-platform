@@ -9,41 +9,62 @@ var uploader = UploadService('egamix');
 module.exports = app => {
     app.post('/api/upload/image',
     isLoggedIn,
-    multer().single('file'),
     (req, res) => {
-        if (!req.file) {
-            return res.status(400).send("No files uploaded!");
-        }
-
-        const userId = req.user.id;
-        const imageBuffer = new Buffer(req.file.buffer);
-        const width = Number(req.query.width);
-        const height = Number(req.query.height);
-
-         if (!width && !height) {
-            return res.status(400).send("Width or height is not specifed");
-        }
-
-        const mimetype = req.file.mimetype.split('/')[1];
-
-        async.waterfall([
-            fn => uploader
-            .uploadToBucket(imageBuffer, 'st', mimetype, width, height, (err, locationPath) => {
-                if (err) {
-                    return fn(err, locationPath);
-                }
-
-                return fn(null, locationPath);
-            })
-        ], (err, locationPath) => {
+        multer({
+            limits: {
+                fileSize: 5 * 1024 * 1024 // 5MB is the limit
+            }
+        })
+        .single('file')
+        (req, res, err => {
             if (err) {
-                console.error(err);
-                return res.status(500).send(err);
+                if (err.code === 'LIMIT_FILE_SIZE') {
+                    return res.status(400).send({
+                        code: 'LIMIT_IMAGE_SIZE'
+                    });
+                }
             }
 
-            res.status(200).send(req.query.json ? {
-                url: locationPath 
-            } : locationPath);
+            if (!req.file) {
+                return res.status(400).send("No files uploaded!");
+            }
+    
+            const userId = req.user.id;
+            const imageBuffer = new Buffer(req.file.buffer);
+            const width = Number(req.query.width);
+            const height = Number(req.query.height);
+    
+             if (!width && !height) {
+                return res.status(400).send("Width or height is not specifed");
+            }
+    
+            const mimetype = req.file.mimetype.split('/')[1];
+    
+            if (mimetype !== 'jpeg' && mimetype !== 'png') {
+                return res.status(400).send({
+                    code: 'UNSUPPORTED_IMAGE_FORMAT'
+                });
+            }
+    
+            async.waterfall([
+                fn => uploader
+                .uploadToBucket(imageBuffer, 'st', mimetype, width, height, (err, locationPath) => {
+                    if (err) {
+                        return fn(err, locationPath);
+                    }
+    
+                    return fn(null, locationPath);
+                })
+            ], (err, locationPath) => {
+                if (err) {
+                    console.error(err);
+                    return res.status(500).send(err);
+                }
+    
+                res.status(200).send(req.query.json ? {
+                    url: locationPath 
+                } : locationPath);
+            });
         });
     });
 };

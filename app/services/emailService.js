@@ -130,25 +130,24 @@ const sendWelcome = (user, VERIFICATION_LINK) => {
 };
 
 const getMessagePrototype = () => new Promise((resolve, reject) => {
-	models
-		.appConfig
-		.findAll()
-		.then(config => {
-			return resolve({
-				"from_email": "noreply@vq-labs.com",
-				"from_name": config.NAME || "VQ LABS",
-				"to": [ ],
-				"headers": {
-					"Reply-To": config.SUPPORT_EMAIL
-				},
-				"important": false,
-				"global_merge_vars": [],
-				"metadata": {
-					"website": config.DOMAIN
-				},
-				"recipient_metadata": [{}],
-			});
-		}, reject);
+	custProvider
+	.getConfig()
+	.then(config => {
+		return resolve({
+			"from_email": "noreply@vq-labs.com",
+			"from_name": config.NAME || "VQ LABS",
+			"to": [ ],
+			"headers": {
+				"Reply-To": config.SUPPORT_EMAIL
+			},
+			"important": false,
+			"global_merge_vars": [],
+			"metadata": {
+				"website": config.DOMAIN
+			},
+			"recipient_metadata": [{}],
+		});
+	}, reject);
 });
 
 function sendEmail (html, tEmails, params, callback) {

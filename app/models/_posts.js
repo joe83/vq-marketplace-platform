@@ -37,8 +37,8 @@ module.exports = (sequelize, DataTypes) => {
         });
     });
 
-  posts.addDefaultPosts = force => {
-    const defaultPosts = marketplaceConfig.posts();
+  posts.addDefaultPosts = (usecase, force) => {
+    const defaultPosts = marketplaceConfig[usecase].posts();
     const updateOrCreate = posts.createOrUpdate();
 
     defaultPosts

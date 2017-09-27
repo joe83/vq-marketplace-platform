@@ -4,7 +4,7 @@ const EventEmitter = require('events');
 const async = require('async');
 const randtoken = require('rand-token');
 const models = require("../models/models");
-const EmailService = require("../services/emailService.js");
+const emailService = require("../services/emailService.js");
 const config = require("../config/configProvider.js")();
 const vqAuth = require("../config/vqAuthProvider");
 
@@ -104,7 +104,7 @@ const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
 			if (emails) {
                 emailService
 				.checkIfShouldSendEmail(emailCode, order.user.id, () => {
-				    EmailService
+				    emailService
                     .getEmailAndSend(emailCode, emails[0], ACTION_URL);
                 });
 			} else {
@@ -118,7 +118,7 @@ orderEmitter
     .on('closed',
         orderId =>
             orderEventHandlerFactory('order-closed',
-                domain => `${domain}/app/dashboard`
+                domain => `${domain}/app/order/${orderId}/review`
             )(orderId)
     );
 
@@ -131,7 +131,9 @@ orderEmitter
 orderEmitter
 	.on('order-completed', 
         orderId =>
-            orderEventHandlerFactory('order-completed', (domain, requestId) => `${domain}/app/chat/${requestId}`)(orderId)
+            orderEventHandlerFactory('order-completed', (domain, requestId) =>
+            `${domain}/app/order/${orderId}/review`
+        )(orderId)
     );
 
 orderEmitter

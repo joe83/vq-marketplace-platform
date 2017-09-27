@@ -4,7 +4,7 @@ const EventEmitter = require('events');
 const async = require('async');
 const randtoken = require('rand-token');
 const models = require("../models/models");
-const EmailService = require("../services/emailService.js");
+const emailService = require("../services/emailService.js");
 const config = require("../config/configProvider.js")();
 const vqAuth = require("../config/vqAuthProvider");
 
@@ -93,7 +93,7 @@ const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
 			if (emails) {
 				emailService
 				.checkIfShouldSendEmail(emailCode, request.fromUser.id, () => {
-					EmailService
+					emailService
 					.getEmailAndSend(emailCode, emails[0], ACTION_URL);
 				});
 			}
@@ -113,7 +113,9 @@ requestEmitter
 
 requestEmitter
 	.on('request-completed', 
-		requestEventHandlerFactory('request-completed', (domain, requestId) => `${domain}/app/chat/${requestId}`)
+		requestEventHandlerFactory('request-completed', (domain, requestId) =>
+			`${domain}/request/${requestId}/review`
+		)
 	);
 
 requestEmitter
@@ -125,6 +127,14 @@ requestEmitter
 	.on('closed',
 		requestId =>
 			requestEventHandlerFactory('request-closed',
+				(domain) => `${domain}/request/${requestId}/review`
+			)(requestId)
+	);
+
+requestEmitter
+	.on('request-marked-as-done',
+		requestId =>
+			requestEventHandlerFactory('request-marked-as-done',
 				(domain) => `${domain}/app/dashboard`
 			)(requestId)
 	);
@@ -201,7 +211,7 @@ requestEmitter
 			if (requestReceivedEmails) {
 				emailService
 				.checkIfShouldSendEmail('new-request-received', request.toUser.id, () => {
-					EmailService
+					emailService
 					.getEmailAndSend('new-request-received', requestReceivedEmails[0], ACTION_URL);
 				});
 			}
@@ -209,7 +219,7 @@ requestEmitter
 			if (requestSentEmails) {
 				emailService
 				.checkIfShouldSendEmail('new-request-sent', request.fromUser.id, () => {
-					EmailService
+					emailService
 					.getEmailAndSend('new-request-sent', requestSentEmails[0], ACTION_URL);
 				});
 			}
