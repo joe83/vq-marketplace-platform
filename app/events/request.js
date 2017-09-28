@@ -114,7 +114,7 @@ requestEmitter
 requestEmitter
 	.on('request-completed', 
 		requestEventHandlerFactory('request-completed', (domain, requestId) =>
-			`${domain}/request/${requestId}/review`
+			`${domain}/app/request/${requestId}/review`
 		)
 	);
 
@@ -134,7 +134,7 @@ requestEmitter
 	.on('closed',
 		requestId =>
 			requestEventHandlerFactory('request-closed',
-				(domain) => `${domain}/request/${requestId}/review`
+				(domain) => `${domain}/app/request/${requestId}/review`
 			)(requestId)
 	);
 
