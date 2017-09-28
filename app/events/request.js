@@ -124,6 +124,13 @@ requestEmitter
 );
 
 requestEmitter
+.on('request-cancelled',
+	requestEventHandlerFactory('request-cancelled', (domain, requestId) =>
+		`${domain}/app`
+	)
+);
+
+requestEmitter
 	.on('closed',
 		requestId =>
 			requestEventHandlerFactory('request-closed',

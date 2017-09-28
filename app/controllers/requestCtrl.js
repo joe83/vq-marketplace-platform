@@ -135,6 +135,9 @@ const changeRequestStatus = (requestId, newStatus, userId, cb) => {
                 .then(rTask => {
                     taskEmitter
                         .emit('task-request-cancelled', rTask);
+                    
+                    requestEmitter
+                        .emit('request-cancelled', requestId);
                 });
         }
 
