@@ -33,13 +33,19 @@ module.exports = app => {
             return res.status(400).send('EMPTY_MESSAGE');
         }
 
-        models.message.create({
+        models.message
+        .create({
             requestId: req.params.requestId,
             taskId: req.body.taskId,
             fromUserId: req.user.id,
             toUserId: req.body.toUserId,
             message
-        }).then(rMessage => {
+        })
+        .then(rMessage => {
+
+            requestEmitter
+                .emit('message-received', rMessage);
+
             return res.send(rMessage);
         }, err => res.status(400).send(err))
     });

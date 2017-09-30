@@ -102,8 +102,43 @@ const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
 };
 
 requestEmitter
-	.on('new-request-message', (fromUserId, toUserId, taskId, message) => {
-		// EmailService.sendNewChatMessageReceived(results);
+	.on('message-received', (messageRef) => {
+		emailService
+		.checkIfShouldSendEmail('message-received', messageRef.toUserId, () => {
+			models.user
+			.findById(messageRef.toUserId)
+			.then(user => {
+				vqAuth
+				.getEmailsFromUserId(messageRef.toUserId, (err, rUserEmails) => {
+					if (err) {
+						return console.error(err);
+					}
+	
+					const emails = rUserEmails
+						.map(_ => _.email);
+	
+						models
+						.appConfig
+						.findOne({
+							where: {
+								fieldKey: 'DOMAIN'
+							}
+						})
+						.then(configField => {
+							configField = configField || {};
+							
+							const domain = configField.fieldValue || 'http://localhost:3000';
+		
+							const ACTION_URL = `${domain}/app/chat/${messageRef.requestId}`;
+		
+							emailService
+								.getEmailAndSend('message-received', emails[0], ACTION_URL);
+						}, err => {
+							return console.error(err);
+						})
+				});
+			});
+		});
 	});
 
 requestEmitter
@@ -145,6 +180,12 @@ requestEmitter
 				(domain) => `${domain}/app/dashboard`
 			)(requestId)
 	);
+
+	
+requestEmitter
+	.on('new-message', messageRef => {
+		
+	});
 
 requestEmitter
 	.on('new-request', requestId => {
