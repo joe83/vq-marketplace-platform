@@ -1,4 +1,5 @@
 const resCtrl = require("../controllers/responseController.js");
+const async = require("async");
 const cust = require("../config/customizing.js");
 const vqAuth = require("../config/vqAuthProvider");
 const isLoggedIn = resCtrl.isLoggedIn;
@@ -207,9 +208,7 @@ module.exports = app => {
 					});
 
 					console.log('[ADMIN] Setting active tasks of the blocked user to INACTIVE.');
-					models.task.update({
-						status: models.task.TASK_STATUS.INACTIVE
-					}, {
+					models.task.findAll({
 						where: {
 							$and: [
 								{
@@ -219,15 +218,35 @@ module.exports = app => {
 										{ 
 											status: models.task.TASK_STATUS.CREATION_IN_PROGRESS
 										}, { 
-											status: models.task.TASK_STATUS.PENDING
+											status: models.task.TASK_STATUS.ACTIVE
 										}
 									]
 								}
 							]
 						}
 					})
-					.then(_ => _, err => {
-						console.error(err);
+					.then(activeTasks => {
+						async.eachSeries(activeTasks, (activeTask, cb) => {
+							activeTask.update({
+								status: models.task.TASK_STATUS.INACTIVE
+							})
+							.then(_ => {
+								requestCtrl
+								.declineAllPendingRequestsForTask(activeTask.id, err => {
+									if (err) {
+										return cb(err);
+									}
+				
+									console.log(`[SUCCESS] All pending requests for task ${activeTask.id} have been declined!`);
+
+									cb();
+								});
+							}, cb);
+						}, err => {
+							if (err) {
+								return console.error(err);
+							}
+						})
 					});
 					
 					console.log('[ADMIN] Setting pending request to the blocked user to DECLINED.');

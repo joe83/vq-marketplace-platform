@@ -29,7 +29,7 @@ const taskAutoSettlement = () => {
                 }
                 
                 const timeDiff = utils.getUtcUnixTimeNow() - order.autoSettlementStartedAt;
-                const adjustedTimeDiffInHours = timeDiff / 1000 / 60 / 60;;
+                const adjustedTimeDiffInHours = timeDiff / 1000 / 60 / 60;
                 
                 if (adjustedTimeDiffInHours >= 8) {
                     return orderCtrl
