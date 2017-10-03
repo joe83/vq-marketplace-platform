@@ -109,7 +109,7 @@ requestEmitter
 			.findById(messageRef.toUserId)
 			.then(user => {
 				vqAuth
-				.getEmailsFromUserId(messageRef.toUserId, (err, rUserEmails) => {
+				.getEmailsFromUserId(user.vqUserId, (err, rUserEmails) => {
 					if (err) {
 						return console.error(err);
 					}
@@ -132,7 +132,7 @@ requestEmitter
 							const ACTION_URL = `${domain}/app/chat/${messageRef.requestId}`;
 		
 							emailService
-								.getEmailAndSend('message-received', emails[0], ACTION_URL);
+							.getEmailAndSend('message-received', emails[0], ACTION_URL);
 						}, err => {
 							return console.error(err);
 						})
