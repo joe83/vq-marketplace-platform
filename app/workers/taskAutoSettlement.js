@@ -44,7 +44,7 @@ const taskAutoSettlement = () => {
 
                             settled++;
 
-                            console.log(`Settled order ${order.userId}`);
+                            console.log(`[WORKER AUTOSETTLEMENT] Settled order ${order.userId}`);
 
                             return cb();
                         });

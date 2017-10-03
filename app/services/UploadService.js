@@ -44,7 +44,27 @@ module.exports = bucket => {
             });
     };
 
+    const uploadFileToBucket = (rawBuffer, namespace, fileFormat, width, height, callback) => {
+        const key = `${namespace}/${randomToken(32)}.pdf`;
+
+        const params = {
+            Bucket: bucket,
+            Body: buffer,
+            Key: key,
+            ContentType: `application/pdf`
+        };
+
+        s3.upload(params, (err, pres) => {
+            if (err) {
+                return callback(err);
+            }
+
+            return callback(null, pres.Location);
+        });
+    };
+
     return {
+        uploadFileToBucket,
         uploadToBucket
     };
 };
