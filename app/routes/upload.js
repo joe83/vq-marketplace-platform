@@ -102,7 +102,7 @@ module.exports = app => {
     
             async.waterfall([
                 fn => uploader
-                .uploadFileToBucket(fileBuffer, 'st', mimetype, width, height, (err, locationPath) => {
+                .uploadFileToBucket(fileBuffer, 'st', mimetype, (err, locationPath) => {
                     if (err) {
                         return fn(err, locationPath);
                     }

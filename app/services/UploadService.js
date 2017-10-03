@@ -34,7 +34,8 @@ module.exports = bucket => {
                         ContentType: `image/jpeg`
                     };
 
-                    s3.upload(params, (err, pres) => {
+                    s3
+                    .upload(params, (err, pres) => {
                         if (err) {
                             return callback(err);
                         }
@@ -44,17 +45,18 @@ module.exports = bucket => {
             });
     };
 
-    const uploadFileToBucket = (rawBuffer, namespace, fileFormat, width, height, callback) => {
-        const key = `${namespace}/${randomToken(32)}.pdf`;
+    const uploadFileToBucket = (rawBuffer, namespace, fileFormat, callback) => {
+        const key = `${namespace}/${randomToken(32)}.${fileFormat}`;
 
         const params = {
             Bucket: bucket,
-            Body: buffer,
+            Body: rawBuffer,
             Key: key,
             ContentType: `application/pdf`
         };
 
-        s3.upload(params, (err, pres) => {
+        s3
+        .upload(params, (err, pres) => {
             if (err) {
                 return callback(err);
             }

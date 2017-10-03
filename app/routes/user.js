@@ -18,7 +18,7 @@ module.exports = app => {
       return sendResponse(res, null, req.user);
   });
 
-  app.get('/api/user/:userId', (req, res) => {
+  app.get('/api/user/:userId', isLoggedIn, (req, res) => {
     models.user.findOne({ 
       where:
         { 
@@ -32,12 +32,14 @@ module.exports = app => {
     .then(
       user => {
         user = JSON.parse(JSON.stringify(user));
-        user.userProperties.forEach(_ => {
 
-          const prop = _;
-
-          prop.propValue = Boolean(prop.propValue);
-        });
+        if (!req.user.isAdmin && req.query.adminView) {
+          user.userProperties.forEach(_ => {
+              const prop = _;
+    
+              prop.propValue = Boolean(prop.propValue);
+          });
+        }
 
         return sendResponse(res, null, user)
       }, 
