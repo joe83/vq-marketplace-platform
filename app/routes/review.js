@@ -216,7 +216,8 @@ module.exports = app => {
 
         models.review
             .findAll({
-                where: { 
+                order: [[ 'createdAt', 'DESC' ]],
+                where: {
                     toUserId
                 },
                 include: [

@@ -4,6 +4,8 @@ const Sequelize = require("sequelize");
 const config = require("../config/configProvider.js")();
 
 var sequelize = new Sequelize(config.db, {
+  // disable logging; default: console.log
+  logging: false,
   dialect: 'mysql',
   pool: {
     max: 5,

@@ -55,7 +55,7 @@ module.exports = (sequelize, DataTypes) => {
           .then(obj => {
             if (!obj) {
                 console.log(`Creating label "${labelKey}"`);
-                
+
                 appLabel
                 .create({
                   labelKey,
@@ -67,14 +67,8 @@ module.exports = (sequelize, DataTypes) => {
             } else {
               console.log(`Label "${labelKey}" already exists.`);
 
-              if (obj.labelGroup !== labelGroup) {
-                console.log(`Group of the label "${labelKey}" differs! Should be ${labelGroup}`);
-
-                return obj
-                  .update({
-                    labelGroup
-                  })
-                  .then(resolve, reject);
+              if (obj.labelGroup === labelGroup) {
+                
               }
 
               return resolve();
@@ -91,7 +85,7 @@ module.exports = (sequelize, DataTypes) => {
           return;
         }
 
-        var labelGroup = label.labelGroup ? label.labelGroup.toUpperCase() : null;
+        var labelGroup =  label.labelGroup ? label.labelGroup.toUpperCase() : null;
 
         upsert(
           label.labelKey.toUpperCase(),
