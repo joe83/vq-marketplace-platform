@@ -52,7 +52,8 @@ The very first time you run this command, all the data tables in the database wi
 Ensure that you also run the init scripts at the very beginning:
 ```
 node scripts/restore-default-config.js
-node scripts/restore-default-labels.js
+// here we can specify what marketplace type we want. We have some default implementations developed: services|partner|swap. Also you can specify which language you'd like to add.
+node scripts/restore-default-labels.js services en
 node scripts/restore-default-posts.js
 ```
 
