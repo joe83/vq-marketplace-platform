@@ -34,10 +34,13 @@ module.exports = app => {
             const width = Number(req.query.width);
             const height = Number(req.query.height);
     
-             if (!width && !height) {
-                return res.status(400).send("Width or height is not specifed");
+            /** 
+            if (!width && !height) {
+                return res.status(400)
+                    .send("Width or height is not specifed");
             }
-    
+            */
+            
             const mimetype = req.file.mimetype.split('/')[1];
     
             if (mimetype !== 'jpeg' && mimetype !== 'png') {

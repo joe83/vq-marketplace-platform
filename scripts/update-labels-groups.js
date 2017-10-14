@@ -41,10 +41,11 @@ module.exports = (sequelize, DataTypes) => {
           });
       });
 
-  appLabel.upsertFactory = () => (labelKey, labelGroup, labelValue, lang) =>
+  appLabel
+  .upsertFactory = () => (labelKey, labelGroup, labelValue, lang) =>
         new Promise((resolve, reject) => {
           appLabel
-          .findOne({ 
+          .findOne({
             where: {
               $and: [
                 { labelKey },

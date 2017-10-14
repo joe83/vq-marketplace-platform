@@ -23,7 +23,8 @@ const getRequestOwnerEmails = (requestId, cb) => {
                     id: requestId
                 },
                 include: [
-                    { model: models.user, as: 'fromUser' }
+					{ model: models.user, as: 'fromUser' },
+					{ model: models.task, as: 'task' }
                 ]
             })
             .then(rRequest => {
@@ -52,9 +53,10 @@ const getRequestOwnerEmails = (requestId, cb) => {
 
 const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
 	return requestId => {
-		var user, request, order;
+		var user, request, order, task;
 		var emails;
 		var ACTION_URL;
+		var emailData = {};
 
 		async.waterfall([
 			cb => getRequestOwnerEmails(requestId, (err, data) => {
@@ -65,6 +67,7 @@ const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
                 emails = data.emails;
                 order = data.order;
 				request = data.request;
+				task = data.request.task;
 
 				return cb();
             }),
@@ -80,8 +83,10 @@ const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
 					
 					const domain = configField.fieldValue || 'http://localhost:3000';
 
-					ACTION_URL = 
+					emailData.ACTION_URL = 
 						actionUrlFn(domain, requestId);
+
+					emailData.LISTING_TITLE = task.title;
 
 					cb();
 				}, cb)
@@ -94,7 +99,7 @@ const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
 				emailService
 				.checkIfShouldSendEmail(emailCode, request.fromUser.id, () => {
 					emailService
-					.getEmailAndSend(emailCode, emails[0], ACTION_URL);
+					.getEmailAndSend(emailCode, emails[0], emailData);
 				});
 			}
 		});

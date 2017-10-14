@@ -58,7 +58,7 @@ const getEmailBody = code => models.post
 			]
 	}});
 
-const getEmailAndSend = (emailCode, email, ACTION_URL) => getEmailBody(emailCode)
+const getEmailAndSend = (emailCode, email, emailData) => getEmailBody(emailCode)
 	.then(emailBody => {
 		const params = {};
 		var compiledEmail;
@@ -67,10 +67,19 @@ const getEmailAndSend = (emailCode, email, ACTION_URL) => getEmailBody(emailCode
 			return console.error(`Email template "${emailCode}" has not been found`);
 		}
 
+		if (typeof ACTION_URL === 'string') {
+			emailData = {
+				ACTION_URL: emailData
+			};
+		} else {
+			emailData = {
+				ACTION_URL: emailData.ACTION_URL || '<ACTION_URL NOT SPECIFIED>',
+				LISTING_TITLE: emailData.LISTING_TITLE || '<LISTING_TITLE NOT SPECIFIED>'
+			};
+		}
+
 		try {
-			compiledEmail = ejs.compile(unescape(emailBody.body))({
-				ACTION_URL
-			});
+			compiledEmail = ejs.compile(unescape(emailBody.body))(emailData);
 		} catch (err) {
 			return console.error(err);
 		}

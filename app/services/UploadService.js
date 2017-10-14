@@ -3,15 +3,36 @@ const sharp = require('sharp');
 const s3 = require("../config/bucket.js");
 
 module.exports = bucket => {
-    const convertPicture = (buffer, fileFormat, width, height) => new Promise((resolve, reject) => {
-        sharp(buffer)
-            .resize(width, height, {
-                kernel: sharp.kernel.lanczos2,
-                interpolator: sharp.interpolator.nohalo
-            })
-            .crop(sharp.strategy.entropy)
-            // .background('white')
-            // .embed()
+    const convertPicture = (buffer, fileFormat, width, height) =>
+    new Promise((resolve, reject) => {
+
+        if (width && height) {
+            return sharp(buffer)
+                .resize(width, height, {
+                    kernel: sharp.kernel.lanczos2,
+                    interpolator: sharp.interpolator.nohalo
+                })
+                .crop(sharp.strategy.entropy)
+                // .background('white')
+                // .embed()
+                .toBuffer((err, imgBuffer) => {
+                    if (err) {
+                        console.error(err);
+
+                        return reject(err);
+                    }
+                    
+                    return resolve(imgBuffer);
+                });
+        }
+        
+        return sharp(buffer)
+            /**
+                .resize(width, height, {
+                    kernel: sharp.kernel.lanczos2,
+                    interpolator: sharp.interpolator.nohalo
+                })
+            */
             .toBuffer((err, imgBuffer) => {
                 if (err) {
                     console.error(err);

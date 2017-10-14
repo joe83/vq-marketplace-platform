@@ -28,7 +28,6 @@ module.exports = app => {
             message = '';
         }
         
-
         if (!message || message.length === 0) {
             return res.status(400).send('EMPTY_MESSAGE');
         }
@@ -76,7 +75,10 @@ module.exports = app => {
         }
 
         models.message
-            .findAll({ where })
+            .findAll({
+                where,
+                order: [ [ "createdAt", "DESC" ]]
+            })
             .then(messages => {
                 if (groupBy) {
                     messages = _.groupBy(messages, groupBy);

@@ -242,27 +242,43 @@ module.exports = app => {
 		
 		models
 		.user
-		.update({
-			status: models.user.USER_STATUS.VERIFIED
-		}, {
-			where: {
-				id: user.id
+		.findById(user.id)
+		.then(rUser => {
+			if (rUser.status === models.user.USER_STATUS.USER_BLOCKED) {
+				return res.status(401).send({
+					code: 'USER_BLOCKED'
+				});
 			}
-		});
 
-		models
-		.appConfig
-		.findOne({
-			where: {
-				fieldKey: 'DOMAIN'
+			if (rUser.status !== models.user.USER_STATUS.VERIFIED) {
+				rUser.update({
+					status: models.user.USER_STATUS.VERIFIED
+				})
+				.then(_ => _, err => {
+					console.error(err);
+				})
 			}
-		})
-		.then(configField => {
-			if (configField) {
-				return res.redirect(configField.fieldValue + '/app/dashboard');
-			}
-			
-			return res.redirect('https://vq-labs.com');
+
+			models
+			.appConfig
+			.findOne({
+				where: {
+					fieldKey: 'DOMAIN'
+				}
+			})
+			.then(configField => {
+				if (configField) {
+					if (String(rUser.userType) === '1') {
+						return res.redirect(configField.fieldValue + '/app/new-listing');
+					}
+	
+					return res.redirect(configField.fieldValue + '/app/dashboard');
+				}
+				
+				return res.redirect('https://vq-labs.com');
+			}, err => {
+				res.status(400).send(err);
+			});
 		});
 	});
 	
