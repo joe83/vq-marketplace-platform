@@ -96,6 +96,13 @@ taskEmitter
                             .user
                             .findById(userId)
                             .then(user => {
+                                // in case of data inconsensities
+                                if (!user) {
+                                    console.error(`user ${userId} could not be found but there is a preference to him`);
+
+                                    return cb();
+                                }
+
                                 vqAuth
                                 .getEmailsFromUserId(user.vqUserId, (err, rUserEmails) => {
                                     if (err) {
