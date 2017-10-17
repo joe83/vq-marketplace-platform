@@ -62,13 +62,12 @@ const getEmailAndSend = (emailCode, email, emailData) => getEmailBody(emailCode)
 	.then(emailBody => {
 		const params = {};
 		var compiledEmail;
-		var emailData;
 		
 		if (!emailBody) {
 			return console.error(`Email template "${emailCode}" has not been found`);
 		}
 
-		if (typeof ACTION_URL === 'string') {
+		if (typeof emailData === 'string') {
 			emailData = {
 				ACTION_URL: emailData,
 				LISTING_TITLE: '<LISTING_TITLE NOT SPECIFIED>'
@@ -89,9 +88,9 @@ const getEmailAndSend = (emailCode, email, emailData) => getEmailBody(emailCode)
 
 		params.subject = emailBody.title;
 
-		return sendEmail(compiledEmail, [
+		return sendEmail(compiledEmail, typeof email === 'string' ? [
 			email
-		], params, (err, res) => {
+		] : email, params, (err, res) => {
 			if (err) {
 				console.error(err);
 			}

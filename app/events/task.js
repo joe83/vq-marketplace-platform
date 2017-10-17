@@ -84,10 +84,14 @@ taskEmitter
                     const ACTION_URL = 
                     `${domain}/app/task/${taskId}`;   
 
-                    async.eachSeries(userPreferences, (userPreference, cb) => {
+                    const userEmails = [];
+
+                    async
+                    .eachSeries(userPreferences, (userPreference, cb) => {
                         const userId = userPreference.userId;
 
-                        emailService.checkIfShouldSendEmail('new-task', userId, () => {
+                        emailService
+                        .checkIfShouldSendEmail('new-task', userId, () => {
                             models
                             .user
                             .findById(userId)
@@ -101,11 +105,10 @@ taskEmitter
                                     }
                     
                                     const emails = rUserEmails
-                                        .map(_ => _.email);
+                                        .forEach(_ => {
+                                            userEmails.push(_.email);
+                                        });
 
-                                    emailService
-                                        .getEmailAndSend('new-task', emails[0], ACTION_URL);
-    
                                     cb();
                                 });
                             }, err => {
@@ -117,6 +120,9 @@ taskEmitter
                             cb();
                         });
                     }, () => {
+                        emailService
+                        .getEmailAndSend('new-task', userEmails, ACTION_URL);
+
                         console.log("New task emails have been sent!");
                     });
                 });
