@@ -315,7 +315,7 @@ module.exports = app => {
 			})
 			.then(rUser => {
 				if (!rUser) {
-					return cb(cust.errorCodes.USER_DELETED);
+					return cb(cust.errorCodes.USER_NOT_FOUND);
 				}
 
 				User.user = rUser ? rUser.dataValues : null;
