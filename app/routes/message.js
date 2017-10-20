@@ -109,14 +109,27 @@ module.exports = app => {
                     where: {
                         id: requestId
                     },
-                    include: [{
-                        model: models.order
-                    }, {
-                        model: models.review
-                    },
-                    { model: models.user, as: 'fromUser' },
-                    { model: models.user, as: 'toUser' }
-                ]
+                    include: [
+                        {
+                            model: models.order,
+                            include: [
+                                {
+                                    model: models.review
+                                }
+                            ]
+                        },
+                        {
+                            model: models.review
+                        },
+                        {
+                            model: models.user,
+                            as: 'fromUser'
+                        },
+                        { 
+                            model: models.user,
+                            as: 'toUser'
+                        }
+                    ]
                 })
                 .then(rRequest => {
                     if (!rRequest) {

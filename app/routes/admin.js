@@ -131,12 +131,16 @@ module.exports = app => {
 						return sendResponse(res, 'NOT_FOUND');
 					}
 					
+					if (task.status !== models.task.TASK_STATUS.ACTIVE) {
+						return sendResponse(res, {
+							code: 'TASK_IS_NOT_ACTIVE'
+						});
+					}
+
 					task
 						.update({
 							status: models.task.TASK_STATUS.SPAM
 						});
-
-					sendResponse(res, null, task);
 
 					taskEmitter
 						.emit('marked-spam', task);
@@ -147,7 +151,36 @@ module.exports = app => {
 							requestCtrl
 							.declineRequest(request.id, err => console.error(err));
 						});
+
+						sendResponse(res, null, task);
 					}, err => console.error(err));
+				}, 
+				err => sendResponse(res, err)
+			);
+		});
+
+	app.delete("/api/admin/user/:userId/verifications", 
+		isLoggedIn,
+		isAdmin,
+		(req, res) => {
+			models
+			.userProperty
+			.destroy({
+				where: {
+					$and: [
+						{ userId: req.params.userId },
+						{
+							$or: [
+								{ propKey: 'studentIdUrl' },
+								{ propKey:  'studentIdBackUrl' }
+							]
+						}
+					]
+				}
+			})
+			.then(
+				() => {
+					sendResponse(res, null, { ok: 200 })
 				}, 
 				err => sendResponse(res, err)
 			);

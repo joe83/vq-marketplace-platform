@@ -49,7 +49,9 @@ module.exports = app => {
                 .then(rRequest => {
                     request = rRequest;
 
-                    models.message.create({
+                    models
+                    .message
+                    .create({
                         requestId: request.id,
                         taskId,
                         fromUserId,
@@ -251,7 +253,13 @@ module.exports = app => {
                 }
             })
             .then(order => {
-                sendResponse(res, null, order);
+                if (!order) {
+                    return sendResponse(res, {
+                        code: 'ORDER_NOT_FOUND'
+                    });
+                }
+
+                return sendResponse(res, null, order);
             }, err => sendResponse(res, err));
     });
 
@@ -261,6 +269,12 @@ module.exports = app => {
         models.order
             .findById(orderId)
             .then(order => {
+                if (!order) {
+                    return sendResponse(res, {
+                        code: 'ORDER_NOT_FOUND'
+                    });
+                }
+                
                 models.request
                 .findOne({
                     where: {
@@ -272,6 +286,12 @@ module.exports = app => {
                     ]
                 })
                 .then(request => {
+                    if (!request) {
+                        return sendResponse(res, {
+                            code: 'REQUEST_NOT_FOUND'
+                        });
+                    }
+
                     return sendResponse(res, null, request);
                 }, err => sendResponse(res, err))
             }, err => sendResponse(res, err))

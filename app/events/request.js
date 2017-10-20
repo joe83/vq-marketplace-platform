@@ -160,15 +160,17 @@ requestEmitter
 
 requestEmitter
 	.on('request-declined',
-	requestEventHandlerFactory('request-declined', (domain, requestId) => `${domain}/app/dashboard`)
-);
-
-requestEmitter
-.on('request-cancelled',
-	requestEventHandlerFactory('request-cancelled', (domain, requestId) =>
+	requestEventHandlerFactory('request-declined', (domain, requestId) => 
 		`${domain}/app`
 	)
 );
+
+requestEmitter
+	.on('request-cancelled',
+		requestEventHandlerFactory('request-cancelled', (domain, requestId) =>
+			`${domain}/app`
+		)
+	);
 
 requestEmitter
 	.on('closed',
@@ -186,7 +188,6 @@ requestEmitter
 			)(requestId)
 	);
 
-	
 requestEmitter
 	.on('new-message', messageRef => {
 		

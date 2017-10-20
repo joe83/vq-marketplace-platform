@@ -27,7 +27,7 @@ const getDomainName = cb => {
     }, cb);
 };
 
-const handlerFactory = emailCode => task => {
+const handlerFactory = (emailCode) => task => {
     emailService.checkIfShouldSendEmail(emailCode, task.userId, () => {
         models
         .user
@@ -46,8 +46,20 @@ const handlerFactory = emailCode => task => {
                     const emails = rUserEmails
                     .map(_ => _.email);
     
-                    emailService
-                        .getEmailAndSend(emailCode, emails[0]);
+                    getDomainName((err, domain) => {
+                        if (err) {
+                            return console.error(err);
+                        }
+
+                        const ACTION_URL = 
+                            `${domain}/app/new-listing`;  
+
+                        emailService
+                        .getEmailAndSend(emailCode, emails[0], {
+                            ACTION_URL
+                        });
+                    });    
+                    
                 });
             }, err => console.error(err));
     });

@@ -97,8 +97,16 @@ module.exports = app => {
                 ]
             })
             .then(order => {
+                if (!order) {
+                    return sendResponse(res, {
+                        code: 'ORDER_NOT_FOUND'
+                    });
+                }
+
                 return sendResponse(res, null, order);
-            }, err => sendResponse(res, err));
+            }, err => {
+                sendResponse(res, err)
+            });
         });
 
     app.get(`/api/${RESOURCE}`,
