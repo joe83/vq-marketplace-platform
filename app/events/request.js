@@ -4,7 +4,6 @@ const EventEmitter = require('events');
 const async = require('async');
 const randtoken = require('rand-token');
 const models = require("../models/models");
-const orderCtrl = require("../controllers/orderCtrl.js");
 const emailService = require("../services/emailService.js");
 const config = require("../config/configProvider.js")();
 const vqAuth = require("../config/vqAuthProvider");
@@ -12,6 +11,24 @@ const vqAuth = require("../config/vqAuthProvider");
 class DefaultEmitter extends EventEmitter {}
 
 const requestEmitter = new DefaultEmitter();
+
+const getOrderFromRequest = (requestId, cb) => {
+    models.order
+        .findOne({
+            where: {
+                requestId
+            }
+        })
+        .then(order => {
+            if (!order) {
+                return cb({
+                    code: 'ORDER_NOT_FOUND'
+                });
+            }
+
+            return cb(null, order);
+        }, cb);
+};
 
 const getRequestOwnerEmails = (requestId, cb) => {
     let emails, request, order, task;
@@ -35,7 +52,7 @@ const getRequestOwnerEmails = (requestId, cb) => {
                 return cb();
 			}, cb),
 		cb => {
-			orderCtrl.getOrderFromRequest(requestId, (err, rOrder) => {
+			getOrderFromRequest(requestId, (err, rOrder) => {
 				if (err) {
 					return cb(err);
 				}
@@ -169,7 +186,7 @@ requestEmitter
 requestEmitter
 	.on('request-completed', 
 		requestEventHandlerFactory('request-completed', (domain, requestId, orderId) =>
-			`${domain}/app/order/${orderId}/review`
+			`${domain}/app/request/${requestId}/review`
 		)
 	);
 
@@ -177,7 +194,7 @@ requestEmitter
 	.on('closed',
 		requestId =>
 			requestEventHandlerFactory('request-closed',
-				(domain, requestId, orderId) => `${domain}/app/order/${orderId}/review`
+				(domain, requestId, orderId) => `${domain}/app/request/${requestId}/review`
 			)(requestId)
 	);
 
@@ -295,12 +312,4 @@ requestEmitter
 		})
 	});
 
-
-if (module.parent) {
-	module.exports = requestEmitter;
-} else {
-	console.log(process.argv[2])
-	console.log(process.argv[3])
-	
-	requestEmitter.emit(process.argv[2], process.argv[3]);
-}
+module.exports = requestEmitter;

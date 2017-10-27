@@ -10,7 +10,7 @@ const vqAuth = require("../config/vqAuthProvider");
 
 class DefaultEmitter extends EventEmitter {}
 
-const orderEmitter = new DefaultEmitter();
+var orderEmitter = new DefaultEmitter();
 
 const getOrderOwnerEmails = (orderId, cb) => {
     let emails, order;
@@ -126,7 +126,7 @@ orderEmitter
 	.on('order-completed', 
         orderId =>
             orderEventHandlerFactory('order-completed', (domain, requestId) =>
-            `${domain}/app/request/${requestId}/review`
+            `${domain}/app/order/${orderId}/review`
         )(orderId)
     );    
 
