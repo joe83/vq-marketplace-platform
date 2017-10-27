@@ -1,16 +1,14 @@
-"use strict"
-
 const EventEmitter = require('events');
 const async = require('async');
 const emailService = require("../services/emailService");
-class DefaultEmitter extends EventEmitter {}
-const taskEmitter = new DefaultEmitter();
 const randomstring = require("randomstring");
 const config = require("../config/configProvider.js")();
-const vqAuth = require("../config/vqAuthProvider");
-const models  = require('../models/models');
+const vqAuth = require("../auth");
 
-const getDomainName = cb => {
+class DefaultEmitter extends EventEmitter {}
+const taskEmitter = new DefaultEmitter();
+
+const getDomainName = (models, cb) => {
     models
     .appConfig
     .findOne({
@@ -27,8 +25,8 @@ const getDomainName = cb => {
     }, cb);
 };
 
-const handlerFactory = (emailCode) => task => {
-    emailService.checkIfShouldSendEmail(emailCode, task.userId, () => {
+const handlerFactory = (emailCode) => (models, task) => {
+    emailService.getEmailAndSend(models, emailCode, task.userId, () => {
         models
         .user
         .findById(task.userId)
@@ -38,7 +36,7 @@ const handlerFactory = (emailCode) => task => {
             }
     
             vqAuth
-                .getEmailsFromUserId(user.vqUserId, (err, rUserEmails) => {
+                .getEmailsFromUserId(models, user.vqUserId, (err, rUserEmails) => {
                     if (err) {
                         return cb(err);
                     }
@@ -46,7 +44,7 @@ const handlerFactory = (emailCode) => task => {
                     const emails = rUserEmails
                     .map(_ => _.email);
     
-                    getDomainName((err, domain) => {
+                    getDomainName(models, (err, domain) => {
                         if (err) {
                             return console.error(err);
                         }
@@ -55,7 +53,7 @@ const handlerFactory = (emailCode) => task => {
                             `${domain}/app/new-listing`;  
 
                         emailService
-                        .getEmailAndSend(emailCode, emails[0], {
+                        .getEmailAndSend(models, emailCode, emails[0], {
                             ACTION_URL
                         });
                     });    
@@ -72,12 +70,13 @@ taskEmitter
     .on('task-request-cancelled', handlerFactory('task-request-cancelled'));
 
 taskEmitter
-    .on('new-task', taskId => {
+    .on('new-task', (models, taskId) => {
         if (!taskId) {
             return console.error('TASK_NOT_FOUND');
         }
 
-        models.taskCategory
+        models
+        .taskCategory
         .findOne({
             where: {
                 taskId
@@ -92,7 +91,7 @@ taskEmitter
                 }
             })
             .then(userPreferences => {
-                getDomainName((err, domain) => {
+                getDomainName(models, (err, domain) => {
                     const ACTION_URL = 
                     `${domain}/app/task/${taskId}`;   
 
@@ -103,7 +102,7 @@ taskEmitter
                         const userId = userPreference.userId;
 
                         emailService
-                        .checkIfShouldSendEmail('new-task', userId, () => {
+                        .getEmailAndSend(models, 'new-task', userId, () => {
                             models
                             .user
                             .findById(userId)
@@ -140,7 +139,7 @@ taskEmitter
                         });
                     }, () => {
                         emailService
-                        .getEmailAndSend('new-task', userEmails, ACTION_URL);
+                        .getEmailAndSend(models, 'new-task', userEmails, ACTION_URL);
 
                         console.log("New task emails have been sent!");
                     });

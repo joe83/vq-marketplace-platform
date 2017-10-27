@@ -9,25 +9,25 @@ class DefaultEmitter extends EventEmitter {}
 const userEmitter = new DefaultEmitter();
 const CryptoJS = require("crypto-js");
 const config = require("../config/configProvider.js")();
-const vqAuth = require("../config/vqAuthProvider");
+const vqAuth = require("../auth");
 
 module.exports = userEmitter;
     userEmitter
-    .on('created', user => {
+    .on('created', (models, user) => {
         // the default value for private key sucks...
         const VERIFICATION_TOKEN = cryptoService.encodeObj(user);
 
         const VERIFICATION_LINK = 
         `${config.serverUrl || 'http://localhost:8080'}/api/verify/email?code=${VERIFICATION_TOKEN}`;
 
-        return emailService.sendWelcome(user, VERIFICATION_LINK);
+        return emailService.sendWelcome(models, user, VERIFICATION_LINK);
     });
 
     userEmitter
-    .on('blocked', user => {
-        emailService.checkIfShouldSendEmail('user-blocked', user.id, () => {
+    .on('blocked', (models, user) => {
+        emailService.getEmailAndSend(models, 'user-blocked', user.id, () => {
             vqAuth
-            .getEmailsFromUserId(user.vqUserId, (err, rUserEmails) => {
+            .getEmailsFromUserId(models, user.vqUserId, (err, rUserEmails) => {
                 if (err) {
                     return cb(err);
                 }
@@ -36,7 +36,7 @@ module.exports = userEmitter;
                 .map(_ => _.email);
 
                 emailService
-                    .getEmailAndSend('user-blocked', emails[0]);
+                    .getEmailAndSend(models, 'user-blocked', emails[0]);
             });
         })
     });

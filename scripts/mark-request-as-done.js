@@ -6,7 +6,7 @@ const requestId = process.argv[2];
 const userId = process.argv[3];
 
 requestCtrl
-    .changeRequestStatus(requestId, models.request.REQUEST_STATUS.MARKED_DONE, userId, (err) => {
+    .changeRequestStatus(requestId, req.models.request.REQUEST_STATUS.MARKED_DONE, userId, (err) => {
         if (err) {
             console.error(err);
 

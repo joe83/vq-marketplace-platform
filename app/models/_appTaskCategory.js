@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
       tableName: '_appTaskCategory',
       classMethods: {
         associate: models => {
-            // appTaskCategory.belongsTo(models.appTaskCategory);
+            // appTaskCategory.belongsTo(req.models.appTaskCategory);
         }
       }
   });

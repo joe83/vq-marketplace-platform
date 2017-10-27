@@ -1,5 +1,4 @@
 const responseController = require("../controllers/responseController");
-const models = require('../models/models');
 const isLoggedIn = responseController.isLoggedIn;
 const sendResponse = responseController.sendResponse;
 const RESOURCE = 'billing_address';
@@ -13,7 +12,7 @@ module.exports = app => {
 
             billingAddress.userId = userId;
 
-            models
+            req.models
             .billingAddress
             .findOne({
                 where: {
@@ -28,7 +27,7 @@ module.exports = app => {
                     billingAddress.default = true;
                 }
 
-                return models
+                return req.models
                     .billingAddress
                     .create(billingAddress)
                     .then(data => sendResponse(res, null, data))
@@ -44,7 +43,7 @@ module.exports = app => {
 
             billingAddress.userId = userId;
 
-            models
+            req.models
             .billingAddress
             .findOne({
                 where: {
@@ -82,7 +81,7 @@ module.exports = app => {
                 andCondition.push({ default: true });
             }
 
-            models.billingAddress.findAll({
+            req.models.billingAddress.findAll({
                 where: {
                     $and: andCondition
                 }

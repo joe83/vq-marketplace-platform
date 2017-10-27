@@ -1,13 +1,14 @@
 const async = require('async');
 const moment = require('moment');
 const cust = require("../config/customizing.js");
-const models  = require('../models/models');
+const db  = require('../models/models');
 const requestEmitter = require("../events/request");
 const orderEmitter = require("../events/order");
 const taskEmitter = require("../events/task");
 const utils = require("../utils");
 
-const declineRequest = (requestId, cb) => {
+const declineRequest = (tenantId, requestId, cb) => {
+    const models = db.get(tenantId);
     const newStatus = models.request.REQUEST_STATUS.DECLINED;
   
     models
@@ -23,11 +24,13 @@ const declineRequest = (requestId, cb) => {
             cb();
         }
 
-        requestEmitter.emit('request-declined', request.id);
+        requestEmitter.emit('request-declined', models, request.id);
     }, cb);
 };
 
-const declineAllPendingRequestsForTask = (taskId, cb) => {
+const declineAllPendingRequestsForTask = (tenantId, taskId, cb) => {
+    const models = db.get(tenantId);
+
     models.request.findAll({
         where: {
             $and: [
@@ -37,12 +40,14 @@ const declineAllPendingRequestsForTask = (taskId, cb) => {
         }
     }).then(pendingRequests => {
         async.eachSeries(pendingRequests, (request, cb) => {
-            return declineRequest(request.id, cb);
+            return declineRequest(tenantId, request.id, cb);
         }, cb);
     });
 };
 
-const changeRequestStatus = (requestId, newStatus, userId, cb) => {
+const changeRequestStatus = (tenantId, requestId, newStatus, userId, cb) => {
+    const models = db.get(tenantId);
+
     newStatus = String(newStatus);
     userId = Number(userId);
     requestId = Number(requestId);
@@ -122,10 +127,10 @@ const changeRequestStatus = (requestId, newStatus, userId, cb) => {
 
         if (newStatus === models.request.REQUEST_STATUS.MARKED_DONE) {
             requestEmitter
-                .emit('request-marked-as-done', requestId);
+                .emit('request-marked-as-done', models, requestId);
 
             orderEmitter
-                .emit('order-marked-as-done', order.id)
+                .emit('order-marked-as-done', models, order.id)
         }
 
         if (newStatus === models.request.REQUEST_STATUS.CANCELED) {
@@ -134,10 +139,10 @@ const changeRequestStatus = (requestId, newStatus, userId, cb) => {
                 .findById(oldRequest.taskId)
                 .then(rTask => {
                     taskEmitter
-                        .emit('task-request-cancelled', rTask);
+                        .emit('task-request-cancelled', models, rTask);
                     
                     requestEmitter
-                        .emit('request-cancelled', requestId);
+                        .emit('request-cancelled', models, requestId);
                 });
         }
 

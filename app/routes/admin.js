@@ -1,54 +1,29 @@
 const resCtrl = require("../controllers/responseController.js");
 const async = require("async");
 const cust = require("../config/customizing.js");
-const vqAuth = require("../config/vqAuthProvider");
+const vqAuth = require("../auth");
 const isLoggedIn = resCtrl.isLoggedIn;
 const isAdmin = resCtrl.isAdmin;
 const sendResponse = resCtrl.sendResponse;
-const models  = require('../models/models');
+const db = require('../models/models');
 const requestCtrl = require("../controllers/requestCtrl");
 const userEmitter = require("../events/user");
 const taskEmitter = require("../events/task");
 
-const analyzeEntityNo = entityName =>
-	models[entityName].findAndCountAll({})
-	.then(result => {
-		models.report.upsert({
-			reportName: `${entityName}No`,
-			reportValue: result.count
-		}, {
-			where: {
-				reportName: `${entityName}No`
-			}
-		});
-	});
-
-const prepareReports = () => {
-	analyzeEntityNo('user');
-	analyzeEntityNo('task');
-	analyzeEntityNo('request');
-};
-
-setInterval(() => {
-	prepareReports();
-}, 36000);
-
-setTimeout(() => prepareReports(), 5000);
-
 module.exports = app => {
-	app.get("/api/admin/report", isLoggedIn, isAdmin, (req, res) => models.report
+	app.get("/api/admin/report", isLoggedIn, isAdmin, (req, res) => req.models.report
 		.findAll({
 			distinct: 'reportName',
 			order: [[ 'createdAt', 'DESC' ]]
 		})
 		.then(data => res.send(data)));
 
-	app.get("/api/admin/user", isLoggedIn, isAdmin, (req, res) => models.user
+	app.get("/api/admin/user", isLoggedIn, isAdmin, (req, res) => req.models.user
 		.findAll({
 			order: [[ 'createdAt', 'DESC' ]],
 			include: [
-				{ model: models.userProperty },
-				{ model: models.userPreference }
+				{ model: req.models.userProperty },
+				{ model: req.models.userPreference }
 			]
 		})
 		.then(data => res.send(data), err => {
@@ -82,12 +57,12 @@ module.exports = app => {
 			}, err => res.status(500).send(err));
 	})
 
-	app.get("/api/admin/request", isLoggedIn, isAdmin, (req, res) => models.request
+	app.get("/api/admin/request", isLoggedIn, isAdmin, (req, res) => req.models.request
 		.findAll({
 			order: [[ 'createdAt', 'DESC' ]],
 			include: [
-				{ model: models.task },
-				{ model: models.user, as: 'fromUser' }
+				{ model: req.models.task },
+				{ model: req.models.user, as: 'fromUser' }
 			]
 		})
 		.then(data => res.send(data)));
@@ -98,8 +73,8 @@ module.exports = app => {
 		.findAll({
 			order: [[ 'createdAt', 'DESC' ]],
 			include: [
-				// { model: models.task },
-				{ model: models.user, as: 'fromUser' }
+				// { model: req.models.task },
+				{ model: req.models.user, as: 'fromUser' }
 			],
 			where: {
 				requestId: req.params.requestId
@@ -111,7 +86,7 @@ module.exports = app => {
 			return res.status(400).send(err);
 		}));
 
-	app.get("/api/admin/task", isLoggedIn, isAdmin, (req, res) => models.task
+	app.get("/api/admin/task", isLoggedIn, isAdmin, (req, res) => req.models.task
 		.findAll({
 			order: [[ 'createdAt', 'DESC' ]],
 			include: []
@@ -122,7 +97,7 @@ module.exports = app => {
 		isLoggedIn,
 		isAdmin,
 		(req, res) => {
-			models
+			req.models
 			.task
 			.findById(req.params.taskId)
 			.then(
@@ -131,7 +106,7 @@ module.exports = app => {
 						return sendResponse(res, 'NOT_FOUND');
 					}
 					
-					if (task.status !== models.task.TASK_STATUS.ACTIVE) {
+					if (task.status !== req.models.task.TASK_STATUS.ACTIVE) {
 						return sendResponse(res, {
 							code: 'TASK_IS_NOT_ACTIVE'
 						});
@@ -139,11 +114,11 @@ module.exports = app => {
 
 					task
 						.update({
-							status: models.task.TASK_STATUS.SPAM
+							status: req.models.task.TASK_STATUS.SPAM
 						});
 
 					taskEmitter
-						.emit('marked-spam', task);
+						.emit('marked-spam', req.models, task);
 
 					task.getRequests()
 					.then(requests => {
@@ -186,11 +161,11 @@ module.exports = app => {
 			);
 		});
 
-	app.get("/api/admin/order", isLoggedIn, isAdmin, (req, res) => models.request
+	app.get("/api/admin/order", isLoggedIn, isAdmin, (req, res) => req.models.request
 		.findAll({
 			order: [[ 'createdAt', 'DESC' ]],
 			include: [
-				{ model: models.task }
+				{ model: req.models.task }
 			]
 		})
 		.then(data => res.send(data)));
@@ -220,8 +195,8 @@ module.exports = app => {
 								]
 							}, {
 								$or: [
-									{ status: models.request.REQUEST_STATUS.ACCEPTED },
-									{ status: models.request.REQUEST_STATUS.MARKED_DONE }
+									{ status: req.models.request.REQUEST_STATUS.ACCEPTED },
+									{ status: req.models.request.REQUEST_STATUS.MARKED_DONE }
 								]
 							}
 						]
@@ -237,11 +212,11 @@ module.exports = app => {
 					console.log('[ADMIN] Blocking user.');
 
 					user.update({
-						status: models.user.USER_STATUS.BLOCKED
+						status: req.models.user.USER_STATUS.BLOCKED
 					});
 
 					console.log('[ADMIN] Setting active tasks of the blocked user to INACTIVE.');
-					models.task.findAll({
+					req.models.task.findAll({
 						where: {
 							$and: [
 								{
@@ -249,9 +224,9 @@ module.exports = app => {
 								}, {
 									$or: [
 										{ 
-											status: models.task.TASK_STATUS.CREATION_IN_PROGRESS
+											status: req.models.task.TASK_STATUS.CREATION_IN_PROGRESS
 										}, { 
-											status: models.task.TASK_STATUS.ACTIVE
+											status: req.models.task.TASK_STATUS.ACTIVE
 										}
 									]
 								}
@@ -261,7 +236,7 @@ module.exports = app => {
 					.then(activeTasks => {
 						async.eachSeries(activeTasks, (activeTask, cb) => {
 							activeTask.update({
-								status: models.task.TASK_STATUS.INACTIVE
+								status: req.models.task.TASK_STATUS.INACTIVE
 							})
 							.then(_ => {
 								requestCtrl
@@ -286,7 +261,7 @@ module.exports = app => {
 					models
 					.request
 					.update({
-						status: models.request.REQUEST_STATUS.DECLINED
+						status: req.models.request.REQUEST_STATUS.DECLINED
 					}, {
 						where: {
 							$and: [
@@ -295,7 +270,7 @@ module.exports = app => {
 								}, {
 									$or: [
 										{
-											status: models.request.REQUEST_STATUS.PENDING
+											status: req.models.request.REQUEST_STATUS.PENDING
 										}
 									]
 								}
@@ -307,10 +282,10 @@ module.exports = app => {
 					});
 
 					console.log('[ADMIN] Setting pending request to the blocked user to CANCELED.');
-					models
+					req.models
 					.request
 					.update({
-						status: models.request.REQUEST_STATUS.CANCELED
+						status: req.models.request.REQUEST_STATUS.CANCELED
 					}, {
 						where: {
 							$and: [
@@ -319,7 +294,7 @@ module.exports = app => {
 								}, {
 									$or: [
 										{
-											status: models.request.REQUEST_STATUS.PENDING
+											status: req.models.request.REQUEST_STATUS.PENDING
 										}
 									]
 								}
@@ -333,7 +308,7 @@ module.exports = app => {
 					sendResponse(res, null, user);
 
 					userEmitter
-						.emit('blocked', user);
+						.emit('blocked', models, user);
 					
 					});
 			}, err => sendResponse(res, err));
@@ -343,9 +318,9 @@ module.exports = app => {
 		isLoggedIn,
 		isAdmin,
 		(req, res) => {
-			models.user
+			req.models.user
             .update({
-                status: models.user.USER_STATUS.VERIFIED
+                status: req.models.user.USER_STATUS.VERIFIED
             }, {
                 where: {
                     id: req.params.userId

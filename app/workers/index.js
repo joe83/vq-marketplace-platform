@@ -5,35 +5,34 @@ const orderCtrl = require("../controllers/orderCtrl");
 const userCalculateRatings = require("./userCalculateRatings");
 const taskAutoSettlement = require("./taskAutoSettlement");
 const taskAutoCancel = require("./taskAutoCancel");
+const runReporting = require("./reporting");
 
 const WORKER_INTERVAL = 1000 * 60 * 5;
 
-
-const registerWorkers = () => {
-    console.log('[WORKERS] Initiating...');
+const registerWorkers = tenantId => {
+    console.log(`[WORKERS] Starting for tenant ${tenantId}`);
   
     setInterval(() => {   
-        taskAutoSettlement();
+        taskAutoSettlement(tenantId);
     }, WORKER_INTERVAL);
     
     setInterval(() => {   
-        userCalculateRatings();
+        userCalculateRatings(tenantId);
     }, WORKER_INTERVAL);
     
 
     setInterval(() => {   
-        taskAutoCancel();
+        taskAutoCancel(tenantId);
+    }, WORKER_INTERVAL);
+
+    setInterval(() => {
+        runReporting(tenantId);
     }, WORKER_INTERVAL);
     
-    console.log('[WORKERS] Started.');
+    console.log(`[WORKERS] Started for tenant ${tenantId}`);
 };
 
-if (module.parent) {
-    module.exports = {
-        registerWorkers
-    };
-} else {
-    taskAutoSettlement();
-    userCalculateRatings();
-    taskAutoCancel();
-}
+
+module.exports = {
+    registerWorkers
+};

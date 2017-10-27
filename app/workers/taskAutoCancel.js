@@ -1,10 +1,12 @@
 const async = require("async");
 const requestCtrl = require("../controllers/requestCtrl.js");
-const models = require("../models/models.js");
+const db = require("../models/models.js");
 const utils = require('../utils');
 const taskEmitter = require("../events/task");
 
-const taskAutoCancel = () => {
+const taskAutoCancel = (tenantId) => {
+    const models = db.get(tenantId);
+
     var cancelled = 0;
 
     console.log('[WORKER] Task hourly cancel started.');
@@ -41,7 +43,7 @@ const taskAutoCancel = () => {
             .eachSeries(tasks, (task, cb) => {
                 cancelled++;
 
-                taskEmitter.emit('cancelled', task);
+                taskEmitter.emit('cancelled', models, task);
 
                 task
                 .update({

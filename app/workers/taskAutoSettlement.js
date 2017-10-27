@@ -1,9 +1,11 @@
 const async = require("async");
-const models = require("../models/models.js");
+const db = require("../models/models.js");
 const orderCtrl = require("../controllers/orderCtrl");
 const utils = require("../utils");
 
-const taskAutoSettlement = () => {
+const taskAutoSettlement = (tenantId) => {
+    const models = db.get(tenantId);
+
     var settled = 0;
 
     console.log('[WORKER] Task hourly auto-settlement started.');
@@ -66,8 +68,4 @@ const taskAutoSettlement = () => {
     });
 };
 
-if (module.parent) {
-    module.exports = taskAutoSettlement;
-} else {
-    taskAutoSettlement();
-}
+module.exports = taskAutoSettlement;

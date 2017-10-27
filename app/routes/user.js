@@ -5,8 +5,6 @@ const identifyUser = responseController.identifyUser;
 const isLoggedIn = responseController.isLoggedIn;
 const sendResponse = responseController.sendResponse;
 
-var models = require("../models/models.js");
-
 module.exports = app => {
   function pong (req, res, next) {
     sendResponse(res);
@@ -19,14 +17,14 @@ module.exports = app => {
   });
 
   app.get('/api/user/:userId', isLoggedIn, (req, res) => {
-    models.user.findOne({ 
+    req.models.user.findOne({ 
       where:
         { 
           id: req.params.userId 
         },
         include: [
-          { model: models.userProperty },
-          { model: models.userPreference }
+          { model: req.models.userProperty },
+          { model: req.models.userPreference }
         ]
     })
     .then(
@@ -69,7 +67,7 @@ module.exports = app => {
       return sendResponse(res, err)
     }
 
-    models.user
+    req.models.user
       .update(updateObj, {
           where: {
               id: req.params.userId
@@ -85,7 +83,7 @@ module.exports = app => {
    * Deactivates user account
    */
   app.delete('/api/user/:userId', isLoggedIn, (req, res) => {
-      models.user.destroy({
+      req.models.user.destroy({
             where: {
                 id: req.user.id
             }

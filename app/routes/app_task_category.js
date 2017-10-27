@@ -1,11 +1,10 @@
 const async = require("async");
-const models  = require('../models/models');
 const responseController = require("../controllers/responseController.js");
 const isAdmin = responseController.isAdmin;
 
 module.exports = app => {
     app.get("/api/app_task_categories", (req, res) =>
-        models.appTaskCategory
+        req.models.appTaskCategory
         .findAll({
             order: [
                 'label'
@@ -25,7 +24,7 @@ module.exports = app => {
             imageUrl: req.body.imageUrl
         };
         
-        models.appTaskCategory.create(category)
+        req.models.appTaskCategory.create(category)
         .then(data => res.status(200).send(data))
         .catch(err => res.status(400).send(err));
     });
@@ -41,7 +40,7 @@ module.exports = app => {
             imageUrl: req.body.imageUrl
         };
       
-        models.appTaskCategory.update(category, {
+        req.models.appTaskCategory.update(category, {
             where: { id }
         })
         .then(data => res.status(200).send(data))
@@ -51,7 +50,7 @@ module.exports = app => {
     app.delete("/api/app_task_categories/:id", isAdmin, (req, res) => {
         res.status(200).send({});
 
-        models.appTaskCategory.destroy({ 
+        req.models.appTaskCategory.destroy({ 
             where: {
                 id: req.params.id
             }

@@ -12,14 +12,12 @@ const unescape = require('unescape');
 var mandrill_client = new mandrill.Mandrill(config.mandrill);
 var renderer = stRender(templateDir, layoutPath);
 
-const models = require("../models/models.js");
-
 const EMAILS = {
 	WELCOME: 'welcome',
 	PASSWORD_RESET: 'password-reset'
 };
 
-const checkIfShouldSendEmail = (emailCode, userId, cb, shouldNotCb) => models
+const checkIfShouldSendEmail = (models, emailCode, userId, cb, shouldNotCb) => models
 	.userProperty
 	.findOne({
 		where: {
@@ -46,7 +44,7 @@ const checkIfShouldSendEmail = (emailCode, userId, cb, shouldNotCb) => models
 		console.error(err);
 	});
 
-const getEmailBody = code => models.post
+const getEmailBody = (models, code) => models.post
 	.findOne({ 
 		where: {
 			$and: [
@@ -58,7 +56,7 @@ const getEmailBody = code => models.post
 			]
 	}});
 
-const getEmailAndSend = (emailCode, email, emailData) => getEmailBody(emailCode)
+const getEmailAndSend = (models, emailCode, email, emailData) => getEmailBody(models, emailCode)
 	.then(emailBody => {
 		const params = {};
 		var compiledEmail;
@@ -88,7 +86,7 @@ const getEmailAndSend = (emailCode, email, emailData) => getEmailBody(emailCode)
 
 		params.subject = emailBody.title;
 
-		return sendEmail(compiledEmail, typeof email === 'string' ? [
+		return sendEmail(models, compiledEmail, typeof email === 'string' ? [
 			email
 		] : email, params, (err, res) => {
 			if (err) {
@@ -97,8 +95,8 @@ const getEmailAndSend = (emailCode, email, emailData) => getEmailBody(emailCode)
 		});
 	});
 
-const sendResetPasswordEmail = (email, ACTION_URL) => {
-	getEmailBody(EMAILS.PASSWORD_RESET)
+const sendResetPasswordEmail = (models, email, ACTION_URL) => {
+	getEmailBody(models, EMAILS.PASSWORD_RESET)
 	.then(emailBody => {
 		const params = {};
 
@@ -118,8 +116,8 @@ const sendResetPasswordEmail = (email, ACTION_URL) => {
 	});
 };
 
-const sendWelcome = (user, VERIFICATION_LINK) => {
-	getEmailBody(EMAILS.WELCOME)
+const sendWelcome = (models, user, VERIFICATION_LINK) => {
+	getEmailBody(models, EMAILS.WELCOME)
 	.then(emailBody => {
 		const params = {};
 
@@ -129,7 +127,7 @@ const sendWelcome = (user, VERIFICATION_LINK) => {
 
 		params.subject = emailBody.title;
 
-		return sendEmail(compiledEmail, [
+		return sendEmail(models, compiledEmail, [
 			user.emails[0]
 		], params, (err, res) => {
 			if (err) {
@@ -139,9 +137,9 @@ const sendWelcome = (user, VERIFICATION_LINK) => {
 	});
 };
 
-const getMessagePrototype = () => new Promise((resolve, reject) => {
+const getMessagePrototype = models => new Promise((resolve, reject) => {
 	custProvider
-	.getConfig()
+	.getConfig(models)
 	.then(config => {
 		return resolve({
 			"from_email": "noreply@vq-labs.com",
@@ -160,8 +158,8 @@ const getMessagePrototype = () => new Promise((resolve, reject) => {
 	}, reject);
 });
 
-function sendEmail (html, tEmails, params, callback) {
-	getMessagePrototype()
+function sendEmail (models, html, tEmails, params, callback) {
+	getMessagePrototype(models)
 	.then(message => {
 		message.subject = params.subject;
 		message.html = html;

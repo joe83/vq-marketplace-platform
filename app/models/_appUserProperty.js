@@ -12,7 +12,6 @@ module.exports = (sequelize, DataTypes) => {
       tableName: '_appUserProperty',
       classMethods: {
         associate: models => {
-          // models.hasOne(models.app);
         }
       }
   });
@@ -47,8 +46,8 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   // init of the table / ensuring default labels exist
-  appUserProperty.addDefaultUserProperties = force => {
-    const userProperties = marketplaceConfig.userProperties();
+  appUserProperty.addDefaultUserProperties = (marketplaceType, force) => {
+    const userProperties = marketplaceConfig[marketplaceType].userProperties();
 
     const batchData = Object.keys(userProperties)
       .map(propKey => {

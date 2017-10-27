@@ -4,8 +4,6 @@ var cust = require("../config/customizing.js");
 var identifyUser = responseController.identifyUser;
 var isLoggedIn = responseController.isLoggedIn;
 
-var models = require("../models/models.js");
-
 module.exports = app => {
   function pong (req, res, next) {
     responseController.sendResponse(res);
@@ -14,7 +12,7 @@ module.exports = app => {
   }
 
   app.get('/api/user/:userId/preference', (req, res) => {
-    models
+    req.models
     .userPreference
     .findAll({ 
         where: { 
@@ -28,7 +26,7 @@ module.exports = app => {
   });
 
   app.get('/api/user/:userId/preference/:type', (req, res) => {
-    models.userPreference.findAll({
+    req.models.userPreference.findAll({
       where: {
           $and: [
               { userId: req.params.userId },
@@ -49,7 +47,7 @@ module.exports = app => {
         value: req.body.value
     };
     
-    models.userPreference
+    req.models.userPreference
     .findOne({
         where: {
             $and: [
@@ -65,7 +63,7 @@ module.exports = app => {
 
             updatedPreference.value = preference.value;
 
-            models.userPreference
+            req.models.userPreference
                 .update({
                     value: preference.value
                 }, {
@@ -77,7 +75,7 @@ module.exports = app => {
                     responseController.sendResponse(res, null, updatedPreference);
                 }, err => responseController.sendResponse(res, err));
         } else {
-            models.userPreference
+            req.models.userPreference
                 .create(preference)
                 .then(rCreatedPreference => {
                     responseController.sendResponse(res, null, rCreatedPreference);
@@ -92,7 +90,7 @@ module.exports = app => {
             userId: req.user.id,
         };
         
-        models.userPreference
+        req.models.userPreference
             .destroy({
                 where: {
                     $and: [

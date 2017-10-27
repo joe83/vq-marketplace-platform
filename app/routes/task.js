@@ -5,12 +5,11 @@ const isLoggedIn = require("../controllers/responseController.js").isLoggedIn;
 const requestCtrl = require("../controllers/requestCtrl.js");
 const isLoggedInAndVerified = require("../controllers/responseController.js").isLoggedInAndVerified;
 const cust = require("../config/customizing.js");
-const models = require('../models/models');
 const utils = require('../utils');
 const striptags = require('striptags');
 const taskEmitter = require("../events/task");
 
-const isMyTask = (taskId, myUserId) => {
+const isMyTask = (models, taskId, myUserId) => {
     return models
     .task
     .findOne({
@@ -37,7 +36,7 @@ const isMyTask = (taskId, myUserId) => {
     }))
 };
 
-const getTaskAdditionalInfo = taskId => new Promise((resolve, reject) => async.parallel([
+const getTaskAdditionalInfo = (models, taskId) => new Promise((resolve, reject) => async.parallel([
     cb => 
         models.taskCategory
         .findAll({
@@ -83,17 +82,17 @@ module.exports = app => {
             query.include = [];
 
             query.include.push({
-                model: models.request,
+                model: req.models.request,
                 include: [
                     { 
-                        model: models.user,
+                        model: req.models.user,
                         as: 'fromUser',
                     }
                 ]
             });
 
             const timingInclude = {
-                model: models.taskTiming,
+                model: req.models.taskTiming,
             };
 
 
@@ -118,7 +117,7 @@ module.exports = app => {
             if (req.query && req.query.category) {
                 query.include.push(
                     { 
-                        model: models.taskCategory,
+                        model: req.models.taskCategory,
                         where: {
                             code: req.query.category
                         }
@@ -136,15 +135,15 @@ module.exports = app => {
                 const lng = req.query.lng;
     
                 if (lat && lng) {
-                    const location = models.seq
+                    const location = req.models.seq
                         .literal(`ST_GeomFromText('POINT(${lat} ${lng})')`);
 
-                    const distance = models.seq
-                        .fn('ST_Distance_Sphere', models.seq.literal('geo'), location);
+                    const distance = req.models.seq
+                        .fn('ST_Distance_Sphere', req.models.seq.literal('geo'), location);
 
                     /*
                     const attributes = Object
-                        .keys(models.taskLocation.attributes);
+                        .keys(req.models.taskLocation.attributes);
 
                      attributes.push([
                         distance,
@@ -152,19 +151,19 @@ module.exports = app => {
                     ]);
                     */
 
-                    const seqWhereCond = models
+                    const seqWhereCond = req.models
                         .seq
                         .where(distance, {
                             $lte: 2000
                         });
                    
                     query.include.push({
-                        model: models.taskLocation,
+                        model: req.models.taskLocation,
                         where: seqWhereCond
                     });
                 } else {
                     query.include.push({
-                        model: models.taskLocation
+                        model: req.models.taskLocation
                     });
                 }
 
@@ -221,18 +220,18 @@ module.exports = app => {
                 }
             }
 
-            return models.task
+            return req.models.task
                 .findAll(query)
                 .then(rTasks => new Promise(
                     (resolve, reject) => {
                         tasks = JSON.parse(JSON.stringify(rTasks));
 
-                        models
+                        req.models
                         .appTaskCategory
                         .findAll()
                         .then(categories => {
                             async.eachLimit(tasks, 5, (task, cb) => {
-                                getTaskAdditionalInfo(task.id)
+                                getTaskAdditionalInfo(req.models, task.id)
                                 .then(taskAdditionalInfo => {
                                     task.categories = taskAdditionalInfo.categories;
                                     
@@ -275,15 +274,15 @@ module.exports = app => {
     app.get('/api/task/location/last',
         isLoggedIn, 
         (req, res) => {
-            return models.taskLocation
+            return req.models.taskLocation
                 .findOne({
                     order: [[ 'createdAt', 'DESC' ]],
                     include: [
                         {
-                            model: models.task,
+                            model: req.models.task,
                             include: [
                                 {
-                                    model: models.user,
+                                    model: req.models.user,
                                     require: true
                                 }
                             ]
@@ -299,9 +298,9 @@ module.exports = app => {
     app.post('/api/task',
         isLoggedInAndVerified,
         (req, res) => {
-            models.task
+            req.models.task
                 .create({
-                    status: models.task.TASK_STATUS.CREATION_IN_PROGRESS,
+                    status: req.models.task.TASK_STATUS.CREATION_IN_PROGRESS,
                     taskType: 1,
                     userId: req.user.id
                 })
@@ -312,7 +311,7 @@ module.exports = app => {
     app.post('/api/task/:taskId/comment',
         isLoggedIn,
         (req, res) => {
-            models.taskComment
+            req.models.taskComment
             .create({
                 comment: req.body.comment,
                 userId: req.user.id,
@@ -325,15 +324,15 @@ module.exports = app => {
    app.post('/api/task/:taskId/category',
         isLoggedIn,
         (req, res) => {
-            isMyTask(req.params.taskId, req.user.id)
-            .then(() => models.taskCategory.destroy({
+            isMyTask(req.models, req.params.taskId, req.user.id)
+            .then(() => req.models.taskCategory.destroy({
                 where: {
                     taskId: req.params.taskId
                 }
             }))
             .then(() => new Promise((resolve, reject) => 
                 async.each(req.body, (code, cb) => {
-                    return models.taskCategory
+                    return req.models.taskCategory
                         .create({ code, taskId: req.params.taskId })
                         .then(ok => cb(), err => cb(err))
                 }, err => {
@@ -349,15 +348,15 @@ module.exports = app => {
    app.post('/api/task/:taskId/image',
         isLoggedIn,
         (req, res) => {
-            isMyTask(req.params.taskId, req.user.id)
-            .then(() => models.taskImage.destroy({
+            isMyTask(req.models, req.params.taskId, req.user.id)
+            .then(() => req.models.taskImage.destroy({
                 where: {
                     taskId: req.params.taskId
                 }
             }))
             .then(() => new Promise((resolve, reject) =>
                 async.each(req.body, (image, cb) => {
-                    return models.taskImage
+                    return req.models.taskImage
                         .create({ imageUrl: image.imageUrl, taskId: req.params.taskId })
                         .then(ok => cb(), err => cb(err))
                 }, err => {
@@ -375,8 +374,8 @@ module.exports = app => {
         (req, res) => {
             const taskId = req.params.taskId;
 
-            isMyTask(req.params.taskId, req.user.id)
-            .then(() => models.taskTiming.destroy({
+            isMyTask(req.models, req.params.taskId, req.user.id)
+            .then(() => req.models.taskTiming.destroy({
                 where: {
                     taskId
                 }
@@ -385,7 +384,7 @@ module.exports = app => {
                 async.each(req.body.dates, (timing, cb) => {
                     timing.endDate = timing.endDate || timing.date;
 
-                    return models.taskTiming
+                    return req.models.taskTiming
                         .create({
                             duration: req.body.duration,
                             date: timing.date,
@@ -415,14 +414,14 @@ module.exports = app => {
 
             req.body.taskId = taskId;
 
-            isMyTask(taskId, userId)
-            .then(() => models.taskLocation.destroy({
+            isMyTask(req.models, taskId, userId)
+            .then(() => req.models.taskLocation.destroy({
                 where: {
                     taskId
                 }
             }))
             .then(() => new Promise((resolve, reject) => {
-                models
+                req.models
                 .taskLocation
                 .findOne({
                     where: {
@@ -448,7 +447,7 @@ module.exports = app => {
                         taskLocation.userId = userId;
                     }
 
-                    return models
+                    return req.models
                         .taskLocation
                         .create(taskLocation)
                         .then(_ => {
@@ -484,7 +483,7 @@ module.exports = app => {
 
             taskLocation.geo = geoPoint;
 
-            models
+            req.models
             .taskLocation
             .findOne({
                 where: {
@@ -507,7 +506,7 @@ module.exports = app => {
                         });
                 }
               
-                return models
+                return req.models
                     .taskLocation
                     .create({
                         userId,
@@ -531,7 +530,7 @@ module.exports = app => {
         });
 
     app.get('/api/task-location', isLoggedIn, (req, res) => {
-        return models
+        return req.models
             .taskLocation
             .findAll({
                 where: {
@@ -549,13 +548,13 @@ module.exports = app => {
     (req, res) => 
         async.parallel([
             cb => 
-                models.task
+                req.models.task
                 .findOne({
                     where: {
                         id: req.params.taskId
                     },
                     include: [{
-                        model: models.user
+                        model: req.models.user
                     }]
                 })
                 .then(task => {
@@ -568,7 +567,7 @@ module.exports = app => {
                     return cb(null, task);
                 }, cb),
             cb => 
-                models.taskCategory
+                req.models.taskCategory
                 .findAll({ 
                     where: {
                         taskId: req.params.taskId
@@ -576,31 +575,31 @@ module.exports = app => {
                 })
                 .then(categories => cb(null, categories), err => cb(err)),
             cb => 
-                models.taskImage
+                req.models.taskImage
                 .findAll({ where: { taskId: req.params.taskId } })
                 .then(images => cb(null, images), err => cb(err)),
             cb => 
-                models.taskLocation
+                req.models.taskLocation
                 .findOne({ where: { taskId: req.params.taskId } })
                 .then(location => cb(null, location), err => cb(err)),
             cb => 
-                models.taskTiming
+                req.models.taskTiming
                 .findAll({ where: {
                     taskId: req.params.taskId
                 }})
                 .then(timing => cb(null, timing), err => cb(err)),
             cb => 
-                models.taskComment
+                req.models.taskComment
                 .findAll({
                     where: {
                         taskId: req.params.taskId
                     },
                     include: [{
-                        model: models.user
+                        model: req.models.user
                     }]
                 })
                 .then(timing => cb(null, timing), err => cb(err)),
-            cb => models.request
+            cb => req.models.request
                 .findAll({
                     where: {
                         $and: [
@@ -610,7 +609,7 @@ module.exports = app => {
                         ]
                     },
                     include: [
-                        { model: models.user, as: 'fromUser' }
+                        { model: req.models.user, as: 'fromUser' }
                     ]
                 })
                 .then(requests => cb(null, requests), err => cb(err))
@@ -670,7 +669,7 @@ module.exports = app => {
 
         async.waterfall([
             cb => {
-                isMyTask(taskId, userId)
+                isMyTask(req.models, taskId, userId)
                 .then(rTask => {
                     task = rTask;
 
@@ -685,14 +684,14 @@ module.exports = app => {
                 }, cb);
             },
             cb => {
-                if (newStatus === models.task.TASK_STATUS.ACTIVE) {
+                if (newStatus === req.models.task.TASK_STATUS.ACTIVE) {
                     taskEmitter
-                        .emit('new-task', task.id);
+                        .emit('new-task', req.models, task.id);
                 }
 
-                if (newStatus === models.task.TASK_STATUS.INACTIVE) {
+                if (newStatus === req.models.task.TASK_STATUS.INACTIVE) {
                     taskEmitter
-                        .emit('cancelled', task);
+                        .emit('cancelled', req.models, task);
 
                     requestCtrl
                     .declineAllPendingRequestsForTask(taskId, err => {

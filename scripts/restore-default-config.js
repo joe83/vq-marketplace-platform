@@ -1,3 +1,3 @@
 const models = require('../app/models/models.js');
 
-models.appConfig.addDefaultConfig(true);
+req.models.appConfig.addDefaultConfig(true);

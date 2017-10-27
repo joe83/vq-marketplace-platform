@@ -1,7 +1,6 @@
 const async = require('async');
 const responseController = require("../controllers/responseController.js");
 const cust = require("../config/customizing.js");
-const models = require("../models/models.js");
 const isLoggedIn = responseController.isLoggedIn;
 const identifyUser = responseController.identifyUser;
 
@@ -18,7 +17,7 @@ module.exports = app => {
 
     async
         .waterfall([
-            cb => models
+            cb => req.models
                 .userProperty
                 .findAll({
                     where: { 
@@ -48,7 +47,7 @@ module.exports = app => {
 
     async
         .waterfall([
-            cb => models.userProperty.findOne({
+            cb => req.models.userProperty.findOne({
                 where: {
                     $and: [
                         { userId },
@@ -71,7 +70,7 @@ module.exports = app => {
                         }, cb);
                 }
 
-                return models
+                return req.models
                     .userProperty
                     .create(property)
                     .then(newProperty => {

@@ -5,13 +5,13 @@ const async = require('async');
 const models = require("../models/models");
 const emailService = require("../services/emailService.js");
 const config = require("../config/configProvider.js")();
-const vqAuth = require("../config/vqAuthProvider");
+const vqAuth = require("../auth");
 
 class DefaultEmitter extends EventEmitter {}
 
 const reviewEmitter = new DefaultEmitter();
 
-const getReviewOwnerEmails = (reviewId, cb) => {
+const getReviewOwnerEmails = (models, reviewId, cb) => {
     let fromUserEmails, toUserEmails, review;
 
     return async.waterfall([
@@ -22,8 +22,8 @@ const getReviewOwnerEmails = (reviewId, cb) => {
                     id: reviewId
                 },
                 include: [
-                    { model: models.user, as: 'fromUser' },
-                    { model: models.user, as: 'toUser' }
+                    { model: req.models.user, as: 'fromUser' },
+                    { model: req.models.user, as: 'toUser' }
                 ]
             })
             .then(rReview => {
@@ -32,7 +32,7 @@ const getReviewOwnerEmails = (reviewId, cb) => {
                 return cb();
             }, cb),
         cb => vqAuth
-            .getEmailsFromUserId(review.fromUser.vqUserId, (err, rUserEmails) => {
+            .getEmailsFromUserId(models, review.fromUser.vqUserId, (err, rUserEmails) => {
                 if (err) {
                     return cb(err);
                 }
@@ -43,7 +43,7 @@ const getReviewOwnerEmails = (reviewId, cb) => {
                 cb();
             }),
         cb => vqAuth
-            .getEmailsFromUserId(review.toUser.vqUserId, (err, rUserEmails) => {
+            .getEmailsFromUserId(models, review.toUser.vqUserId, (err, rUserEmails) => {
                 if (err) {
                     return cb(err);
                 }
@@ -63,13 +63,13 @@ const getReviewOwnerEmails = (reviewId, cb) => {
 };
 
 const reviewEventHandlerFactory = (emailCode, actionUrlFn) => {
-	return reviewId => {
+	return (models, reviewId) => {
 		var review;
 		var fromUserEmails, toUserEmails;
 		var ACTION_URL;
 
 		async.waterfall([
-			cb => getReviewOwnerEmails(reviewId, (err, data) => {
+			cb => getReviewOwnerEmails(models, reviewId, (err, data) => {
                 if (err) {
                     return cb(err);
                 }
@@ -104,9 +104,9 @@ const reviewEventHandlerFactory = (emailCode, actionUrlFn) => {
             
             if (toUserEmails) {
                 emailService
-                .checkIfShouldSendEmail(emailCode, review.toUser.id, () => {
+                .getEmailAndSend(models, emailCode, review.toUser.id, () => {
                     emailService
-                    .getEmailAndSend(emailCode, toUserEmails[0], ACTION_URL);
+                    .getEmailAndSend(models, emailCode, toUserEmails[0], ACTION_URL);
                 });
             }
 		});

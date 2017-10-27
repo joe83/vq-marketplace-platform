@@ -17,19 +17,19 @@ module.exports = app => {
             var createdOrder;
 
             order.userId = req.user.id;
-            order.status = models.order.ORDER_STATUS.PENDING;
+            order.status = req.models.order.ORDER_STATUS.PENDING;
 
             async.waterfall([
-                cb => models.order
+                cb => req.models.order
                     .create(order)
                     .then(rCreatedOrder => {
                         createdOrder = rCreatedOrder;
 
                         cb();
                     }, cb),
-                cb => models.request
+                cb => req.models.request
                     .update({
-                        status: models.request.REQUEST_STATUS.ACCEPTED
+                        status: req.models.request.REQUEST_STATUS.ACCEPTED
                     }, {
                         where: {
                             id: order.requestId
@@ -38,9 +38,9 @@ module.exports = app => {
                     .then(() => cb(), cb),
                 cb => requestCtrl
                     .declineAllPendingRequestsForTask(order.taskId, cb),
-                cb => models.task
+                cb => req.models.task
                     .update({
-                        status: models.task.TASK_STATUS.BOOKED
+                        status: req.models.task.TASK_STATUS.BOOKED
                     }, {
                         where: {
                             id: order.taskId
@@ -55,10 +55,10 @@ module.exports = app => {
                 sendResponse(res, null, createdOrder);
 
                 orderEmitter
-                    .emit('new-order', createdOrder.id);
+                    .emit('new-order', req.models, createdOrder.id);
 
                 requestEmitter
-                    .emit('request-accepted', createdOrder.requestId);
+                    .emit('request-accepted', req.models, createdOrder.requestId);
             })
         });
 
@@ -74,25 +74,25 @@ module.exports = app => {
                 ]
             };
 
-            models.order
+            req.models.order
             .findOne({
                 where,
                 include: [
                     {
-                        model: models.user
+                        model: req.models.user
                     },
                     {
-                        model: models.request,
+                        model: req.models.request,
                         include: [
-                            { model: models.user, as: 'fromUser' },
-                            { model: models.user, as: 'toUser' }
+                            { model: req.models.user, as: 'fromUser' },
+                            { model: req.models.user, as: 'toUser' }
                         ]
                     },
                     {
-                        model: models.task
+                        model: req.models.task
                     },
                     {
-                        model: models.review
+                        model: req.models.review
                     }
                 ]
             })
@@ -122,8 +122,8 @@ module.exports = app => {
             if (req.query.view === 'in_progress') {
                 where.$and.push({
                     $or: [
-                        { status: models.order.ORDER_STATUS.PENDING },
-                        { status: models.order.ORDER_STATUS.MARKED_DONE }
+                        { status: req.models.order.ORDER_STATUS.PENDING },
+                        { status: req.models.order.ORDER_STATUS.MARKED_DONE }
                     ]
                 });
             }
@@ -133,37 +133,37 @@ module.exports = app => {
                 .push({
                     $or: [
                         {
-                            status: models.order.ORDER_STATUS.SETTLED
+                            status: req.models.order.ORDER_STATUS.SETTLED
                         }, {
-                            status: models.order.ORDER_STATUS.CLOSED
+                            status: req.models.order.ORDER_STATUS.CLOSED
                         }
                     ]
                 });
             }
 
-            models.order
+            req.models.order
             .findAll({
                 where,
                 include: [
                     {
-                        model: models.user
+                        model: req.models.user
                     },
                     {
-                        model: models.request,
+                        model: req.models.request,
                     },
                     {
-                        model: models.task,
+                        model: req.models.task,
                         include: [
                             {
-                                model: models.taskLocation
+                                model: req.models.taskLocation
                             },
                             {
-                                model: models.taskTiming
+                                model: req.models.taskTiming
                             }
                         ]
                     },
                     {
-                        model: models.review
+                        model: req.models.review
                     }
                 ]
             })
@@ -179,7 +179,7 @@ module.exports = app => {
 
                         async.parallel([
                             cb =>
-                                models.taskCategory
+                                req.models.taskCategory
                                 .findAll({
                                     where: {
                                         taskId: task.id
@@ -190,13 +190,13 @@ module.exports = app => {
     
                                     return cb();
                                 }, cb),
-                            cb => models.user.findOne({
+                            cb => req.models.user.findOne({
                                 where: {
                                     id: fromUserId
                                 },
                                 include: [
                                     {
-                                        model: models.userProperty
+                                        model: req.models.userProperty
                                     }
                                 ]
                             })
@@ -227,7 +227,7 @@ module.exports = app => {
             const orderId = req.params.orderId;
             const userId = req.user.id;
 
-            models.order
+            req.models.order
             .findOne({
                 where: {
                     $and: [
@@ -238,9 +238,9 @@ module.exports = app => {
                         }, {
                             $or: [
                                 {
-                                status: models.order.ORDER_STATUS.MARKED_DONE
+                                status: req.models.order.ORDER_STATUS.MARKED_DONE
                                 }, {
-                                    status: models.order.ORDER_STATUS.PENDING
+                                    status: req.models.order.ORDER_STATUS.PENDING
                                 }
                             ]
                         }
@@ -258,21 +258,21 @@ module.exports = app => {
                     .request
                     .update({
                         autoSettlementStartedAt: null,
-                        status: models.request.REQUEST_STATUS.CLOSED
+                        status: req.models.request.REQUEST_STATUS.CLOSED
                     }, {
                         where: {
                             id: order.requestId
                         }
                     })
                     .then(data => {
-                        requestEmitter.emit('closed', order.requestId);
+                        requestEmitter.emit('closed', req.models, order.requestId);
 
                         order
                         .update({
-                            status: models.order.ORDER_STATUS.CLOSED
+                            status: req.models.order.ORDER_STATUS.CLOSED
                         })
                         .then(_ => {
-                            orderEmitter.emit('closed', order.id);
+                            orderEmitter.emit('closed', req.models, order.id);
 
                             sendResponse(res, null, {
                                 ok: 'ok'
@@ -288,7 +288,7 @@ module.exports = app => {
             const orderId = req.params.orderId;
             const userId = req.user.id;
 
-            models.order
+            req.models.order
                 .update({
                     autoSettlementStartedAt: null
                 }, {

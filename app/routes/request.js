@@ -5,7 +5,6 @@ const isLoggedIn = resCtrl.isLoggedIn;
 const sendResponse = resCtrl.sendResponse;
 const isLoggedInAndVerified = resCtrl.isLoggedInAndVerified;
 const isAdmin = resCtrl.isAdmin;
-const models  = require('../models/models');
 const requestCtrl = require("../controllers/requestCtrl");
 const requestEmitter = require("../events/request");
 const orderEmitter = require("../events/order");
@@ -18,7 +17,7 @@ module.exports = app => {
         var task, toUserId, request;
 
         async.waterfall([
-            cb => models.task
+            cb => req.models.task
                 .findById(taskId)
                 .then(rTask => {
                     task = rTask;
@@ -30,7 +29,7 @@ module.exports = app => {
                         });
                     }
 
-                    if (task.status !== models.task.TASK_STATUS.ACTIVE) {
+                    if (task.status !== req.models.task.TASK_STATUS.ACTIVE) {
                         return cb({
                             code: 'TASK_WRONG_STATUS',
                             desc: 'It cannot send requests to tasks that do not have an ACTIVE status.'                            
@@ -39,9 +38,9 @@ module.exports = app => {
 
                     return cb();
                 }, cb),
-            cb => models.request
+            cb => req.models.request
                 .create({
-                    status: models.request.REQUEST_STATUS.PENDING,
+                    status: req.models.request.REQUEST_STATUS.PENDING,
                     taskId,
                     fromUserId,
                     toUserId
@@ -69,7 +68,7 @@ module.exports = app => {
 
                 res.send(rMessage);
 
-                requestEmitter.emit('new-request', request.id);
+                requestEmitter.emit('new-request', req.models, request.id);
             });
         });
 
@@ -81,11 +80,11 @@ module.exports = app => {
                 $and: [
                     {
                         $or: [
-                            { status: models.request.REQUEST_STATUS.PENDING },
-                            { status: models.request.REQUEST_STATUS.ACCEPTED },
-                            { status: models.request.REQUEST_STATUS.MARKED_DONE },
-                            { status: models.request.REQUEST_STATUS.SETTLED },
-                            { status: models.request.REQUEST_STATUS.CLOSED }
+                            { status: req.models.request.REQUEST_STATUS.PENDING },
+                            { status: req.models.request.REQUEST_STATUS.ACCEPTED },
+                            { status: req.models.request.REQUEST_STATUS.MARKED_DONE },
+                            { status: req.models.request.REQUEST_STATUS.SETTLED },
+                            { status: req.models.request.REQUEST_STATUS.CLOSED }
                         ]
                     }, {
                         $or: [
@@ -102,15 +101,15 @@ module.exports = app => {
 
         if (req.query.view === 'in_progress') {
             where.$and.push({ $or: [
-                { status: models.request.REQUEST_STATUS.ACCEPTED },
-                { status: models.request.REQUEST_STATUS.MARKED_DONE }
+                { status: req.models.request.REQUEST_STATUS.ACCEPTED },
+                { status: req.models.request.REQUEST_STATUS.MARKED_DONE }
             ]});
         }
 
         if (req.query.view === 'pending') {
             where.$and.push({ 
                 $or: [
-                    { status: models.request.REQUEST_STATUS.PENDING }
+                    { status: req.models.request.REQUEST_STATUS.PENDING }
                 ]
             });
         }
@@ -118,9 +117,9 @@ module.exports = app => {
         if (req.query.view === 'completed') {
             where.$and.push({
                 $or: [{
-                    status: models.request.REQUEST_STATUS.SETTLED
+                    status: req.models.request.REQUEST_STATUS.SETTLED
                 }, {
-                    status: models.request.REQUEST_STATUS.CLOSED
+                    status: req.models.request.REQUEST_STATUS.CLOSED
                 }]
             });
         }
@@ -131,21 +130,21 @@ module.exports = app => {
             });
         }
 
-        models.request
+        req.models.request
             .findAll({
                 where,
                 order: [[ 'createdAt', 'DESC' ]],
                 include: [
-                    { model: models.user, as: 'fromUser' },
-                    { model: models.user, as: 'toUser' },
-                    { model: models.review },
-                    { model: models.order }
+                    { model: req.models.user, as: 'fromUser' },
+                    { model: req.models.user, as: 'toUser' },
+                    { model: req.models.review },
+                    { model: req.models.order }
                 ]
             })
             .then(data => async
                 .forEachLimit(data, 5, (item, cb) => {
                 async.waterfall([
-                    cb => models.message
+                    cb => req.models.message
                     .findOne({
                         where: {
                             requestId: item.id
@@ -165,12 +164,12 @@ module.exports = app => {
                         const fromUserId = item.dataValues.lastMsg.fromUserId;
                         const toUserId = item.dataValues.lastMsg.toUserId;
 
-                        models.user.findOne({
+                        req.models.user.findOne({
                             where: {
                                 id: fromUserId === req.user.id ? toUserId : fromUserId 
                             },
                             include: [{
-                                model: models.userProperty
+                                model: req.models.userProperty
                             }]
                         }).then(user => {
                             item.dataValues.with = user;
@@ -183,13 +182,13 @@ module.exports = app => {
 
                     async.parallel([
                         cb => {
-                            models.task.findOne({
+                            req.models.task.findOne({
                                 where: {
                                     id: item.taskId
                                 },
                                 include: [
-                                    { model: models.taskTiming },
-                                    { model: models.taskLocation },
+                                    { model: req.models.taskTiming },
+                                    { model: req.models.taskLocation },
                                 ]
                             })
                             .then(task => {
@@ -199,7 +198,7 @@ module.exports = app => {
                             }, cb);
                         },
                         cb =>
-                            models.taskCategory
+                            req.models.taskCategory
                             .findAll({
                                 where: {
                                     taskId: item.taskId
@@ -246,7 +245,7 @@ module.exports = app => {
     app.get('/api/request/:requestId/order', isLoggedIn, (req, res) => {
         const requestId = req.params.requestId;
 
-        models.order
+        req.models.order
             .findOne({
                 where: {
                     requestId: req.params.requestId
@@ -266,7 +265,7 @@ module.exports = app => {
     app.get('/api/order/:orderId/request', isLoggedIn, (req, res) => {
         const orderId = req.params.orderId;
 
-        models.order
+        req.models.order
             .findById(orderId)
             .then(order => {
                 if (!order) {
@@ -275,14 +274,14 @@ module.exports = app => {
                     });
                 }
                 
-                models.request
+                req.models.request
                 .findOne({
                     where: {
                         id: order.requestId
                     },
                     include: [
-                        { model: models.user, as: 'fromUser' },
-                        { model: models.user, as: 'toUser' }
+                        { model: req.models.user, as: 'fromUser' },
+                        { model: req.models.user, as: 'toUser' }
                     ]
                 })
                 .then(request => {

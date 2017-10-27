@@ -32,7 +32,7 @@ module.exports = app => {
             return res.status(400).send('EMPTY_MESSAGE');
         }
 
-        models.message
+        req.models.message
         .create({
             requestId: req.params.requestId,
             taskId: req.body.taskId,
@@ -43,13 +43,13 @@ module.exports = app => {
         .then(rMessage => {
 
             requestEmitter
-                .emit('message-received', rMessage);
+                .emit('message-received', req.models, rMessage);
 
             return res.send(rMessage);
         }, err => res.status(400).send(err))
     });
 
-    const getMessages = (userId, requestId, groupBy) => new Promise((resolve, reject) => {
+    const getMessages = (models, userId, requestId, groupBy) => new Promise((resolve, reject) => {
         const $orArr = [
             { fromUserId: userId },
             { toUserId: userId }
@@ -89,7 +89,7 @@ module.exports = app => {
     });
 
     app.get("/api/message", isLoggedIn, (req, res) =>
-        getMessages(req.user.id, req.query.request_id, req.query.group_by)
+        getMessages(req.models, req.user.id, req.query.request_id, req.query.group_by)
         .then(data => res.send(data), err => res.status(400).send(err))
     );
 
@@ -104,29 +104,29 @@ module.exports = app => {
         var request;
 
         async.waterfall([
-            callback => models.request
+            callback => req.models.request
                 .findOne({
                     where: {
                         id: requestId
                     },
                     include: [
                         {
-                            model: models.order,
+                            model: req.models.order,
                             include: [
                                 {
-                                    model: models.review
+                                    model: req.models.review
                                 }
                             ]
                         },
                         {
-                            model: models.review
+                            model: req.models.review
                         },
                         {
-                            model: models.user,
+                            model: req.models.user,
                             as: 'fromUser'
                         },
                         { 
-                            model: models.user,
+                            model: req.models.user,
                             as: 'toUser'
                         }
                     ]
@@ -146,13 +146,13 @@ module.exports = app => {
 
                     callback();
                 }, callback),
-            callback => getMessages(req.user.id, requestId)
+            callback => getMessages(req.models, req.user.id, requestId)
                 .then(messages => {
                     result.messages = messages;
 
                     return callback();
                 }),
-            callback => models.user.findOne({
+            callback => req.models.user.findOne({
                 where: {
                     id: result.messages[0].fromUserId
                 }
@@ -162,7 +162,7 @@ module.exports = app => {
 
                 return callback();
             }),
-            callback => models.user.findOne({ 
+            callback => req.models.user.findOne({ 
                 where: {
                     id: result.messages[0].toUserId
                 }
@@ -172,13 +172,13 @@ module.exports = app => {
                 return callback();
             }),
             callback => {
-                models.task.findOne({
+                req.models.task.findOne({
                     where: {
                         id: request.taskId
                     },
                     include: [
-                        { model: models.taskTiming },
-                        { model: models.taskLocation }
+                        { model: req.models.taskTiming },
+                        { model: req.models.taskLocation }
                     ]
                 }).then(task => {
                     result.task = task;
@@ -186,7 +186,7 @@ module.exports = app => {
                     return callback();
                 }, err => callback(err));
             },
-            callback => getMessages(req.user.id, requestId)
+            callback => getMessages(req.models, req.user.id, requestId)
                         .then(messages => {
                             result.messages = messages;
 

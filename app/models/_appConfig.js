@@ -11,7 +11,6 @@ module.exports = (sequelize, DataTypes) => {
       tableName: '_appConfig',
       classMethods: {
         associate: models => {
-          // models.hasMany(models.appLabel);
         }
       }
   });
@@ -46,8 +45,8 @@ module.exports = (sequelize, DataTypes) => {
       return resolve();
   });
 
-  const addDefaultConfig = () => {
-    const defaultConfigs = marketplaceConfig.config();
+  const addDefaultConfig = (usecase) => {
+    const defaultConfigs = marketplaceConfig[usecase].config();
     const dataProcessed = Object.keys(defaultConfigs)
       .map(fieldKey => {
         return {

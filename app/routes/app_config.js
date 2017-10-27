@@ -5,7 +5,7 @@ const isAdmin = responseController.isAdmin;
 
 module.exports = app => {
     app.get("/api/app_config", (req, res) =>
-        models.appConfig
+        req.models.appConfig
             .findAll({ order: [ 'fieldKey' ] })
             .then(configs => res.send(configs), err => res.status(400).send(err))
     );
@@ -15,7 +15,7 @@ module.exports = app => {
 
         const forceUpdate = true;
 
-        models.appConfig.bulkCreateOrUpdate(labels, forceUpdate)
+        req.models.appConfig.bulkCreateOrUpdate(labels, forceUpdate)
             .then(nothing => res.send({ ok: true }));
     });
 };

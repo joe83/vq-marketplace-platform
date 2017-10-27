@@ -1,10 +1,12 @@
 const async = require('async');
-const models = require('../models/models');
+const db = require('../models/models');
 const orderEmitter = require("../events/order");
 const requestEmitter = require("../events/request");
 const utils = require("../utils");
 
-const settleOrder = (orderId, userId, cb) => {
+const settleOrder = (tenantId, orderId, userId, cb) => {
+    const models = db.get(tenantId);
+
     var requestId;
     var order;
     
@@ -68,10 +70,10 @@ const settleOrder = (orderId, userId, cb) => {
         cb(null, order);
 
         requestEmitter
-            .emit('request-completed', requestId);
+            .emit('request-completed', models, requestId);
 
         orderEmitter
-            .emit('order-completed', orderId)
+            .emit('order-completed', models, orderId)
     });
 };
 

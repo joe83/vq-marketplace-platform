@@ -27,7 +27,7 @@ module.exports = (req, res, next) => {
                         verificationObj[verification.fieldKey] = verificationSteps[1];
                     }
 
-                    return models.user.findOne({
+                    return req.models.user.findOne({
                         where: {
                             $and: [
                                 { id: userId },
@@ -45,7 +45,7 @@ module.exports = (req, res, next) => {
                 }
 
                 if (verification.type === 'userProperty') {
-                    return models.userProperty
+                    return req.models.userProperty
                         .findOne({
                             where: {
                                 $and: [

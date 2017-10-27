@@ -6,13 +6,13 @@ const randtoken = require('rand-token');
 const models = require("../models/models");
 const emailService = require("../services/emailService.js");
 const config = require("../config/configProvider.js")();
-const vqAuth = require("../config/vqAuthProvider");
+const vqAuth = require("../auth");
 
 class DefaultEmitter extends EventEmitter {}
 
 const requestEmitter = new DefaultEmitter();
 
-const getRequestOwnerEmails = (requestId, cb) => {
+const getRequestOwnerEmails = (models, requestId, cb) => {
     let emails, request;
 
     return async.waterfall([
@@ -23,8 +23,8 @@ const getRequestOwnerEmails = (requestId, cb) => {
                     id: requestId
                 },
                 include: [
-					{ model: models.user, as: 'fromUser' },
-					{ model: models.task, as: 'task' }
+					{ model: req.models.user, as: 'fromUser' },
+					{ model: req.models.task, as: 'task' }
                 ]
             })
             .then(rRequest => {
@@ -33,7 +33,7 @@ const getRequestOwnerEmails = (requestId, cb) => {
                 return cb();
             }, cb),
         cb => vqAuth
-            .getEmailsFromUserId(request.fromUser.vqUserId, (err, rUserEmails) => {
+            .getEmailsFromUserId(models, request.fromUser.vqUserId, (err, rUserEmails) => {
                 if (err) {
                     return cb(err);
                 }
@@ -52,7 +52,7 @@ const getRequestOwnerEmails = (requestId, cb) => {
 };
 
 const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
-	return requestId => {
+	return (models, requestId) => {
 		var user, request, order, task;
 		var emails;
 		var ACTION_URL;
@@ -97,9 +97,9 @@ const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
 
 			if (emails) {
 				emailService
-				.checkIfShouldSendEmail(emailCode, request.fromUser.id, () => {
+				.getEmailAndSend(models, emailCode, request.fromUser.id, () => {
 					emailService
-					.getEmailAndSend(emailCode, emails[0], emailData);
+					.getEmailAndSend(models, emailCode, emails[0], emailData);
 				});
 			}
 		});
@@ -107,14 +107,14 @@ const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
 };
 
 requestEmitter
-	.on('message-received', (messageRef) => {
+	.on('message-received', (models, messageRef) => {
 		emailService
-		.checkIfShouldSendEmail('message-received', messageRef.toUserId, () => {
-			models.user
+		.getEmailAndSend(models, 'message-received', messageRef.toUserId, () => {
+			req.models.user
 			.findById(messageRef.toUserId)
 			.then(user => {
 				vqAuth
-				.getEmailsFromUserId(user.vqUserId, (err, rUserEmails) => {
+				.getEmailsFromUserId(models, user.vqUserId, (err, rUserEmails) => {
 					if (err) {
 						return console.error(err);
 					}
@@ -137,7 +137,7 @@ requestEmitter
 							const ACTION_URL = `${domain}/app/chat/${messageRef.requestId}`;
 		
 							emailService
-							.getEmailAndSend('message-received', emails[0], ACTION_URL);
+							.getEmailAndSend(models, 'message-received', emails[0], ACTION_URL);
 						}, err => {
 							return console.error(err);
 						})
@@ -208,8 +208,8 @@ requestEmitter
 						id: requestId
 					},
 					include: [
-						{ model: models.user, as: 'fromUser' },
-						{ model: models.user, as: 'toUser' }
+						{ model: req.models.user, as: 'fromUser' },
+						{ model: req.models.user, as: 'toUser' }
 					]
 				})
 				.then(rRequest => {
@@ -218,7 +218,7 @@ requestEmitter
 					return cb();
 				}, cb),
 			cb => vqAuth
-				.getEmailsFromUserId(request.fromUser.vqUserId, (err, rUserEmails) => {
+				.getEmailsFromUserId(models, request.fromUser.vqUserId, (err, rUserEmails) => {
 					if (err) {
 						return cb(err);
 					}
@@ -229,7 +229,7 @@ requestEmitter
 					cb();
 				}),
 			cb => vqAuth
-				.getEmailsFromUserId(request.toUser.vqUserId, (err, rUserEmails) => {
+				.getEmailsFromUserId(models, request.toUser.vqUserId, (err, rUserEmails) => {
 					if (err) {
 						return cb(err);
 					}
@@ -264,17 +264,17 @@ requestEmitter
 
 			if (requestReceivedEmails) {
 				emailService
-				.checkIfShouldSendEmail('new-request-received', request.toUser.id, () => {
+				.getEmailAndSend(models, 'new-request-received', request.toUser.id, () => {
 					emailService
-					.getEmailAndSend('new-request-received', requestReceivedEmails[0], ACTION_URL);
+					.getEmailAndSend(models, 'new-request-received', requestReceivedEmails[0], ACTION_URL);
 				});
 			}
 			
 			if (requestSentEmails) {
 				emailService
-				.checkIfShouldSendEmail('new-request-sent', request.fromUser.id, () => {
+				.getEmailAndSend(models, 'new-request-sent', request.fromUser.id, () => {
 					emailService
-					.getEmailAndSend('new-request-sent', requestSentEmails[0], ACTION_URL);
+					.getEmailAndSend(models, 'new-request-sent', requestSentEmails[0], ACTION_URL);
 				});
 			}
 		})

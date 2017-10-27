@@ -1,3 +1,3 @@
 const models = require('../app/models/models.js');
 
-models.appUserProperty.addDefaultUserProperties(true);
+req.models.appUserProperty.addDefaultUserProperties(true);

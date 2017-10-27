@@ -1,8 +1,8 @@
-var jwt = require('jsonwebtoken');
-var cust = require("../config/customizing.js");
-var superSecret = require("../config/configProvider.js")().secret;
-var models = require("../models/models.js");
-const vqAuth = require("../config/vqAuthProvider");
+const jwt = require('jsonwebtoken');
+const cust = require("../config/customizing");
+const superSecret = require("../config/configProvider")().secret;
+const models = require("../models/models");
+const vqAuth = require("../auth");
 
 function isAuth(req) {
 	if (req.headers['x-auth-token']) {
@@ -25,7 +25,7 @@ function parseUserFactory (loginRequired, adminRequired, requiredStatus) {
 			const authToken = req.headers['x-auth-token'];
 
 			vqAuth
-			.checkToken(authToken, (err, rAuthUser) => {
+			.checkToken(req.models, authToken, (err, rAuthUser) => {
 				if (err) {
 					if (loginRequired || adminRequired) {
 						return res.status(cust.errorCodes.NOT_AUTHENTIFICATIED.httpCode)
@@ -36,14 +36,14 @@ function parseUserFactory (loginRequired, adminRequired, requiredStatus) {
 				}
 
 				if (rAuthUser) {
-					models.user
+					req.models.user
 					.findOne({ 
 						where: {
 							vqUserId: rAuthUser.userId
 						},
 						include: [
-							{ model: models.userProperty },
-							{ model: models.userPreference }
+							{ model: req.models.userProperty },
+							{ model: req.models.userPreference }
 						]
 					})
 					.then(user => {

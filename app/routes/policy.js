@@ -2,19 +2,18 @@ var randtoken = require('rand-token');
 const moment = require("moment");
 const async = require("async");
 const cust = require("../config/customizing.js");
-const models = require("../models/models.js");
 const emailService = require("../services/emailService.js");
 const cryptoService = require("../services/cryptoService");
 const NewsletterService = require("../services/NewsletterService.js");
 const responseController = require("../controllers/responseController.js");
 const sendResponse = responseController.sendResponse;
-const vqAuth = require("../config/vqAuthProvider");
+const vqAuth = require("../auth");
 const userEmitter = require("../events/user");
 const CryptoJS = require("crypto-js");
 const config = require("../config/configProvider.js")();
 
 const validateEmail = email => { 
-    var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     
 	return re.test(email);
 };
@@ -50,7 +49,7 @@ module.exports = app => {
 			.waterfall([
 				cb => {
 					return vqAuth
-						.localSignup(email, password, (err, rUser) => {
+						.localSignup(req.models, email, password, (err, rUser) => {
 							if (err) {
 								return cb(err);
 							}
@@ -61,7 +60,7 @@ module.exports = app => {
 							return cb();
 						});
 				},
-				cb => models.user
+				cb => req.models.user
 					.create({
 						accountType: 'PRIVATE',
 						vqUserId,
@@ -78,7 +77,7 @@ module.exports = app => {
 				.each(
 					Object.keys(userData),
 					(prop, cb) =>
-						models.userProperty
+						req.models.userProperty
 						.create({
 							propKey: prop,
 							propValue: userData[prop],
@@ -103,7 +102,7 @@ module.exports = app => {
 				const emittedUser = JSON.parse(JSON.stringify(user));
 
 				emittedUser.emails = [ email ];
-				userEmitter.emit('created', emittedUser);
+				userEmitter.emit('created', req.models, emittedUser);
 			});
 		});
 
@@ -117,7 +116,7 @@ module.exports = app => {
 		}
 
 		vqAuth
-		.resetPassword(code, newPassword, err =>
+		.resetPassword(models, code, newPassword, err =>
 			sendResponse(res, err, { ok: true })
 		);
 	});
@@ -126,7 +125,7 @@ module.exports = app => {
 		const email = req.body.email;
 
 		vqAuth
-		.requestPasswordReset(email, (err, rUserResetCode) => {
+		.requestPasswordReset(models, email, (err, rUserResetCode) => {
 			if (err) {
 				console.error(err);
 
@@ -135,7 +134,7 @@ module.exports = app => {
 
 			const resetCode = rUserResetCode.code;
 
-			models.appConfig
+			req.models.appConfig
 			.findOne({
 				where: {
 					fieldKey: 'DOMAIN'
@@ -150,7 +149,7 @@ module.exports = app => {
 				`${urlBase}/app/change-password?code=${resetCode}`;
 	
 				emailService
-				.getEmailAndSend(emailService.EMAILS.PASSWORD_RESET, email, ACTION_URL);
+				.getEmailAndSend(models, emailService.EMAILS.PASSWORD_RESET, email, ACTION_URL);
 			}, err => console.error(err));
 			
 			sendResponse(res, err, {});
@@ -168,7 +167,7 @@ module.exports = app => {
 		async.waterfall([
 			cb => {
 				if (userId) {
-					return models.user
+					return req.models.user
 						.findById(userId)
 						.then(rUser => {
 							user = rUser;
@@ -179,7 +178,7 @@ module.exports = app => {
 				}
 
 				vqAuth
-				.getAuthUserIdFromEmail(email, (err, rUserEmail) => {
+				.getAuthUserIdFromEmail(models, email, (err, rUserEmail) => {
 					if (err) {
 						return cb(err);
 					}
@@ -193,7 +192,7 @@ module.exports = app => {
 				}
 
 				vqAuth
-				.getEmailsFromUserId(vqUserId, (err, rUserEmails) => {
+				.getEmailsFromUserId(models, vqUserId, (err, rUserEmails) => {
 					if (err) {
 						return cb(err);
 					}
@@ -201,7 +200,7 @@ module.exports = app => {
 					vqUserId = rUserEmails[0].userId;
 					emails = rUserEmails.map(_ => _.email);
 				
-					models.user
+					req.models.user
 						.findOne({
 							vqUserId: vqUserId
 						})
@@ -220,7 +219,7 @@ module.exports = app => {
 					`${config.serverUrl || 'http://localhost:8080'}/api/verify/email?code=${VERIFICATION_TOKEN}`;
 				
 				return emailService
-					.sendWelcome({
+					.sendWelcome(req.models, {
 						emails
 					}, VERIFICATION_LINK);
 			});
@@ -240,26 +239,26 @@ module.exports = app => {
 			});
 		}
 		
-		models
+		req.models
 		.user
 		.findById(user.id)
 		.then(rUser => {
-			if (rUser.status === models.user.USER_STATUS.USER_BLOCKED) {
+			if (rUser.status === req.models.user.USER_STATUS.USER_BLOCKED) {
 				return res.status(401).send({
 					code: 'USER_BLOCKED'
 				});
 			}
 
-			if (rUser.status !== models.user.USER_STATUS.VERIFIED) {
+			if (rUser.status !== req.models.user.USER_STATUS.VERIFIED) {
 				rUser.update({
-					status: models.user.USER_STATUS.VERIFIED
+					status: req.models.user.USER_STATUS.VERIFIED
 				})
 				.then(_ => _, err => {
 					console.error(err);
 				})
 			}
 
-			models
+			req.models
 			.appConfig
 			.findOne({
 				where: {
@@ -290,7 +289,7 @@ module.exports = app => {
 		async.waterfall([
 			cb => {
 				vqAuth
-				.localLogin(email, password, (err, rUserToken) => {
+				.localLogin(req.models, email, password, (err, rUserToken) => {
 					if (err) {
 						return cb(err);
 					}
@@ -300,16 +299,16 @@ module.exports = app => {
 					return cb();
 				});
 			},
-			cb => models.user
+			cb => req.models.user
 			.findOne({
 				where: {
 					vqUserId: User.userId
 				},
 				include: [
 					{
-						model: models.userProperty
+						model: req.models.userProperty
 					}, {
-						model: models.userPreference
+						model: req.models.userPreference
 					}
 				]
 			})
@@ -324,7 +323,7 @@ module.exports = app => {
 					return cb(cust.errorCodes.USER_BLOCKED);
 				}
 
-				if (rUser.status !== models.user.USER_STATUS.VERIFIED) {
+				if (rUser.status !== req.models.user.USER_STATUS.VERIFIED) {
 					return cb({
 						token: User.token,
 						user: User.user,
@@ -339,13 +338,12 @@ module.exports = app => {
 				.sendResponse(res, err, User));
 	});
 
-	app.post('/api/auth/password', (req, res) => {
+	app.post('/api/auth/password', isLoggedIn, (req, res) => {
 		var currentPassword = req.body.currentPassword;
 		var newPassword = req.body.newPassword;
-		var token = req.auth.token;
 
 		vqAuth
-		.changePassword(token, currentPassword, newPassword, err => {
+		.changePassword(req.models, req.user.vqUserId, currentPassword, newPassword, err => {
 			return responseController.sendResponse(res, err, { ok: true });
 		});
 	});

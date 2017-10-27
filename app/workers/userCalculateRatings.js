@@ -1,7 +1,9 @@
 const async = require("async");
-const models = require("../models/models.js");
+const db = require("../models/models.js");
 
-const userCalculateRatings = () => {
+const userCalculateRatings = (tenantId) => {
+    const models = db.get(tenantId);
+
     console.log('[WORKER] Calculating user avg. ratings');
 
     const userReviews = {};

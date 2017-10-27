@@ -1,7 +1,6 @@
 const async = require("async");
-const models = require("../app/models/models.js");
 
-const showOrders = () => {
+const showOrders = (models) => {
     var settled = 0;
 
     console.log('[WORKER] Task hourly auto-settlement started.');

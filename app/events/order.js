@@ -1,18 +1,16 @@
-"use strict";
-
 const EventEmitter = require('events');
 const async = require('async');
+const db = require("../models/models");
 const randtoken = require('rand-token');
-const models = require("../models/models");
 const emailService = require("../services/emailService.js");
 const config = require("../config/configProvider.js")();
-const vqAuth = require("../config/vqAuthProvider");
+const vqAuth = require("../auth");
 
 class DefaultEmitter extends EventEmitter {}
 
 const orderEmitter = new DefaultEmitter();
 
-const getOrderOwnerEmails = (orderId, cb) => {
+const getOrderOwnerEmails = (models, orderId, cb) => {
     let emails, order;
 
     return async.waterfall([
@@ -23,11 +21,11 @@ const getOrderOwnerEmails = (orderId, cb) => {
                     id: orderId
                 },
                 include: [
-                    { model: models.user },
+                    { model: req.models.user },
                     { 
-                        model: models.request,
+                        model: req.models.request,
                         include: [
-                            { model: models.user, as: 'fromUser' }
+                            { model: req.models.user, as: 'fromUser' }
                         ]
                     }
                 ]
@@ -44,7 +42,7 @@ const getOrderOwnerEmails = (orderId, cb) => {
                 return cb();
             }, cb),
         cb => vqAuth
-            .getEmailsFromUserId(order.user.vqUserId, (err, rUserEmails) => {
+            .getEmailsFromUserId(models, order.user.vqUserId, (err, rUserEmails) => {
                 if (err) {
                     return cb(err);
                 }
@@ -63,13 +61,15 @@ const getOrderOwnerEmails = (orderId, cb) => {
 };
 
 const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
-	return orderId => {
+	return (tenantId, orderId) => {
+        const models = db.get(tenantId);
+
 		var user, order;
 		var emails;
 		var ACTION_URL;
 
 		async.waterfall([
-			cb => getOrderOwnerEmails(orderId, (err, data) => {
+			cb => getOrderOwnerEmails(models, orderId, (err, data) => {
                 if (err) {
                     return cb(err);
                 }
@@ -103,9 +103,9 @@ const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
 
 			if (emails) {
                 emailService
-				.checkIfShouldSendEmail(emailCode, order.user.id, () => {
+				.getEmailAndSend(models, emailCode, order.user.id, () => {
 				    emailService
-                    .getEmailAndSend(emailCode, emails[0], ACTION_URL);
+                    .getEmailAndSend(models, emailCode, emails[0], ACTION_URL);
                 });
 			} else {
                 console.log('No emails to send notification!');

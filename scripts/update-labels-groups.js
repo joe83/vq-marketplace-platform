@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
       tableName: '_appLabel',
       classMethods: {
         associate: models => {
-          // models.hasOne(models.app);
+          // req.models.hasOne(req.models.app);
         }
       }
   });

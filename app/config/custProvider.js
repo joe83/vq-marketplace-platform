@@ -1,9 +1,8 @@
 const async = require("async");
-const models  = require('../models/models');
 
 const appConfig = {};
 
-const getConfig = () => new Promise((resolve, reject) => {
+const getConfig = (models) => new Promise((resolve, reject) => {
     models.appConfig
         .findAll({ order: [ 'fieldKey' ] })
         .then(configs => {

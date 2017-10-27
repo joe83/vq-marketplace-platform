@@ -52,7 +52,7 @@ module.exports = app => {
 
         async.waterfall([
             cb => {
-                return models.review
+                return req.models.review
                     .findOne({ 
                         where: {
                             $and: [
@@ -80,15 +80,15 @@ module.exports = app => {
                     return cb();
                 }
 
-                models.order
+                req.models.order
                 .findOne({
                     where: { 
                         id: orderId
                     },
                     include: [
-                        { model: models.user },
-                        { model: models.request },
-                        { model: models.task }
+                        { model: req.models.user },
+                        { model: req.models.request },
+                        { model: req.models.task }
                     ],
                 })
                 .then(rOrder => {
@@ -104,8 +104,8 @@ module.exports = app => {
                     request = rOrder.request;
 
                     if (
-                        order.status !== models.order.ORDER_STATUS.SETTLED &&
-                        order.status !== models.order.ORDER_STATUS.CLOSED
+                        order.status !== req.models.order.ORDER_STATUS.SETTLED &&
+                        order.status !== req.models.order.ORDER_STATUS.CLOSED
                     ) {
                         return cb({
                             httpCode: 400,
@@ -122,13 +122,13 @@ module.exports = app => {
                     return cb();
                 }
 
-                models.request
+                req.models.request
                 .findOne({
                     where: { 
                         id: requestId
                     },
                     include: [
-                        { model: models.order }
+                        { model: req.models.order }
                     ],
                 })
                 .then(rRequest => {
@@ -144,8 +144,8 @@ module.exports = app => {
                     order = rRequest.order;
 
                     if (
-                        request.status !== models.request.REQUEST_STATUS.SETTLED &&
-                        request.status !== models.request.REQUEST_STATUS.CLOSED
+                        request.status !== req.models.request.REQUEST_STATUS.SETTLED &&
+                        request.status !== req.models.request.REQUEST_STATUS.CLOSED
                     ) {
                         return cb({
                             httpCode: 400,
@@ -183,7 +183,7 @@ module.exports = app => {
                     newReview.requestId = request.id;
                 }
 
-                return models.review
+                return req.models.review
                 .create(newReview)
                 .then(rReview => {
                     return cb(null, rReview);
@@ -200,7 +200,7 @@ module.exports = app => {
 
                 res.send(rReview);
 
-                reviewEmitter.emit('review-left', rReview.id);
+                reviewEmitter.emit('review-left', req.models, rReview.id);
             });
     });
 
@@ -214,7 +214,7 @@ module.exports = app => {
             })
         }
 
-        models.review
+        req.models.review
             .findAll({
                 order: [[ 'createdAt', 'DESC' ]],
                 where: {
@@ -222,15 +222,15 @@ module.exports = app => {
                 },
                 include: [
                     {   
-                        model: models.user,
+                        model: req.models.user,
                         as: 'fromUser'  
                     },
-                    { model: models.task }
+                    { model: req.models.task }
                 ]
             })
             .then(reviews => {
                 async.eachSeries(reviews, (review, cb) => {
-                    models.review
+                    req.models.review
                         .findOne({
                             where: {
                                 $and: [
