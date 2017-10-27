@@ -4,6 +4,7 @@ const EventEmitter = require('events');
 const async = require('async');
 const randtoken = require('rand-token');
 const models = require("../models/models");
+const orderCtrl = require("../controllers/orderCtrl.js");
 const emailService = require("../services/emailService.js");
 const config = require("../config/configProvider.js")();
 const vqAuth = require("../config/vqAuthProvider");
@@ -13,7 +14,7 @@ class DefaultEmitter extends EventEmitter {}
 const requestEmitter = new DefaultEmitter();
 
 const getRequestOwnerEmails = (requestId, cb) => {
-    let emails, request;
+    let emails, request, order, task;
 
     return async.waterfall([
         cb => models
@@ -28,10 +29,22 @@ const getRequestOwnerEmails = (requestId, cb) => {
                 ]
             })
             .then(rRequest => {
-                request = rRequest;
+				request = rRequest;
+				task = rRequest.task;
 
                 return cb();
-            }, cb),
+			}, cb),
+		cb => {
+			orderCtrl.getOrderFromRequest(requestId, (err, rOrder) => {
+				if (err) {
+					return cb(err);
+				}
+
+				order = rOrder;
+
+				return cb();
+			});
+		},
         cb => vqAuth
             .getEmailsFromUserId(request.fromUser.vqUserId, (err, rUserEmails) => {
                 if (err) {
@@ -45,7 +58,9 @@ const getRequestOwnerEmails = (requestId, cb) => {
             })
         ], err => {
             cb(err, {
-                request,
+				request,
+				order,
+				task,
                 emails
             });
         });
@@ -67,7 +82,7 @@ const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
                 emails = data.emails;
                 order = data.order;
 				request = data.request;
-				task = data.request.task;
+				task = data.task;
 
 				return cb();
             }),
@@ -84,7 +99,7 @@ const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
 					const domain = configField.fieldValue || 'http://localhost:3000';
 
 					emailData.ACTION_URL = 
-						actionUrlFn(domain, requestId);
+						actionUrlFn(domain, requestId, order.id);
 
 					emailData.LISTING_TITLE = task.title;
 
@@ -153,9 +168,17 @@ requestEmitter
 
 requestEmitter
 	.on('request-completed', 
-		requestEventHandlerFactory('request-completed', (domain, requestId) =>
-			`${domain}/app/request/${requestId}/review`
+		requestEventHandlerFactory('request-completed', (domain, requestId, orderId) =>
+			`${domain}/app/order/${orderId}/review`
 		)
+	);
+
+requestEmitter
+	.on('closed',
+		requestId =>
+			requestEventHandlerFactory('request-closed',
+				(domain, requestId, orderId) => `${domain}/app/order/${orderId}/review`
+			)(requestId)
 	);
 
 requestEmitter
@@ -170,14 +193,6 @@ requestEmitter
 		requestEventHandlerFactory('request-cancelled', (domain, requestId) =>
 			`${domain}/app`
 		)
-	);
-
-requestEmitter
-	.on('closed',
-		requestId =>
-			requestEventHandlerFactory('request-closed',
-				(domain) => `${domain}/app/request/${requestId}/review`
-			)(requestId)
 	);
 
 requestEmitter

@@ -4,6 +4,24 @@ const orderEmitter = require("../events/order");
 const requestEmitter = require("../events/request");
 const utils = require("../utils");
 
+const getOrderFromRequest = (requestId, cb) => {
+    models.order
+        .findOne({
+            where: {
+                requestId
+            }
+        })
+        .then(order => {
+            if (!order) {
+                return cb({
+                    code: 'ORDER_NOT_FOUND'
+                });
+            }
+
+            return cb(null, order);
+        }, cb);
+};
+
 const settleOrder = (orderId, userId, cb) => {
     var requestId;
     var order;

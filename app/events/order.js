@@ -123,17 +123,17 @@ orderEmitter
     );
 
 orderEmitter
-	.on('new-order', 
-        orderId =>
-            orderEventHandlerFactory('new-order', (domain, requestId) => `${domain}/app/chat/${requestId}`)(orderId)
-    );
-
-orderEmitter
 	.on('order-completed', 
         orderId =>
             orderEventHandlerFactory('order-completed', (domain, requestId) =>
-            `${domain}/app/order/${orderId}/review`
+            `${domain}/app/request/${requestId}/review`
         )(orderId)
+    );    
+
+orderEmitter
+	.on('new-order', 
+        orderId =>
+            orderEventHandlerFactory('new-order', (domain, requestId) => `${domain}/app/chat/${requestId}`)(orderId)
     );
 
 orderEmitter
