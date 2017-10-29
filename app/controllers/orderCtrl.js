@@ -65,13 +65,13 @@ const settleOrder = (models, orderId, userId, cb) => {
             return cb(err);
         }
        
-        cb(null, order);
-
         requestEmitter
             .emit('request-completed', models, requestId);
 
         orderEmitter
-            .emit('order-completed', models, orderId)
+             .emit('order-completed', models, orderId)
+
+        cb(null, order);
     });
 };
 

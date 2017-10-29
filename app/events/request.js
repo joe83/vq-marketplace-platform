@@ -3,7 +3,6 @@
 const EventEmitter = require('events');
 const async = require('async');
 const randtoken = require('rand-token');
-const models = require("../models/models");
 const emailService = require("../services/emailService.js");
 const config = require("../config/configProvider.js")();
 const vqAuth = require("../auth");
@@ -12,8 +11,26 @@ class DefaultEmitter extends EventEmitter {}
 
 const requestEmitter = new DefaultEmitter();
 
+const getOrderFromRequest = (models, requestId, cb) => {
+    models.order
+        .findOne({
+            where: {
+                requestId
+            }
+        })
+        .then(order => {
+            if (!order) {
+                return cb({
+                    code: 'ORDER_NOT_FOUND'
+                });
+            }
+
+            return cb(null, order);
+        }, cb);
+};
+
 const getRequestOwnerEmails = (models, requestId, cb) => {
-    let emails, request;
+    let emails, request, order, task;
 
     return async.waterfall([
         cb => models
@@ -28,10 +45,22 @@ const getRequestOwnerEmails = (models, requestId, cb) => {
                 ]
             })
             .then(rRequest => {
-                request = rRequest;
+				request = rRequest;
+				task = rRequest.task;
 
                 return cb();
-            }, cb),
+			}, cb),
+		cb => {
+			getOrderFromRequest(models, requestId, (err, rOrder) => {
+				if (err) {
+					return cb(err);
+				}
+
+				order = rOrder;
+
+				return cb();
+			});
+		},
         cb => vqAuth
             .getEmailsFromUserId(models, request.fromUser.vqUserId, (err, rUserEmails) => {
                 if (err) {
@@ -45,7 +74,9 @@ const getRequestOwnerEmails = (models, requestId, cb) => {
             })
         ], err => {
             cb(err, {
-                request,
+				request,
+				order,
+				task,
                 emails
             });
         });
@@ -59,7 +90,7 @@ const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
 		var emailData = {};
 
 		async.waterfall([
-			cb => getRequestOwnerEmails(requestId, (err, data) => {
+			cb => getRequestOwnerEmails(models, requestId, (err, data) => {
                 if (err) {
                     return cb(err);
                 }
@@ -67,7 +98,7 @@ const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
                 emails = data.emails;
                 order = data.order;
 				request = data.request;
-				task = data.request.task;
+				task = data.task;
 
 				return cb();
             }),
@@ -84,7 +115,7 @@ const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
 					const domain = configField.fieldValue || 'http://localhost:3000';
 
 					emailData.ACTION_URL = 
-						actionUrlFn(domain, requestId);
+						actionUrlFn(domain, requestId, order.id);
 
 					emailData.LISTING_TITLE = task.title;
 
@@ -153,9 +184,17 @@ requestEmitter
 
 requestEmitter
 	.on('request-completed', 
-		requestEventHandlerFactory('request-completed', (domain, requestId) =>
+		requestEventHandlerFactory('request-completed', (domain, requestId, orderId) =>
 			`${domain}/app/request/${requestId}/review`
 		)
+	);
+
+requestEmitter
+	.on('closed',
+		requestId =>
+			requestEventHandlerFactory('request-closed',
+				(domain, requestId, orderId) => `${domain}/app/request/${requestId}/review`
+			)(requestId)
 	);
 
 requestEmitter
@@ -170,14 +209,6 @@ requestEmitter
 		requestEventHandlerFactory('request-cancelled', (domain, requestId) =>
 			`${domain}/app`
 		)
-	);
-
-requestEmitter
-	.on('closed',
-		requestId =>
-			requestEventHandlerFactory('request-closed',
-				(domain) => `${domain}/app/request/${requestId}/review`
-			)(requestId)
 	);
 
 requestEmitter
@@ -277,12 +308,4 @@ requestEmitter
 		})
 	});
 
-
-if (module.parent) {
-	module.exports = requestEmitter;
-} else {
-	console.log(process.argv[2])
-	console.log(process.argv[3])
-	
-	requestEmitter.emit(process.argv[2], process.argv[3]);
-}
+module.exports = requestEmitter;
