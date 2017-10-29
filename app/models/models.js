@@ -68,6 +68,7 @@ const create = (tenantId, cb) => {
         }
       });
       
+      db.tenantId = tenantId;
       db.seq = sequelize;
       db.Sequelize = Sequelize;
     

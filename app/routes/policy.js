@@ -219,12 +219,7 @@ module.exports = app => {
 						}, cb);
 				});
 			}], err => {
-				const VERIFICATION_TOKEN = cryptoService.encodeObj({
-					id: userId
-				});
-				
-				const VERIFICATION_LINK = 
-					`${config.SERVER_URL || 'http://localhost:8080'}/api/verify/email?code=${VERIFICATION_TOKEN}`;
+				const VERIFICATION_LINK = cryptoService.buildVerificationUrl(req.models.tenantId, config.SERVER_URL, { id: userId });
 				
 				return emailService
 					.sendWelcome(req.models, {

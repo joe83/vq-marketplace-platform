@@ -7,18 +7,14 @@ const emailService = require("../services/emailService");
 const cryptoService = require("../services/cryptoService");
 class DefaultEmitter extends EventEmitter {}
 const userEmitter = new DefaultEmitter();
-const CryptoJS = require("crypto-js");
 const config = require("../config/configProvider.js")();
 const vqAuth = require("../auth");
+const util = require("../util");
 
 module.exports = userEmitter;
     userEmitter
     .on('created', (models, user) => {
-        // the default value for private key sucks...
-        const VERIFICATION_TOKEN = cryptoService.encodeObj(user);
-
-        const VERIFICATION_LINK = 
-        `${config.SERVER_URL || 'http://localhost:8080'}/api/verify/email?code=${VERIFICATION_TOKEN}`;
+        const VERIFICATION_LINK = cryptoService.buildVerificationUrl(models.tenantId, config.SERVER_URL, user);
 
         return emailService.sendWelcome(models, user, VERIFICATION_LINK);
     });
