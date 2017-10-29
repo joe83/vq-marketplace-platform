@@ -69,7 +69,13 @@ const initRoutes = (app, express) => {
 					cb();
 				}, cb)
 			})
-		])
+		], (err) => {
+			if (err) {
+				return res.status(400).send(err);
+			}
+
+			res.send(savedTenant);
+		})
 	});
 };
 
