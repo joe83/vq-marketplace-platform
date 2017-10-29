@@ -4,7 +4,6 @@ const async = require("async");
 const cust = require("../config/customizing.js");
 const emailService = require("../services/emailService.js");
 const cryptoService = require("../services/cryptoService");
-const NewsletterService = require("../services/NewsletterService.js");
 const responseController = require("../controllers/responseController.js");
 const sendResponse = responseController.sendResponse;
 const vqAuth = require("../auth");
@@ -225,7 +224,7 @@ module.exports = app => {
 				});
 				
 				const VERIFICATION_LINK = 
-					`${config.serverUrl || 'http://localhost:8080'}/api/verify/email?code=${VERIFICATION_TOKEN}`;
+					`${config.SERVER_URL || 'http://localhost:8080'}/api/verify/email?code=${VERIFICATION_TOKEN}`;
 				
 				return emailService
 					.sendWelcome(req.models, {

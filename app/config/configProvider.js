@@ -1,62 +1,57 @@
 const randomstring = require('randomstring');
+const path = require('path');
+const appDir = path.dirname(require.main.filename);
 const envVars = require('../../config/env-var.json');
-const env = process.env.ST_ENV ? process.env.ST_ENV.toLowerCase() : 'local';
-var config;
+const argv = require('minimist')(process.argv.slice(2));
 
-if (env === 'production') {
-	// null is replaced by env variables
-	config = {
-		"production": true,
-		"port": null,
-		"db": null,
-		"TENANT_APP_PORT": null,
-		"VQ_DB_USER": null,
-		"VQ_DB_PASSWORD": null,
-		"VQ_DB_HOST": null,
-		"secret" : null,
-		"serverUrl" : null,
-		"viciauth.app_key": null,
-		"viciauth.api_key": null,
-		"viciauth.host": null,
-		"viciauth.port": null,
-		"s3.bucket": null,
-		"s3.region": 'eu-central-1',
-		"s3.accessKeyId": null,
-		"s3.secretAccessKey": null,
-		"mandrill": null,
-		"listly.dbHostName": null,
-		"listly.dbPort": null,
-		"listly.dbPassword": null,
-		"listly.dbDatabase": null,
-		"listly.mandrillSecretKey": null
+const env = process.env.ST_ENV ? process.env.ST_ENV.toLowerCase() : 'local';
+
+const getConfig = () => {
+	let lConfig;
+
+	if (argv.config) {
+		return require(`${appDir}${argv.config}`);
 	}
-} else {
-	config = {
-		"production": false,
-		"port": 8080,
-		"TENANT_APP_PORT": 8081,
-		"db": 'mysql://root:kurwa@localhost:3306/vq',
-		"VQ_DB_USER": 'root',
-		"VQ_DB_PASSWORD": 'kurwa',
-		"VQ_DB_HOST": 'localhost',
-		"secret" : 'test',
-		"serverUrl" : 'http://vqtest.localhost:8080',
-		"viciauth.app_key": 'test',
-		"viciauth.api_key": 'test',
-		"viciauth.host": 'localhost',
-		"viciauth.port": 5000,
-		"s3.bucket": null,
-		"s3.region": 'eu-central-1',
-		"s3.accessKeyId": null,
-		"s3.secretAccessKey": null,
-		"mandrill": null,
-		"listly.dbHostName": 'test',
-		"listly.dbPort": 'test',
-		"listly.dbPassword": 'test',
-		"listly.dbDatabase": 'test',
-		"listly.mandrillSecretKey": 'test'
-	};
-}
+
+	if (env === 'production') {
+		// null is replaced by env variables
+		return {
+			"production": true,
+			"port": null,
+			"db": null,
+			"TENANT_APP_PORT": null,
+			"VQ_DB_USER": null,
+			"VQ_DB_PASSWORD": null,
+			"VQ_DB_HOST": null,
+			"secret" : null,
+			"SERVER_URL" : null,
+			"s3.bucket": null,
+			"s3.region": 'eu-central-1',
+			"s3.accessKeyId": null,
+			"s3.secretAccessKey": null,
+			"mandrill": null
+		}
+	} else {
+		config = {
+			"production": false,
+			"port": 8080,
+			"TENANT_APP_PORT": 8081,
+			"db": 'mysql://root:kurwa@localhost:3306/vq',
+			"VQ_DB_USER": 'root',
+			"VQ_DB_PASSWORD": 'kurwa',
+			"VQ_DB_HOST": 'localhost',
+			"secret" : 'test',
+			"SERVER_URL" : 'http://vqtest.localhost:8080',
+			"s3.bucket": null,
+			"s3.region": 'eu-central-1',
+			"s3.accessKeyId": null,
+			"s3.secretAccessKey": null,
+			"mandrill": null
+		};
+	}
+};
+
+const config = getConfig();
 
 Object.keys(config)
 .forEach(configKey => {
