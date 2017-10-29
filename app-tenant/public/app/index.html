@@ -8,7 +8,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Optimize mobile viewport -->
 
-    <title>Node/Angular Todo App</title>
+    <title>VQ</title>
 
     <!-- SCROLLS -->
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css"><!-- load bootstrap -->
@@ -31,7 +31,7 @@ function mainController($scope, $http) {
     $scope.createMarketplace = function() {
         $http.post('/api/tenant', $scope.data)
         .success(function(data) {
-            location.href = "http://" + data.tenantId + ".vqmarketplace.vq-labs.com:4000";
+            location.href = "https://" + data.tenantId + ".vq-labs.com";
         })
         .error(function(data) {
             alert(JSON.stringify(data));
