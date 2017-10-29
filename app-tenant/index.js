@@ -6,7 +6,7 @@ class DefaultEmitter extends EventEmitter {}
 
 const events = new DefaultEmitter();
 
-const dbName = 'vq-marketplace';
+const rootDbName = 'vq-marketplace';
 let models = null;
 
 const getModels = cb => {
@@ -14,12 +14,12 @@ const getModels = cb => {
 		return cb(null, models);
 	}
 
-	tenantDb.create(dbName, err => {
+	tenantDb.create(rootDbName, err => {
 		if (err) {
 			return cb(err);
 		}
 
-		models = tenantDb.get(dbName);
+		models = tenantDb.get(rootDbName);
 
 		return cb(null, models);
 	});
@@ -37,6 +37,12 @@ const initRoutes = (app, express) => {
 		const tenant = req.body;
 
 		tenant.tenantId = utils.stringToSlug(tenant.marketplaceName);
+
+		if (tenant.tenantId === rootDbName) {
+			return res.status(400).send({
+				code: 'TENANT_ID_NOT_ALLOWED'
+			});
+		}
 
 		async.waterfall([
 			cb => getModels((err, tenantModels) => {

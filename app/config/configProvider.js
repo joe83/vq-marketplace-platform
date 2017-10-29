@@ -16,7 +16,6 @@ const getConfig = () => {
 		return {
 			"production": true,
 			"port": null,
-			"db": null,
 			"TENANT_APP_PORT": null,
 			"VQ_DB_USER": null,
 			"VQ_DB_PASSWORD": null,
@@ -35,7 +34,6 @@ const getConfig = () => {
 		"production": false,
 		"port": 8080,
 		"TENANT_APP_PORT": 8081,
-		"db": 'mysql://root:kurwa@localhost:3306/vq',
 		"VQ_DB_USER": 'root',
 		"VQ_DB_PASSWORD": 'kurwa',
 		"VQ_DB_HOST": 'localhost',
@@ -104,7 +102,5 @@ Object.keys(config)
 if (!config.secret) {
 	config.secret = randomstring.generate(64);
 }
-
-config.requireEmailVerification = config.production === true || config.production === "true";
 
 module.exports = () => config;
