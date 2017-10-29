@@ -66,6 +66,7 @@
     "when": "~3.7.7"
   },
   "devDependencies": {
+    "eslint": "^4.9.0",
     "gulp": "^3.9.1",
     "yargs": "^7.1.0"
   }

@@ -75,77 +75,95 @@ taskEmitter
             return console.error('TASK_NOT_FOUND');
         }
 
-        models
-        .taskCategory
-        .findOne({
-            where: {
-                taskId
-            }
-        })
-        .then(taskCategory => {
-            models
-            .userPreference
-            .findAll({
-                where: {
-                    value: taskCategory.code
-                }
-            })
-            .then(userPreferences => {
+        var taskCategory, userPreferences;
+        var emailData = {};
+        const userEmails = [];
+
+        async.waterfall([
+            cb => {
+                models
+                .taskCategory
+                .findOne({
+                    where: {
+                        taskId
+                    }
+                })
+                .then(rTaskCategory => {
+                    taskCategory = rTaskCategory;
+
+                    cb();
+                }, cb);
+            },
+            cb => {
+                models
+                .userPreference
+                .findAll({
+                    where: {
+                        value: taskCategory.code
+                    }
+                })
+                .then(rUserPreferences => {
+                    userPreferences = rUserPreferences;
+
+                    cb();
+                }, cb);
+            },
+            cb => {
                 getDomainName(models, (err, domain) => {
-                    const ACTION_URL = 
-                    `${domain}/app/task/${taskId}`;   
+                    if (err) {
+                        return cb(err);
+                    }
 
-                    const userEmails = [];
+                    emailData.ACTION_URL =
+                    `${domain}/app/task/${taskId}`;
 
-                    async
-                    .eachSeries(userPreferences, (userPreference, cb) => {
+                    cb();
+                });
+            },
+            cb => {
+                async
+                .eachSeries(userPreferences, (userPreference, cb) => {
                         const userId = userPreference.userId;
+                  
+                        models
+                        .user
+                        .findById(userId)
+                        .then(user => {
+                            // in case of data inconsensities
+                            if (!user) {
+                                console.error(`user ${userId} could not be found but there is a preference to him`);
 
-                        emailService
-                        .getEmailAndSend(models, 'new-task', userId, () => {
-                            models
-                            .user
-                            .findById(userId)
-                            .then(user => {
-                                // in case of data inconsensities
-                                if (!user) {
-                                    console.error(`user ${userId} could not be found but there is a preference to him`);
+                                return cb();
+                            }
+
+                            vqAuth
+                            .getEmailsFromUserId(models, user.vqUserId, (err, rUserEmails) => {
+                                if (err) {
+                                    console.error(err);
 
                                     return cb();
                                 }
+                
+                                const emails = rUserEmails
+                                    .forEach(_ => {
+                                        userEmails.push(_.email);
+                                    });
 
-                                vqAuth
-                                .getEmailsFromUserId(user.vqUserId, (err, rUserEmails) => {
-                                    if (err) {
-                                        console.error(err);
-    
-                                        return cb();
-                                    }
-                    
-                                    const emails = rUserEmails
-                                        .forEach(_ => {
-                                            userEmails.push(_.email);
-                                        });
-
-                                    cb();
-                                });
-                            }, err => {
-                                console.error(err);
-        
                                 cb();
                             });
-                        }, () => {
+                        }, err => {
+                            console.error(err);
+    
                             cb();
                         });
-                    }, () => {
+                    }, () => {
                         emailService
-                        .getEmailAndSend(models, 'new-task', userEmails, ACTION_URL);
+                        .getEmailAndSend(models, 'new-task', userEmails, emailData);
 
                         console.log("New task emails have been sent!");
                     });
-                });
-            });
-        });
+            }
+        ])
     });
 
 taskEmitter

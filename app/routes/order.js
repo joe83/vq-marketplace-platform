@@ -37,7 +37,7 @@ module.exports = app => {
                     })
                     .then(() => cb(), cb),
                 cb => requestCtrl
-                    .declineAllPendingRequestsForTask(order.taskId, cb),
+                    .declineAllPendingRequestsForTask(req.models, order.taskId, cb),
                 cb => req.models.task
                     .update({
                         status: req.models.task.TASK_STATUS.BOOKED
@@ -316,7 +316,7 @@ module.exports = app => {
             const orderId = req.params.orderId;
             
             orderCtrl
-                .settleOrder(orderId, req.user.id, (err, order) => {
+                .settleOrder(req.models, orderId, req.user.id, (err, order) => {
                 sendResponse(res, err, order);
             });
         });

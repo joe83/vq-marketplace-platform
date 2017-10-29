@@ -61,9 +61,7 @@ const getOrderOwnerEmails = (models, orderId, cb) => {
 };
 
 const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
-	return (tenantId, orderId) => {
-        const models = db.get(tenantId);
-
+	return (models, orderId) => {
 		var user, order;
 		var emails;
 		var ACTION_URL;

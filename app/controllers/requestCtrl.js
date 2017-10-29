@@ -7,8 +7,7 @@ const orderEmitter = require("../events/order");
 const taskEmitter = require("../events/task");
 const utils = require("../utils");
 
-const declineRequest = (tenantId, requestId, cb) => {
-    const models = db.get(tenantId);
+const declineRequest = (models, requestId, cb) => {
     const newStatus = models.request.REQUEST_STATUS.DECLINED;
   
     models
@@ -28,9 +27,7 @@ const declineRequest = (tenantId, requestId, cb) => {
     }, cb);
 };
 
-const declineAllPendingRequestsForTask = (tenantId, taskId, cb) => {
-    const models = db.get(tenantId);
-
+const declineAllPendingRequestsForTask = (models, taskId, cb) => {
     models.request.findAll({
         where: {
             $and: [
@@ -40,14 +37,12 @@ const declineAllPendingRequestsForTask = (tenantId, taskId, cb) => {
         }
     }).then(pendingRequests => {
         async.eachSeries(pendingRequests, (request, cb) => {
-            return declineRequest(tenantId, request.id, cb);
+            return declineRequest(models, request.id, cb);
         }, cb);
     });
 };
 
-const changeRequestStatus = (tenantId, requestId, newStatus, userId, cb) => {
-    const models = db.get(tenantId);
-
+const changeRequestStatus = (models, requestId, newStatus, userId, cb) => {
     newStatus = String(newStatus);
     userId = Number(userId);
     requestId = Number(requestId);

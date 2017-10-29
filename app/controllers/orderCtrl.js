@@ -4,9 +4,7 @@ const orderEmitter = require("../events/order");
 const requestEmitter = require("../events/request");
 const utils = require("../utils");
 
-const settleOrder = (tenantId, orderId, userId, cb) => {
-    const models = db.get(tenantId);
-
+const settleOrder = (models, orderId, userId, cb) => {
     var requestId;
     var order;
     

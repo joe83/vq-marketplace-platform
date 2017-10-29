@@ -37,7 +37,7 @@ module.exports = (sequelize, DataTypes) => {
             (verification, cb) => {
                 verification.steps = verification.steps.join(':')
                 
-                appUserProperty
+                appUserVerification
                 .create(verification)
                 .then(() => cb(), cb);
             }, err => {

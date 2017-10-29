@@ -694,7 +694,7 @@ module.exports = app => {
                         .emit('cancelled', req.models, task);
 
                     requestCtrl
-                    .declineAllPendingRequestsForTask(taskId, err => {
+                    .declineAllPendingRequestsForTask(req.models, taskId, err => {
                         if (err) {
                             console.error(err);
                         }

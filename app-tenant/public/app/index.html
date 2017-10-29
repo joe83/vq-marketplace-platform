@@ -1,0 +1,79 @@
+<!-- index.html -->
+<!doctype html>
+
+<!-- ASSIGN OUR ANGULAR MODULE -->
+<html ng-app="scotchTodo">
+<head>
+    <!-- META -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Optimize mobile viewport -->
+
+    <title>Node/Angular Todo App</title>
+
+    <!-- SCROLLS -->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css"><!-- load bootstrap -->
+    <style>
+        html                    { overflow-y:scroll; }
+        body                    { padding-top:50px; }
+        #todo-list              { margin-bottom:30px; }
+    </style>
+
+    <!-- SPELLS -->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script><!-- load jquery -->
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.min.js"></script><!-- load angular -->
+    <script>
+        // public/core.js
+var scotchTodo = angular.module('scotchTodo', []);
+
+function mainController($scope, $http) {
+    $scope.data = {};
+
+    $scope.createMarketplace = function() {
+        $http.post('/api/tenant', $scope.data)
+            .success(function(data) {
+                console.log(data);
+            })
+            .error(function(data) {
+                console.log('Error: ' + data);
+            });
+    };
+}
+    </script>
+
+</head>
+<!-- SET THE CONTROLLER AND GET ALL TODOS -->
+<body ng-controller="mainController">
+    <div class="container">
+        <div class="jumbotron text-center">
+            <h1>VQ TENANTS</h1>
+        </div>
+        <div class="col-xs-12 col-sm-6">
+            <form ng-submit="createMarketplace()">
+                <div class="form-group">
+                    <label for="exampleInputEmail1">Email address</label>
+                    <input ng-model="data.email" type="email" class="form-control"placeholder="Enter email">
+                </div>
+                <div class="form-group">
+                        <label for="exampleInputEmail1">First name</label>
+                        <input ng-model="data.firstName"  type="string" class="form-control">
+                </div>
+                <div class="form-group">
+                        <label for="exampleInputEmail1">Last name</label>
+                        <input ng-model="data.lastName" type="string" class="form-control"  >
+                </div>
+                <div class="form-group">
+                        <label for="exampleInputEmail1">Marketplace name</label>
+                        <input ng-model="data.marketplaceName" type="string" class="form-control"  >
+                </div>
+                <div class="form-group">
+                        <label for="exampleInputEmail1">Marketplace type</label>
+                        <input ng-model="data.marketplaceType" type="string" class="form-control">
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

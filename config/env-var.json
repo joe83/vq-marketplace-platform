@@ -4,6 +4,7 @@
     "VQ_DB_HOST": "VQ_DB_HOST",
     "VQ_DB_USER": "VQ_DB_USER",
     "VQ_DB_PASSWORD": "VQ_DB_PASSWORD",
+    "TENANT_APP_PORT": "TENANT_APP_PORT",
     "secret": "VQ_SECRET",
     "serverUrl": "SERVER_URL",
     "viciauth.app_key": "ST_VA_APP_KEY",

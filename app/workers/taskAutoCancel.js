@@ -51,7 +51,7 @@ const taskAutoCancel = (tenantId) => {
                 })
                 .then(_ => {
                     requestCtrl
-                    .declineAllPendingRequestsForTask(task.id, err => {
+                    .declineAllPendingRequestsForTask(models, task.id, err => {
                         if (err) {
                             console.error(err);
 

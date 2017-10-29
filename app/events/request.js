@@ -23,8 +23,8 @@ const getRequestOwnerEmails = (models, requestId, cb) => {
                     id: requestId
                 },
                 include: [
-					{ model: req.models.user, as: 'fromUser' },
-					{ model: req.models.task, as: 'task' }
+					{ model: models.user, as: 'fromUser' },
+					{ model: models.task, as: 'task' }
                 ]
             })
             .then(rRequest => {
@@ -110,7 +110,7 @@ requestEmitter
 	.on('message-received', (models, messageRef) => {
 		emailService
 		.getEmailAndSend(models, 'message-received', messageRef.toUserId, () => {
-			req.models.user
+			models.user
 			.findById(messageRef.toUserId)
 			.then(user => {
 				vqAuth
@@ -189,12 +189,12 @@ requestEmitter
 	);
 
 requestEmitter
-	.on('new-message', messageRef => {
+	.on('new-message', (models, messageRef) => {
 		
 	});
 
 requestEmitter
-	.on('new-request', requestId => {
+	.on('new-request', (models, requestId) => {
 		var fromUser, toUser, request;
 		var requestSentEmails;
 		var requestReceivedEmails;
@@ -208,8 +208,8 @@ requestEmitter
 						id: requestId
 					},
 					include: [
-						{ model: req.models.user, as: 'fromUser' },
-						{ model: req.models.user, as: 'toUser' }
+						{ model: models.user, as: 'fromUser' },
+						{ model: models.user, as: 'toUser' }
 					]
 				})
 				.then(rRequest => {
@@ -261,20 +261,17 @@ requestEmitter
 				return console.error(err);
 			}
 
-
 			if (requestReceivedEmails) {
 				emailService
-				.getEmailAndSend(models, 'new-request-received', request.toUser.id, () => {
-					emailService
-					.getEmailAndSend(models, 'new-request-received', requestReceivedEmails[0], ACTION_URL);
+				.getEmailAndSend(models, 'new-request-received', requestReceivedEmails[0], {
+					ACTION_URL
 				});
 			}
 			
 			if (requestSentEmails) {
 				emailService
-				.getEmailAndSend(models, 'new-request-sent', request.fromUser.id, () => {
-					emailService
-					.getEmailAndSend(models, 'new-request-sent', requestSentEmails[0], ACTION_URL);
+				.getEmailAndSend(models, 'new-request-sent', requestSentEmails[0], {
+					ACTION_URL
 				});
 			}
 		})

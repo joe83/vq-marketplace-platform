@@ -8,7 +8,7 @@ const taskAutoSettlement = (tenantId) => {
 
     var settled = 0;
 
-    console.log('[WORKER] Task hourly auto-settlement started.');
+    console.log("[WORKER] Task hourly auto-settlement started.");
 
     async.waterfall([
         cb => {
@@ -39,7 +39,7 @@ const taskAutoSettlement = (tenantId) => {
 
                 if (adjustedTimeDiffInHours >= 8) {
                     return orderCtrl
-                        .settleOrder(order.id, order.userId, (err, order) => {
+                        .settleOrder(models, order.id, order.userId, (err, order) => {
                             if (err) {
                                 return cb(err);
                             }

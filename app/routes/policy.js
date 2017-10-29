@@ -44,6 +44,7 @@ module.exports = app => {
 			});
 		
 		var vqUserId, vqAuthUser, user;
+		var shouldBeAdmin = false;
 
 		async
 			.waterfall([
@@ -61,9 +62,17 @@ module.exports = app => {
 						});
 				},
 				cb => req.models.user
+				.count({})
+				.then(count => {
+					shouldBeAdmin = !Boolean(count);
+
+					return cb();
+				}, cb),
+				cb => req.models.user
 					.create({
 						accountType: 'PRIVATE',
 						vqUserId,
+						isAdmin: shouldBeAdmin,
 						firstName: userData.firstName,
 						lastName: userData.lastName,
 						userType: userData.userType || 0
@@ -178,7 +187,7 @@ module.exports = app => {
 				}
 
 				vqAuth
-				.getAuthUserIdFromEmail(models, email, (err, rUserEmail) => {
+				.getAuthUserIdFromEmail(req.models, email, (err, rUserEmail) => {
 					if (err) {
 						return cb(err);
 					}
@@ -192,7 +201,7 @@ module.exports = app => {
 				}
 
 				vqAuth
-				.getEmailsFromUserId(models, vqUserId, (err, rUserEmails) => {
+				.getEmailsFromUserId(req.models, vqUserId, (err, rUserEmails) => {
 					if (err) {
 						return cb(err);
 					}

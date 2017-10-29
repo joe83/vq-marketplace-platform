@@ -3,7 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const mysql = require("mysql2");
 const Sequelize = require("sequelize");
-const config = require("../config/configProvider.js")();
+const config = require("../../app/config/configProvider.js")();
 
 const tenantConnections = {};
 
@@ -55,7 +55,7 @@ const create = (tenantId, cb) => {
       
       fs.readdirSync(__dirname)
           .filter(file => {
-              return (file.indexOf(".") !== 0) && (file !== "models.js");
+              return (file.indexOf(".") !== 0) && (file !== "index.js");
           })
           .forEach(file => {
               var model = sequelize.import(path.join(__dirname, file));
@@ -108,7 +108,11 @@ const create = (tenantId, cb) => {
 };
 
 const get = tenantId => {
-  return tenantConnections[tenantId];
+  if (tenantConnections[tenantId]) {
+    return tenantConnections[tenantId];
+  }
+
+  throw new Error(`Tenant ${tenantId} does not exists`);
 };
 
 module.exports = {

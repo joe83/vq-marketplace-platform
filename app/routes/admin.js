@@ -35,7 +35,7 @@ module.exports = app => {
 	app.get("/api/admin/user/:userId/emails", (req, res) => {
 		const userId = req.params.userId;
 
-		models
+		req.models
 			.user
 			.findById(userId)
 			.then(user => {
@@ -46,10 +46,10 @@ module.exports = app => {
 				vqAuth
 					.getEmailsFromUserId(user.vqUserId, (err, rUserEmails) => {
 						if (err) {
-							return cb(err);
+							return res.status(400).send(err);
 						}
 			
-						emails = rUserEmails
+						const emails = rUserEmails
 							.map(_ => _.email);
 			
 						res.status(200).send(emails);
@@ -124,7 +124,7 @@ module.exports = app => {
 					.then(requests => {
 						requests.forEach(request => {
 							requestCtrl
-							.declineRequest(request.id, err => console.error(err));
+							.declineRequest(req.models, request.id, err => console.error(err));
 						});
 
 						sendResponse(res, null, task);
@@ -240,7 +240,7 @@ module.exports = app => {
 							})
 							.then(_ => {
 								requestCtrl
-								.declineAllPendingRequestsForTask(activeTask.id, err => {
+								.declineAllPendingRequestsForTask(req.models, activeTask.id, err => {
 									if (err) {
 										return cb(err);
 									}

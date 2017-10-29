@@ -26,9 +26,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         required: true
     },
-    postalCode: { 
-        type: DataTypes.STRING
-    },
     city: {
         type: DataTypes.STRING,
         required: true

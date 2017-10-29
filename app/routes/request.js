@@ -48,7 +48,7 @@ module.exports = app => {
                 .then(rRequest => {
                     request = rRequest;
 
-                    models
+                    req.models
                     .message
                     .create({
                         requestId: request.id,
@@ -237,7 +237,7 @@ module.exports = app => {
         const requestId = req.params.requestId;
        
         requestCtrl
-            .changeRequestStatus(requestId, newStatus, userId, (err, request) =>{
+            .changeRequestStatus(req.models, requestId, newStatus, userId, (err, request) =>{
                 return sendResponse(res, err, request);
             });
     });
