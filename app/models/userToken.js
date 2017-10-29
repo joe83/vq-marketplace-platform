@@ -3,7 +3,7 @@ module.exports = (sequelize, DataTypes) => {
         token: { type: DataTypes.STRING },
         deleted: { type: DataTypes.BOOLEAN, defaultValue: 0 }
   }, {
-    tableName: 'userToken'
+    tableName: 'auth_userToken'
   });
 
   Model.associate = models => {
