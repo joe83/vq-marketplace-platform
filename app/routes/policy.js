@@ -1,5 +1,3 @@
-var randtoken = require('rand-token');
-const moment = require("moment");
 const async = require("async");
 const cust = require("../config/customizing.js");
 const emailService = require("../services/emailService.js");
@@ -8,7 +6,6 @@ const responseController = require("../controllers/responseController.js");
 const sendResponse = responseController.sendResponse;
 const vqAuth = require("../auth");
 const userEmitter = require("../events/user");
-const CryptoJS = require("crypto-js");
 const config = require("../config/configProvider.js")();
 
 const validateEmail = email => { 
@@ -124,7 +121,7 @@ module.exports = app => {
 		}
 
 		vqAuth
-		.resetPassword(models, code, newPassword, err =>
+		.resetPassword(req.models, code, newPassword, err =>
 			sendResponse(res, err, { ok: true })
 		);
 	});
@@ -133,7 +130,7 @@ module.exports = app => {
 		const email = req.body.email;
 
 		vqAuth
-		.requestPasswordReset(models, email, (err, rUserResetCode) => {
+		.requestPasswordReset(req.models, email, (err, rUserResetCode) => {
 			if (err) {
 				console.error(err);
 
@@ -157,7 +154,7 @@ module.exports = app => {
 				`${urlBase}/app/change-password?code=${resetCode}`;
 	
 				emailService
-				.getEmailAndSend(models, emailService.EMAILS.PASSWORD_RESET, email, ACTION_URL);
+				.getEmailAndSend(req.models, emailService.EMAILS.PASSWORD_RESET, email, ACTION_URL);
 			}, err => console.error(err));
 			
 			sendResponse(res, err, {});

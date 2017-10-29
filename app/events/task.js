@@ -38,7 +38,7 @@ const handlerFactory = (emailCode) => (models, task) => {
             vqAuth
                 .getEmailsFromUserId(models, user.vqUserId, (err, rUserEmails) => {
                     if (err) {
-                        return cb(err);
+                        return console.error(err);
                     }
     
                     const emails = rUserEmails

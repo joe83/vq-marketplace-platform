@@ -24,7 +24,7 @@ const decodeObj = encodedHash => {
 };
 
 const buildVerificationUrl = (tenantId, serverUrl, user) => {
-    const verificationToken = cryptoService.encodeObj(user);
+    const verificationToken = encodeObj(user);
     const builtServerUrl = serverUrl ? serverUrl.replace('?tenantId?', tenantId) : 'http://localhost:8080';
     const verificationUrl = `${builtServerUrl}/api/verify/email?code=${verificationToken}`;
 

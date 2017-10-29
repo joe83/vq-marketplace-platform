@@ -12,6 +12,9 @@ module.exports = {
         "no-console": [
             "off",
         ],
+        "quotes": [
+            "off"
+        ],
         "linebreak-style": [
             "error",
             "unix"

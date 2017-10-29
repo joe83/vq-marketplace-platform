@@ -1,10 +1,9 @@
-const async = require('async');
+const async = require("async");
 const sendResponse = require("../controllers/responseController.js").sendResponse;
 const identifyUser = require("../controllers/responseController.js").identifyUser;
 const isLoggedIn = require("../controllers/responseController.js").isLoggedIn;
 const requestCtrl = require("../controllers/requestCtrl.js");
 const isLoggedInAndVerified = require("../controllers/responseController.js").isLoggedInAndVerified;
-const cust = require("../config/customizing.js");
 const utils = require('../utils');
 const striptags = require('striptags');
 const taskEmitter = require("../events/task");
@@ -194,8 +193,6 @@ module.exports = app => {
                 }
 
                 if (req.query.minPrice || req.query.maxPrice) {
-                    priceAndConditions = [];
-
                     if (req.query.minPrice) {
                         query
                         .where
@@ -224,7 +221,7 @@ module.exports = app => {
                 .findAll(query)
                 .then(rTasks => new Promise(
                     (resolve, reject) => {
-                        tasks = JSON.parse(JSON.stringify(rTasks));
+                        const tasks = JSON.parse(JSON.stringify(rTasks));
 
                         req.models
                         .appTaskCategory
@@ -501,7 +498,7 @@ module.exports = app => {
                         .update(taskLocation)
                         .then(_ => {
                             sendResponse(res, null, taskLocation);
-                        }, _ => {
+                        }, err => {
                             sendResponse(res, err);
                         });
                 }

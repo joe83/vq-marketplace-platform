@@ -77,7 +77,7 @@ const createNewEmail = (models, userId, email, callback) => async.series([
 
 
 
-const getUserIdFromNetwork = (network, networkId, callback) => {
+const getUserIdFromNetwork = (models, network, networkId, callback) => {
 	var sql = "SELECT user.id AS userId FROM user AS user";
 
 	sql += " INNER JOIN userNetwork AS network";
@@ -86,19 +86,15 @@ const getUserIdFromNetwork = (network, networkId, callback) => {
 
 	models.seq.query(sql)
 	.then(result => {
-		if (err) {
-			return callback(err);
-		}
-
 		if (result.length) {
 			return callback(null, result[0])
 		}
 
 		return callback(null, false);
-	});
+	}, callback);
 };
 
-const updateNetworkToken = (userId, network, networkId, token) =>
+const updateNetworkToken = (models, userId, network, networkId, token) =>
 	models.userToken
 		.update({
 			token: token
@@ -197,7 +193,7 @@ const getUserIdFromEmail = (models, email, callback) => {
 		)
 };
 
-const addUserProp = (userId, propKey, propValue, callback) => {
+const addUserProp = (models, userId, propKey, propValue, callback) => {
 	if (!userId || !propKey) {
 		return callback({
 			status: 400,

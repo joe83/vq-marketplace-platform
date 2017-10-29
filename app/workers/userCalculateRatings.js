@@ -4,10 +4,9 @@ const db = require("../models/models.js");
 const userCalculateRatings = (tenantId) => {
     const models = db.get(tenantId);
 
-    console.log('[WORKER] Calculating user avg. ratings');
+    console.log("[WORKER] Calculating user avg. ratings");
 
     const userReviews = {};
-    const settled = 0;
 
     async.waterfall([
         cb => {
@@ -41,13 +40,13 @@ const userCalculateRatings = (tenantId) => {
                             id: userId
                         }
                     })
-                    .then(_ => {
+                    .then(() => {
                         cb();
-                    }, cb)
-            }, cb)
+                    }, cb);
+            }, cb);
         }
     ], err => {
-        console.log(`[WORKER] Finished.`);
+        console.log("[WORKER] Finished.");
 
         if (err) {
             return console.error(err);

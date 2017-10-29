@@ -1,8 +1,7 @@
 "use strict"
 
-const EventEmitter = require('events');
-const async = require('async');
-const randtoken = require('rand-token');
+const EventEmitter = require("events");
+const randtoken = require("rand-token");
 const emailService = require("../services/emailService");
 const cryptoService = require("../services/cryptoService");
 class DefaultEmitter extends EventEmitter {}
@@ -24,7 +23,7 @@ module.exports = userEmitter;
             vqAuth
             .getEmailsFromUserId(models, user.vqUserId, (err, rUserEmails) => {
                 if (err) {
-                    return cb(err);
+                    return console.error(err);
                 }
 
                 const emails = rUserEmails

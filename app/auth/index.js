@@ -11,7 +11,7 @@ const localSignup = (models, email, password, cb) => {
     });
 };
 
-const requestPasswordReset = (models, email) => {
+const requestPasswordReset = (models, email, cb) => {
     var userEmail, userId;
 
     async.waterfall([
@@ -27,7 +27,7 @@ const requestPasswordReset = (models, email) => {
             .then(rUserEmail => {
                 if (!rUserEmail) {
                     return setTimeout(() => {
-                        return cb('EMAIL_NOT_FOUND')
+                        return cb("EMAIL_NOT_FOUND")
                     }, 100);
                 }
 
@@ -82,7 +82,7 @@ const resetPassword = (models, resetCode, newPassword, cb) => {
                     ]
                 }
             })
-            .then(_ => cb(), cb)
+            .then(_ => cb(), cb);
         },
         cb => {
             return models.userResetCode
@@ -93,7 +93,7 @@ const resetPassword = (models, resetCode, newPassword, cb) => {
                     ]
                 }
             })
-            .then(_ => cb(), cb)
+            .then(_ => cb(), cb);
         },
         cb => AuthService.createNewPassword(models, userId, newPassword, cb)
     ], err => {
@@ -132,7 +132,7 @@ const changePassword = (models, userId, currentPassword, newPassword, cb) => {
     AuthService
     .checkPassword(models, userId, currentPassword, (err, isCorrect) => {
         if (err) {
-            return sendResponse(res, err);
+            return cb(err);
         }
 
         if (isCorrect) {

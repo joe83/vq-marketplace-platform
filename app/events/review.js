@@ -22,8 +22,8 @@ const getReviewOwnerEmails = (models, reviewId, cb) => {
                     id: reviewId
                 },
                 include: [
-                    { model: req.models.user, as: 'fromUser' },
-                    { model: req.models.user, as: 'toUser' }
+                    { model: models.user, as: 'fromUser' },
+                    { model: models.user, as: 'toUser' }
                 ]
             })
             .then(rReview => {

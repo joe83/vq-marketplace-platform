@@ -1,7 +1,6 @@
 const async = require("async");
 const requestCtrl = require("../controllers/requestCtrl.js");
 const db = require("../models/models.js");
-const utils = require('../utils');
 const taskEmitter = require("../events/task");
 
 const taskAutoCancel = (tenantId) => {
@@ -9,7 +8,7 @@ const taskAutoCancel = (tenantId) => {
 
     var cancelled = 0;
 
-    console.log('[WORKER] Task hourly cancel started.');
+    console.log("[WORKER] Task hourly cancel started.");
 
     const now = new Date(); 
     const nowUtc = new Date(

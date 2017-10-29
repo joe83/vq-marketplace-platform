@@ -68,7 +68,7 @@ module.exports = app => {
 		.then(data => res.send(data)));
 
 	app.get("/api/admin/request/:requestId/messages", isLoggedIn, isAdmin, (req, res) =>
-		models
+		req.models
 		.message
 		.findAll({
 			order: [[ 'createdAt', 'DESC' ]],
@@ -138,7 +138,7 @@ module.exports = app => {
 		isLoggedIn,
 		isAdmin,
 		(req, res) => {
-			models
+			req.models
 			.userProperty
 			.destroy({
 				where: {
@@ -176,14 +176,14 @@ module.exports = app => {
 		(req, res) => {
 			const userId = req.params.userId;
 
-			models
+			req.models
 			.user.findById(req.params.userId)
 			.then(user => {
 				if (!user) {
 					return sendResponse(res, "NOT_FOUND");
 				}
 
-				models
+				req.models
 				.request
 				.findOne({
 					where: {
@@ -258,7 +258,7 @@ module.exports = app => {
 					});
 					
 					console.log('[ADMIN] Setting pending request to the blocked user to DECLINED.');
-					models
+					req.models
 					.request
 					.update({
 						status: req.models.request.REQUEST_STATUS.DECLINED
@@ -308,7 +308,7 @@ module.exports = app => {
 					sendResponse(res, null, user);
 
 					userEmitter
-						.emit('blocked', models, user);
+						.emit('blocked', req.models, user);
 					
 					});
 			}, err => sendResponse(res, err));
