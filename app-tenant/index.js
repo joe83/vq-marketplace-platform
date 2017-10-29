@@ -28,8 +28,18 @@ const getModels = cb => {
 const initRoutes = (app, express) => {
 	app.use(express.static(__dirname + '/public'));
 
-	app.post('/app', (req, res) => {
-		
+	app.get('/api/tenant', (req, res) => {
+		getModels((err, tenantModels) => {
+			if (err) {
+				return cb(err);
+			}
+
+			tenantModels.tenant
+			.findAll()
+			.then((rTenants) => {
+				res.send(rTenants.map(_ => _.tenantId));
+			}, err => res.status(400).send(err));
+		});
 	});
 
 	app.post('/api/tenant', (req, res) => {
