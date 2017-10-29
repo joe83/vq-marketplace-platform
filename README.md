@@ -27,6 +27,8 @@ sudo apt-get install git // git version management
 sudo apt-get install nodejs // server-side javascript
 sudo apt-get install nodejs-legacy // links 'nodejs' command to 'node'
 sudo apt-get install npm // npm package manager for nodejs
+sudo apt-get install build-essential
+npm install -g node-gyp
 ```
 
 After installing npm package manager for nodejs, install the following npm packages:
@@ -36,6 +38,8 @@ sudo npm install -g gulp // build automation tool
 
 ## Installation
 Clone the repository into your local developement envirment.
+
+
 ```
 git clone https://github.com/vq-labs/vq-marketplace-api.git // clones the repository from remote
 cd vq-marketplace-api // goes to the repository folder
