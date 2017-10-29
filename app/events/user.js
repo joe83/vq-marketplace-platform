@@ -9,7 +9,6 @@ class DefaultEmitter extends EventEmitter {}
 const userEmitter = new DefaultEmitter();
 const config = require("../config/configProvider.js")();
 const vqAuth = require("../auth");
-const util = require("../util");
 
 module.exports = userEmitter;
     userEmitter
