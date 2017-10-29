@@ -33,7 +33,7 @@ app.use((req, res, next) => {
 
 	console.log(`Accessing ${subdomains}`);
 
-	const tenantId = subdomains[0];
+	const tenantId = subdomains[subdomains.length - 1];
 
 	req.models = db.get(tenantId);
 
