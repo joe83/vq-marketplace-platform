@@ -7,8 +7,6 @@ const argv = require('minimist')(process.argv.slice(2));
 const env = process.env.ST_ENV ? process.env.ST_ENV.toLowerCase() : 'local';
 
 const getConfig = () => {
-	let lConfig;
-
 	if (argv.config) {
 		return require(`${appDir}${argv.config}`);
 	}
@@ -31,23 +29,23 @@ const getConfig = () => {
 			"s3.secretAccessKey": null,
 			"mandrill": null
 		}
-	} else {
-		config = {
-			"production": false,
-			"port": 8080,
-			"TENANT_APP_PORT": 8081,
-			"db": 'mysql://root:kurwa@localhost:3306/vq',
-			"VQ_DB_USER": 'root',
-			"VQ_DB_PASSWORD": 'kurwa',
-			"VQ_DB_HOST": 'localhost',
-			"secret" : 'test',
-			"SERVER_URL" : 'http://vqtest.localhost:8080',
-			"s3.bucket": null,
-			"s3.region": 'eu-central-1',
-			"s3.accessKeyId": null,
-			"s3.secretAccessKey": null,
-			"mandrill": null
-		};
+	}
+
+	return {
+		"production": false,
+		"port": 8080,
+		"TENANT_APP_PORT": 8081,
+		"db": 'mysql://root:kurwa@localhost:3306/vq',
+		"VQ_DB_USER": 'root',
+		"VQ_DB_PASSWORD": 'kurwa',
+		"VQ_DB_HOST": 'localhost',
+		"secret" : 'test',
+		"SERVER_URL" : 'http://vqtest.localhost:8080',
+		"s3.bucket": null,
+		"s3.region": 'eu-central-1',
+		"s3.accessKeyId": null,
+		"s3.secretAccessKey": null,
+		"mandrill": null
 	}
 };
 
