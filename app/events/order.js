@@ -11,7 +11,7 @@ class DefaultEmitter extends EventEmitter {}
 var orderEmitter = new DefaultEmitter();
 
 const getOrderOwnerEmails = (models, orderId, cb) => {
-    let emails, order;
+    let emails, order, task;
 
     return async.waterfall([
         cb => models
@@ -21,6 +21,7 @@ const getOrderOwnerEmails = (models, orderId, cb) => {
                     id: orderId
                 },
                 include: [
+                    { model: models.task },
                     { model: models.user },
                     { 
                         model: models.request,
@@ -38,6 +39,7 @@ const getOrderOwnerEmails = (models, orderId, cb) => {
                 }
                 
                 order = rOrder;
+                task = rOrder.task;
 
                 return cb();
             }, cb),
@@ -54,6 +56,7 @@ const getOrderOwnerEmails = (models, orderId, cb) => {
             })
         ], err => {
             return cb(err, {
+                task,
                 order,
                 emails
             });
@@ -62,7 +65,7 @@ const getOrderOwnerEmails = (models, orderId, cb) => {
 
 const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
 	return (models, orderId) => {
-		var user, order;
+		var user, order, task;
 		var emails;
 		var ACTION_URL;
 
@@ -74,6 +77,7 @@ const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
 
                 emails = data.emails;
                 order = data.order;
+                task = data.task;
 
                 cb();
             }),
@@ -101,9 +105,9 @@ const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
 
 			if (emails) {
                 emailService
-				.getEmailAndSend(models, emailCode, order.user.id, () => {
-				    emailService
-                    .getEmailAndSend(models, emailCode, emails[0], ACTION_URL);
+                .getEmailAndSend(models, emailCode, emails, {
+                    ACTION_URL,
+                    LISTING_TITLE: task.title
                 });
 			} else {
                 console.log('No emails to send notification!');
