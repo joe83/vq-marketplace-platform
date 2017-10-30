@@ -29,11 +29,17 @@ app.use((req, res, next) => {
 		token: req.headers['x-auth-token']
 	};
 
-	const subdomains = req.subdomains;
+	let tenantId;
 
-	console.log(`Accessing ${subdomains}`);
-
-	const tenantId = subdomains[subdomains.length - 1];
+	if (process.env.TENANT_ID) {
+		tenantId = process.env.TENANT_ID
+	} else {
+		const subdomains = req.subdomains;
+		
+		console.log(`Accessing ${subdomains}`);
+	
+		tenantId = subdomains[subdomains.length - 1];
+	}
 
 	req.models = db.get(tenantId);
 

@@ -26,41 +26,40 @@ const getDomainName = (models, cb) => {
 };
 
 const handlerFactory = (emailCode) => (models, task) => {
-    emailService.getEmailAndSend(models, emailCode, task.userId, () => {
-        models
-        .user
-        .findById(task.userId)
-        .then(user => {
-            if (!user) {
-                return console.error('USER_NOT_FOUND');
-            }
-    
-            vqAuth
-                .getEmailsFromUserId(models, user.vqUserId, (err, rUserEmails) => {
+    models
+    .user
+    .findById(task.userId)
+    .then(user => {
+        if (!user) {
+            return console.error('USER_NOT_FOUND');
+        }
+
+        vqAuth
+            .getEmailsFromUserId(models, user.vqUserId, (err, rUserEmails) => {
+                if (err) {
+                    return console.error(err);
+                }
+
+                const emails = rUserEmails
+                    .map(_ => _.email);
+
+                getDomainName(models, (err, domain) => {
                     if (err) {
                         return console.error(err);
                     }
-    
-                    const emails = rUserEmails
-                    .map(_ => _.email);
-    
-                    getDomainName(models, (err, domain) => {
-                        if (err) {
-                            return console.error(err);
-                        }
 
-                        const ACTION_URL = 
-                            `${domain}/app/new-listing`;  
+                    const ACTION_URL = 
+                        `${domain}/app/new-listing`;  
 
-                        emailService
-                        .getEmailAndSend(models, emailCode, emails[0], {
-                            ACTION_URL
-                        });
-                    });    
-                    
-                });
-            }, err => console.error(err));
-    });
+                    emailService
+                    .getEmailAndSend(models, emailCode, emails[0], {
+                        ACTION_URL,
+                        LISTING_TITLE: task.title
+                    });
+                });    
+                
+            });
+        }, err => console.error(err));
 };
 
 taskEmitter

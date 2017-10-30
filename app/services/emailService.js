@@ -164,7 +164,7 @@ function sendEmail (models, html, tEmails, params, callback) {
 		message.subject = params.subject;
 		message.html = html;
 		message.text = html;
-		message.to = tEmails.map(email => { 
+		message.to = tEmails.map(email => {
 			return {
 				email,
 				type: "to"
