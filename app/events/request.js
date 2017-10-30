@@ -126,13 +126,7 @@ const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
 				return console.error(err);
 			}
 
-			if (emails) {
-				emailService
-				.getEmailAndSend(models, emailCode, request.fromUser.id, () => {
-					emailService
-					.getEmailAndSend(models, emailCode, emails[0], emailData);
-				});
-			}
+			emailService.getEmailAndSend(models, emailCode, emails, emailData);
 		});
 	};
 };
@@ -319,7 +313,7 @@ requestEmitter
 
 			if (requestReceivedEmails) {
 				emailService
-				.getEmailAndSend(models, 'new-request-received', requestReceivedEmails[0], {
+				.getEmailAndSend(models, 'new-request-received', requestReceivedEmails, {
 					ACTION_URL,
 					LISTING_TITLE: request.task.title
 				});
@@ -327,7 +321,7 @@ requestEmitter
 			
 			if (requestSentEmails) {
 				emailService
-				.getEmailAndSend(models, 'new-request-sent', requestSentEmails[0], {
+				.getEmailAndSend(models, 'new-request-sent', requestSentEmails, {
 					ACTION_URL,
 					LISTING_TITLE: request.task.title
 				});

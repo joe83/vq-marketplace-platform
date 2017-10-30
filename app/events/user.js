@@ -19,18 +19,16 @@ module.exports = userEmitter;
 
     userEmitter
     .on('blocked', (models, user) => {
-        emailService.getEmailAndSend(models, 'user-blocked', user.id, () => {
-            vqAuth
-            .getEmailsFromUserId(models, user.vqUserId, (err, rUserEmails) => {
-                if (err) {
-                    return console.error(err);
-                }
+        vqAuth
+        .getEmailsFromUserId(models, user.vqUserId, (err, rUserEmails) => {
+            if (err) {
+                return console.error(err);
+            }
 
-                const emails = rUserEmails
-                .map(_ => _.email);
+            const emails = rUserEmails
+            .map(_ => _.email);
 
-                emailService
-                    .getEmailAndSend(models, 'user-blocked', emails[0]);
-            });
-        })
+            emailService
+                .getEmailAndSend(models, 'user-blocked', emails);
+        });
     });

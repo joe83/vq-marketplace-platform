@@ -128,14 +128,11 @@ const reviewEventHandlerFactory = (emailCode, actionUrlFn) => {
 			if (err) {
 				return console.error(err);
             }
-            
-            if (toUserEmails) {
-                emailService
-                .getEmailAndSend(models, emailCode, review.toUser.id, () => {
-                    emailService
-                    .getEmailAndSend(models, emailCode, toUserEmails[0], ACTION_URL);
-                });
-            }
+     
+            emailService
+            .getEmailAndSend(models, emailCode, toUserEmails, {
+                ACTION_URL
+            });
 		});
 	};
 };

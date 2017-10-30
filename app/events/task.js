@@ -52,7 +52,7 @@ const handlerFactory = (emailCode) => (models, task) => {
                         `${domain}/app/new-listing`;  
 
                     emailService
-                    .getEmailAndSend(models, emailCode, emails[0], {
+                    .getEmailAndSend(models, emailCode, emails, {
                         ACTION_URL,
                         LISTING_TITLE: task.title
                     });

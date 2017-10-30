@@ -154,7 +154,7 @@ module.exports = app => {
 				`${urlBase}/app/change-password?code=${resetCode}`;
 	
 				emailService
-				.getEmailAndSend(req.models, emailService.EMAILS.PASSWORD_RESET, email, ACTION_URL);
+				.getEmailAndSend(req.models, emailService.EMAILS.PASSWORD_RESET, [ email ], ACTION_URL);
 			}, err => console.error(err));
 			
 			sendResponse(res, err, {});
