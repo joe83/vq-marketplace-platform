@@ -19,12 +19,6 @@ const getOrderFromRequest = (models, requestId, cb) => {
             }
         })
         .then(order => {
-            if (!order) {
-                return cb({
-                    code: 'ORDER_NOT_FOUND'
-                });
-            }
-
             return cb(null, order);
         }, cb);
 };
@@ -119,7 +113,7 @@ const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
 					const domain = configField.fieldValue || 'http://localhost:3000';
 
 					emailData.ACTION_URL = 
-						actionUrlFn(domain, requestId, order.id);
+						actionUrlFn(domain, requestId, order ? order.id : undefined);
 
 					emailData.LISTING_TITLE = task.title;
 
@@ -207,7 +201,9 @@ requestEmitter
 
 requestEmitter
 	.on('request-accepted', 
-		requestEventHandlerFactory('request-accepted', (domain, requestId) => `${domain}/app/chat/${requestId}`)
+		requestEventHandlerFactory('request-accepted', (domain, requestId) =>
+			`${domain}/app/chat/${requestId}`
+		)
 	);
 
 requestEmitter
@@ -219,10 +215,9 @@ requestEmitter
 
 requestEmitter
 	.on('closed',
-		requestId =>
-			requestEventHandlerFactory('request-closed',
-				(domain, requestId, orderId) => `${domain}/app/request/${requestId}/review`
-			)(requestId)
+		requestEventHandlerFactory('request-closed', (domain, requestId, orderId) =>
+			`${domain}/app/request/${requestId}/review`
+		)
 	);
 
 requestEmitter

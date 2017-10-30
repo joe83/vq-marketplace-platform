@@ -15,6 +15,7 @@ module.exports = (sequelize, DataTypes) => {
           REQUEST_STATUS.PENDING,
           REQUEST_STATUS.ACCEPTED,
           REQUEST_STATUS.MARKED_DONE,
+          REQUEST_STATUS.CLOSED,
           REQUEST_STATUS.SETTLED,
           REQUEST_STATUS.DECLINED,
           REQUEST_STATUS.CANCELED
