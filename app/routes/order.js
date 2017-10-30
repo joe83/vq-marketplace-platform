@@ -254,7 +254,7 @@ module.exports = app => {
                     });
                 }
                 
-                models
+                req.models
                     .request
                     .update({
                         autoSettlementStartedAt: null,

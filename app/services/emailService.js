@@ -3,17 +3,16 @@ const mandrill = require('mandrill-api/mandrill');
 const config = require("../config/configProvider.js")();
 const cust = require("../config/customizing.js");
 const custProvider = require("../config/custProvider.js");
-var templateDir = __dirname + "/../../email-templates/templates/";
-var layoutPath = __dirname + "/../../email-templates/layout.ejs";
-const unescape = require('unescape');
+const unescape = require("unescape");
 
-var mandrill_client = new mandrill.Mandrill(config.mandrill);
+const mandrill_client = new mandrill.Mandrill(config.mandrill);
 
 const EMAILS = {
-	WELCOME: 'welcome',
-	PASSWORD_RESET: 'password-reset',
-	REQUEST_SENT: 'new-request-sent',
-	REQUEST_RECEIVED: 'new-request-received'
+	WELCOME: "welcome",
+	PASSWORD_RESET: "password-reset",
+	REQUEST_SENT: "new-request-sent",
+	REQUEST_RECEIVED: "new-request-received",
+	NEW_LISTING: "new-task"
 };
 
 const checkIfShouldSendEmail = (models, emailCode, userId, cb, shouldNotCb) => models

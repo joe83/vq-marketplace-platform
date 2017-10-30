@@ -135,19 +135,24 @@ taskEmitter
                                 return cb();
                             }
 
-                            vqAuth
-                            .getEmailsFromUserId(models, user.vqUserId, (err, rUserEmails) => {
-                                if (err) {
-                                    console.error(err);
+                            emailService
+                            .checkIfShouldSendEmail(models, emailService.EMAILS.NEW_LISTING, userId, () =>
+                                vqAuth
+                                .getEmailsFromUserId(models, user.vqUserId, (err, rUserEmails) => {
+                                    if (err) {
+                                        console.error(err);
 
-                                    return cb();
-                                }
-                
-                                const emails = rUserEmails
-                                    .forEach(_ => {
-                                        userEmails.push(_.email);
-                                    });
+                                        return cb();
+                                    }
+                    
+                                    const emails = rUserEmails
+                                        .forEach(_ => {
+                                            userEmails.push(_.email);
+                                        });
 
+                                    cb();
+                                })
+                            , () => {
                                 cb();
                             });
                         }, err => {
@@ -157,7 +162,8 @@ taskEmitter
                         });
                     }, () => {
                         emailService
-                        .getEmailAndSend(models, 'new-task', userEmails, emailData);
+                        .getEmailAndSend(models, emailService.EMAILS.NEW_LISTING, userEmails, emailData)
+                     
 
                         console.log("New task emails have been sent!");
                     });

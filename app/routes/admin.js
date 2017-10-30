@@ -44,7 +44,7 @@ module.exports = app => {
 				}
 
 				vqAuth
-					.getEmailsFromUserId(user.vqUserId, (err, rUserEmails) => {
+					.getEmailsFromUserId(req.models, user.vqUserId, (err, rUserEmails) => {
 						if (err) {
 							return res.status(400).send(err);
 						}
