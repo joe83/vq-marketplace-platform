@@ -102,13 +102,16 @@ const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
 			if (err) {
 				return console.error(err);
 			}
-
+ 
 			if (emails) {
                 emailService
-                .getEmailAndSend(models, emailCode, emails, {
-                    ACTION_URL,
-                    LISTING_TITLE: task.title
-                });
+                .checkIfShouldSendEmail(models, emailCode, order.userId, () =>
+                    emailService
+                    .getEmailAndSend(models, emailCode, emails, {
+                        ACTION_URL,
+                        LISTING_TITLE: task.title
+                    })
+                );
 			} else {
                 console.log('No emails to send notification!');
             }
@@ -125,7 +128,7 @@ orderEmitter
 
 orderEmitter
 	.on('order-completed', 
-        orderEventHandlerFactory('order-completed', (domain, requestId) =>
+        orderEventHandlerFactory('order-completed', (domain, requestId, orderId) =>
             `${domain}/app/order/${orderId}/review`
         )
     );    

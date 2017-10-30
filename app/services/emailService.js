@@ -1,4 +1,3 @@
-const stRender = require("st-render");
 const ejs = require("ejs");
 const mandrill = require('mandrill-api/mandrill');
 const config = require("../config/configProvider.js")();
@@ -9,11 +8,12 @@ var layoutPath = __dirname + "/../../email-templates/layout.ejs";
 const unescape = require('unescape');
 
 var mandrill_client = new mandrill.Mandrill(config.mandrill);
-var renderer = stRender(templateDir, layoutPath);
 
 const EMAILS = {
 	WELCOME: 'welcome',
-	PASSWORD_RESET: 'password-reset'
+	PASSWORD_RESET: 'password-reset',
+	REQUEST_SENT: 'new-request-sent',
+	REQUEST_RECEIVED: 'new-request-received'
 };
 
 const checkIfShouldSendEmail = (models, emailCode, userId, cb, shouldNotCb) => models
@@ -33,11 +33,11 @@ const checkIfShouldSendEmail = (models, emailCode, userId, cb, shouldNotCb) => m
 	})
 	.then(isDeactived => {
 		if (!isDeactived) {
-			cb();
-		} else {
-			if (shouldNotCb) {
-				shouldNotCb();
-			}
+			return cb();
+		}
+
+		if (shouldNotCb) {
+			shouldNotCb();
 		}
 	}, err => {
 		console.error(err);

@@ -126,7 +126,10 @@ const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
 				return console.error(err);
 			}
 
-			emailService.getEmailAndSend(models, emailCode, emails, emailData);
+			emailService
+			.checkIfShouldSendEmail(models, emailCode, request.userId, () =>
+				emailService.getEmailAndSend(models, emailCode, emails, emailData)
+			);
 		});
 	};
 };
@@ -184,7 +187,10 @@ requestEmitter
 								emailData.ACTION_URL = ACTION_URL;
 
 								emailService
-								.getEmailAndSend(models, 'message-received', emails[0], emailData);
+								.checkIfShouldSendEmail(models, 'message-received', message.toUser.id, () =>
+									emailService
+									.getEmailAndSend(models, 'message-received', emails[0], emailData)
+								);
 							}, cb)
 					});
 				}
@@ -313,18 +319,24 @@ requestEmitter
 
 			if (requestReceivedEmails) {
 				emailService
-				.getEmailAndSend(models, 'new-request-received', requestReceivedEmails, {
-					ACTION_URL,
-					LISTING_TITLE: request.task.title
-				});
+				.checkIfShouldSendEmail(models, emailService.EMAILS.REQUEST_RECEIVED, request.toUser.id, () =>
+					emailService
+					.getEmailAndSend(models, emailService.EMAILS.REQUEST_RECEIVED, requestReceivedEmails, {
+						ACTION_URL,
+						LISTING_TITLE: request.task.title
+					})
+				);
 			}
 			
 			if (requestSentEmails) {
 				emailService
-				.getEmailAndSend(models, 'new-request-sent', requestSentEmails, {
-					ACTION_URL,
-					LISTING_TITLE: request.task.title
-				});
+				.checkIfShouldSendEmail(models, emailService.EMAILS.REQUEST_SENT, request.fromUser.id, () =>
+					emailService
+					.getEmailAndSend(models, emailService.EMAILS.REQUEST_SENT, requestSentEmails, {
+						ACTION_URL,
+						LISTING_TITLE: request.task.title
+					})
+				);
 			}
 		})
 	});
