@@ -94,7 +94,7 @@ const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
 					const domain = configField.fieldValue || 'http://localhost:3000';
 
 					ACTION_URL = 
-						actionUrlFn(domain, order.requestId);
+						actionUrlFn(domain, order.requestId, order.id);
 
 					cb();
 				}, cb)
@@ -118,37 +118,30 @@ const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
 
 orderEmitter
     .on('closed',
-        orderId =>
-            orderEventHandlerFactory('order-closed',
-                domain => `${domain}/app/order/${orderId}/review`
-            )(orderId)
+        orderEventHandlerFactory('order-closed', (domain, requestId, orderId) =>
+            `${domain}/app/order/${orderId}/review`
+        )
     );
 
 orderEmitter
 	.on('order-completed', 
-        orderId =>
-            orderEventHandlerFactory('order-completed', (domain, requestId) =>
+        orderEventHandlerFactory('order-completed', (domain, requestId) =>
             `${domain}/app/order/${orderId}/review`
-        )(orderId)
+        )
     );    
 
 orderEmitter
-	.on('new-order', 
-        orderId =>
-            orderEventHandlerFactory('new-order', (domain, requestId) => `${domain}/app/chat/${requestId}`)(orderId)
+    .on('new-order', 
+        orderEventHandlerFactory('new-order', (domain, requestId) =>
+            `${domain}/app/chat/${requestId}`
+        )
     );
 
 orderEmitter
 	.on('order-marked-as-done', 
-        orderId =>
-            orderEventHandlerFactory('order-marked-as-done', (domain, requestId) => `${domain}/app/chat/${requestId}`)(orderId)
+        orderEventHandlerFactory('order-marked-as-done', (domain, requestId) =>
+            `${domain}/app/chat/${requestId}`
+        )
     );
 
-if (module.parent) {
-	module.exports = orderEmitter;
-} else {
-	console.log(process.argv[2])
-	console.log(process.argv[3])
-	
-	orderEmitter.emit(process.argv[2], process.argv[3]);
-}
+module.exports = orderEmitter;
