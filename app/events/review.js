@@ -80,6 +80,33 @@ const reviewEventHandlerFactory = (emailCode, actionUrlFn) => {
 
 				return cb();
             }),
+            cb => {
+                cb();
+
+                models.review
+                .findAll({ 
+                    where: {
+                        toUserId: review.toUserId
+                    }
+                })
+                .then((userReviews) => {
+                    const reviewsNo = userReviews.length;
+                    const avgReviewRate = userReviews
+                        .reduce((sum, review) => {
+                            return sum += review.rate;
+                        }, 0) / reviewsNo;
+                    
+                    models.user
+                    .update({
+                        avgReviewRate 
+                    }, {
+                        where: {
+                            id: review.toUserId
+                        }
+                    })
+                    .then(() => {}, err => console.error(err));
+                }, err => console.error(err));
+            },
 			cb => models
 				.appConfig
 				.findOne({

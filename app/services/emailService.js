@@ -1,4 +1,3 @@
-const randtoken = require('rand-token');
 const stRender = require("st-render");
 const ejs = require("ejs");
 const mandrill = require('mandrill-api/mandrill');
