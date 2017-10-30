@@ -45,6 +45,10 @@ const getRequestOwnerEmails = (models, requestId, cb) => {
                 ]
             })
             .then(rRequest => {
+				if (!rRequest) {
+					return cb({ code: 'REQUEST_NOT_FOUND', requestId });
+				}
+
 				request = rRequest;
 				task = rRequest.task;
 
@@ -237,16 +241,10 @@ requestEmitter
 
 requestEmitter
 	.on('request-marked-as-done',
-		requestId =>
-			requestEventHandlerFactory('request-marked-as-done',
-				(domain) => `${domain}/app/dashboard`
-			)(requestId)
+		requestEventHandlerFactory('request-marked-as-done',
+			(domain) => `${domain}/app/dashboard`
+		)
 	);
-
-requestEmitter
-	.on('new-message', (models, messageRef) => {
-		
-	});
 
 requestEmitter
 	.on('new-request', (models, requestId) => {
