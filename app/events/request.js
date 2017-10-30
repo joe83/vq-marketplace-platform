@@ -138,43 +138,67 @@ const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
 };
 
 requestEmitter
-	.on('message-received', (models, messageRef) => {
-		emailService
-		.getEmailAndSend(models, 'message-received', messageRef.toUserId, () => {
-			models.user
-			.findById(messageRef.toUserId)
-			.then(user => {
-				vqAuth
-				.getEmailsFromUserId(models, user.vqUserId, (err, rUserEmails) => {
-					if (err) {
-						return console.error(err);
-					}
-	
-					const emails = rUserEmails
-						.map(_ => _.email);
-	
-						models
-						.appConfig
-						.findOne({
-							where: {
-								fieldKey: 'DOMAIN'
-							}
-						})
-						.then(configField => {
-							configField = configField || {};
-							
-							const domain = configField.fieldValue || 'http://localhost:3000';
+	.on('message-received', (models, messageId) => {
+			let message;
+
+			const emailData = {};
+
+			async.waterfall([
+				cb => models.message.findOne({
+					where: {
+						id: messageId
+					},
+					include: [
+						{ model: models.task },
+						{ model: models.user, as: 'toUser' },
+						{ model: models.user, as: 'fromUser' }
+					]
+				})
+				.then(rMessage => {
+					message = rMessage;
+					
+					emailData.SENDER_FIRST_NAME = message.fromUser.firstName;
+					emailData.SENDER_LAST_NAME = message.fromUser.lastName;
+					emailData.LISTING_TITLE = message.task.title;
+
+					cb();
+				}, cb),
+				cb => {
+					vqAuth
+					.getEmailsFromUserId(models, message.toUser.vqUserId, (err, rUserEmails) => {
+						if (err) {
+							return cb(err);
+						}
 		
-							const ACTION_URL = `${domain}/app/chat/${messageRef.requestId}`;
+						const emails = rUserEmails
+							.map(_ => _.email);
 		
-							emailService
-							.getEmailAndSend(models, 'message-received', emails[0], ACTION_URL);
-						}, err => {
-							return console.error(err);
-						})
-				});
+							models
+							.appConfig
+							.findOne({
+								where: {
+									fieldKey: 'DOMAIN'
+								}
+							})
+							.then(configField => {
+								configField = configField || {};
+								
+								const domain = configField.fieldValue || 'http://localhost:3000';
+			
+								const ACTION_URL = `${domain}/app/chat/${message.requestId}`;
+			
+								emailData.ACTION_URL = ACTION_URL;
+
+								emailService
+								.getEmailAndSend(models, 'message-received', emails[0], emailData);
+							}, cb)
+					});
+				}
+			], err => {
+				if (err) {
+					console.error(err);
+				}
 			});
-		});
 	});
 
 requestEmitter
@@ -239,6 +263,7 @@ requestEmitter
 						id: requestId
 					},
 					include: [
+						{ model: models.task },
 						{ model: models.user, as: 'fromUser' },
 						{ model: models.user, as: 'toUser' }
 					]
@@ -295,14 +320,16 @@ requestEmitter
 			if (requestReceivedEmails) {
 				emailService
 				.getEmailAndSend(models, 'new-request-received', requestReceivedEmails[0], {
-					ACTION_URL
+					ACTION_URL,
+					LISTING_TITLE: request.task.title
 				});
 			}
 			
 			if (requestSentEmails) {
 				emailService
 				.getEmailAndSend(models, 'new-request-sent', requestSentEmails[0], {
-					ACTION_URL
+					ACTION_URL,
+					LISTING_TITLE: request.task.title
 				});
 			}
 		})

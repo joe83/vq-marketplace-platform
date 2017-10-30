@@ -1,3 +1,5 @@
-const models = require('../app/models/models.js');
+const db = require('../app/models/models.js');
 
-req.models.post.addDefaultPosts('services', true);
+db.create('testmarketplace', () => {
+    db.get('testmarketplace').post.addDefaultPosts('services', true);  
+});

@@ -43,7 +43,7 @@ module.exports = app => {
         .then(rMessage => {
 
             requestEmitter
-                .emit('message-received', req.models, rMessage);
+                .emit('message-received', req.models, rMessage.id);
 
             return res.send(rMessage);
         }, err => res.status(400).send(err))
