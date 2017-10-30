@@ -93,7 +93,7 @@ const reviewEventHandlerFactory = (emailCode, actionUrlFn) => {
                     const reviewsNo = userReviews.length;
                     const avgReviewRate = userReviews
                         .reduce((sum, review) => {
-                            return sum += review.rate;
+                            return sum += Number(review.rate);
                         }, 0) / reviewsNo;
                     
                     models.user
