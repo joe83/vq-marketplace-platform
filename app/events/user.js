@@ -29,6 +29,6 @@ module.exports = userEmitter;
             .map(_ => _.email);
 
             emailService
-                .getEmailAndSend(models, 'user-blocked', emails);
+                .getEmailAndSend(models, 'user-blocked', emails, {});
         });
     });

@@ -26,12 +26,12 @@ module.exports = app => {
 			return responseController
 			.sendResponse(res, {
 				httpCode: 400,
-				code: 'EMAIL_WRONGLY_FORMATTED',
-				desc: 'Email wrongly formatted'
+				code: "EMAIL_WRONGLY_FORMATTED",
+				desc: "Email wrongly formatted"
 			});
 		}
 
-		const propertiesToBeExcluded = [ 'email', 'password', 'repeatPassword' ];
+		const propertiesToBeExcluded = [ "email", "password", "repeatPassword" ];
 
 		Object.keys(req.body)
 			.filter(prop => propertiesToBeExcluded.indexOf(prop) === -1)
@@ -60,13 +60,13 @@ module.exports = app => {
 				cb => req.models.user
 				.count({})
 				.then(count => {
-					shouldBeAdmin = !Boolean(count);
+					shouldBeAdmin = !count;
 
 					return cb();
 				}, cb),
 				cb => req.models.user
 					.create({
-						accountType: 'PRIVATE',
+						accountType: "PRIVATE",
 						vqUserId,
 						isAdmin: shouldBeAdmin,
 						firstName: userData.firstName,
@@ -227,7 +227,7 @@ module.exports = app => {
 
 	app.get("/api/verify/email", (req, res) => {
 		var encryptedToken = req.query.code;
-		var user;
+		var user, userRef;
 
 		try {
 			encryptedToken = encryptedToken.split(' ').join('+');
@@ -239,45 +239,74 @@ module.exports = app => {
 			});
 		}
 		
-		req.models
-		.user
-		.findById(user.id)
-		.then(rUser => {
-			if (rUser.status === req.models.user.USER_STATUS.USER_BLOCKED) {
-				return res.status(401).send({
-					code: 'USER_BLOCKED'
-				});
-			}
+		async.waterfall([
+			cb => {
+				req.models
+				.user
+				.findById(user.id)
+				.then(rUser => {
+					if (rUser.status === req.models.user.USER_STATUS.USER_BLOCKED) {
+						return cb({
+							httpCode: 401,
+							code: 'USER_BLOCKED'
+						});
+					}
 
-			if (rUser.status !== req.models.user.USER_STATUS.VERIFIED) {
-				rUser.update({
+					userRef = rUser;
+
+					cb(null, rUser);
+				});
+			},
+			(rUser, cb) => {
+				if (rUser.status && rUser.status !== req.models.user.USER_STATUS.UNVERIFIED) {
+					return cb({
+						httpCode: 400,
+						code: 'WRONG_USER_STATUS'
+					});
+				}
+
+				rUser
+				.update({
 					status: req.models.user.USER_STATUS.VERIFIED
 				})
-				.then(_ => _, err => {
-					console.error(err);
+				.then(_ => cb(), err => {
+					return {
+						err: err,
+						httpCode: 400
+					};
+				});
+			},
+			cb => {
+				req.models
+				.appConfig
+				.findOne({
+					where: {
+						fieldKey: 'DOMAIN'
+					}
 				})
+				.then(configField => {
+					cb(null, configField);
+				}, err => {
+					return {
+						err: err,
+						httpCode: 400
+					};
+				});
+			}
+		], (err, configField) => {
+			if (err) {
+				return res.status(err.httpCode || 400).send(err);
+			}
+			
+			if (!configField) {
+				res.status(400).send('Missing configuration. Configure DOMAIN.');
 			}
 
-			req.models
-			.appConfig
-			.findOne({
-				where: {
-					fieldKey: 'DOMAIN'
-				}
-			})
-			.then(configField => {
-				if (configField) {
-					if (String(rUser.userType) === '1') {
-						return res.redirect(configField.fieldValue + '/app/new-listing');
-					}
-	
-					return res.redirect(configField.fieldValue + '/app/dashboard');
-				}
-				
-				return res.redirect('https://vq-labs.com');
-			}, err => {
-				res.status(400).send(err);
-			});
+			if (userRef.userType === 1) {
+				return res.redirect(configField.fieldValue + '/app/new-listing');
+			}
+
+			return res.redirect(configField.fieldValue + '/app/dashboard');
 		});
 	});
 	

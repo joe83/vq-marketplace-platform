@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
       unique: true
     },
     status: {
-      default: USER_STATUS.UNVERIFIED,
+      defaultValue: USER_STATUS.UNVERIFIED,
       type: DataTypes.ENUM(
         USER_STATUS.UNVERIFIED,
         USER_STATUS.VERIFIED,
