@@ -55,7 +55,7 @@ module.exports = (sequelize, DataTypes) => {
         };
       });
 
-    AppConfig.bulkCreateOrUpdate(dataProcessed, true);
+    AppConfig.bulkCreateOrUpdate(dataProcessed, false);
   };
 
   AppConfig.addDefaultConfig = addDefaultConfig;

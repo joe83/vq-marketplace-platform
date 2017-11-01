@@ -1,3 +1,9 @@
-const models = require('../app/models/models.js');
+const db = require('../app/models/models.js');
 
-req.models.appConfig.addDefaultConfig(true);
+const tenantId = process.env.TENANT_ID;
+
+db.create(tenantId, () => {
+    db.get(tenantId)
+    .appConfig
+    .addDefaultConfig("services");
+});
