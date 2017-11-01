@@ -296,7 +296,7 @@ module.exports = app => {
 			if (err) {
 				res.set('Content-Type', 'text/html');
 
-				return res.send(new Buffer(`<p>${err.code}</p>`));
+				return res.send(new Buffer(`<p>This verification link is no longer valid.<span style="display:none;">${err.code}</span></p>`));
 			}
 			
 			if (!configField) {
