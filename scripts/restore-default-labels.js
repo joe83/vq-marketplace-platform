@@ -19,7 +19,8 @@ db.create(TENANT_ID, () => {
     db.get(TENANT_ID)
     .appLabel
     .addDefaultLangLabels(TARGET_LANG, USECASE, SHOULD_FORCE)
-    .then(() => {
+    .then((data) => {
+        console.log(data);
         console.log('Success');
 
         process.exit();

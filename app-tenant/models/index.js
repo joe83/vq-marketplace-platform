@@ -23,7 +23,7 @@ const create = (tenantId, cb) => {
       });
 
       connection.query(
-        'CREATE DATABASE ??;',
+        'CREATE DATABASE ?? CHARACTER SET utf8 COLLATE utf8_general_ci;',
         [ tenantId ],
         (err, results, fields) => {
           if (err) {

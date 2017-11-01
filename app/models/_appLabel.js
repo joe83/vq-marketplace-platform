@@ -87,8 +87,9 @@ module.exports = (sequelize, DataTypes) => {
       const upsert = appLabel.upsertFactory();
 
       async.eachLimit(labels, 5, (label, cb) => {
+        console.log('Label update loop start');
         if (!label.labelKey) {
-          return;
+          return cb();
         }
 
         var labelGroup = label.labelGroup ? label.labelGroup.toUpperCase() : null;

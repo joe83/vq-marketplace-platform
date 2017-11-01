@@ -68,4 +68,13 @@ const taskAutoSettlement = (tenantId) => {
     });
 };
 
-module.exports = taskAutoSettlement;
+if (module.parent) {
+    module.exports = taskAutoSettlement;
+} else {
+    const tenantId = process.env.TENANT_ID;
+
+    db.create(tenantId, () => {
+        taskAutoSettlement(tenantId);
+    });
+}  
+

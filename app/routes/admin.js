@@ -62,7 +62,20 @@ module.exports = app => {
 			order: [[ 'createdAt', 'DESC' ]],
 			include: [
 				{ model: req.models.task },
-				{ model: req.models.user, as: 'fromUser' }
+				{ model: req.models.user, as: 'fromUser' },
+				{ model: req.models.review },
+				{
+					model: req.models.order,
+					as: 'order',
+					include: [
+						{
+							model: req.models.review
+						},
+						{
+							model: req.models.billingAddress
+						}	
+					]
+				},
 			]
 		})
 		.then(data => res.send(data)));
