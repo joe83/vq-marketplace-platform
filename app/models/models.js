@@ -104,17 +104,36 @@ const create = (tenantId, cb) => {
       const marketplaceType = 'services';
       const models = tenantConnections[tenantId];
 
-      models.appConfig.addDefaultConfig(marketplaceType, true);
+      async.waterfall([
+        cb => {
+          models.appConfig.addDefaultConfig(marketplaceType, true, err => {
+            if (err) {
+              console.error(err);
+            }
 
-      models.appLabel.addDefaultLangLabels('en', marketplaceType, true)
-      .then(_ => _, _ => _);
-      
+            cb();
+          });
+        },
+        cb => {
+          models.appLabel.addDefaultLangLabels('en', marketplaceType, true, err => {
+            if (err) {
+              console.error(err);
+            }
 
-      models.post.addDefaultPosts(marketplaceType, true);
+            cb();
+          });
+        },
+        cb => {
+          models.post.addDefaultPosts(marketplaceType, true);
 
-      models.appUserProperty.addDefaultUserProperties(marketplaceType, true);
+          cb();
+        }, 
+        cb => {
+          models.appUserProperty.addDefaultUserProperties(marketplaceType, true);
 
-      cb();
+          cb();
+        }, 
+      ], cb);
     }
   ], cb);
 };

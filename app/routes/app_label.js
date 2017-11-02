@@ -25,7 +25,14 @@ module.exports = app => {
 
         const forceUpdate = true;
 
-        req.models.appLabel.bulkCreateOrUpdate(labels, forceUpdate)
-            .then(nothing => res.send({ ok: true }));
+        req.models.appLabel.bulkCreateOrUpdate(labels, forceUpdate, err => {
+            if (err) {
+                res.status(400).send(err);
+            }
+
+            res.send({
+                ok: true
+            });
+        })
     });
 };
