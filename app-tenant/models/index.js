@@ -12,6 +12,8 @@ const create = (tenantId, cb) => {
     throw new Error(`Tenant ${tenantId} already initialised!`);
   }
 
+  console.log(`Creating ${tenantId}`);
+
   var isNewDatabase = false;
 
   async.waterfall([
@@ -86,28 +88,6 @@ const create = (tenantId, cb) => {
         cb();
       }, cb);
     },
-    cb => {
-      if (!isNewDatabase) {
-        return cb();
-      }
-
-      console.log('INITIALIZING...');
-
-      const marketplaceType = 'services';
-      const models = tenantConnections[tenantId];
-
-      models.appConfig.addDefaultConfig(marketplaceType, true);
-
-      models.appLabel.addDefaultLangLabels('en', marketplaceType, true)
-      .then(_ => _, _ => _);
-      
-
-      models.post.addDefaultPosts(marketplaceType, true);
-
-      models.appUserProperty.addDefaultUserProperties(marketplaceType, true);
-
-      cb();
-    }
   ], cb);
 };
 
