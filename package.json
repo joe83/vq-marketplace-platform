@@ -10,7 +10,7 @@
   "scripts": {
     "start": "node app.js",
     "start:local": "TENANT_ID=testmarketplace node app.js",
-    "start:dev": "ST_ENV=dev node app.js",
+    "start:dev": "node app --config /../test-config.json",
     "start:production": "ST_ENV=production node app.js",
     "test": "ST_ENV=local jasmine",
     "lint": "./node_modules/.bin/eslint app"

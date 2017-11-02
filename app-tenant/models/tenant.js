@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
         marketplaceName: { type: DataTypes.STRING, required: true },
         marketplaceType: { type: DataTypes.ENUM("services", "rentals"), required: true, defaultValue: "services" },
         country: { type: DataTypes.STRING, required: true },
-        status: { type: DataTypes.INTEGER(1), required: true }
+        status: { type: DataTypes.INTEGER(1), required: true, defaultValue: 0 }
   }, {
     tableName: 'tenant'
   });

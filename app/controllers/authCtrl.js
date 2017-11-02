@@ -2,6 +2,12 @@ const async = require("async");
 const vqAuth = require("../auth");
 const userEmitter = require("../events/user");
 
+const validateEmail = email => { 
+    const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    
+	return re.test(email);
+};
+
 const createNewAccount = (models, data, cb) => {
     const email = data.email;
     const password = data.password;
@@ -24,7 +30,7 @@ const createNewAccount = (models, data, cb) => {
     Object.keys(data)
         .filter(prop => propertiesToBeExcluded.indexOf(prop) === -1)
         .forEach(prop => {
-            userData[prop] = req.body[prop];
+            userData[prop] = data[prop];
         });
     
     var vqUserId, vqAuthUser, user;
@@ -34,7 +40,7 @@ const createNewAccount = (models, data, cb) => {
         .waterfall([
             cb => {
                 return vqAuth
-                    .localSignup(req.models, email, password, (err, rUser) => {
+                    .localSignup(models, email, password, (err, rUser) => {
                         if (err) {
                             return cb(err);
                         }

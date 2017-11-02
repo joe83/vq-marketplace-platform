@@ -33,7 +33,9 @@ function mainController($scope, $http) {
     $scope.createMarketplace = function() {
         $http.post('/api/tenant', $scope.data)
         .success(function(data) {
-            location.href = "https://" + data.tenantId + ".vq-labs.com";
+            alert("CHECK YOUR EMAIL");
+
+            $scope.disabledSubmit = true;
         })
         .error(function(data) {
             alert(JSON.stringify(data));

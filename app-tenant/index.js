@@ -6,6 +6,7 @@ const tenantDb = require('./models');
 const config = require("../app/config/configProvider.js")();
 const utils = require('../app/utils');
 const workers = require('../app/workers');
+const authCtrl = require("../app/controllers/authCtrl");
 const cryptoService = require("../app/services/cryptoService");
 const emailService = require("../app/services/emailService.js");
 
@@ -265,10 +266,10 @@ const initRoutes = (app, express) => {
 					repeatPassword: data.repeatPassword,
 				};
 
-				db.get(tenantId, marketplaceModels => {
-					authCtrl.createNewAccount(marketplaceModels, userData, (err, authData) => {
-						return cb(err, authData);
-					});
+				const marketplaceModels = db.get(tenantId);
+
+				authCtrl.createNewAccount(marketplaceModels, userData, (err, authData) => {
+					return cb(err, authData);
 				});
 			},
 		], (err, authData) => {

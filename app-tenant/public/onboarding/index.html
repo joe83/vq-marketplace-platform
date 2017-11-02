@@ -44,7 +44,8 @@
             $scope.createMarketplace = function() {
                 $http.post('/api/marketplace', $scope.data)
                 .success(function(data) {
-                    location.href = "https://" + data.tenantId + ".vq-labs.com";
+                    console.log(data);
+                    location.href = "https://" + $scope.data.tenantId + ".viciqloud.com/app/admin";
                 })
                 .error(function(data) {
                     alert(JSON.stringify(data));

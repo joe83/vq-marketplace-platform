@@ -9,12 +9,6 @@ const vqAuth = require("../auth");
 const userEmitter = require("../events/user");
 const config = require("../config/configProvider.js")();
 
-const validateEmail = email => { 
-    const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    
-	return re.test(email);
-};
-
 module.exports = app => {
 	var isLoggedIn = responseController.isLoggedIn;
 	
