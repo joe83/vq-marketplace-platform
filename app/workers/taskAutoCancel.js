@@ -54,7 +54,7 @@ const taskAutoCancel = (tenantId) => {
                         if (err) {
                             console.error(err);
 
-                            cb(err);
+                            return cb(err);
                         }
     
                         console.log(`[SUCCESS] All pending requests for task ${task.id} have been declined!`);

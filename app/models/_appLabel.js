@@ -25,6 +25,8 @@ module.exports = (sequelize, DataTypes) => {
           .findOne({ where: { $and: [ { labelKey }, { lang } ] }})
           .then(obj => {
             if (!obj) {
+              console.log(`Creating ${lang} label ${labelGroup}->${labelKey}`);
+
               return appLabel
                 .create({ labelKey, labelGroup, labelValue, lang })
                 .then(resolve, reject)
@@ -32,12 +34,12 @@ module.exports = (sequelize, DataTypes) => {
 
             if (obj.labelValue !== labelValue) {
               return appLabel
-              .update({ labelGroup, labelValue, lang }, { where: { id: obj.id } })
-              .then(resolve, reject);
+                .update({ labelGroup, labelValue, lang }, { where: { id: obj.id } })
+                .then(resolve, reject);
             }
 
             return resolve();
-          });
+          }, reject);
       });
 
   appLabel.upsertFactory = () => (labelKey, labelGroup, labelValue, lang) =>
@@ -82,44 +84,43 @@ module.exports = (sequelize, DataTypes) => {
         });
         
 
-  appLabel.bulkCreateOrUpdate = (labels, forceUpdate) => new Promise(resolve => {
+  appLabel.bulkCreateOrUpdate = (labels, forceUpdate, cb) => {
       const upsert = forceUpdate ? appLabel.updateFactory() : appLabel.upsertFactory();
       // const upsert = appLabel.upsertFactory();
 
       async.eachLimit(labels, 5, (label, cb) => {
-        if (!label.labelKey) {
-          return cb();
-        }
-
-        var labelGroup = label.labelGroup ? label.labelGroup.toUpperCase() : null;
-
         upsert(
-          label.labelKey.toUpperCase(),
+          label.labelKey,
           labelGroup,
           label.labelValue,
           label.lang
         )
         .then(() => cb(), cb);
+      }, err => {
+        if (err) {
+          return cb(err);
+        }
 
-      }, resolve);
-  });
+        return cb();
+      });
+  };
 
   // init of the table / ensuring default labels exist
-  appLabel.addDefaultLangLabels = (lang, usecase, force) => {
+  appLabel.addDefaultLangLabels = (lang, usecase, force, cb) => {
       const defaultLabels = marketplaceConfig[usecase].i18n(lang);
       const labelGroups = marketplaceConfig[usecase].labelGroups();
       
       const batchLabels = Object.keys(defaultLabels)
         .map(labelKey => {
           return {
-            labelKey,
-            labelGroup: labelGroups[labelKey],
+            labelKey: labelKey.toUpperCase(),
+            labelGroup: label.labelGroup ? label.labelGroup.toUpperCase() : null,
             labelValue: defaultLabels[labelKey],
             lang
           };
         });
 
-      return appLabel.bulkCreateOrUpdate(batchLabels, force);
+      return appLabel.bulkCreateOrUpdate(batchLabels, force, cb);
   };
 
   return appLabel;
