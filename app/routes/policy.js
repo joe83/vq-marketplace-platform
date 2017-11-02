@@ -3,6 +3,7 @@ const cust = require("../config/customizing.js");
 const emailService = require("../services/emailService.js");
 const cryptoService = require("../services/cryptoService");
 const responseController = require("../controllers/responseController.js");
+const authCtrl = require("../controllers/authCtrl.js");
 const sendResponse = responseController.sendResponse;
 const vqAuth = require("../auth");
 const userEmitter = require("../events/user");
@@ -17,99 +18,10 @@ const validateEmail = email => {
 module.exports = app => {
 	var isLoggedIn = responseController.isLoggedIn;
 	
-	app.post("/api/signup/email", (req, res) => {
-		const email = req.body.email;
-		const password = req.body.password;
-		const userData = {};
-		
-		if (!validateEmail(email)) {
-			return responseController
-			.sendResponse(res, {
-				httpCode: 400,
-				code: "EMAIL_WRONGLY_FORMATTED",
-				desc: "Email wrongly formatted"
-			});
-		}
-
-		const propertiesToBeExcluded = [ "email", "password", "repeatPassword" ];
-
-		Object.keys(req.body)
-			.filter(prop => propertiesToBeExcluded.indexOf(prop) === -1)
-			.forEach(prop => {
-				userData[prop] = req.body[prop];
-			});
-		
-		var vqUserId, vqAuthUser, user;
-		var shouldBeAdmin = false;
-
-		async
-			.waterfall([
-				cb => {
-					return vqAuth
-						.localSignup(req.models, email, password, (err, rUser) => {
-							if (err) {
-								return cb(err);
-							}
-
-							vqAuthUser = rUser;
-							vqUserId = rUser.userId;
-
-							return cb();
-						});
-				},
-				cb => req.models.user
-				.count({})
-				.then(count => {
-					shouldBeAdmin = !count;
-
-					return cb();
-				}, cb),
-				cb => req.models.user
-					.create({
-						accountType: "PRIVATE",
-						vqUserId,
-						isAdmin: shouldBeAdmin,
-						firstName: userData.firstName,
-						lastName: userData.lastName,
-						userType: userData.userType || 0
-					})
-					.then(rUser => {
-						user = rUser;
-
-						return cb();
-					}, cb),
-				cb => async
-				.each(
-					Object.keys(userData),
-					(prop, cb) =>
-						req.models.userProperty
-						.create({
-							propKey: prop,
-							propValue: userData[prop],
-							userId: user.id
-						})
-						.then(rUser => cb()),
-					cb
-				)
-			], err => {
-				if (err) {
-					return responseController
-						.sendResponse(res, err);
-				}
-
-				const responseData = vqAuthUser;
-
-				responseData.user = user;
-
-				responseController
-					.sendResponse(res, err, vqAuthUser);
-
-				const emittedUser = JSON.parse(JSON.stringify(user));
-
-				emittedUser.emails = [ email ];
-				userEmitter.emit('created', req.models, emittedUser);
-			});
-		});
+	app.post("/api/signup/email", (req, res) => authCtrl
+		.createNewAccount(req.models, req.body, (err, responseData) =>
+			responseController.sendResponse(res, err, responseData)
+		));
 
 	app.post("/api/auth/reset-password", (req, res) => {
 		const code = req.body.code;

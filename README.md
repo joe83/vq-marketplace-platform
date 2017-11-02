@@ -45,6 +45,11 @@ git clone https://github.com/vq-labs/vq-marketplace-api.git // clones the reposi
 cd vq-marketplace-api // goes to the repository folder
 npm install // installs the npm packages from ./package.json
 ```
+### Common problems
+```
+sudo ln -s /usr/bin/nodejs /usr/bin/node
+```
+
 
 ## Running
 In order to start locally the VQ Web Services, you need to run the command:

@@ -141,24 +141,66 @@ const sendWelcome = (models, user, VERIFICATION_LINK) => {
 	});
 };
 
+const sendNewTenant = (email, VERIFICATION_LINK) => {
+	const emailBody = `
+		<%- VERIFICATION_LINK %>
+	`;
+
+	const params = {};
+
+	const html = ejs.compile(unescape(emailBody))({
+		VERIFICATION_LINK
+	});
+
+	params.subject = 'Verify your email';
+
+	const message = getRawMessagePrototype();
+
+	message.subject = params.subject;
+	message.html = html;
+	message.text = html;
+	message.to = [{
+		email,
+		type: "to"
+	}];
+
+	var lAsync = false;
+	var ip_pool = "Main Pool";
+
+	mandrill_client
+	.messages
+	.send({ 
+		"message": message,
+		"async": lAsync,
+		"ip_pool": ip_pool
+	}, result => {
+		console.log(result);
+	}, e => {
+		console.log('A mandrill error occurred: ' + e.name + ' - ' + e.message);
+	});	
+};
+
+const getRawMessagePrototype = (fromName, supportEmail, domain) => ({
+	"from_email": "noreply@vq-labs.com",
+	"from_name": fromName,
+	"to": [ ],
+	"headers": {
+		"Reply-To": supportEmail
+	},
+	"important": false,
+	"global_merge_vars": [],
+	"metadata": {
+		"website": domain
+	},
+	"recipient_metadata": [{}],
+});
+
+
 const getMessagePrototype = models => new Promise((resolve, reject) => {
 	custProvider
 	.getConfig(models)
 	.then(config => {
-		return resolve({
-			"from_email": "noreply@vq-labs.com",
-			"from_name": config.NAME || "VQ LABS",
-			"to": [ ],
-			"headers": {
-				"Reply-To": config.SUPPORT_EMAIL
-			},
-			"important": false,
-			"global_merge_vars": [],
-			"metadata": {
-				"website": config.DOMAIN
-			},
-			"recipient_metadata": [{}],
-		});
+		return resolve(getRawMessagePrototype(config.NAME || "VQ LABS", config.SUPPORT_EMAIL, config.DOMAIN));
 	}, reject);
 });
 
@@ -203,5 +245,6 @@ module.exports = {
 	checkIfShouldSendEmail,
 	getEmailAndSend,
 	sendEmail,
-	sendWelcome
+	sendWelcome,
+	sendNewTenant
 };

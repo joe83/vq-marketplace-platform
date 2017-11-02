@@ -6,6 +6,7 @@ const config = require("./app/config/configProvider.js")();
 const mysql = require('mysql2');
 const db = require('./app/models/models');
 const tenantService = require('./app-tenant');
+const workers = require('./app/workers');
 const express = require('express');
 const app = express();
 const tenantApp = express();
@@ -21,8 +22,6 @@ const initApp = app => {
 
 initApp(app);
 initApp(tenantApp);
-
-let tenants = [];
 
 app.use((req, res, next) => {
 	req.auth = {
@@ -62,16 +61,6 @@ require('./app/routes.js')(app);
 
 tenantService.initRoutes(tenantApp, express);
 
-tenantService.events.on('new-tenant', tenant => {
-	const tenantId = tenant.tenantId;
-
-	tenants.push(tenantId);
-
-	db.create(tenantId, err => {
-		require('./app/workers/index.js').registerWorkers(tenantId);
-	});
-});
-
 async.waterfall([
 	cb => {
 		tenantService.getModels((err, tenantModels) => {
@@ -81,26 +70,37 @@ async.waterfall([
 
 			tenantModels
 			.tenant
-			.findAll({})
+			.findAll({
+				where: {
+					$and: [
+						{ status: 2 },
+						{ emailVerified: true }
+					]
+				}
+			})
 			.then(rTenants => {
-				tenants = rTenants.map(_ => _.tenantId);
+				const tenants = rTenants.map(_ => _.tenantId);
 
-				cb();
+				cb(null, tenants);
 			}, cb);
 		})
 	},
-	cb => {
-		async.each(tenants, (tenant, cb) => db.create(tenant, cb), cb);
-	},
-	cb => {
-		async.each(tenants, (tenant, cb) => {
-			require('./app/workers/index.js')
+	(tenants, cb) => {
+		async.each(tenants,
+			(tenant, cb) => db.create(tenant, (err) => {
+				if (err) {
+					return cb(err);
+				}
+
+				require('./app/workers/index.js')
 				.registerWorkers(tenant);
-			
-			cb();
-		}, cb);
+
+				cb(null, tenants);
+			}),
+			cb
+		);
 	}
-], err => {
+], (err, tenants) => {
 	if (err) {
 		throw new Error(err);
 	}
@@ -109,7 +109,7 @@ async.waterfall([
 		var host = appServer.address().address;
 		var port = appServer.address().port;
 
-		console.log(`VQ-Marketplace API listening at port ${port}. Supporting ${tenants.length} tenants.`);
+		console.log(`VQ-Marketplace API listening at port ${port}. Supporting ${db.getTenantIds().length} tenants.`);
 	});
 
 	const tenantServer = tenantApp.listen(config.TENANT_APP_PORT, () => {

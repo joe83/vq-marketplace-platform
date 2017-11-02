@@ -7,9 +7,14 @@ const config = require("../config/configProvider.js")();
 
 const tenantConnections = {};
 
+const getTenantIds = () => Object.keys(tenantConnections);
+
 const create = (tenantId, cb) => {
   if (tenantConnections[tenantId]) {
-    throw new Error(`Tenant ${tenantId} already initialised!`);
+    return cb({
+      httpCode: 400,
+      code: 'TENANT_ALREADY_DEPLOYED'
+    });
   }
 
   var isNewDatabase = false;
@@ -23,7 +28,7 @@ const create = (tenantId, cb) => {
       });
 
       connection.query(
-        'CREATE DATABASE ??;',
+        'CREATE DATABASE ?? CHARACTER SET utf8 COLLATE utf8_general_ci;;',
         [ tenantId ],
         (err, results, fields) => {
           if (err) {
@@ -114,5 +119,6 @@ const get = tenantId => {
 
 module.exports = {
   create,
-  get
+  get,
+  getTenantIds
 };
