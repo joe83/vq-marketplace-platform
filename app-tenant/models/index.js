@@ -22,6 +22,8 @@ const create = (tenantId, cb) => {
         password: config.VQ_DB_PASSWORD
       });
 
+      connection.connect();
+
       connection.query(
         'CREATE DATABASE ?? CHARACTER SET utf8 COLLATE utf8_general_ci;',
         [ tenantId ],
@@ -39,6 +41,8 @@ const create = (tenantId, cb) => {
           cb();
         }
       );
+
+      connection.end();
     },
     cb => {
       const db = {};

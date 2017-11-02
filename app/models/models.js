@@ -10,6 +10,8 @@ const tenantConnections = {};
 const getTenantIds = () => Object.keys(tenantConnections);
 
 const create = (tenantId, cb) => {
+  console.log(`[models] Creating tenant model: ${tenantId}`);
+
   if (tenantConnections[tenantId]) {
     return cb({
       httpCode: 400,
@@ -26,6 +28,8 @@ const create = (tenantId, cb) => {
         user: config.VQ_DB_USER,
         password: config.VQ_DB_PASSWORD
       });
+
+      connection.connect();
 
       connection.query(
         'CREATE DATABASE ?? CHARACTER SET utf8 COLLATE utf8_general_ci;;',
@@ -44,6 +48,8 @@ const create = (tenantId, cb) => {
           cb();
         }
       );
+
+      connection.end();
     },
     cb => {
       const db = {};
