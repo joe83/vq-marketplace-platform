@@ -45,7 +45,7 @@
                 $http.post('/api/marketplace', $scope.data)
                 .success(function(data) {
                     console.log(data);
-                    location.href = "https://" + $scope.data.tenantId + ".viciqloud.com/app/admin";
+                    location.href = "http://" + $scope.data.tenantId + ".viciqloud.com/app/admin";
                 })
                 .error(function(data) {
                     alert(JSON.stringify(data));

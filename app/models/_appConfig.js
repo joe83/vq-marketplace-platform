@@ -43,7 +43,7 @@ module.exports = (sequelize, DataTypes) => {
         .findOne({ where: { fieldKey }})
         .then(obj => {
           if (!obj) {
-            AppConfig
+            return AppConfig
             .create({ fieldKey, fieldValue, lang })
             .then(() => cb(), cb);
           }
