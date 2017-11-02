@@ -225,7 +225,7 @@ const initRoutes = (app, express) => {
 
 						tenantRef = tenant;
 
-						cb();
+						return cb();
 					}, cb);
 			},
 			cb => {
@@ -248,7 +248,7 @@ const initRoutes = (app, express) => {
 						}
 					})
 					.then(() => {
-						cb();
+						return cb();
 					}, cb);
 				});
 			},

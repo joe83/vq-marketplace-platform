@@ -58,7 +58,7 @@ const create = (tenantId, cb) => {
         logging: false,
         dialect: 'mysql',
         pool: {
-          max: 5,
+          max: 3,
           min: 0,
           idle: 10000
         }
@@ -106,6 +106,7 @@ const create = (tenantId, cb) => {
 
       async.waterfall([
         cb => {
+          console.log("Creating default config");
           models.appConfig.addDefaultConfig(marketplaceType, true, err => {
             if (err) {
               console.error(err);
@@ -115,6 +116,7 @@ const create = (tenantId, cb) => {
           });
         },
         cb => {
+          console.log("Creating default labels");
           models.appLabel.addDefaultLangLabels('en', marketplaceType, true, err => {
             if (err) {
               console.error(err);
@@ -124,11 +126,13 @@ const create = (tenantId, cb) => {
           });
         },
         cb => {
+          console.log("Creating default posts");
           models.post.addDefaultPosts(marketplaceType, true);
 
           cb();
         }, 
         cb => {
+          console.log("Creating default user properties");
           models.appUserProperty.addDefaultUserProperties(marketplaceType, true);
 
           cb();

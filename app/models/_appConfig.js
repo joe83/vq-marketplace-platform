@@ -1,6 +1,7 @@
 /**
  * Customizing model for application definition and meta data like corporate identity, logos, pricing levels etc etc.
  */
+const async = require('async');
 const marketplaceConfig = require('vq-marketplace-config');
 
 module.exports = (sequelize, DataTypes) => {
@@ -20,12 +21,16 @@ module.exports = (sequelize, DataTypes) => {
         .findOne({ where: { fieldKey }})
         .then(obj => {
           if (!obj) {
+            console.log(`Adding CONFIG: ${fieldKey}`);
+            
             return AppConfig
               .create({ fieldKey, fieldValue })
               .then(() => cb(), cb);
           }
 
           if (obj.fieldValue !== fieldValue) {
+            console.log(`Updating CONFIG: ${fieldKey}`);
+            
             return AppConfig
               .update({ fieldValue }, { where: { id: obj.id } })
               .then(() => cb(), cb);
@@ -56,6 +61,8 @@ module.exports = (sequelize, DataTypes) => {
   };
 
   const addDefaultConfig = (usecase, cb) => {
+    console.log("Creating default config");
+    
     const defaultConfigs = marketplaceConfig[usecase].config();
     const dataProcessed = Object.keys(defaultConfigs)
       .map(fieldKey => {

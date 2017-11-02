@@ -19,31 +19,29 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   // expansion of model
-  appLabel.updateFactory = () => (labelKey, labelGroup, labelValue, lang) =>
-        new Promise((resolve, reject) => {
-          appLabel
-          .findOne({ where: { $and: [ { labelKey }, { lang } ] }})
-          .then(obj => {
-            if (!obj) {
-              console.log(`Creating ${lang} label ${labelGroup}->${labelKey}`);
+  appLabel.updateFactory = () => (labelKey, labelGroup, labelValue, lang, cb) => { 
+      appLabel
+      .findOne({ where: { $and: [ { labelKey }, { lang } ] }})
+      .then(obj => {
+        if (!obj) {
+          console.log(`Creating ${lang} label ${labelGroup}->${labelKey}`);
 
-              return appLabel
-                .create({ labelKey, labelGroup, labelValue, lang })
-                .then(resolve, reject)
-            }
+          return appLabel
+            .create({ labelKey, labelGroup, labelValue, lang })
+            .then(() => cb(), cb)
+        }
 
-            if (obj.labelValue !== labelValue) {
-              return appLabel
-                .update({ labelGroup, labelValue, lang }, { where: { id: obj.id } })
-                .then(resolve, reject);
-            }
+        if (obj.labelValue !== labelValue) {
+          return appLabel
+            .update({ labelGroup, labelValue, lang }, { where: { id: obj.id } })
+            .then(() => cb(), cb);
+        }
 
-            return resolve();
-          }, reject);
-      });
+        return cb();
+      }, cb);
+  };
 
-  appLabel.upsertFactory = () => (labelKey, labelGroup, labelValue, lang) =>
-        new Promise((resolve, reject) => {
+  appLabel.upsertFactory = () => (labelKey, labelGroup, labelValue, lang, cb) => {
           appLabel
           .findOne({ 
             where: {
@@ -52,19 +50,18 @@ module.exports = (sequelize, DataTypes) => {
                 { lang }
               ]
             }
-          })
-          .then(obj => {
+          }).then(obj => {
             if (!obj) {
                 console.log(`Creating label "${labelKey}"`);
                 
                 return appLabel
-                .create({
-                  labelKey,
-                  labelGroup,
-                  labelValue,
-                  lang
-                })
-                .then(resolve, reject);
+                  .create({
+                    labelKey,
+                    labelGroup,
+                    labelValue,
+                    lang
+                  })
+                  .then(() => cb(), cb);
             }
 
             console.log(`Label "${labelKey}" already exists.`);
@@ -76,37 +73,30 @@ module.exports = (sequelize, DataTypes) => {
                 .update({
                   labelGroup
                 })
-                .then(resolve, reject);
+                .then(() => cb(), cb);
             }
 
-            return resolve();
-          }, reject);
-        });
+            return cb();
+          }, cb);
+  };
         
-
   appLabel.bulkCreateOrUpdate = (labels, forceUpdate, cb) => {
       const upsert = forceUpdate ? appLabel.updateFactory() : appLabel.upsertFactory();
       // const upsert = appLabel.upsertFactory();
 
-      async.eachLimit(labels, 5, (label, cb) => {
-        upsert(
-          label.labelKey,
-          labelGroup,
-          label.labelValue,
-          label.lang
-        )
-        .then(() => cb(), cb);
-      }, err => {
-        if (err) {
-          return cb(err);
-        }
-
-        return cb();
-      });
+      async.eachSeries(labels, (label, cb) => upsert(
+        label.labelKey,
+        label.labelGroup,
+        label.labelValue,
+        label.lang,
+        cb
+      ));
   };
 
   // init of the table / ensuring default labels exist
   appLabel.addDefaultLangLabels = (lang, usecase, force, cb) => {
+      console.log("Creating default labels");
+    
       const defaultLabels = marketplaceConfig[usecase].i18n(lang);
       const labelGroups = marketplaceConfig[usecase].labelGroups();
       
@@ -114,7 +104,7 @@ module.exports = (sequelize, DataTypes) => {
         .map(labelKey => {
           return {
             labelKey: labelKey.toUpperCase(),
-            labelGroup: label.labelGroup ? label.labelGroup.toUpperCase() : null,
+            labelGroup: labelGroups[labelKey] ? labelGroups[labelKey].toUpperCase() : null,
             labelValue: defaultLabels[labelKey],
             lang
           };
