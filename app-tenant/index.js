@@ -1,5 +1,4 @@
 const async = require("async");
-const EventEmitter = require('events');
 const randomstring = require('randomstring');
 const db = require('../app/models/models');
 const tenantDb = require('./models');
@@ -10,9 +9,6 @@ const authCtrl = require("../app/controllers/authCtrl");
 const cryptoService = require("../app/services/cryptoService");
 const emailService = require("../app/services/emailService.js");
 
-class DefaultEmitter extends EventEmitter {}
-
-const events = new DefaultEmitter();
 
 const rootDbName = 'vq-marketplace';
 let models = null;
@@ -195,7 +191,9 @@ const initRoutes = (app, express) => {
 
 		async.waterfall([
 			cb => {
-					models.tenant.findOne({
+					models
+					.tenant
+					.findOne({
 						where: {
 							$and: [
 								{ tenantId },
@@ -285,7 +283,6 @@ const initRoutes = (app, express) => {
 
 
 module.exports = {
-	events,
 	getModels,
 	initRoutes
 };

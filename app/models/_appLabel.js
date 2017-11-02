@@ -55,7 +55,7 @@ module.exports = (sequelize, DataTypes) => {
             if (!obj) {
                 console.log(`Creating label "${labelKey}"`);
                 
-                appLabel
+                return appLabel
                 .create({
                   labelKey,
                   labelGroup,
@@ -63,21 +63,21 @@ module.exports = (sequelize, DataTypes) => {
                   lang
                 })
                 .then(resolve, reject);
-            } else {
-              console.log(`Label "${labelKey}" already exists.`);
-
-              if (obj.labelGroup !== labelGroup) {
-                console.log(`Group of the label "${labelKey}" differs! Should be ${labelGroup}`);
-
-                return obj
-                  .update({
-                    labelGroup
-                  })
-                  .then(resolve, reject);
-              }
-
-              return resolve();
             }
+
+            console.log(`Label "${labelKey}" already exists.`);
+
+            if (obj.labelGroup !== labelGroup) {
+              console.log(`Group of the label "${labelKey}" differs! Should be ${labelGroup}`);
+
+              return obj
+                .update({
+                  labelGroup
+                })
+                .then(resolve, reject);
+            }
+
+            return resolve();
           }, reject);
         });
         
@@ -87,7 +87,6 @@ module.exports = (sequelize, DataTypes) => {
       // const upsert = appLabel.upsertFactory();
 
       async.eachLimit(labels, 5, (label, cb) => {
-        console.log('Label update loop start');
         if (!label.labelKey) {
           return cb();
         }
