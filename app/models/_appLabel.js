@@ -83,8 +83,8 @@ module.exports = (sequelize, DataTypes) => {
         
 
   appLabel.bulkCreateOrUpdate = (labels, forceUpdate) => new Promise(resolve => {
-      // const upsert = forceUpdate ? appLabel.updateFactory() : appLabel.upsertFactory();
-      const upsert = appLabel.upsertFactory();
+      const upsert = forceUpdate ? appLabel.updateFactory() : appLabel.upsertFactory();
+      // const upsert = appLabel.upsertFactory();
 
       async.eachLimit(labels, 5, (label, cb) => {
         console.log('Label update loop start');
