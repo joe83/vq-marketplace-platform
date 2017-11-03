@@ -92,7 +92,7 @@ module.exports = (sequelize, DataTypes) => {
           `'${labelKey.toUpperCase()}'`,
           labelGroups[labelKey] ? `'${labelGroups[labelKey].toUpperCase()}'` : "NULL",
           `'${lang}'`,
-          defaultLabels[labelKey] ? `'${defaultLabels[labelKey].replace(/'/g,"''")}'` : ""
+          defaultLabels[labelKey] ? `'${defaultLabels[labelKey].replace(/'/g,"''")}'` : "NULL"
         ].join(",") + ")";
       })
       .join(",");

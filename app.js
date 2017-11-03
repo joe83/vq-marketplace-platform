@@ -86,7 +86,7 @@ async.waterfall([
 		})
 	},
 	(tenants, cb) => {
-		async.each(tenants,
+		async.eachSeries(tenants,
 			(tenant, cb) => db.create(tenant, (err) => {
 				if (err) {
 					return cb(err);

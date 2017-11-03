@@ -94,7 +94,7 @@ module.exports = (sequelize, DataTypes) => {
       .map(fieldKey => {
         return "(" + [
           `'${fieldKey.toUpperCase()}'`,
-          defaultConfigs[fieldKey] ? `'${defaultConfigs[fieldKey].replace(/'/g,"''")}'` : ""
+          defaultConfigs[fieldKey] ? `'${String(defaultConfigs[fieldKey]).replace(/'/g,"''")}'` : "NULL"
         ].join(",") + ")";
       })
       .join(",");

@@ -9,6 +9,13 @@ const tenantConnections = {};
 
 const getTenantIds = () => Object.keys(tenantConnections);
 
+const pool = mysql.createPool({
+  connectionLimit: 5,
+  host: config.VQ_DB_HOST,
+  user: config.VQ_DB_USER,
+  password: config.VQ_DB_PASSWORD
+});
+
 const create = (tenantId, cb) => {
   console.log(`[models] Creating tenant model: ${tenantId}`);
 
@@ -22,35 +29,23 @@ const create = (tenantId, cb) => {
   var isNewDatabase = false;
 
   async.waterfall([
-    cb => {
-      const connection = mysql.createConnection({
-        host: config.VQ_DB_HOST,
-        user: config.VQ_DB_USER,
-        password: config.VQ_DB_PASSWORD
-      });
-
-      connection.connect();
-
-      connection.query(
-        "CREATE DATABASE ?? CHARACTER SET utf8 COLLATE utf8_general_ci;;",
-        [ tenantId ],
-        (err, results, fields) => {
-          if (err) {
-            if (err.code === "ER_DB_CREATE_EXISTS") {
-              return cb();
-            }
-
-            return cb(err);
+    cb => pool.query(
+      "CREATE DATABASE ?? CHARACTER SET utf8 COLLATE utf8_general_ci;",
+      [ tenantId ],
+      (err, results, fields) => {
+        if (err) {
+          if (err.code === "ER_DB_CREATE_EXISTS") {
+            return cb();
           }
 
-          isNewDatabase = true;
-
-          cb();
+          return cb(err);
         }
-      );
 
-      connection.end();
-    },
+        isNewDatabase = true;
+
+        cb();
+      }
+    ),
     cb => {
       const db = {};
       const sequelize = new Sequelize(tenantId, config.VQ_DB_USER, config.VQ_DB_PASSWORD, {
@@ -58,7 +53,7 @@ const create = (tenantId, cb) => {
         logging: false,
         dialect: "mysql",
         pool: {
-          max: 3,
+          max: 1,
           min: 0,
           idle: 10000
         }
