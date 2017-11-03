@@ -1,6 +1,8 @@
 const async = require('async');
 const marketplaceConfig = require('vq-marketplace-config');
 
+const tableName = '_appLabel';
+
 module.exports = (sequelize, DataTypes) => {
   const appLabel = sequelize.define("appLabel", {
       labelGroup: { type: DataTypes.STRING },
@@ -11,11 +13,9 @@ module.exports = (sequelize, DataTypes) => {
         required: true
       }
   }, {
-      tableName: '_appLabel',
-      classMethods: {
-        associate: models => {
-        }
-      }
+    createdAt: false,
+    updatedAt: false,
+    tableName
   });
 
   // expansion of model
@@ -79,7 +79,34 @@ module.exports = (sequelize, DataTypes) => {
             return cb();
           }, cb);
   };
-        
+
+  appLabel.insertSeed = (usecase, lang, cb) => {
+    console.log("[appLabel.insertSeed] Creating seed labels");
+
+    const defaultLabels = marketplaceConfig[usecase].i18n(lang);
+    const labelGroups = marketplaceConfig[usecase].labelGroups();
+    
+    const values = Object.keys(defaultLabels)
+      .map(labelKey => {
+        return "(" + [
+          `'${labelKey.toUpperCase()}'`,
+          labelGroups[labelKey] ? `'${labelGroups[labelKey].toUpperCase()}'` : 'NULL',
+          `'${lang}'`,
+          defaultLabels[labelKey] ? `'${defaultLabels[labelKey].replace(/'/g,"''")}'` : ''
+        ].join(",") + ")";
+      })
+      .join(',');
+
+    let sql = `INSERT INTO ${tableName} (labelKey, labelGroup, lang, labelValue) VALUES ${values}`;
+    
+    console.time('labelSeedInsert');
+    sequelize.query(sql, { type: sequelize.QueryTypes.INSERT })
+      .then(() => cb(), cb)
+      .finally(() => {
+        console.timeEnd('labelSeedInsert');
+      });
+  };
+
   appLabel.bulkCreateOrUpdate = (labels, forceUpdate, cb) => {
       const upsert = forceUpdate ? appLabel.updateFactory() : appLabel.upsertFactory();
       // const upsert = appLabel.upsertFactory();

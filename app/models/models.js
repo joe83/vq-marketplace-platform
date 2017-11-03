@@ -116,8 +116,7 @@ const create = (tenantId, cb) => {
           });
         },
         cb => {
-          console.log("Creating default labels");
-          models.appLabel.addDefaultLangLabels('en', marketplaceType, true, err => {
+          models.appLabel.insertSeed(marketplaceType, 'en', err => {
             if (err) {
               console.error(err);
             }

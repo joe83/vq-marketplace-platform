@@ -62,7 +62,7 @@ const createNewAccount = (models, data, cb) => {
                 .create({
                     accountType: "PRIVATE",
                     vqUserId,
-                    status: shouldBeAdmin ? models.user.USER_TYPES.VERIFIED : models.user.USER_TYPES.UNVERIFIED,
+                    status: shouldBeAdmin ? models.user.USER_STATUS.VERIFIED : models.user.USER_STATUS.UNVERIFIED,
                     isAdmin: shouldBeAdmin,
                     firstName: userData.firstName,
                     lastName: userData.lastName,
@@ -101,6 +101,7 @@ const createNewAccount = (models, data, cb) => {
                 emittedUser.emails = [
                     email
                 ];
+
                 userEmitter.emit('created', models, emittedUser);
             }
 
