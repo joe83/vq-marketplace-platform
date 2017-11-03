@@ -253,6 +253,8 @@ const initRoutes = (app, express) => {
 				});
 			},
 			cb => {
+				console.log("Creating first account on newly created marketplace.");
+
 				const userData = {
 					firstName: tenantRef.firstName,
 					lastName: tenantRef.lastName,
@@ -266,7 +268,8 @@ const initRoutes = (app, express) => {
 
 				const marketplaceModels = db.get(tenantId);
 
-				authCtrl.createNewAccount(marketplaceModels, userData, (err, authData) => {
+				authCtrl
+				.createNewAccount(marketplaceModels, userData, (err, authData) => {
 					return cb(err, authData);
 				});
 			},

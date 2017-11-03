@@ -10,7 +10,7 @@ const tenantConnections = {};
 const getTenantIds = () => Object.keys(tenantConnections);
 
 const pool = mysql.createPool({
-  connectionLimit: 5,
+  connectionLimit: 2,
   host: config.VQ_DB_HOST,
   user: config.VQ_DB_USER,
   password: config.VQ_DB_PASSWORD
@@ -136,9 +136,10 @@ const create = (tenantId, cb) => {
             cb();
           });
         }, 
-      ], cb);
-    }
-  ], cb);
+      ], (err) => {
+        cb(err);
+      });
+    }], cb);
 };
 
 const get = tenantId => {

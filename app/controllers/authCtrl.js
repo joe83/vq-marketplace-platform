@@ -74,7 +74,7 @@ const createNewAccount = (models, data, cb) => {
                     return cb();
                 }, cb),
             cb => async
-            .each(
+            .eachSeries(
                 Object.keys(userData),
                 (prop, cb) =>
                     models.userProperty
