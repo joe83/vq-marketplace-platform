@@ -39,17 +39,25 @@ module.exports = (sequelize, DataTypes) => {
           return cb();
         }, cb);
 
-  AppConfig.upsertFactory = () => (fieldKey, fieldValue, lang, cb) => AppConfig
-        .findOne({ where: { fieldKey }})
-        .then(obj => {
-          if (!obj) {
-            return AppConfig
-            .create({ fieldKey, fieldValue, lang })
-            .then(() => cb(), cb);
-          }
+  AppConfig.upsertFactory = () => (fieldKey, fieldValue, lang, cb) => {
+      AppConfig
+      .findOne({ where: { fieldKey }})
+      .then(obj => {
+        if (!obj) {
+          return AppConfig
+          .create({
+            fieldKey,
+            fieldValue,
+            lang
+          })
+          .then(() => {
+            return cb();
+          }, cb);
+        }
 
-          return cb();
-        });
+        return cb();
+      }, cb);
+  };
 
   AppConfig.bulkCreateOrUpdate = (configs, forceUpdate, cb) => {
     const upsert = forceUpdate ? AppConfig.updateFactory() : AppConfig.upsertFactory();
@@ -57,7 +65,9 @@ module.exports = (sequelize, DataTypes) => {
     async
     .eachSeries(configs, (config, cb) => {
       upsert(config.fieldKey.toUpperCase(), config.fieldValue, null, cb);
-    }, cb);
+    }, (err) => {
+      cb(err);
+    });
   };
 
   const addDefaultConfig = (usecase, cb) => {

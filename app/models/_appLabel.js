@@ -90,7 +90,7 @@ module.exports = (sequelize, DataTypes) => {
         label.labelValue,
         label.lang,
         cb
-      ));
+      ), cb);
   };
 
   // init of the table / ensuring default labels exist

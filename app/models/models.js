@@ -107,7 +107,7 @@ const create = (tenantId, cb) => {
       async.waterfall([
         cb => {
           console.log("Creating default config");
-          models.appConfig.addDefaultConfig(marketplaceType, true, err => {
+          models.appConfig.addDefaultConfig(marketplaceType, err => {
             if (err) {
               console.error(err);
             }
