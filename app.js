@@ -86,7 +86,9 @@ async.waterfall([
 		})
 	},
 	(tenants, cb) => {
-		async.eachLimit(tenants, 10,
+		async.eachLimit(
+			tenants,
+			10,
 			(tenant, cb) => db.create(tenant, (err) => {
 				if (err) {
 					return cb(err);

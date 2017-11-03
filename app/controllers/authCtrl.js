@@ -58,7 +58,9 @@ const createNewAccount = (models, data, cb) => {
                 
                 return cb();
             }, cb),
-            cb => models.user
+            cb => {
+                models
+                .user
                 .create({
                     accountType: "PRIVATE",
                     vqUserId,
@@ -71,23 +73,27 @@ const createNewAccount = (models, data, cb) => {
                 .then(rUser => {
                     user = rUser;
 
+                    console.log("Admin user created.");
+
                     return cb();
-                }, cb),
+                }, cb)
+            },
             cb => async
             .eachSeries(
-                Object.keys(userData),
-                (prop, cb) =>
-                    models.userProperty
-                    .create({
-                        propKey: prop,
-                        propValue: userData[prop],
-                        userId: user.id
-                    })
-                    .then(rUser => cb()),
-                cb
-            )
+            Object.keys(userData),
+            (propKey, cb) =>
+                models.userProperty
+                .create({
+                    propKey,
+                    propValue: userData[propKey],
+                    userId: user.id
+                })
+                .then(rUser => cb(), cb),
+            cb)
         ], err => {
             if (err) {
+                console.log("Error creating first user");
+
                 return cb(err);
             }
 
