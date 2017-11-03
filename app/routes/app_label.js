@@ -1,5 +1,5 @@
 const async = require("async");
-const models  = require('../models/models');
+const models  = require("../models/models");
 const responseController = require("../controllers/responseController.js");
 const isAdmin = responseController.isAdmin;
 
@@ -12,12 +12,12 @@ module.exports = app => {
                 .findAll({
                     where: {
                         lang
-                    }, order: [ 'labelKey' ]
+                    }, order: [ "labelKey" ]
                 })
-                .then(labels => res.send(labels), err => res.status(400).send(err))
+                .then(labels => res.send(labels), err => res.status(400).send(err));
         }
   
-        res.status(400).send('Specify language')
+        res.status(400).send("Specify language");
     });
 
     app.post("/api/app_label", isAdmin, (req, res) => {
@@ -33,6 +33,6 @@ module.exports = app => {
             res.send({
                 ok: true
             });
-        })
+        });
     });
 };

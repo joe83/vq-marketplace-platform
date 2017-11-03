@@ -1,7 +1,7 @@
-const async = require('async');
-const moment = require('moment');
+const async = require("async");
+const moment = require("moment");
 const cust = require("../config/customizing.js");
-const db  = require('../models/models');
+const db  = require("../models/models");
 const requestEmitter = require("../events/request");
 const orderEmitter = require("../events/order");
 const taskEmitter = require("../events/task");
@@ -23,7 +23,7 @@ const declineRequest = (models, requestId, cb) => {
             cb();
         }
 
-        requestEmitter.emit('request-declined', models, request.id);
+        requestEmitter.emit("request-declined", models, request.id);
     }, cb);
 };
 
@@ -60,11 +60,11 @@ const changeRequestStatus = (models, requestId, newStatus, userId, cb) => {
             .findById(requestId)
             .then(rOldRequest => {
                 if (!rOldRequest) {
-                    return cb('REQUEST_NOT_FOUND');
+                    return cb("REQUEST_NOT_FOUND");
                 }
 
                 if (rOldRequest.status === newStatus) {
-                    return cb('NO_ACTION_REQUIRED');
+                    return cb("NO_ACTION_REQUIRED");
                 }
 
                 oldRequest = rOldRequest;
@@ -86,7 +86,7 @@ const changeRequestStatus = (models, requestId, newStatus, userId, cb) => {
                 // request = rRequest;
 
                 cb();
-            }, cb)
+            }, cb);
         },
         cb => {
             if (newStatus !== models.request.REQUEST_STATUS.MARKED_DONE) {
@@ -111,7 +111,7 @@ const changeRequestStatus = (models, requestId, newStatus, userId, cb) => {
                             autoSettlementStartedAt,
                             status: models.order.ORDER_STATUS.MARKED_DONE
                         })
-                        .then(_ => cb(), cb)
+                        .then(_ => cb(), cb);
                 }, cb);
             }
         }
@@ -122,10 +122,10 @@ const changeRequestStatus = (models, requestId, newStatus, userId, cb) => {
 
         if (newStatus === models.request.REQUEST_STATUS.MARKED_DONE) {
             requestEmitter
-                .emit('request-marked-as-done', models, requestId);
+                .emit("request-marked-as-done", models, requestId);
 
             orderEmitter
-                .emit('order-marked-as-done', models, order.id)
+                .emit("order-marked-as-done", models, order.id);
         }
 
         if (newStatus === models.request.REQUEST_STATUS.CANCELED) {
@@ -134,10 +134,10 @@ const changeRequestStatus = (models, requestId, newStatus, userId, cb) => {
                 .findById(oldRequest.taskId)
                 .then(rTask => {
                     taskEmitter
-                        .emit('task-request-cancelled', models, rTask);
+                        .emit("task-request-cancelled", models, rTask);
                     
                     requestEmitter
-                        .emit('request-cancelled', models, requestId);
+                        .emit("request-cancelled", models, requestId);
                 });
         }
 

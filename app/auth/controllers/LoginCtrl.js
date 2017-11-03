@@ -61,7 +61,7 @@ const loginWithPassword = (models, email, password, callback) => {
       });
     }
   ], err => callback(err, Token));
-}
+};
 
 module.exports = {
 	loginWithPassword

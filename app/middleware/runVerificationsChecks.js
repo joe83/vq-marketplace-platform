@@ -20,10 +20,10 @@ module.exports = (req, res, next) => {
             async
             .eachSeries(verifications, (verification, cb) => {
                 const verificationObj = {};
-                const verificationSteps = verification.steps.split(':');
+                const verificationSteps = verification.steps.split(":");
 
-                if (verification.type === 'user') {
-                    if (verificationSteps[0] === 'equals') {
+                if (verification.type === "user") {
+                    if (verificationSteps[0] === "equals") {
                         verificationObj[verification.fieldKey] = verificationSteps[1];
                     }
 
@@ -36,7 +36,7 @@ module.exports = (req, res, next) => {
                         }
                     })
                     .then(verificationPassed => {
-                        if (Boolean(verificationPassed)) {
+                        if (verificationPassed) {
                             return cb();
                         }
 
@@ -44,7 +44,7 @@ module.exports = (req, res, next) => {
                     });
                 }
 
-                if (verification.type === 'userProperty') {
+                if (verification.type === "userProperty") {
                     return req.models.userProperty
                         .findOne({
                             where: {
@@ -57,8 +57,8 @@ module.exports = (req, res, next) => {
                             const property = userProperties
                             .find(_ => _.propKey === verification.fieldKey);
 
-                            if (verificationSteps[0] === 'required') {
-                                if (Boolean(property)) {
+                            if (verificationSteps[0] === "required") {
+                                if (property) {
                                     return cb();
                                 }
 
@@ -77,5 +77,5 @@ module.exports = (req, res, next) => {
 
                 return next();
             });
-        })
+        });
 };

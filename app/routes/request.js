@@ -1,4 +1,4 @@
-const async = require('async');
+const async = require("async");
 const resCtrl = require("../controllers/responseController.js");
 const cust = require("../config/customizing.js");
 const isLoggedIn = resCtrl.isLoggedIn;
@@ -31,8 +31,8 @@ module.exports = app => {
 
                     if (task.status !== req.models.task.TASK_STATUS.ACTIVE) {
                         return cb({
-                            code: 'TASK_WRONG_STATUS',
-                            desc: 'It cannot send requests to tasks that do not have an ACTIVE status.'                            
+                            code: "TASK_WRONG_STATUS",
+                            desc: "It cannot send requests to tasks that do not have an ACTIVE status."                            
                         });
                     }
 
@@ -59,16 +59,16 @@ module.exports = app => {
                     })
                     .then(rMessage => {
                         cb(null, rMessage);
-                    }, cb)
+                    }, cb);
                 })
             ], (err, rMessage) => {
                 if (err) {
-                    return res.status(400).send(err)
+                    return res.status(400).send(err);
                 }
 
                 res.send(rMessage);
 
-                requestEmitter.emit('new-request', req.models, request.id);
+                requestEmitter.emit("new-request", req.models, request.id);
             });
         });
 
@@ -99,14 +99,14 @@ module.exports = app => {
             }]
         };
 
-        if (req.query.view === 'in_progress') {
+        if (req.query.view === "in_progress") {
             where.$and.push({ $or: [
                 { status: req.models.request.REQUEST_STATUS.ACCEPTED },
                 { status: req.models.request.REQUEST_STATUS.MARKED_DONE }
             ]});
         }
 
-        if (req.query.view === 'pending') {
+        if (req.query.view === "pending") {
             where.$and.push({ 
                 $or: [
                     { status: req.models.request.REQUEST_STATUS.PENDING }
@@ -114,7 +114,7 @@ module.exports = app => {
             });
         }
 
-        if (req.query.view === 'completed') {
+        if (req.query.view === "completed") {
             where.$and.push({
                 $or: [{
                     status: req.models.request.REQUEST_STATUS.SETTLED
@@ -133,10 +133,10 @@ module.exports = app => {
         req.models.request
             .findAll({
                 where,
-                order: [[ 'createdAt', 'DESC' ]],
+                order: [[ "createdAt", "DESC" ]],
                 include: [
-                    { model: req.models.user, as: 'fromUser' },
-                    { model: req.models.user, as: 'toUser' },
+                    { model: req.models.user, as: "fromUser" },
+                    { model: req.models.user, as: "toUser" },
                     { model: req.models.review },
                     { model: req.models.order }
                 ]
@@ -149,7 +149,7 @@ module.exports = app => {
                         where: {
                             requestId: item.id
                         },
-                        order: [[ 'createdAt', 'DESC' ]]
+                        order: [[ "createdAt", "DESC" ]]
                     })
                     .then(msg => {
                         try {
@@ -231,7 +231,7 @@ module.exports = app => {
             });
     });
 
-    app.put('/api/request/:requestId', isLoggedIn, (req, res) => {
+    app.put("/api/request/:requestId", isLoggedIn, (req, res) => {
         const newStatus = String(req.body.status);
         const userId = req.user.id;
         const requestId = req.params.requestId;
@@ -242,7 +242,7 @@ module.exports = app => {
             });
     });
 
-    app.get('/api/request/:requestId/order', isLoggedIn, (req, res) => {
+    app.get("/api/request/:requestId/order", isLoggedIn, (req, res) => {
         const requestId = req.params.requestId;
 
         req.models.order
@@ -254,7 +254,7 @@ module.exports = app => {
             .then(order => {
                 if (!order) {
                     return sendResponse(res, {
-                        code: 'ORDER_NOT_FOUND'
+                        code: "ORDER_NOT_FOUND"
                     });
                 }
 
@@ -262,7 +262,7 @@ module.exports = app => {
             }, err => sendResponse(res, err));
     });
 
-    app.get('/api/order/:orderId/request', isLoggedIn, (req, res) => {
+    app.get("/api/order/:orderId/request", isLoggedIn, (req, res) => {
         const orderId = req.params.orderId;
 
         req.models.order
@@ -270,7 +270,7 @@ module.exports = app => {
             .then(order => {
                 if (!order) {
                     return sendResponse(res, {
-                        code: 'ORDER_NOT_FOUND'
+                        code: "ORDER_NOT_FOUND"
                     });
                 }
                 
@@ -280,19 +280,19 @@ module.exports = app => {
                         id: order.requestId
                     },
                     include: [
-                        { model: req.models.user, as: 'fromUser' },
-                        { model: req.models.user, as: 'toUser' }
+                        { model: req.models.user, as: "fromUser" },
+                        { model: req.models.user, as: "toUser" }
                     ]
                 })
                 .then(request => {
                     if (!request) {
                         return sendResponse(res, {
-                            code: 'REQUEST_NOT_FOUND'
+                            code: "REQUEST_NOT_FOUND"
                         });
                     }
 
                     return sendResponse(res, null, request);
-                }, err => sendResponse(res, err))
-            }, err => sendResponse(res, err))
+                }, err => sendResponse(res, err));
+            }, err => sendResponse(res, err));
     });
 };

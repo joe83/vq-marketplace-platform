@@ -1,4 +1,4 @@
-const async = require('async');
+const async = require("async");
 const responseController = require("../controllers/responseController.js");
 const cust = require("../config/customizing.js");
 const isLoggedIn = responseController.isLoggedIn;
@@ -12,7 +12,7 @@ module.exports = app => {
     next();
   }
  
-  app.get('/api/user/:userId/property', identifyUser, (req, res) => {
+  app.get("/api/user/:userId/property", identifyUser, (req, res) => {
     const userId = req.params.userId;
 
     async
@@ -33,7 +33,7 @@ module.exports = app => {
         });
   });
 
-  app.post('/api/user/:userId/property', isLoggedIn, (req, res) => {
+  app.post("/api/user/:userId/property", isLoggedIn, (req, res) => {
     const userId = req.user.id;
     const propValue = req.body.propValue;
     const propKey = req.body.propKey;

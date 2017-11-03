@@ -42,13 +42,13 @@ const taskAutoCancel = (tenantId) => {
             .eachSeries(tasks, (task, cb) => {
                 cancelled++;
 
-                taskEmitter.emit('cancelled', models, task);
+                taskEmitter.emit("cancelled", models, task);
 
                 task
                 .update({
                     status: models.task.TASK_STATUS.INACTIVE
                 })
-                .then(_ => {
+                .then(() => {
                     requestCtrl
                     .declineAllPendingRequestsForTask(models, task.id, err => {
                         if (err) {
@@ -61,7 +61,7 @@ const taskAutoCancel = (tenantId) => {
 
                         return cb();
                     });
-                })
+                });
             }, cb);
         }
     ], err => {

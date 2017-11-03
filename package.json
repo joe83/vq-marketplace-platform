@@ -68,6 +68,10 @@
   "devDependencies": {
     "eslint": "^4.9.0",
     "gulp": "^3.9.1",
+    "pre-commit": "^1.2.2",
     "yargs": "^7.1.0"
-  }
+  },
+  "pre-commit": [
+    "lint"
+  ]
 }

@@ -4,10 +4,10 @@ var UploadService = require("../services/UploadService");
 var responseController = require("../controllers/responseController");
 var isLoggedIn = responseController.isLoggedIn;
 
-var uploader = UploadService('egamix');
+var uploader = UploadService("egamix");
 
 module.exports = app => {
-    app.post('/api/upload/image',
+    app.post("/api/upload/image",
     isLoggedIn,
     (req, res) => {
         multer({
@@ -15,12 +15,12 @@ module.exports = app => {
                 fileSize: 5 * 1024 * 1024 // 5MB is the limit
             }
         })
-        .single('file')
+        .single("file")
         (req, res, err => {
             if (err) {
-                if (err.code === 'LIMIT_FILE_SIZE') {
+                if (err.code === "LIMIT_FILE_SIZE") {
                     return res.status(400).send({
-                        code: 'LIMIT_IMAGE_SIZE'
+                        code: "LIMIT_IMAGE_SIZE"
                     });
                 }
             }
@@ -41,17 +41,17 @@ module.exports = app => {
             }
             */
             
-            const mimetype = req.file.mimetype.split('/')[1];
+            const mimetype = req.file.mimetype.split("/")[1];
     
-            if (mimetype !== 'jpeg' && mimetype !== 'png') {
+            if (mimetype !== "jpeg" && mimetype !== "png") {
                 return res.status(400).send({
-                    code: 'UNSUPPORTED_IMAGE_FORMAT'
+                    code: "UNSUPPORTED_IMAGE_FORMAT"
                 });
             }
     
             async.waterfall([
                 fn => uploader
-                .uploadToBucket(imageBuffer, 'st', mimetype, width, height, (err, locationPath) => {
+                .uploadToBucket(imageBuffer, "st", mimetype, width, height, (err, locationPath) => {
                     if (err) {
                         return fn(err, locationPath);
                     }
@@ -71,7 +71,7 @@ module.exports = app => {
         });
     });
 
-    app.post('/api/upload/file',
+    app.post("/api/upload/file",
     isLoggedIn,
     (req, res) => {
         multer({
@@ -79,12 +79,12 @@ module.exports = app => {
                 fileSize: 5 * 1024 * 1024 // 5MB is the limit
             }
         })
-        .single('file')
+        .single("file")
         (req, res, err => {
             if (err) {
-                if (err.code === 'LIMIT_FILE_SIZE') {
+                if (err.code === "LIMIT_FILE_SIZE") {
                     return res.status(400).send({
-                        code: 'LIMIT_IMAGE_SIZE'
+                        code: "LIMIT_IMAGE_SIZE"
                     });
                 }
             }
@@ -95,17 +95,17 @@ module.exports = app => {
     
             const fileBuffer = new Buffer(req.file.buffer);
 
-            const mimetype = req.file.mimetype.split('/')[1];
+            const mimetype = req.file.mimetype.split("/")[1];
     
-            if (mimetype !== 'pdf') {
+            if (mimetype !== "pdf") {
                 return res.status(400).send({
-                    code: 'UNSUPPORTED_FILE_FORMAT'
+                    code: "UNSUPPORTED_FILE_FORMAT"
                 });
             }
     
             async.waterfall([
                 fn => uploader
-                .uploadFileToBucket(fileBuffer, 'st', mimetype, (err, locationPath) => {
+                .uploadFileToBucket(fileBuffer, "st", mimetype, (err, locationPath) => {
                     if (err) {
                         return fn(err, locationPath);
                     }

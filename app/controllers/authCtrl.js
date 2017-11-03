@@ -102,7 +102,7 @@ const createNewAccount = (models, data, cb) => {
                     email
                 ];
 
-                userEmitter.emit('created', models, emittedUser);
+                userEmitter.emit("created", models, emittedUser);
             }
 
             return cb(err, vqAuthUser);

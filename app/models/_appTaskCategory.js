@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
       minPriceHour: { type: DataTypes.INTEGER, default: 0 },
       desc: { type: DataTypes.STRING }
   }, {
-      tableName: '_appTaskCategory',
+      tableName: "_appTaskCategory",
       classMethods: {
         associate: models => {
             // appTaskCategory.belongsTo(req.models.appTaskCategory);

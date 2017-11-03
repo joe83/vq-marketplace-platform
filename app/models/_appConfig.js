@@ -1,19 +1,19 @@
 /**
  * Customizing model for application definition and meta data like corporate identity, logos, pricing levels etc etc.
  */
-const async = require('async');
-const marketplaceConfig = require('vq-marketplace-config');
+const async = require("async");
+const marketplaceConfig = require("vq-marketplace-config");
+
+const tableName = "_appConfig";
 
 module.exports = (sequelize, DataTypes) => {
   const AppConfig = sequelize.define("appConfig", {
       fieldKey: { type: DataTypes.STRING },
       fieldValue: { type: DataTypes.STRING }
   }, {
-      tableName: '_appConfig',
-      classMethods: {
-        associate: models => {
-        }
-      }
+      tableName,
+      createdAt: false,
+      updatedAt: false
   });
 
   // expansion of model
@@ -83,6 +83,30 @@ module.exports = (sequelize, DataTypes) => {
       });
 
     AppConfig.bulkCreateOrUpdate(dataProcessed, false, cb);
+  };
+
+  AppConfig.insertSeed = (usecase, cb) => {
+    console.log("[appConfig.insertSeed] Creating seed configs");
+
+    const defaultConfigs = marketplaceConfig[usecase].config();
+    
+    const values = Object.keys(defaultConfigs)
+      .map(fieldKey => {
+        return "(" + [
+          `'${fieldKey.toUpperCase()}'`,
+          defaultConfigs[fieldKey] ? `'${defaultConfigs[fieldKey].replace(/'/g,"''")}'` : ""
+        ].join(",") + ")";
+      })
+      .join(",");
+
+    let sql = `INSERT INTO ${tableName} (fieldKey, fieldValue) VALUES ${values}`;
+    
+    console.time("configSeedInsert");
+    sequelize.query(sql, { type: sequelize.QueryTypes.INSERT })
+      .then(() => cb(), cb)
+      .finally(() => {
+        console.timeEnd("configSeedInsert");
+      });
   };
 
   AppConfig.addDefaultConfig = addDefaultConfig;

@@ -4,8 +4,8 @@ const identifyUser = require("../controllers/responseController.js").identifyUse
 const isLoggedIn = require("../controllers/responseController.js").isLoggedIn;
 const requestCtrl = require("../controllers/requestCtrl.js");
 const isLoggedInAndVerified = require("../controllers/responseController.js").isLoggedInAndVerified;
-const utils = require('../utils');
-const striptags = require('striptags');
+const utils = require("../utils");
+const striptags = require("striptags");
 const taskEmitter = require("../events/task");
 
 const isMyTask = (models, taskId, myUserId) => {
@@ -20,19 +20,19 @@ const isMyTask = (models, taskId, myUserId) => {
         if (!task) {
             return reject({
                 status: 400, 
-                code: 'TASK_DOES_NOT_EXIST' 
+                code: "TASK_DOES_NOT_EXIST" 
             });
         }
 
         if (Number(task.userId) !== Number(myUserId)) {
             return reject({ 
                 status: 401, 
-                code: 'NOT_YOUR_TASK' 
+                code: "NOT_YOUR_TASK" 
             });
         }
 
         return resolve(task);
-    }))
+    }));
 };
 
 const getTaskAdditionalInfo = (models, taskId) => new Promise((resolve, reject) => async.parallel([
@@ -69,13 +69,13 @@ const getTaskAdditionalInfo = (models, taskId) => new Promise((resolve, reject) 
 }));
 
 module.exports = app => {
-	app.get('/api/task',
+	app.get("/api/task",
         identifyUser, 
         (req, res) => {
             const query = {};
 
             query.order = [[
-                'createdAt', 'DESC'
+                "createdAt", "DESC"
             ]];
 
             query.include = [];
@@ -85,7 +85,7 @@ module.exports = app => {
                 include: [
                     { 
                         model: req.models.user,
-                        as: 'fromUser',
+                        as: "fromUser",
                     }
                 ]
             });
@@ -138,7 +138,7 @@ module.exports = app => {
                         .literal(`ST_GeomFromText('POINT(${lat} ${lng})')`);
 
                     const distance = req.models.seq
-                        .fn('ST_Distance_Sphere', req.models.seq.literal('geo'), location);
+                        .fn("ST_Distance_Sphere", req.models.seq.literal("geo"), location);
 
                     /*
                     const attributes = Object
@@ -237,7 +237,7 @@ module.exports = app => {
                                         .map(_ => {
                                             _.imageUrl = categories
                                                 .find(category => category.code === _.code)
-                                                .imageUrl
+                                                .imageUrl;
 
                                             return _;
                                         });
@@ -263,17 +263,17 @@ module.exports = app => {
                 .then(
                     tasks =>  sendResponse(res, null, tasks),
                     err => {
-                        sendResponse(res, err)
+                        sendResponse(res, err);
                     }
-                )
+                );
             });
 
-    app.get('/api/task/location/last',
+    app.get("/api/task/location/last",
         isLoggedIn, 
         (req, res) => {
             return req.models.taskLocation
                 .findOne({
-                    order: [[ 'createdAt', 'DESC' ]],
+                    order: [[ "createdAt", "DESC" ]],
                     include: [
                         {
                             model: req.models.task,
@@ -289,10 +289,10 @@ module.exports = app => {
                 .then(lastLocation =>
                     sendResponse(res, null, lastLocation),
                     err => sendResponse(res, err)
-                )
+                );
             });
 
-    app.post('/api/task',
+    app.post("/api/task",
         isLoggedInAndVerified,
         (req, res) => {
             req.models.task
@@ -305,7 +305,7 @@ module.exports = app => {
                 .catch(err => sendResponse(res, err));
         });
 
-    app.post('/api/task/:taskId/comment',
+    app.post("/api/task/:taskId/comment",
         isLoggedIn,
         (req, res) => {
             req.models.taskComment
@@ -318,7 +318,7 @@ module.exports = app => {
             .catch(err => sendResponse(res, err));
         });
         
-   app.post('/api/task/:taskId/category',
+   app.post("/api/task/:taskId/category",
         isLoggedIn,
         (req, res) => {
             isMyTask(req.models, req.params.taskId, req.user.id)
@@ -331,7 +331,7 @@ module.exports = app => {
                 async.each(req.body, (code, cb) => {
                     return req.models.taskCategory
                         .create({ code, taskId: req.params.taskId })
-                        .then(ok => cb(), err => cb(err))
+                        .then(ok => cb(), err => cb(err));
                 }, err => {
                     if (err) {
                         return reject(err);
@@ -339,10 +339,10 @@ module.exports = app => {
 
                     return resolve();
             })))
-            .then(task => sendResponse(res, null, { ok: true }), err => sendResponse(res, err))
+            .then(task => sendResponse(res, null, { ok: true }), err => sendResponse(res, err));
         });
 
-   app.post('/api/task/:taskId/image',
+   app.post("/api/task/:taskId/image",
         isLoggedIn,
         (req, res) => {
             isMyTask(req.models, req.params.taskId, req.user.id)
@@ -355,7 +355,7 @@ module.exports = app => {
                 async.each(req.body, (image, cb) => {
                     return req.models.taskImage
                         .create({ imageUrl: image.imageUrl, taskId: req.params.taskId })
-                        .then(ok => cb(), err => cb(err))
+                        .then(ok => cb(), err => cb(err));
                 }, err => {
                     if (err) {
                         return reject(err);
@@ -363,10 +363,10 @@ module.exports = app => {
 
                     return resolve();
             })))
-            .then(task => sendResponse(res, null, { ok: true }), err => sendResponse(res, err))
+            .then(task => sendResponse(res, null, { ok: true }), err => sendResponse(res, err));
         });
 
-    app.post('/api/task/:taskId/timing',
+    app.post("/api/task/:taskId/timing",
         isLoggedIn,
         (req, res) => {
             const taskId = req.params.taskId;
@@ -386,10 +386,10 @@ module.exports = app => {
                             duration: req.body.duration,
                             date: timing.date,
                             endDate: timing.endDate,
-                            type: '',
+                            type: "",
                             taskId
                         })
-                        .then(ok => cb(), err => cb(err))
+                        .then(ok => cb(), err => cb(err));
                 }, err => {
                     if (err) {
                         return reject(err);
@@ -397,13 +397,13 @@ module.exports = app => {
 
                     return resolve();
             })))
-            .then(task => sendResponse(res, null, { ok: true }), err => sendResponse(res, err))
+            .then(task => sendResponse(res, null, { ok: true }), err => sendResponse(res, err));
         });
 
    /*
     Updates location for a task
    */
-   app.post('/api/task/:taskId/location',
+   app.post("/api/task/:taskId/location",
         isLoggedIn,
         (req, res) => {
             const userId = req.user.id;
@@ -431,7 +431,7 @@ module.exports = app => {
                     const lng = taskLocation.lng;
 
                     const geoPoint = {
-                        type: 'Point',
+                        type: "Point",
                         coordinates: [
                             lat,
                             lng
@@ -462,7 +462,7 @@ module.exports = app => {
             });
         });
 
-    app.post('/api/task-location',
+    app.post("/api/task-location",
         isLoggedIn,
         (req, res) => {
             const userId = req.user.id;
@@ -471,7 +471,7 @@ module.exports = app => {
             const lng = taskLocation.lng;
 
             const geoPoint = {
-                type: 'Point',
+                type: "Point",
                 coordinates: [
                     lat,
                     lng
@@ -526,7 +526,7 @@ module.exports = app => {
             });
         });
 
-    app.get('/api/task-location', isLoggedIn, (req, res) => {
+    app.get("/api/task-location", isLoggedIn, (req, res) => {
         return req.models
             .taskLocation
             .findAll({
@@ -537,10 +537,10 @@ module.exports = app => {
             .then(locations =>
                 sendResponse(res, null, locations),
                 err => sendResponse(res, err)
-            )
+            );
     });
 
-   app.get('/api/task/:taskId', 
+   app.get("/api/task/:taskId", 
     identifyUser, 
     (req, res) => 
         async.parallel([
@@ -557,7 +557,7 @@ module.exports = app => {
                 .then(task => {
                     if (!task) {
                         return cb({
-                            code: 'LISTING_NOT_FOUND'
+                            code: "LISTING_NOT_FOUND"
                         });
                     }
 
@@ -606,7 +606,7 @@ module.exports = app => {
                         ]
                     },
                     include: [
-                        { model: req.models.user, as: 'fromUser' }
+                        { model: req.models.user, as: "fromUser" }
                     ]
                 })
                 .then(requests => cb(null, requests), err => cb(err))
@@ -631,7 +631,7 @@ module.exports = app => {
     /*
         updates task header info like title or description
     */
-    app.put('/api/task/:taskId', isLoggedIn, (req, res) => {
+    app.put("/api/task/:taskId", isLoggedIn, (req, res) => {
         const taskId = req.params.taskId;
         const userId = String(req.user.id);
         const updatedTask = req.body;
@@ -645,10 +645,10 @@ module.exports = app => {
         */
 
         const fieldsToBeExcluded = [ 
-            'id',
-            'userId',
-            'categories',
-            'duration'
+            "id",
+            "userId",
+            "categories",
+            "duration"
         ];
 
         Object.keys(updatedTask)
@@ -660,7 +660,7 @@ module.exports = app => {
         
         const updatedFields = req.body;
 
-        updatedTask.status = updatedTask.status ? String(updatedTask.status) : '0';     
+        updatedTask.status = updatedTask.status ? String(updatedTask.status) : "0";     
         
         var task;
 
@@ -671,7 +671,7 @@ module.exports = app => {
                     task = rTask;
 
                     cb();
-                }, cb)
+                }, cb);
             },
             cb => {
                 task
@@ -683,12 +683,12 @@ module.exports = app => {
             cb => {
                 if (newStatus === req.models.task.TASK_STATUS.ACTIVE) {
                     taskEmitter
-                        .emit('new-task', req.models, task.id);
+                        .emit("new-task", req.models, task.id);
                 }
 
                 if (newStatus === req.models.task.TASK_STATUS.INACTIVE) {
                     taskEmitter
-                        .emit('cancelled', req.models, task);
+                        .emit("cancelled", req.models, task);
 
                     requestCtrl
                     .declineAllPendingRequestsForTask(req.models, taskId, err => {

@@ -5,7 +5,7 @@ const vqAuth = require("../auth");
 const isLoggedIn = resCtrl.isLoggedIn;
 const isAdmin = resCtrl.isAdmin;
 const sendResponse = resCtrl.sendResponse;
-const db = require('../models/models');
+const db = require("../models/models");
 const requestCtrl = require("../controllers/requestCtrl");
 const userEmitter = require("../events/user");
 const taskEmitter = require("../events/task");
@@ -13,14 +13,14 @@ const taskEmitter = require("../events/task");
 module.exports = app => {
 	app.get("/api/admin/report", isLoggedIn, isAdmin, (req, res) => req.models.report
 		.findAll({
-			distinct: 'reportName',
-			order: [[ 'createdAt', 'DESC' ]]
+			distinct: "reportName",
+			order: [[ "createdAt", "DESC" ]]
 		})
 		.then(data => res.send(data)));
 
 	app.get("/api/admin/user", isLoggedIn, isAdmin, (req, res) => req.models.user
 		.findAll({
-			order: [[ 'createdAt', 'DESC' ]],
+			order: [[ "createdAt", "DESC" ]],
 			include: [
 				{ model: req.models.userProperty },
 				{ model: req.models.userPreference }
@@ -55,18 +55,18 @@ module.exports = app => {
 						res.status(200).send(emails);
 					});
 			}, err => res.status(500).send(err));
-	})
+	});
 
 	app.get("/api/admin/request", isLoggedIn, isAdmin, (req, res) => req.models.request
 		.findAll({
-			order: [[ 'createdAt', 'DESC' ]],
+			order: [[ "createdAt", "DESC" ]],
 			include: [
 				{ model: req.models.task },
-				{ model: req.models.user, as: 'fromUser' },
+				{ model: req.models.user, as: "fromUser" },
 				{ model: req.models.review },
 				{
 					model: req.models.order,
-					as: 'order',
+					as: "order",
 					include: [
 						{
 							model: req.models.review
@@ -84,24 +84,24 @@ module.exports = app => {
 		req.models
 		.message
 		.findAll({
-			order: [[ 'createdAt', 'DESC' ]],
+			order: [[ "createdAt", "DESC" ]],
 			include: [
 				// { model: req.models.task },
-				{ model: req.models.user, as: 'fromUser' }
+				{ model: req.models.user, as: "fromUser" }
 			],
 			where: {
 				requestId: req.params.requestId
 			}
 		})
 		.then(data => {
-			return res.send(data)
+			return res.send(data);
 		}, err => {
 			return res.status(400).send(err);
 		}));
 
 	app.get("/api/admin/task", isLoggedIn, isAdmin, (req, res) => req.models.task
 		.findAll({
-			order: [[ 'createdAt', 'DESC' ]],
+			order: [[ "createdAt", "DESC" ]],
 			include: []
 		})
 		.then(data => res.send(data)));
@@ -116,12 +116,12 @@ module.exports = app => {
 			.then(
 				task => {
 					if (!task) {
-						return sendResponse(res, 'NOT_FOUND');
+						return sendResponse(res, "NOT_FOUND");
 					}
 					
 					if (task.status !== req.models.task.TASK_STATUS.ACTIVE) {
 						return sendResponse(res, {
-							code: 'TASK_IS_NOT_ACTIVE'
+							code: "TASK_IS_NOT_ACTIVE"
 						});
 					}
 
@@ -131,7 +131,7 @@ module.exports = app => {
 						});
 
 					taskEmitter
-						.emit('marked-spam', req.models, task);
+						.emit("marked-spam", req.models, task);
 
 					task.getRequests()
 					.then(requests => {
@@ -159,8 +159,8 @@ module.exports = app => {
 						{ userId: req.params.userId },
 						{
 							$or: [
-								{ propKey: 'studentIdUrl' },
-								{ propKey:  'studentIdBackUrl' }
+								{ propKey: "studentIdUrl" },
+								{ propKey:  "studentIdBackUrl" }
 							]
 						}
 					]
@@ -168,7 +168,7 @@ module.exports = app => {
 			})
 			.then(
 				() => {
-					sendResponse(res, null, { ok: 200 })
+					sendResponse(res, null, { ok: 200 });
 				}, 
 				err => sendResponse(res, err)
 			);
@@ -176,7 +176,7 @@ module.exports = app => {
 
 	app.get("/api/admin/order", isLoggedIn, isAdmin, (req, res) => req.models.request
 		.findAll({
-			order: [[ 'createdAt', 'DESC' ]],
+			order: [[ "createdAt", "DESC" ]],
 			include: [
 				{ model: req.models.task }
 			]
@@ -222,13 +222,13 @@ module.exports = app => {
 						});
 					}
 
-					console.log('[ADMIN] Blocking user.');
+					console.log("[ADMIN] Blocking user.");
 
 					user.update({
 						status: req.models.user.USER_STATUS.BLOCKED
 					});
 
-					console.log('[ADMIN] Setting active tasks of the blocked user to INACTIVE.');
+					console.log("[ADMIN] Setting active tasks of the blocked user to INACTIVE.");
 					req.models.task.findAll({
 						where: {
 							$and: [
@@ -267,10 +267,10 @@ module.exports = app => {
 							if (err) {
 								return console.error(err);
 							}
-						})
+						});
 					});
 					
-					console.log('[ADMIN] Setting pending request to the blocked user to DECLINED.');
+					console.log("[ADMIN] Setting pending request to the blocked user to DECLINED.");
 					req.models
 					.request
 					.update({
@@ -294,7 +294,7 @@ module.exports = app => {
 						console.error(err);
 					});
 
-					console.log('[ADMIN] Setting pending request to the blocked user to CANCELED.');
+					console.log("[ADMIN] Setting pending request to the blocked user to CANCELED.");
 					req.models
 					.request
 					.update({
@@ -321,7 +321,7 @@ module.exports = app => {
 					sendResponse(res, null, user);
 
 					userEmitter
-						.emit('blocked', req.models, user);
+						.emit("blocked", req.models, user);
 					
 					});
 			}, err => sendResponse(res, err));

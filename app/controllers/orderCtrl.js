@@ -1,5 +1,5 @@
-const async = require('async');
-const db = require('../models/models');
+const async = require("async");
+const db = require("../models/models");
 const orderEmitter = require("../events/order");
 const requestEmitter = require("../events/request");
 const utils = require("../utils");
@@ -16,11 +16,11 @@ const settleOrder = (models, orderId, userId, cb) => {
             .findById(orderId)
             .then(rOrder => {
                 if (!rOrder) {
-                    return cb('NOT_FOUND');
+                    return cb("NOT_FOUND");
                 }
              
                 if (rOrder.userId !== userId) {
-                    return cb('NOT_AUTHORIZED_TO_SETTLE');
+                    return cb("NOT_AUTHORIZED_TO_SETTLE");
                 }
 
                 const possibleStatusForUpdate = [
@@ -31,7 +31,7 @@ const settleOrder = (models, orderId, userId, cb) => {
                 if (
                     possibleStatusForUpdate.indexOf(rOrder.status) === -1
                 ) {
-                    return cb('WRONG_STATUS');
+                    return cb("WRONG_STATUS");
                 }
 
                 order = rOrder;
@@ -66,10 +66,10 @@ const settleOrder = (models, orderId, userId, cb) => {
         }
        
         requestEmitter
-            .emit('request-completed', models, requestId);
+            .emit("request-completed", models, requestId);
 
         orderEmitter
-             .emit('order-completed', models, orderId)
+             .emit("order-completed", models, orderId);
 
         cb(null, order);
     });

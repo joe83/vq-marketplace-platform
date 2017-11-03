@@ -2,7 +2,7 @@ module.exports = (sequelize, DataTypes) => {
   const TaskCategory = sequelize.define("taskCategory", {
     code: { type: DataTypes.STRING }
   }, {
-    tableName: 'taskCategory'
+    tableName: "taskCategory"
   });
 
   TaskCategory.associate = models => {

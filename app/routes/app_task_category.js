@@ -7,7 +7,7 @@ module.exports = app => {
         req.models.appTaskCategory
         .findAll({
             order: [
-                'label'
+                "label"
             ]
         })
         .then(data => res.status(200).send(data))

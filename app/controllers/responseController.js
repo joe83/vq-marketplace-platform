@@ -1,13 +1,13 @@
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 const cust = require("../config/customizing");
 const superSecret = require("../config/configProvider")().secret;
 const models = require("../models/models");
 const vqAuth = require("../auth");
 
 function isAuth(req) {
-	if (req.headers['x-auth-token']) {
+	if (req.headers["x-auth-token"]) {
 		try {
-			var decoded = jwt.verify(req.headers['x-auth-token'], superSecret);
+			var decoded = jwt.verify(req.headers["x-auth-token"], superSecret);
 
 			return decoded;
 		} catch (err) {
@@ -22,7 +22,7 @@ function isAuth(req) {
 
 function parseUserFactory (loginRequired, adminRequired, requiredStatus) {
 	return (req, res, next) => {
-			const authToken = req.headers['x-auth-token'];
+			const authToken = req.headers["x-auth-token"];
 
 			vqAuth
 			.checkToken(req.models, authToken, (err, rAuthUser) => {
@@ -52,7 +52,7 @@ function parseUserFactory (loginRequired, adminRequired, requiredStatus) {
 								.send(cust.errorCodes.NOT_AUTHENTIFICATIED);
 						}
 
-						if (user.status == '20') {
+						if (user.status == "20") {
 							return res.status(cust.errorCodes.USER_BLOCKED.httpCode)
 								.send(cust.errorCodes.USER_BLOCKED);
 						}
@@ -82,14 +82,14 @@ function parseUserFactory (loginRequired, adminRequired, requiredStatus) {
 							.send(cust.errorCodes.NOT_AUTHENTIFICATIED);
 					}
 					
-					return next()
+					return next();
 				}
 			});
 		};
 }
 
 const isLoggedIn = parseUserFactory(true, false);
-const isLoggedInAndVerified = parseUserFactory(true, false, '10');
+const isLoggedInAndVerified = parseUserFactory(true, false, "10");
 const isAdmin = parseUserFactory(true, true);
 const identifyUser = parseUserFactory(false, false);
 
@@ -102,7 +102,7 @@ module.exports = {
 		if (err) {
 			console.error(err);
 			
-			if (typeof err === 'string') {
+			if (typeof err === "string") {
 				return res.status(400).send(err);
 			}
 

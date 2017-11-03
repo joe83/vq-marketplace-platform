@@ -1,5 +1,5 @@
-const EventEmitter = require('events');
-const async = require('async');
+const EventEmitter = require("events");
+const async = require("async");
 const emailService = require("../services/emailService");
 const randomstring = require("randomstring");
 const config = require("../config/configProvider.js")();
@@ -13,13 +13,13 @@ const getDomainName = (models, cb) => {
     .appConfig
     .findOne({
         where: {
-            fieldKey: 'DOMAIN'
+            fieldKey: "DOMAIN"
         }
     })
     .then(configField => {
         configField = configField || {};
         
-        const domain = configField.fieldValue || 'http://localhost:3000';
+        const domain = configField.fieldValue || "http://localhost:3000";
 
         return cb(null, domain);
     }, cb);
@@ -32,7 +32,7 @@ const handlerFactory = (emailCode) => (models, task) => {
         .findById(task.userId)
         .then(user => {
             if (!user) {
-                return console.error('USER_NOT_FOUND');
+                return console.error("USER_NOT_FOUND");
             }
     
             vqAuth
@@ -65,15 +65,15 @@ const handlerFactory = (emailCode) => (models, task) => {
 };
 
 taskEmitter
-    .on('marked-spam', handlerFactory('task-marked-spam'));
+    .on("marked-spam", handlerFactory("task-marked-spam"));
 
 taskEmitter
-    .on('task-request-cancelled', handlerFactory('task-request-cancelled'));
+    .on("task-request-cancelled", handlerFactory("task-request-cancelled"));
 
 taskEmitter
-    .on('new-task', (models, taskId) => {
+    .on("new-task", (models, taskId) => {
         if (!taskId) {
-            return console.error('TASK_NOT_FOUND');
+            return console.error("TASK_NOT_FOUND");
         }
 
         var taskCategory, userPreferences;
@@ -164,24 +164,24 @@ taskEmitter
                         });
                     }, () => {
                         emailService
-                        .getEmailAndSend(models, emailService.EMAILS.NEW_LISTING, userEmails, emailData)
+                        .getEmailAndSend(models, emailService.EMAILS.NEW_LISTING, userEmails, emailData);
                      
 
                         console.log("New task emails have been sent!");
                     });
             }
-        ])
+        ]);
     });
 
 taskEmitter
-    .on('cancelled', handlerFactory('listing-cancelled'));
+    .on("cancelled", handlerFactory("listing-cancelled"));
 
 
 if (module.parent) {
     module.exports = taskEmitter;
 } else {
-    console.log(process.argv[2])
-    console.log(process.argv[3])
+    console.log(process.argv[2]);
+    console.log(process.argv[3]);
     
     taskEmitter.emit(process.argv[2], process.argv[3]);
 }

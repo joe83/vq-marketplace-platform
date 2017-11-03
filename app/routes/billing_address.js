@@ -1,7 +1,7 @@
 const responseController = require("../controllers/responseController");
 const isLoggedIn = responseController.isLoggedIn;
 const sendResponse = responseController.sendResponse;
-const RESOURCE = 'billing_address';
+const RESOURCE = "billing_address";
 
 module.exports = app => {
     app.post(`/api/${RESOURCE}`,
@@ -30,7 +30,7 @@ module.exports = app => {
                 return req.models
                     .billingAddress
                     .create(billingAddress)
-                    .then(data => sendResponse(res, null, data))
+                    .then(data => sendResponse(res, null, data));
             }, err => sendResponse(res, err));
         });
     
@@ -64,7 +64,7 @@ module.exports = app => {
                 .then(
                     data => sendResponse(res, null, data),
                     err => sendResponse(res, err)
-                )
+                );
             }, err => sendResponse(res, err));
         });
 

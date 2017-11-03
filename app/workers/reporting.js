@@ -1,4 +1,4 @@
-const db = require('../models/models');
+const db = require("../models/models");
 
 const runReporting = tenantId => {
     const models = db.get(tenantId);
@@ -16,9 +16,9 @@ const runReporting = tenantId => {
             });
     });
 
-    analyzeEntityNo('user');
-    analyzeEntityNo('task');
-    analyzeEntityNo('request');
+    analyzeEntityNo("user");
+    analyzeEntityNo("task");
+    analyzeEntityNo("request");
 };
 
 module.exports = runReporting;

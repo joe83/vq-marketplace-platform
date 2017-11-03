@@ -1,7 +1,7 @@
 "use strict";
 
-const EventEmitter = require('events');
-const async = require('async');
+const EventEmitter = require("events");
+const async = require("async");
 const models = require("../models/models");
 const emailService = require("../services/emailService.js");
 const config = require("../config/configProvider.js")();
@@ -22,8 +22,8 @@ const getReviewOwnerEmails = (models, reviewId, cb) => {
                     id: reviewId
                 },
                 include: [
-                    { model: models.user, as: 'fromUser' },
-                    { model: models.user, as: 'toUser' }
+                    { model: models.user, as: "fromUser" },
+                    { model: models.user, as: "toUser" }
                 ]
             })
             .then(rReview => {
@@ -111,13 +111,13 @@ const reviewEventHandlerFactory = (emailCode, actionUrlFn) => {
 				.appConfig
 				.findOne({
 					where: {
-						fieldKey: 'DOMAIN'
+						fieldKey: "DOMAIN"
 					}
 				})
 				.then(configField => {
 					configField = configField || {};
 					
-					const domain = configField.fieldValue || 'http://localhost:3000';
+					const domain = configField.fieldValue || "http://localhost:3000";
 
 					ACTION_URL = 
 						actionUrlFn(domain, review.toUser.id);
@@ -141,15 +141,15 @@ const reviewEventHandlerFactory = (emailCode, actionUrlFn) => {
 };
 
 reviewEmitter
-	.on('review-left', 
-		reviewEventHandlerFactory('review-left', (domain, userId) => `${domain}/app/profile/${userId}`)
+	.on("review-left", 
+		reviewEventHandlerFactory("review-left", (domain, userId) => `${domain}/app/profile/${userId}`)
 	);
 
 if (module.parent) {
 	module.exports = reviewEmitter;
 } else {
-	console.log(process.argv[2])
-	console.log(process.argv[3])
+	console.log(process.argv[2]);
+	console.log(process.argv[3]);
 	
 	reviewEmitter.emit(process.argv[2], process.argv[3]);
 }

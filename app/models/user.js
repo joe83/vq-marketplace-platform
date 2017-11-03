@@ -6,10 +6,10 @@ module.exports = (sequelize, DataTypes) => {
   };
 
   const USER_STATUS = {
-    UNVERIFIED: '0',
-    VERIFIED: '10',
-    DISABLED: '15',
-    BLOCKED: '20'
+    UNVERIFIED: "0",
+    VERIFIED: "10",
+    DISABLED: "15",
+    BLOCKED: "20"
   };
 
   const User = sequelize.define("user", {
@@ -65,14 +65,14 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {
     paranoid: true,
-    tableName: 'user'
+    tableName: "user"
   });
 
   User.associate = models => {
     User.hasMany(models.userProperty);
     User.hasMany(models.userPreference);
     User.hasMany(models.review, {
-      foreignKey: 'toUserId'
+      foreignKey: "toUserId"
     });
   };
 

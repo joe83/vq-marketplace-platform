@@ -54,10 +54,10 @@ var changeHistory = {
 };
 
 var accountTypes = {
-	ADMIN: 'ADMIN',
-	PRIVATE: 'PRIVATE',
-	LEGAL: 'LEGAL',
-	ASSISTANT: 'ASSISTANT'
+	ADMIN: "ADMIN",
+	PRIVATE: "PRIVATE",
+	LEGAL: "LEGAL",
+	ASSISTANT: "ASSISTANT"
 };
 
 var emailTemplates = {
@@ -67,21 +67,21 @@ var emailTemplates = {
 	SERVICE_PROVIDER_INVOICE: "studentask-email-service-provider-invoice-en",
 	SERVICE_PROVIDER_INVOICE_COPY : "studentask-email-service-provider-invoice-copy-en",
 	PROVISION_INVOICE: "studentask-email-provision-invoice-en",
-	EMAIL_VERIFICATION: 'studentask-email-verification',
+	EMAIL_VERIFICATION: "studentask-email-verification",
 	EMAIL_VERIFICATION_INSTANT_TASK : "studentask.email.verification.instant-task",
 	NEW_TASK_INTERNAL : "studentask-email-new-task-internal",
-	CONFIRMED_BY_ASSISTANT : 'studentask-email-confirmed-by-assistant',
+	CONFIRMED_BY_ASSISTANT : "studentask-email-confirmed-by-assistant",
 };
 
 
 
 module.exports = {
-	mode: 'private', //private/firms
-	timezone: 'Europe/Berlin',
-	timeFormat: 'HH:mm',
-	dateFormat: 'DD.MM.YYYY HH:mm',
+	mode: "private", //private/firms
+	timezone: "Europe/Berlin",
+	timeFormat: "HH:mm",
+	dateFormat: "DD.MM.YYYY HH:mm",
 	dateOnlyFormat : "DD.MM.YYYY",
-	domainUrl: 'https://studentask.de/',
+	domainUrl: "https://studentask.de/",
 	changeHistory: changeHistory,
 	accountTypes: accountTypes,
 	statusList: statusList,

@@ -15,7 +15,7 @@ const create = (tenantId, cb) => {
   if (tenantConnections[tenantId]) {
     return cb({
       httpCode: 400,
-      code: 'TENANT_ALREADY_DEPLOYED'
+      code: "TENANT_ALREADY_DEPLOYED"
     });
   }
 
@@ -32,11 +32,11 @@ const create = (tenantId, cb) => {
       connection.connect();
 
       connection.query(
-        'CREATE DATABASE ?? CHARACTER SET utf8 COLLATE utf8_general_ci;;',
+        "CREATE DATABASE ?? CHARACTER SET utf8 COLLATE utf8_general_ci;;",
         [ tenantId ],
         (err, results, fields) => {
           if (err) {
-            if (err.code === 'ER_DB_CREATE_EXISTS') {
+            if (err.code === "ER_DB_CREATE_EXISTS") {
               return cb();
             }
 
@@ -56,7 +56,7 @@ const create = (tenantId, cb) => {
       const sequelize = new Sequelize(tenantId, config.VQ_DB_USER, config.VQ_DB_PASSWORD, {
         host: config.VQ_DB_HOST,
         logging: false,
-        dialect: 'mysql',
+        dialect: "mysql",
         pool: {
           max: 3,
           min: 0,
@@ -99,15 +99,14 @@ const create = (tenantId, cb) => {
         return cb();
       }
 
-      console.log('INITIALIZING...');
+      console.log("INITIALIZING...");
 
-      const marketplaceType = 'services';
+      const marketplaceType = "services";
       const models = tenantConnections[tenantId];
 
       async.waterfall([
         cb => {
-          console.log("Creating default config");
-          models.appConfig.addDefaultConfig(marketplaceType, err => {
+          models.appConfig.insertSeed(marketplaceType, err => {
             if (err) {
               console.error(err);
             }
@@ -116,7 +115,7 @@ const create = (tenantId, cb) => {
           });
         },
         cb => {
-          models.appLabel.insertSeed(marketplaceType, 'en', err => {
+          models.appLabel.insertSeed(marketplaceType, "en", err => {
             if (err) {
               console.error(err);
             }
@@ -125,16 +124,22 @@ const create = (tenantId, cb) => {
           });
         },
         cb => {
-          console.log("Creating default posts");
-          models.post.addDefaultPosts(marketplaceType, true);
+          models.post.insertSeed(marketplaceType, err => {
+            if (err) {
+              console.error(err);
+            }
 
-          cb();
+            cb();
+          });
         }, 
         cb => {
-          console.log("Creating default user properties");
-          models.appUserProperty.addDefaultUserProperties(marketplaceType, true);
+          models.appUserProperty.insertSeed(marketplaceType, err => {
+            if (err) {
+              console.error(err);
+            }
 
-          cb();
+            cb();
+          });
         }, 
       ], cb);
     }

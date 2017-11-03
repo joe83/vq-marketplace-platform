@@ -1,6 +1,6 @@
-const bcrypt = require('bcrypt-nodejs');
+const bcrypt = require("bcrypt-nodejs");
 const async = require("async");
-const randtoken = require('rand-token');
+const randtoken = require("rand-token");
 const logIndex = "[AuthService]";
 
 const generateHashSync = password => bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
@@ -13,7 +13,7 @@ const validPasswordSync = (password, encryptedPassword) => {
 	}
 
 	return bcrypt.compareSync(password, encryptedPassword);
-}
+};
 
 const createNewUser = (models, callback) => {
 	return models.userAuth
@@ -25,7 +25,7 @@ const createNewPassword = (models, userId, password, cb) => {
 	cb = cb || function() {};
 
 	if (!userId || !password) {
-		return cb('INIT_PARAMS');
+		return cb("INIT_PARAMS");
 	}
 
 	models.userPassword
@@ -41,7 +41,7 @@ const createNewPassword = (models, userId, password, cb) => {
 		return models.userPassword.create({
 			userId: userId, 
 			password: generateHashSync(password)
-		})
+		});
 	})
 	.then(_ => cb())
 	.catch(cb);
@@ -81,13 +81,13 @@ const getUserIdFromNetwork = (models, network, networkId, callback) => {
 	var sql = "SELECT user.id AS userId FROM user AS user";
 
 	sql += " INNER JOIN userNetwork AS network";
-	sql += " ON network.userId = user.id"
+	sql += " ON network.userId = user.id";
 	sql += ` WHERE network.networkId = ${networkId} AND network.network = '${network}'`;
 
 	models.seq.query(sql)
 	.then(result => {
 		if (result.length) {
-			return callback(null, result[0])
+			return callback(null, result[0]);
 		}
 
 		return callback(null, false);
@@ -140,7 +140,7 @@ const checkToken = (models, token, callback) => {
 			var response = instance || false;
 
 			return callback(null, response);
-		}, err => callback(err))
+		}, err => callback(err));
 };
 
 const checkPassword = (models, userId, password, callback) => {
@@ -160,7 +160,7 @@ const checkPassword = (models, userId, password, callback) => {
 			}
 
 			return callback(null, isCorrect);
-		}, err => callback(err))
+		}, err => callback(err));
 };
 
 const getEmailsFromUserId = (models, userId, callback) => {
@@ -175,7 +175,7 @@ const getEmailsFromUserId = (models, userId, callback) => {
 		.then(instances =>
 			callback(null, instances || false),
 			err => callback(err)
-		)
+		);
 };
 
 const getUserIdFromEmail = (models, email, callback) => {
@@ -190,7 +190,7 @@ const getUserIdFromEmail = (models, email, callback) => {
 		.then(
 			instance => callback(null, instance || false),
 			err => callback(err)
-		)
+		);
 };
 
 const addUserProp = (models, userId, propKey, propValue, callback) => {

@@ -1,5 +1,4 @@
 const resCtrl = require("../controllers/responseController.js");
-const cust = require("../config/customizing.js");
 const isLoggedIn = resCtrl.isLoggedIn;
 const isAdmin = resCtrl.isAdmin;
 
@@ -35,5 +34,6 @@ module.exports = app => {
                 id: req.params.postId
             }
         })
+        .then(data => res.send(data), err => res.status(500).send(err))
     );
 };

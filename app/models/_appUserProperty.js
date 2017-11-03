@@ -1,7 +1,6 @@
-/**
- * Customizing model for application labels (i18n)
- */
-const marketplaceConfig = require('vq-marketplace-config');
+const marketplaceConfig = require("vq-marketplace-config");
+
+const tableName = "_appUserProperty";
 
 module.exports = (sequelize, DataTypes) => {
   const appUserProperty = sequelize.define("appUserProperty", {
@@ -9,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
       labelKey: { type: DataTypes.STRING, required: true },
       required: { type: DataTypes.BOOLEAN, default: false },
   }, {
-      tableName: '_appUserProperty',
+      tableName,
       classMethods: {
         associate: models => {
         }
@@ -59,6 +58,29 @@ module.exports = (sequelize, DataTypes) => {
       });
 
     appUserProperty.bulkCreateOrUpdate(batchData, force);
+  };
+
+  appUserProperty.insertSeed = (marketplaceType, cb) => {
+    const userProperties = marketplaceConfig[marketplaceType].userProperties();
+
+    const values = Object.keys(userProperties)
+    .map(propKey => {
+      return "(" + [
+        `'${propKey}'`,
+        `'${userProperties[propKey].labelKey}'`,
+        userProperties[propKey].required
+      ].join(",") + ")";
+    })
+    .join(",");
+
+  let sql = `INSERT INTO ${tableName} (propKey, labelKey, required) VALUES ${values}`;
+  
+  console.time("userPropertySeedInsert");
+  sequelize.query(sql, { type: sequelize.QueryTypes.INSERT })
+    .then(() => cb(), cb)
+    .finally(() => {
+      console.timeEnd("userPropertySeedInsert");
+    });
   };
 
   return appUserProperty;

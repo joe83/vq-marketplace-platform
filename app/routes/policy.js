@@ -23,7 +23,7 @@ module.exports = app => {
 		const repeatNewPassword = req.body.repeatNewPassword;
 
 		if (newPassword !== repeatNewPassword) {
-			return sendResponse(res, { code: 'PASSWORDS_DO_NOT_MATCH' });
+			return sendResponse(res, { code: "PASSWORDS_DO_NOT_MATCH" });
 		}
 
 		vqAuth
@@ -48,13 +48,13 @@ module.exports = app => {
 			req.models.appConfig
 			.findOne({
 				where: {
-					fieldKey: 'DOMAIN'
+					fieldKey: "DOMAIN"
 				}
 			})
 			.then(configField => {
 				configField = configField || {};
 				
-				const urlBase = configField.fieldValue || 'http://localhost:3000';
+				const urlBase = configField.fieldValue || "http://localhost:3000";
 				
 				const ACTION_URL = 
 				`${urlBase}/app/change-password?code=${resetCode}`;
@@ -136,12 +136,12 @@ module.exports = app => {
 		var user, userRef;
 
 		try {
-			encryptedToken = encryptedToken.split(' ').join('+');
+			encryptedToken = encryptedToken.split(" ").join("+");
 			
 			user = cryptoService.decodeObj(encryptedToken);
 		} catch(err) {
-			res.set('Content-Type', 'text/html');
-			res.send(new Buffer('<p>Could not verify</p>'));
+			res.set("Content-Type", "text/html");
+			res.send(new Buffer("<p>Could not verify</p>"));
 		}
 		
 		async.waterfall([
@@ -153,7 +153,7 @@ module.exports = app => {
 					if (rUser.status === req.models.user.USER_STATUS.USER_BLOCKED) {
 						return cb({
 							httpCode: 401,
-							code: 'USER_BLOCKED'
+							code: "USER_BLOCKED"
 						});
 					}
 
@@ -166,7 +166,7 @@ module.exports = app => {
 				if (rUser.status && rUser.status !== req.models.user.USER_STATUS.UNVERIFIED) {
 					return cb({
 						httpCode: 400,
-						code: 'WRONG_USER_STATUS'
+						code: "WRONG_USER_STATUS"
 					});
 				}
 
@@ -186,7 +186,7 @@ module.exports = app => {
 				.appConfig
 				.findOne({
 					where: {
-						fieldKey: 'DOMAIN'
+						fieldKey: "DOMAIN"
 					}
 				})
 				.then(configField => {
@@ -200,26 +200,26 @@ module.exports = app => {
 			}
 		], (err, configField) => {
 			if (err) {
-				res.set('Content-Type', 'text/html');
+				res.set("Content-Type", "text/html");
 
 				return res.send(new Buffer(`<p>This verification link is no longer valid.<span style="display:none;">${err.code}</span></p>`));
 			}
 			
 			if (!configField) {
-				res.set('Content-Type', 'text/html');
+				res.set("Content-Type", "text/html");
 				
-				return res.send(new Buffer(`<p>Missing configuration. Configure DOMAIN.</p>`));
+				return res.send(new Buffer("<p>Missing configuration. Configure DOMAIN.</p>"));
 			}
 
 			if (userRef.userType === 1) {
-				return res.redirect(configField.fieldValue + '/app/new-listing');
+				return res.redirect(configField.fieldValue + "/app/new-listing");
 			}
 
-			return res.redirect(configField.fieldValue + '/app/dashboard');
+			return res.redirect(configField.fieldValue + "/app/dashboard");
 		});
 	});
 	
-	app.post('/api/login', (req, res) => {
+	app.post("/api/login", (req, res) => {
 		var User;
 		var email = req.body.email;
 		var password = req.body.password;
@@ -257,7 +257,7 @@ module.exports = app => {
 
 				User.user = rUser ? rUser.dataValues : null;
 
-				if (rUser.status == '20') {
+				if (rUser.status == "20") {
 					return cb(cust.errorCodes.USER_BLOCKED);
 				}
 
@@ -276,7 +276,7 @@ module.exports = app => {
 				.sendResponse(res, err, User));
 	});
 
-	app.post('/api/auth/password', isLoggedIn, (req, res) => {
+	app.post("/api/auth/password", isLoggedIn, (req, res) => {
 		var currentPassword = req.body.currentPassword;
 		var newPassword = req.body.newPassword;
 
@@ -286,7 +286,7 @@ module.exports = app => {
 		});
 	});
 
-	app.post('/api/logout', (req, res) => {
+	app.post("/api/logout", (req, res) => {
 		// @todo destroy token!
 		res.status(200).send();
 	});

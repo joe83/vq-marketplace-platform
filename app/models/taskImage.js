@@ -2,7 +2,7 @@ module.exports = (sequelize, DataTypes) => {
   const TaskImage = sequelize.define("taskImage", {
     imageUrl: { type: DataTypes.STRING }
   }, {
-    tableName: 'taskImage',
+    tableName: "taskImage",
   });
 
   TaskImage.associate = models => {

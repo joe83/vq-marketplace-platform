@@ -1,8 +1,8 @@
 "use strict";
 
-const EventEmitter = require('events');
-const async = require('async');
-const randtoken = require('rand-token');
+const EventEmitter = require("events");
+const async = require("async");
+const randtoken = require("rand-token");
 const emailService = require("../services/emailService.js");
 const config = require("../config/configProvider.js")();
 const vqAuth = require("../auth");
@@ -34,13 +34,13 @@ const getRequestOwnerEmails = (models, requestId, cb) => {
                     id: requestId
                 },
                 include: [
-					{ model: models.user, as: 'fromUser' },
-					{ model: models.task, as: 'task' }
+					{ model: models.user, as: "fromUser" },
+					{ model: models.task, as: "task" }
                 ]
             })
             .then(rRequest => {
 				if (!rRequest) {
-					return cb({ code: 'REQUEST_NOT_FOUND', requestId });
+					return cb({ code: "REQUEST_NOT_FOUND", requestId });
 				}
 
 				request = rRequest;
@@ -104,13 +104,13 @@ const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
 				.appConfig
 				.findOne({
 					where: {
-						fieldKey: 'DOMAIN'
+						fieldKey: "DOMAIN"
 					}
 				})
 				.then(configField => {
 					configField = configField || {};
 					
-					const domain = configField.fieldValue || 'http://localhost:3000';
+					const domain = configField.fieldValue || "http://localhost:3000";
 
 					emailData.ACTION_URL = 
 						actionUrlFn(domain, requestId, order ? order.id : undefined);
@@ -133,7 +133,7 @@ const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
 };
 
 requestEmitter
-	.on('message-received', (models, messageId) => {
+	.on("message-received", (models, messageId) => {
 			let message;
 
 			const emailData = {};
@@ -145,8 +145,8 @@ requestEmitter
 					},
 					include: [
 						{ model: models.task },
-						{ model: models.user, as: 'toUser' },
-						{ model: models.user, as: 'fromUser' }
+						{ model: models.user, as: "toUser" },
+						{ model: models.user, as: "fromUser" }
 					]
 				})
 				.then(rMessage => {
@@ -172,24 +172,24 @@ requestEmitter
 							.appConfig
 							.findOne({
 								where: {
-									fieldKey: 'DOMAIN'
+									fieldKey: "DOMAIN"
 								}
 							})
 							.then(configField => {
 								configField = configField || {};
 								
-								const domain = configField.fieldValue || 'http://localhost:3000';
+								const domain = configField.fieldValue || "http://localhost:3000";
 			
 								const ACTION_URL = `${domain}/app/chat/${message.requestId}`;
 			
 								emailData.ACTION_URL = ACTION_URL;
 
 								emailService
-								.checkIfShouldSendEmail(models, 'message-received', message.toUser.id, () =>
+								.checkIfShouldSendEmail(models, "message-received", message.toUser.id, () =>
 									emailService
-									.getEmailAndSend(models, 'message-received', emails[0], emailData)
+									.getEmailAndSend(models, "message-received", emails[0], emailData)
 								);
-							}, cb)
+							}, cb);
 					});
 				}
 			], err => {
@@ -200,49 +200,49 @@ requestEmitter
 	});
 
 requestEmitter
-	.on('request-accepted', 
-		requestEventHandlerFactory('request-accepted', (domain, requestId) =>
+	.on("request-accepted", 
+		requestEventHandlerFactory("request-accepted", (domain, requestId) =>
 			`${domain}/app/chat/${requestId}`
 		)
 	);
 
 requestEmitter
-	.on('request-completed', 
-		requestEventHandlerFactory('request-completed', (domain, requestId, orderId) =>
+	.on("request-completed", 
+		requestEventHandlerFactory("request-completed", (domain, requestId, orderId) =>
 			`${domain}/app/request/${requestId}/review`
 		)
 	);
 
 requestEmitter
-	.on('closed',
-		requestEventHandlerFactory('request-closed', (domain, requestId, orderId) =>
+	.on("closed",
+		requestEventHandlerFactory("request-closed", (domain, requestId, orderId) =>
 			`${domain}/app/request/${requestId}/review`
 		)
 	);
 
 requestEmitter
-	.on('request-declined',
-	requestEventHandlerFactory('request-declined', (domain, requestId) => 
+	.on("request-declined",
+	requestEventHandlerFactory("request-declined", (domain, requestId) => 
 		`${domain}/app`
 	)
 );
 
 requestEmitter
-	.on('request-cancelled',
-		requestEventHandlerFactory('request-cancelled', (domain, requestId) =>
+	.on("request-cancelled",
+		requestEventHandlerFactory("request-cancelled", (domain, requestId) =>
 			`${domain}/app`
 		)
 	);
 
 requestEmitter
-	.on('request-marked-as-done',
-		requestEventHandlerFactory('request-marked-as-done',
+	.on("request-marked-as-done",
+		requestEventHandlerFactory("request-marked-as-done",
 			(domain) => `${domain}/app/dashboard`
 		)
 	);
 
 requestEmitter
-	.on('new-request', (models, requestId) => {
+	.on("new-request", (models, requestId) => {
 		var fromUser, toUser, request;
 		var requestSentEmails;
 		var requestReceivedEmails;
@@ -257,8 +257,8 @@ requestEmitter
 					},
 					include: [
 						{ model: models.task },
-						{ model: models.user, as: 'fromUser' },
-						{ model: models.user, as: 'toUser' }
+						{ model: models.user, as: "fromUser" },
+						{ model: models.user, as: "toUser" }
 					]
 				})
 				.then(rRequest => {
@@ -292,13 +292,13 @@ requestEmitter
 				.appConfig
 				.findOne({
 					where: {
-						fieldKey: 'DOMAIN'
+						fieldKey: "DOMAIN"
 					}
 				})
 				.then(configField => {
 					configField = configField || {};
 					
-					const domain = configField.fieldValue || 'http://localhost:3000';
+					const domain = configField.fieldValue || "http://localhost:3000";
 
 					ACTION_URL = 
 						`${domain}/app/chat/${requestId}`;
@@ -331,7 +331,7 @@ requestEmitter
 					})
 				);
 			}
-		})
+		});
 	});
 
 module.exports = requestEmitter;

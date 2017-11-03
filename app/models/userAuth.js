@@ -5,7 +5,7 @@ module.exports = (sequelize, DataTypes) => {
             defaultValue: 0
         }
     }, {
-        tableName: 'auth_user',
+        tableName: "auth_user",
     });
 
     Model.associate = models => {

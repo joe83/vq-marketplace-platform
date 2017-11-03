@@ -1,12 +1,12 @@
 var async = require("async");
 var responseController = require("../controllers/responseController");
 var EmailService = require("../services/emailService");
-const _ = require('underscore');
+const _ = require("underscore");
 
 var isLoggedIn = responseController.isLoggedIn;
 
 const requestEmitter = require("../events/request.js");
-const models  = require('../models/models');
+const models  = require("../models/models");
 
 module.exports = app => {
    
@@ -18,18 +18,18 @@ module.exports = app => {
 
         try {
             message = message
-            .split('<p><br></p>')
-            .filter(_ => _ !== '<p><br></p>')
-            .join('')
+            .split("<p><br></p>")
+            .filter(_ => _ !== "<p><br></p>")
+            .join("")
             .replace(/(\r\n|\n|\r)/gm, "");
         } catch(err) {
             console.error(err);
 
-            message = '';
+            message = "";
         }
         
         if (!message || message.length === 0) {
-            return res.status(400).send('EMPTY_MESSAGE');
+            return res.status(400).send("EMPTY_MESSAGE");
         }
 
         req.models.message
@@ -43,10 +43,10 @@ module.exports = app => {
         .then(rMessage => {
 
             requestEmitter
-                .emit('message-received', req.models, rMessage.id);
+                .emit("message-received", req.models, rMessage.id);
 
             return res.send(rMessage);
-        }, err => res.status(400).send(err))
+        }, err => res.status(400).send(err));
     });
 
     const getMessages = (models, userId, requestId, groupBy) => new Promise((resolve, reject) => {
@@ -123,21 +123,21 @@ module.exports = app => {
                         },
                         {
                             model: req.models.user,
-                            as: 'fromUser'
+                            as: "fromUser"
                         },
                         { 
                             model: req.models.user,
-                            as: 'toUser'
+                            as: "toUser"
                         }
                     ]
                 })
                 .then(rRequest => {
                     if (!rRequest) {
                         return callback({
-                            code: 'REQUEST_NOT_FOUND',
+                            code: "REQUEST_NOT_FOUND",
                             httpCode: 400,
-                            desc: 'Request not found'
-                        })
+                            desc: "Request not found"
+                        });
                     }
 
                     request = rRequest;

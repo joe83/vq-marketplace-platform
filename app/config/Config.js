@@ -1,10 +1,10 @@
 var API_VERSION = 3010;	
-var PRODUCTION = typeof process.env.ST_ENV !== 'undefined' ? process.env.ST_ENV : true
-var ENV = process.env.ST_ENV || 'PROD';
+var PRODUCTION = typeof process.env.ST_ENV !== "undefined" ? process.env.ST_ENV : true;
+var ENV = process.env.ST_ENV || "PROD";
 var PORT = process.env.ST_PORT ||  process.env.PORT || 4060; // st-united
 var PORT_TEST = 8080;
 
-PORT = ENV === 'PROD' ? PORT : PORT_TEST;
+PORT = ENV === "PROD" ? PORT : PORT_TEST;
 
 var REQUIRE_EMAIL_VERIFICATION = false; 
 

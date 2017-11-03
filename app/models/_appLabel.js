@@ -1,7 +1,7 @@
-const async = require('async');
-const marketplaceConfig = require('vq-marketplace-config');
+const async = require("async");
+const marketplaceConfig = require("vq-marketplace-config");
 
-const tableName = '_appLabel';
+const tableName = "_appLabel";
 
 module.exports = (sequelize, DataTypes) => {
   const appLabel = sequelize.define("appLabel", {
@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
       labelKey: { type: DataTypes.STRING, required: true },
       labelValue: { type: DataTypes.STRING },
       lang: {
-        type: DataTypes.ENUM('de', 'en', 'pl', 'hu'),
+        type: DataTypes.ENUM("de", "en", "pl", "hu"),
         required: true
       }
   }, {
@@ -28,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
 
           return appLabel
             .create({ labelKey, labelGroup, labelValue, lang })
-            .then(() => cb(), cb)
+            .then(() => cb(), cb);
         }
 
         if (obj.labelValue !== labelValue) {
@@ -90,20 +90,20 @@ module.exports = (sequelize, DataTypes) => {
       .map(labelKey => {
         return "(" + [
           `'${labelKey.toUpperCase()}'`,
-          labelGroups[labelKey] ? `'${labelGroups[labelKey].toUpperCase()}'` : 'NULL',
+          labelGroups[labelKey] ? `'${labelGroups[labelKey].toUpperCase()}'` : "NULL",
           `'${lang}'`,
-          defaultLabels[labelKey] ? `'${defaultLabels[labelKey].replace(/'/g,"''")}'` : ''
+          defaultLabels[labelKey] ? `'${defaultLabels[labelKey].replace(/'/g,"''")}'` : ""
         ].join(",") + ")";
       })
-      .join(',');
+      .join(",");
 
     let sql = `INSERT INTO ${tableName} (labelKey, labelGroup, lang, labelValue) VALUES ${values}`;
     
-    console.time('labelSeedInsert');
+    console.time("labelSeedInsert");
     sequelize.query(sql, { type: sequelize.QueryTypes.INSERT })
       .then(() => cb(), cb)
       .finally(() => {
-        console.timeEnd('labelSeedInsert');
+        console.timeEnd("labelSeedInsert");
       });
   };
 

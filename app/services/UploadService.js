@@ -1,5 +1,5 @@
-const randomToken = require('random-token');
-const sharp = require('sharp');
+const randomToken = require("random-token");
+const sharp = require("sharp");
 const s3 = require("../config/bucket.js");
 
 module.exports = bucket => {
@@ -52,7 +52,7 @@ module.exports = bucket => {
                         Bucket: bucket,
                         Body: buffer,
                         Key: key,
-                        ContentType: `image/jpeg`
+                        ContentType: "image/jpeg"
                     };
 
                     s3
@@ -73,7 +73,7 @@ module.exports = bucket => {
             Bucket: bucket,
             Body: rawBuffer,
             Key: key,
-            ContentType: `application/pdf`
+            ContentType: "application/pdf"
         };
 
         s3

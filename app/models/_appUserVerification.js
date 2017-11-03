@@ -1,6 +1,6 @@
 
-const async = require('async');
-const marketplaceConfig = require('vq-marketplace-config');
+const async = require("async");
+const marketplaceConfig = require("vq-marketplace-config");
 
 module.exports = (sequelize, DataTypes) => {
     const appUserVerification = sequelize.define("appUserVerification", {
@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
             unique: true
         },
         userType: {
-            type: DataTypes.ENUM('1', '2'),
+            type: DataTypes.ENUM("1", "2"),
             required: true
         },
         dbName: {
@@ -26,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
             required: true
         }
     }, {
-        tableName: '_appUserVerification',
+        tableName: "_appUserVerification",
     });
 
     const restoreDefault = () => new Promise((resolve, reject) => {
@@ -35,7 +35,7 @@ module.exports = (sequelize, DataTypes) => {
         async.eachSeries(
             userVerifications,
             (verification, cb) => {
-                verification.steps = verification.steps.join(':')
+                verification.steps = verification.steps.join(":");
                 
                 appUserVerification
                 .create(verification)
