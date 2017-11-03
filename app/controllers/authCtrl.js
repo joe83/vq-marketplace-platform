@@ -55,13 +55,14 @@ const createNewAccount = (models, data, cb) => {
             .count({})
             .then(count => {
                 shouldBeAdmin = !count;
-
+                
                 return cb();
             }, cb),
             cb => models.user
                 .create({
                     accountType: "PRIVATE",
                     vqUserId,
+                    status: shouldBeAdmin ? models.user.USER_TYPES.VERIFIED : models.user.USER_TYPES.UNVERIFIED,
                     isAdmin: shouldBeAdmin,
                     firstName: userData.firstName,
                     lastName: userData.lastName,
@@ -94,12 +95,16 @@ const createNewAccount = (models, data, cb) => {
 
             responseData.user = user;
 
-            const emittedUser = JSON.parse(JSON.stringify(user));
+            if (!shouldBeAdmin) {
+                const emittedUser = JSON.parse(JSON.stringify(user));
+                
+                emittedUser.emails = [
+                    email
+                ];
+                userEmitter.emit('created', models, emittedUser);
+            }
 
-            emittedUser.emails = [ email ];
-            userEmitter.emit('created', models, emittedUser);
-
-            cb(err, vqAuthUser);
+            return cb(err, vqAuthUser);
         });
 };
 

@@ -17,6 +17,19 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "debug:dev-tenant",
+            "program": "${workspaceRoot}/app.js",
+            "cwd": "${workspaceRoot}",
+            "env": {
+                "TENANT_ID": "test105",
+            },
+            "args": [
+                "--config=/../test-config.json"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "debug:local",
             "program": "${workspaceRoot}/app.js",
             "cwd": "${workspaceRoot}",

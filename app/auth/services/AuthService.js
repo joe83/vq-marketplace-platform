@@ -102,7 +102,7 @@ const updateNetworkToken = (models, userId, network, networkId, token) =>
 			where: {
 				$and: [ 
 					 { networkId },
-					 { userId },
+					 { userId }
 				]
 			}
 		})
