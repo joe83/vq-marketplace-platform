@@ -268,6 +268,10 @@ const initRoutes = (app, express) => {
 
 				const marketplaceModels = db.get(tenantId);
 
+				if (!marketplaceModels) {
+					console.log("Marketplace models could not be retrieved.");
+				}
+
 				authCtrl
 				.createNewAccount(marketplaceModels, userData, (err, authData) => {
 					return cb(err, authData);

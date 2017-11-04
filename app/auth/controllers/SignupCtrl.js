@@ -31,9 +31,13 @@ const createLocalAccount = (models, email, password, callback) => {
   ], (err, rUserToken) => {
     if (err) {
       console.error(err);
+
+      return callback(err);
     }
 
-    callback(err, rUserToken);
+    console.log(`[${models.tenantId}] Auth Data created`);
+
+    return callback(err, rUserToken);
   });
 };
 

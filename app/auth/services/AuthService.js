@@ -119,15 +119,18 @@ const createNewNetwork = (models, userId, network, networkId, token, refreshToke
 		})
 		.then(instance => callback(), err => callback(err));
 
-const createNewToken = (models, userId, callback) =>
+const createNewToken = (models, userId, callback) => {
+	console.log(`[${models.tenantId}]: Creating new user token for vqUserId ${userId}`);
+
 	models.userToken
-		.create({
-			token: randtoken.generate(250),
-			userId: userId,
-		}, {
-			raw: true
-		})
-		.then(instance => callback(null, instance.dataValues), err => callback(err));
+	.create({
+		token: randtoken.generate(250),
+		userId: userId,
+	}, {
+		raw: true
+	})
+	.then(instance => callback(null, instance.dataValues), err => callback(err))
+};
 
 const checkToken = (models, token, callback) => {
 	models.userToken
