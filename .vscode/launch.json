@@ -21,10 +21,22 @@
             "program": "${workspaceRoot}/app.js",
             "cwd": "${workspaceRoot}",
             "env": {
-                "TENANT_ID": "test105",
+                "TENANT_ID": "testmarketplace"
             },
             "args": [
                 "--config=/../test-config.json"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "debug:local-tenant",
+            "program": "${workspaceRoot}/app.js",
+            "cwd": "${workspaceRoot}",
+            "env": {
+                "TENANT_ID": "testmarketplace"
+            },
+            "args": [
             ]
         },
         {

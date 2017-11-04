@@ -33,8 +33,8 @@ app.use((req, res, next) => {
 
 	let tenantId;
 
-	if (process.env.TENANT_ID) {
-		tenantId = process.env.TENANT_ID
+	if (process.env.TENANT_ID || config.TENANT_ID) {
+		tenantId = process.env.TENANT_ID || config.TENANT_ID;
 	} else {
 		const subdomains = req.subdomains;
 		
