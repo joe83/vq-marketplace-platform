@@ -8,7 +8,11 @@ const tableName = "_appConfig";
 
 module.exports = (sequelize, DataTypes) => {
   const AppConfig = sequelize.define("appConfig", {
-      fieldKey: { type: DataTypes.STRING },
+      fieldKey: {
+        type: DataTypes.STRING,
+        required: true,
+        unique: true
+      },
       fieldValue: { type: DataTypes.STRING }
   }, {
       tableName,
@@ -17,38 +21,46 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   // expansion of model
-  AppConfig.updateFactory = () => (fieldKey, fieldValue, lang, cb) => AppConfig
-        .findOne({ where: { fieldKey }})
+  AppConfig.updateFactory = () => (fieldKey, fieldValue, cb) => AppConfig
+        .findOne({
+          where: {
+            fieldKey
+          }
+        })
         .then(obj => {
           if (!obj) {
-            console.log(`Adding CONFIG: ${fieldKey}`);
+            console.log(`Adding config: ${fieldKey}`);
             
             return AppConfig
-              .create({ fieldKey, fieldValue })
+              .create({
+                fieldKey,
+                fieldValue
+              })
               .then(() => cb(), cb);
           }
 
           if (obj.fieldValue !== fieldValue) {
             console.log(`Updating CONFIG: ${fieldKey}`);
             
-            return AppConfig
-              .update({ fieldValue }, { where: { id: obj.id } })
+            return obj
+              .update({ fieldValue })
               .then(() => cb(), cb);
           }
 
           return cb();
         }, cb);
 
-  AppConfig.upsertFactory = () => (fieldKey, fieldValue, lang, cb) => {
+  AppConfig.upsertFactory = () => (fieldKey, fieldValue, cb) => {
       AppConfig
-      .findOne({ where: { fieldKey }})
+      .findOne({
+        where: { fieldKey }
+      })
       .then(obj => {
         if (!obj) {
           return AppConfig
           .create({
             fieldKey,
-            fieldValue,
-            lang
+            fieldValue
           })
           .then(() => {
             return cb();
@@ -62,10 +74,18 @@ module.exports = (sequelize, DataTypes) => {
   AppConfig.bulkCreateOrUpdate = (configs, forceUpdate, cb) => {
     const upsert = forceUpdate ? AppConfig.updateFactory() : AppConfig.upsertFactory();
     
+    const updateConfigs = configs
+      .filter(_ => _.fieldKey)
+      .map(_ => {
+        _.fieldKey = _.fieldKey.toUpperCase();
+
+        return _;
+      })
+
     async
-    .eachSeries(configs, (config, cb) => {
-      upsert(config.fieldKey.toUpperCase(), config.fieldValue, null, cb);
-    }, (err) => {
+    .eachSeries(updateConfigs, (config, cb) =>
+      upsert(config.fieldKey, config.fieldValue, cb)
+    , (err) => {
       cb(err);
     });
   };
