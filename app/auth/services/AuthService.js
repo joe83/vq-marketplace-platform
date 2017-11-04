@@ -45,7 +45,7 @@ const createNewPassword = (models, userId, password, cb) => {
 			password: generateHashSync(password)
 		})
 		.then(() => cb(), cb)
-	});
+	}, cb);
 };
 
 const createNewEmail = (models, userId, email, callback) => async.series([
@@ -72,7 +72,7 @@ const createNewEmail = (models, userId, email, callback) => async.series([
 			userId: userId, 
 			email: email
 		})
-		.then(instance => cb(), cb);
+		.then(() => cb(), cb);
 	}
 ], err => callback(err));
 
@@ -120,10 +120,11 @@ const createNewNetwork = (models, userId, network, networkId, token, refreshToke
 		})
 		.then(instance => callback(), err => callback(err));
 
-const createNewToken = (models, userId, callback) => {
+const createNewToken = (models, userId, cb) => {
 	console.log(`[${models.tenantId}]: Creating new user token for vqUserId ${userId}`);
 
-	models.userToken
+	models
+	.userToken
 	.create({
 		token: randtoken.generate(250),
 		userId: userId
@@ -131,8 +132,8 @@ const createNewToken = (models, userId, callback) => {
 	.then(instance => {
 		console.log("Token successfuly created.");
 
-		return callback(null, instance)
-	}, err => callback(err))
+		return cb(null, instance)
+	}, cb)
 };
 
 const checkToken = (models, token, callback) => {
