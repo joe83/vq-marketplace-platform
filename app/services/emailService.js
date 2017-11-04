@@ -53,48 +53,55 @@ const getEmailBody = (models, code) => models.post
 			]
 	}});
 
-const getEmailAndSend = (models, emailCode, email, emailData) => getEmailBody(models, emailCode)
-	.then(emailBody => {
-		const params = {};
-		var compiledEmail;
-		
-		if (!emailBody) {
-			return console.error(`Email template "${emailCode}" has not been found`);
-		}
-
-		if (typeof emailData === "string") {
-			emailData = {
-				ACTION_URL: emailData,
-				LISTING_TITLE: "<LISTING_TITLE NOT SPECIFIED>",
-				SENDER_FIRST_NAME: "<SENDER_FIRST_NAME NOT SPECIFIED>",
-				SENDER_LAST_NAME: "<SENDER_LAST_NAME NOT SPECIFIED>",
-				MESSAGE_BODY: "<MESSAGE_BODY NOT SPECIFIED>"
-			};
-		} else {
-			emailData = {
-				ACTION_URL: emailData.ACTION_URL || "<ACTION_URL NOT SPECIFIED>",
-				LISTING_TITLE: emailData.LISTING_TITLE || "<LISTING_TITLE NOT SPECIFIED>",
-				SENDER_FIRST_NAME: emailData.SENDER_FIRST_NAME || "<SENDER_FIRST_NAME NOT SPECIFIED>",
-				SENDER_LAST_NAME: emailData.SENDER_LAST_NAME || "<SENDER_LAST_NAME NOT SPECIFIED>",
-				MESSAGE_BODY: emailData.MESSAGE_BODY || "<MESSAGE_BODY NOT SPECIFIED>"
-			};
-		}
-
-		try {
-			compiledEmail = ejs.compile(unescape(emailBody.body))(emailData);
-		} catch (err) {
-			return console.error(err);
-		}
-		
-
-		params.subject = emailBody.title;
-
-		return sendEmail(models, compiledEmail, typeof email === "string" ? [
-			email
-		] : email, params, (err, res) => {
-			if (err) {
-				console.error(err);
+const getEmailAndSend = (models, emailCode, email, emailData) =>
+	custProvider
+	.getConfig(models)
+	.then(config => {
+		getEmailBody(models, emailCode)
+		.then(emailBody => {
+			const params = {};
+			var compiledEmail;
+			
+			if (!emailBody) {
+				return console.error(`Email template "${emailCode}" has not been found`);
 			}
+
+			if (typeof emailData === "string") {
+				emailData = {
+					ACTION_URL: emailData,
+					LISTING_TITLE: "<LISTING_TITLE NOT SPECIFIED>",
+					SENDER_FIRST_NAME: "<SENDER_FIRST_NAME NOT SPECIFIED>",
+					SENDER_LAST_NAME: "<SENDER_LAST_NAME NOT SPECIFIED>",
+					MESSAGE_BODY: "<MESSAGE_BODY NOT SPECIFIED>",
+					EMAIL_SETTINGS_URL: `${config.DOMAIN}/app/account/notifications`
+				};
+			} else {
+				emailData = {
+					ACTION_URL: emailData.ACTION_URL || "<ACTION_URL NOT SPECIFIED>",
+					LISTING_TITLE: emailData.LISTING_TITLE || "<LISTING_TITLE NOT SPECIFIED>",
+					SENDER_FIRST_NAME: emailData.SENDER_FIRST_NAME || "<SENDER_FIRST_NAME NOT SPECIFIED>",
+					SENDER_LAST_NAME: emailData.SENDER_LAST_NAME || "<SENDER_LAST_NAME NOT SPECIFIED>",
+					MESSAGE_BODY: emailData.MESSAGE_BODY || "<MESSAGE_BODY NOT SPECIFIED>",
+					EMAIL_SETTINGS_URL: `${config.DOMAIN}/app/account/notifications`
+				};
+			}
+
+			try {
+				compiledEmail = ejs.compile(unescape(emailBody.body))(emailData);
+			} catch (err) {
+				return console.error(err);
+			}
+			
+
+			params.subject = emailBody.title;
+
+			return sendEmail(models, compiledEmail, typeof email === "string" ? [
+				email
+			] : email, params, (err, res) => {
+				if (err) {
+					console.error(err);
+				}
+			});
 		});
 	});
 
