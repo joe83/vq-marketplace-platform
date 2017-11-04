@@ -132,7 +132,7 @@ const createNewToken = (models, userId, cb) => {
 	.then(instance => {
 		console.log("Token successfuly created.");
 
-		return cb(null, instance)
+		return cb(null, instance.dataValues)
 	}, cb)
 };
 
