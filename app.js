@@ -3,7 +3,7 @@ const cors = require("cors");
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const config = require("./app/config/configProvider.js")();
-const mysql = require('mysql2');
+const morgan = require('morgan')
 const db = require('./app/models/models');
 const tenantService = require('./app-tenant');
 const workers = require('./app/workers');
@@ -22,6 +22,9 @@ const initApp = app => {
 
 initApp(app);
 initApp(tenantApp);
+
+app.use(morgan('combined'));
+tenantApp.use(morgan('combined'));
 
 app.use((req, res, next) => {
 	req.auth = {

@@ -127,7 +127,10 @@ const createNewToken = (models, userId, callback) => {
 		token: randtoken.generate(250),
 		userId: userId,
 	})
-	.then(instance => callback(null, instance), err => callback(err))
+	.then(instance => {
+		console.log("Token successfuly created.");
+		callback(null, instance)
+	}, err => callback(err))
 };
 
 const checkToken = (models, token, callback) => {
