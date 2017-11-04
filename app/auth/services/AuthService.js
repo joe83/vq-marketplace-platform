@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt-nodejs");
 const async = require("async");
-const randtoken = require("rand-token");
+const randomToken = require("random-token");
 const logIndex = "[AuthService]";
 
 const generateHashSync = password => bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
@@ -126,7 +126,7 @@ const createNewToken = (models, userId, cb) => {
 	models
 	.userToken
 	.create({
-		token: randtoken.generate(250),
+		token: randomToken(250),
 		userId: userId
 	})
 	.then(instance => {
