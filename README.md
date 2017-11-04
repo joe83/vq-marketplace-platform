@@ -50,7 +50,6 @@ npm install // installs the npm packages from ./package.json
 sudo ln -s /usr/bin/nodejs /usr/bin/node
 ```
 
-
 ## Running
 In order to start locally the VQ Web Services, you need to run the command:
 ```
