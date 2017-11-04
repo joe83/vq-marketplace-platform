@@ -48,6 +48,7 @@
             });
 
             $scope.createMarketplace = function() {
+                $scope.isPosted = true;
                 $http.post('/api/marketplace', $scope.data)
                 .then(function(response) {
                     console.log(response);
@@ -56,6 +57,10 @@
                         $http.get('/api/tenant/' + response.data.tenantId)
                         .then(function(response) {
                             $scope.tenant = response.data;
+
+                            if ($scope.tenant === 3) {
+                                $scope.canGoToMarketplace = true;
+                            }
                         })
                     }, 1000);
 
@@ -88,10 +93,10 @@
                     <input required ng-model="data.repeatPassword"  type="password" class="form-control" placeholder="Repeat password">
                 </div>
 
-                <button type="submit" class="btn btn-primary">Create marketplace</button>
+                <button ng-disabled="isPosted" type="submit" class="btn btn-primary">Create marketplace</button>
             </form>
         </div>
-        <button type="submit" disabled="tenant.status !== 3 ? true : false" class="btn btn-primary">GO TO YOUR MARKETPLACE!</button>
+        <a ng-href="http://{{tenant.tenantId}}.viciqloud.com"><button type="submit" ng-disabled="!canGoToMarketplace" class="btn btn-primary">GO TO YOUR MARKETPLACE!</button></a>
         
     </div>
 
