@@ -73,7 +73,7 @@ async.waterfall([
 			.findAll({
 				where: {
 					$and: [
-						{ status: 2 },
+						{ status: 3 },
 						{ emailVerified: true }
 					]
 				}

@@ -38,8 +38,11 @@ const initRoutes = (app, express) => {
 				return cb(err);
 			}
 
-			tenantModels.tenant
-			.findAll()
+			tenantModels
+			.tenant
+			.findAll({
+				where: req.query
+			})
 			.then((rTenants) => {
 				res.send(rTenants.map(_ => _.tenantId));
 			}, err => res.status(400).send(err));
@@ -189,6 +192,8 @@ const initRoutes = (app, express) => {
 			repeatPassword: req.body.repeatPassword
 		};
 
+		let hasResponded = false;
+
 		async.waterfall([
 			cb => {
 					models
@@ -224,6 +229,9 @@ const initRoutes = (app, express) => {
 						}
 
 						tenantRef = tenant;
+
+						res.send(tenant);
+						hasResponded = true;
 
 						return cb();
 					}, cb);
@@ -279,10 +287,27 @@ const initRoutes = (app, express) => {
 			},
 		], (err, authData) => {
 			if (err) {
-				return res.status(err.httpCode || 400).send(err);
+				if (!hasResponded) {
+					res.status(err.httpCode || 400).send(err);
+				}
+
+				return;
 			}
 
-			res.send(authData);
+			models
+			.tenant
+			.update({
+				status: 3
+			}, {
+				where: {
+					$and: [
+						{ tenantId }
+					]
+				}
+			})
+			.then(() => {
+				console.log("Success! Created Marketplace, config and user account.");
+			});
 		});
 	}));
 };

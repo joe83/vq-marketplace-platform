@@ -36,20 +36,35 @@
                 return decodeURIComponent(results[2].replace(/\+/g, " "));
             };
 
+            $scope.tenant = {};
             $scope.data = {
                 apiKey: getParameterByName('apiKey'),
                 tenantId: getParameterByName('tenantId')
             };
 
+            $http.get('/api/tenant/' + $scope.data.tenantId)
+            .then(function(response) {
+                $scope.tenant = response.data;
+            });
+
             $scope.createMarketplace = function() {
                 $http.post('/api/marketplace', $scope.data)
-                .success(function(data) {
-                    console.log(data);
-                    location.href = "http://" + $scope.data.tenantId + ".viciqloud.com/app/admin";
-                })
-                .error(function(data) {
+                .then(function(response) {
+                    console.log(response);
+
+                    const intervalId = setInterval(function() {
+                        $http.get('/api/tenant/' + response.data.tenantId)
+                        .then(function(response) {
+                            $scope.tenant = response.data;
+                        })
+                    }, 1000);
+
+                    
+                }, function(data) {
                     alert(JSON.stringify(data));
                 });
+
+
             };
         }
     </script>
@@ -59,6 +74,8 @@
     <div class="container">
         <div class="jumbotron text-center">
             <h1>VQ TENANTS</h1>
+            STATUS: {{tenant.status}}
+            
         </div>
         <div class="col-xs-12 col-sm-6">
             <form ng-submit="createMarketplace()">
@@ -74,6 +91,8 @@
                 <button type="submit" class="btn btn-primary">Create marketplace</button>
             </form>
         </div>
+        <button type="submit" disabled="tenant.status !== 3 ? true : false" class="btn btn-primary">GO TO YOUR MARKETPLACE!</button>
+        
     </div>
 
 </body>
