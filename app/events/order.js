@@ -1,7 +1,7 @@
-const EventEmitter = require('events');
-const async = require('async');
+const EventEmitter = require("events");
+const async = require("async");
 const db = require("../models/models");
-const randtoken = require('rand-token');
+const randtoken = require("rand-token");
 const emailService = require("../services/emailService.js");
 const config = require("../config/configProvider.js")();
 const vqAuth = require("../auth");
@@ -26,7 +26,7 @@ const getOrderOwnerEmails = (models, orderId, cb) => {
                     { 
                         model: models.request,
                         include: [
-                            { model: models.user, as: 'fromUser' }
+                            { model: models.user, as: "fromUser" }
                         ]
                     }
                 ]
@@ -34,7 +34,7 @@ const getOrderOwnerEmails = (models, orderId, cb) => {
             .then(rOrder => {
                 if (!rOrder) {
                     return cb({
-                        code: 'ORDER_NOT_FOUND'
+                        code: "ORDER_NOT_FOUND"
                     });
                 }
                 
@@ -85,13 +85,13 @@ const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
 				.appConfig
 				.findOne({
 					where: {
-						fieldKey: 'DOMAIN'
+						fieldKey: "DOMAIN"
 					}
 				})
 				.then(configField => {
 					configField = configField || {};
 					
-					const domain = configField.fieldValue || 'http://localhost:3000';
+					const domain = configField.fieldValue || "http://localhost:3000";
 
 					ACTION_URL = 
 						actionUrlFn(domain, order.requestId, order.id);
@@ -113,36 +113,36 @@ const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
                     })
                 );
 			} else {
-                console.log('No emails to send notification!');
+                console.log("No emails to send notification!");
             }
-		})
+		});
     };
 };
 
 orderEmitter
-    .on('closed',
-        orderEventHandlerFactory('order-closed', (domain, requestId, orderId) =>
+    .on("closed",
+        orderEventHandlerFactory("order-closed", (domain, requestId, orderId) =>
             `${domain}/app/order/${orderId}/review`
         )
     );
 
 orderEmitter
-	.on('order-completed', 
-        orderEventHandlerFactory('order-completed', (domain, requestId, orderId) =>
+	.on("order-completed", 
+        orderEventHandlerFactory("order-completed", (domain, requestId, orderId) =>
             `${domain}/app/order/${orderId}/review`
         )
     );    
 
 orderEmitter
-    .on('new-order', 
-        orderEventHandlerFactory('new-order', (domain, requestId) =>
+    .on("new-order", 
+        orderEventHandlerFactory("new-order", (domain, requestId) =>
             `${domain}/app/chat/${requestId}`
         )
     );
 
 orderEmitter
-	.on('order-marked-as-done', 
-        orderEventHandlerFactory('order-marked-as-done', (domain, requestId) =>
+	.on("order-marked-as-done", 
+        orderEventHandlerFactory("order-marked-as-done", (domain, requestId) =>
             `${domain}/app/chat/${requestId}`
         )
     );

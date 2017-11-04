@@ -4,7 +4,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.TEXT, allowNull: false
       }
   }, {
-      tableName: 'taskComment',
+      tableName: "taskComment",
   });
 
   TaskComment.associate = models => {

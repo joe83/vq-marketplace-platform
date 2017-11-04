@@ -1,17 +1,17 @@
-const randomstring = require('randomstring');
-const path = require('path');
+const randomstring = require("randomstring");
+const path = require("path");
 const appDir = path.dirname(require.main.filename);
-const envVars = require('../../config/env-var.json');
-const argv = require('minimist')(process.argv.slice(2));
+const envVars = require("../../config/env-var.json");
+const argv = require("minimist")(process.argv.slice(2));
 
-const env = process.env.ST_ENV ? process.env.ST_ENV.toLowerCase() : 'local';
+const env = process.env.ST_ENV ? process.env.ST_ENV.toLowerCase() : "local";
 
 const getConfig = () => {
 	if (argv.config) {
 		return require(`${appDir}${argv.config}`);
 	}
 
-	if (env === 'production') {
+	if (env === "production") {
 		// null is replaced by env variables
 		return {
 			"production": true,
@@ -23,28 +23,28 @@ const getConfig = () => {
 			"secret" : null,
 			"SERVER_URL" : null,
 			"s3.bucket": null,
-			"s3.region": 'eu-central-1',
+			"s3.region": "eu-central-1",
 			"s3.accessKeyId": null,
 			"s3.secretAccessKey": null,
 			"mandrill": null
-		}
+		};
 	}
 
 	return {
 		"production": false,
 		"port": 8080,
 		"TENANT_APP_PORT": 8081,
-		"VQ_DB_USER": 'root',
-		"VQ_DB_PASSWORD": 'kurwa',
-		"VQ_DB_HOST": 'localhost',
-		"secret" : 'test',
-		"SERVER_URL" : 'http://vqtest.localhost:8080',
+		"VQ_DB_USER": "root",
+		"VQ_DB_PASSWORD": "kurwa",
+		"VQ_DB_HOST": "localhost",
+		"secret" : "test",
+		"SERVER_URL" : "http://vqtest.localhost:8080",
 		"s3.bucket": null,
-		"s3.region": 'eu-central-1',
+		"s3.region": "eu-central-1",
 		"s3.accessKeyId": null,
 		"s3.secretAccessKey": null,
 		"mandrill": null
-	}
+	};
 };
 
 const config = getConfig();
@@ -63,7 +63,7 @@ Object.keys(config)
 			for (var index = 0; index < config[configKey].length; index++) {
 				configValue = config[configKey][index];
 
-				if (configValue === ':') {
+				if (configValue === ":") {
 					if (process.env[envVars[configKey]]) {
 						console.log(`Setting config.${configKey} from env var to ${process.env[envVars[configKey]]}`);
 						config[configKey] = process.env[envVars[configKey]];
@@ -72,13 +72,13 @@ Object.keys(config)
 					}
 				}
 				
-				if (typeof configValue === 'number') {
+				if (typeof configValue === "number") {
 					config[configKey] = configValue;
 
 					return;
 				}
 
-				var splitted = configValue.split(':');
+				var splitted = configValue.split(":");
 
 				if (splitted[1]) {
 					if (process.env[envVars[splitted[1]]]) {

@@ -7,47 +7,53 @@ const config = require("../config/configProvider.js")();
 
 const tenantConnections = {};
 
+const getTenantIds = () => Object.keys(tenantConnections);
+
+const pool = mysql.createPool({
+  connectionLimit: 2,
+  host: config.VQ_DB_HOST,
+  user: config.VQ_DB_USER,
+  password: config.VQ_DB_PASSWORD
+});
+
 const create = (tenantId, cb) => {
+  console.log(`[models] Creating tenant model: ${tenantId}`);
+
   if (tenantConnections[tenantId]) {
-    throw new Error(`Tenant ${tenantId} already initialised!`);
+    return cb({
+      httpCode: 400,
+      code: "TENANT_ALREADY_DEPLOYED"
+    });
   }
 
   var isNewDatabase = false;
 
   async.waterfall([
-    cb => {
-      const connection = mysql.createConnection({
-        host: config.VQ_DB_HOST,
-        user: config.VQ_DB_USER,
-        password: config.VQ_DB_PASSWORD
-      });
-
-      connection.query(
-        'CREATE DATABASE ??;',
-        [ tenantId ],
-        (err, results, fields) => {
-          if (err) {
-            if (err.code === 'ER_DB_CREATE_EXISTS') {
-              return cb();
-            }
-
-            return cb(err);
+    cb => pool.query(
+      "CREATE DATABASE ?? CHARACTER SET utf8 COLLATE utf8_general_ci;",
+      [ tenantId ],
+      (err, results, fields) => {
+        if (err) {
+          if (err.code === "ER_DB_CREATE_EXISTS") {
+            return cb();
           }
 
-          isNewDatabase = true;
-
-          cb();
+          return cb(err);
         }
-      );
-    },
+
+        isNewDatabase = true;
+
+        cb();
+      }
+    ),
     cb => {
       const db = {};
       const sequelize = new Sequelize(tenantId, config.VQ_DB_USER, config.VQ_DB_PASSWORD, {
         host: config.VQ_DB_HOST,
         logging: false,
-        dialect: 'mysql',
+        dialect: "mysql",
         pool: {
-          max: 5,
+          max: 1,
           min: 0,
           idle: 10000
         }
@@ -88,24 +94,52 @@ const create = (tenantId, cb) => {
         return cb();
       }
 
-      console.log('INITIALIZING...');
+      console.log("INITIALIZING...");
 
-      const marketplaceType = 'services';
+      const marketplaceType = "services";
       const models = tenantConnections[tenantId];
 
-      models.appConfig.addDefaultConfig(marketplaceType, true);
+      async.waterfall([
+        cb => {
+          models.appConfig.insertSeed(marketplaceType, err => {
+            if (err) {
+              console.error(err);
+            }
 
-      models.appLabel.addDefaultLangLabels('en', marketplaceType, true)
-      .then(_ => _, _ => _);
-      
+            cb();
+          });
+        },
+        cb => {
+          models.appLabel.insertSeed(marketplaceType, "en", err => {
+            if (err) {
+              console.error(err);
+            }
 
-      models.post.addDefaultPosts(marketplaceType, true);
+            cb();
+          });
+        },
+        cb => {
+          models.post.insertSeed(marketplaceType, err => {
+            if (err) {
+              console.error(err);
+            }
 
-      models.appUserProperty.addDefaultUserProperties(marketplaceType, true);
+            cb();
+          });
+        }, 
+        cb => {
+          models.appUserProperty.insertSeed(marketplaceType, err => {
+            if (err) {
+              console.error(err);
+            }
 
-      cb();
-    }
-  ], cb);
+            cb();
+          });
+        }, 
+      ], (err) => {
+        cb(err);
+      });
+    }], cb);
 };
 
 const get = tenantId => {
@@ -114,5 +148,6 @@ const get = tenantId => {
 
 module.exports = {
   create,
-  get
+  get,
+  getTenantIds
 };

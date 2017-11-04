@@ -1,7 +1,6 @@
 const ejs = require("ejs");
-const mandrill = require('mandrill-api/mandrill');
+const mandrill = require("mandrill-api/mandrill");
 const config = require("../config/configProvider.js")();
-const cust = require("../config/customizing.js");
 const custProvider = require("../config/custProvider.js");
 const unescape = require("unescape");
 
@@ -21,9 +20,9 @@ const checkIfShouldSendEmail = (models, emailCode, userId, cb, shouldNotCb) => m
 		where: {
 			$and: [
 				{
-					propKey: 'EMAIL_' + emailCode,
+					propKey: "EMAIL_" + emailCode,
 				}, {
-					propValue: '1'
+					propValue: "1"
 				}, {
 					userId
 				}
@@ -47,7 +46,7 @@ const getEmailBody = (models, code) => models.post
 		where: {
 			$and: [
 				{
-					type: 'email',
+					type: "email",
 				}, {
 					code
 				}
@@ -63,21 +62,21 @@ const getEmailAndSend = (models, emailCode, email, emailData) => getEmailBody(mo
 			return console.error(`Email template "${emailCode}" has not been found`);
 		}
 
-		if (typeof emailData === 'string') {
+		if (typeof emailData === "string") {
 			emailData = {
 				ACTION_URL: emailData,
-				LISTING_TITLE: '<LISTING_TITLE NOT SPECIFIED>',
-				SENDER_FIRST_NAME: '<SENDER_FIRST_NAME NOT SPECIFIED>',
-				SENDER_LAST_NAME: '<SENDER_LAST_NAME NOT SPECIFIED>',
-				MESSAGE_BODY: '<MESSAGE_BODY NOT SPECIFIED>'
+				LISTING_TITLE: "<LISTING_TITLE NOT SPECIFIED>",
+				SENDER_FIRST_NAME: "<SENDER_FIRST_NAME NOT SPECIFIED>",
+				SENDER_LAST_NAME: "<SENDER_LAST_NAME NOT SPECIFIED>",
+				MESSAGE_BODY: "<MESSAGE_BODY NOT SPECIFIED>"
 			};
 		} else {
 			emailData = {
-				ACTION_URL: emailData.ACTION_URL || '<ACTION_URL NOT SPECIFIED>',
-				LISTING_TITLE: emailData.LISTING_TITLE || '<LISTING_TITLE NOT SPECIFIED>',
-				SENDER_FIRST_NAME: emailData.SENDER_FIRST_NAME || '<SENDER_FIRST_NAME NOT SPECIFIED>',
-				SENDER_LAST_NAME: emailData.SENDER_LAST_NAME || '<SENDER_LAST_NAME NOT SPECIFIED>',
-				MESSAGE_BODY: emailData.MESSAGE_BODY || '<MESSAGE_BODY NOT SPECIFIED>'
+				ACTION_URL: emailData.ACTION_URL || "<ACTION_URL NOT SPECIFIED>",
+				LISTING_TITLE: emailData.LISTING_TITLE || "<LISTING_TITLE NOT SPECIFIED>",
+				SENDER_FIRST_NAME: emailData.SENDER_FIRST_NAME || "<SENDER_FIRST_NAME NOT SPECIFIED>",
+				SENDER_LAST_NAME: emailData.SENDER_LAST_NAME || "<SENDER_LAST_NAME NOT SPECIFIED>",
+				MESSAGE_BODY: emailData.MESSAGE_BODY || "<MESSAGE_BODY NOT SPECIFIED>"
 			};
 		}
 
@@ -90,7 +89,7 @@ const getEmailAndSend = (models, emailCode, email, emailData) => getEmailBody(mo
 
 		params.subject = emailBody.title;
 
-		return sendEmail(models, compiledEmail, typeof email === 'string' ? [
+		return sendEmail(models, compiledEmail, typeof email === "string" ? [
 			email
 		] : email, params, (err, res) => {
 			if (err) {
@@ -141,24 +140,66 @@ const sendWelcome = (models, user, VERIFICATION_LINK) => {
 	});
 };
 
+const sendNewTenant = (email, VERIFICATION_LINK) => {
+	const emailBody = `
+		<%- VERIFICATION_LINK %>
+	`;
+
+	const params = {};
+
+	const html = ejs.compile(unescape(emailBody))({
+		VERIFICATION_LINK
+	});
+
+	params.subject = "Verify your email";
+
+	const message = getRawMessagePrototype();
+
+	message.subject = params.subject;
+	message.html = html;
+	message.text = html;
+	message.to = [{
+		email,
+		type: "to"
+	}];
+
+	var lAsync = false;
+	var ip_pool = "Main Pool";
+
+	mandrill_client
+	.messages
+	.send({ 
+		"message": message,
+		"async": lAsync,
+		"ip_pool": ip_pool
+	}, result => {
+		console.log(result);
+	}, e => {
+		console.log("A mandrill error occurred: " + e.name + " - " + e.message);
+	});	
+};
+
+const getRawMessagePrototype = (fromName, supportEmail, domain) => ({
+	"from_email": "noreply@vq-labs.com",
+	"from_name": fromName,
+	"to": [ ],
+	"headers": {
+		"Reply-To": supportEmail
+	},
+	"important": false,
+	"global_merge_vars": [],
+	"metadata": {
+		"website": domain
+	},
+	"recipient_metadata": [{}],
+});
+
+
 const getMessagePrototype = models => new Promise((resolve, reject) => {
 	custProvider
 	.getConfig(models)
 	.then(config => {
-		return resolve({
-			"from_email": "noreply@vq-labs.com",
-			"from_name": config.NAME || "VQ LABS",
-			"to": [ ],
-			"headers": {
-				"Reply-To": config.SUPPORT_EMAIL
-			},
-			"important": false,
-			"global_merge_vars": [],
-			"metadata": {
-				"website": config.DOMAIN
-			},
-			"recipient_metadata": [{}],
-		});
+		return resolve(getRawMessagePrototype(config.NAME || "VQ LABS", config.SUPPORT_EMAIL, config.DOMAIN));
 	}, reject);
 });
 
@@ -191,7 +232,7 @@ function sendEmail (models, html, tEmails, params, callback) {
 				callback(null, result);
 			}
 		}, e => {
-			console.log('A mandrill error occurred: ' + e.name + ' - ' + e.message);
+			console.log("A mandrill error occurred: " + e.name + " - " + e.message);
 	
 			return callback(e);
 		});	
@@ -203,5 +244,6 @@ module.exports = {
 	checkIfShouldSendEmail,
 	getEmailAndSend,
 	sendEmail,
-	sendWelcome
+	sendWelcome,
+	sendNewTenant
 };

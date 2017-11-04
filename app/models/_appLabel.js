@@ -1,47 +1,57 @@
-const async = require('async');
-const marketplaceConfig = require('vq-marketplace-config');
+const async = require("async");
+const marketplaceConfig = require("vq-marketplace-config");
+
+const tableName = "_appLabel";
 
 module.exports = (sequelize, DataTypes) => {
   const appLabel = sequelize.define("appLabel", {
-      labelGroup: { type: DataTypes.STRING },
       labelKey: { type: DataTypes.STRING, required: true },
       labelValue: { type: DataTypes.STRING },
       lang: {
-        type: DataTypes.ENUM('de', 'en', 'pl', 'hu'),
+        type: DataTypes.ENUM("de", "en", "pl", "hu"),
         required: true
       }
   }, {
-      tableName: '_appLabel',
-      classMethods: {
-        associate: models => {
-        }
-      }
+    createdAt: false,
+    updatedAt: false,
+    tableName
   });
 
   // expansion of model
-  appLabel.updateFactory = () => (labelKey, labelGroup, labelValue, lang) =>
-        new Promise((resolve, reject) => {
-          appLabel
-          .findOne({ where: { $and: [ { labelKey }, { lang } ] }})
-          .then(obj => {
-            if (!obj) {
-              return appLabel
-                .create({ labelKey, labelGroup, labelValue, lang })
-                .then(resolve, reject)
-            }
+  appLabel.updateFactory = () => (labelKey, labelValue, lang, cb) => { 
+      appLabel
+      .findOne({
+        where: {
+          $and: [
+            { labelKey },
+            { lang }
+          ]
+        }
+      })
+      .then(obj => {
+        if (!obj) {
+          console.log(`Creating label ${labelKey} (lang: ${lang} )`);
 
-            if (obj.labelValue !== labelValue) {
-              return appLabel
-              .update({ labelGroup, labelValue, lang }, { where: { id: obj.id } })
-              .then(resolve, reject);
-            }
+          return appLabel
+            .create({ labelKey, labelValue, lang })
+            .then(() => cb(), cb);
+        }
 
-            return resolve();
-          });
-      });
+        if (obj.labelValue !== labelValue) {
+          console.log(`Updating label ${labelKey} (lang: ${lang})`);
 
-  appLabel.upsertFactory = () => (labelKey, labelGroup, labelValue, lang) =>
-        new Promise((resolve, reject) => {
+          return obj
+            .update({
+              labelValue
+            })
+            .then(() => cb(), cb);
+        }
+
+        return cb();
+      }, cb);
+  };
+
+  appLabel.upsertFactory = () => (labelKey, labelValue, lang, cb) => {
           appLabel
           .findOne({ 
             where: {
@@ -50,77 +60,84 @@ module.exports = (sequelize, DataTypes) => {
                 { lang }
               ]
             }
-          })
-          .then(obj => {
+          }).then(obj => {
             if (!obj) {
                 console.log(`Creating label "${labelKey}"`);
                 
-                appLabel
-                .create({
-                  labelKey,
-                  labelGroup,
-                  labelValue,
-                  lang
-                })
-                .then(resolve, reject);
-            } else {
-              console.log(`Label "${labelKey}" already exists.`);
-
-              if (obj.labelGroup !== labelGroup) {
-                console.log(`Group of the label "${labelKey}" differs! Should be ${labelGroup}`);
-
-                return obj
-                  .update({
-                    labelGroup
+                return appLabel
+                  .create({
+                    labelKey,
+                    labelValue,
+                    lang
                   })
-                  .then(resolve, reject);
-              }
-
-              return resolve();
+                  .then(() => cb(), cb);
             }
-          }, reject);
-        });
-        
 
-  appLabel.bulkCreateOrUpdate = (labels, forceUpdate) => new Promise(resolve => {
+            console.log(`Label "${labelKey}" already exists.`);
+
+            return cb();
+          }, cb);
+  };
+
+  appLabel.insertSeed = (usecase, lang, cb) => {
+    console.log("[appLabel.insertSeed] Creating seed labels");
+
+    const defaultLabels = marketplaceConfig[usecase].i18n(lang);
+    const labelGroups = marketplaceConfig[usecase].labelGroups();
+    
+    const values = Object.keys(defaultLabels)
+      .map(labelKey => {
+        return "(" + [
+          `'${labelKey.toUpperCase()}'`,
+          labelGroups[labelKey] ? `'${labelGroups[labelKey].toUpperCase()}'` : "NULL",
+          `'${lang}'`,
+          defaultLabels[labelKey] ? `'${defaultLabels[labelKey].replace(/'/g,"''")}'` : "NULL"
+        ].join(",") + ")";
+      })
+      .join(",");
+
+    let sql = `INSERT INTO ${tableName} (labelKey, labelGroup, lang, labelValue) VALUES ${values}`;
+    
+    console.time("labelSeedInsert");
+    sequelize.query(sql, { type: sequelize.QueryTypes.INSERT })
+      .then(() => cb(), cb)
+      .finally(() => {
+        console.timeEnd("labelSeedInsert");
+      });
+  };
+
+  appLabel.bulkCreateOrUpdate = (labels, forceUpdate, cb) => {
       const upsert = forceUpdate ? appLabel.updateFactory() : appLabel.upsertFactory();
       // const upsert = appLabel.upsertFactory();
 
-      async.eachLimit(labels, 5, (label, cb) => {
-        console.log('Label update loop start');
-        if (!label.labelKey) {
-          return cb();
-        }
-
-        var labelGroup = label.labelGroup ? label.labelGroup.toUpperCase() : null;
-
+      async.eachSeries(labels, (label, cb) =>
         upsert(
-          label.labelKey.toUpperCase(),
-          labelGroup,
+          label.labelKey,
           label.labelValue,
-          label.lang
+          label.lang,
+          cb
         )
-        .then(() => cb(), cb);
-
-      }, resolve);
-  });
+      , cb);
+  };
 
   // init of the table / ensuring default labels exist
-  appLabel.addDefaultLangLabels = (lang, usecase, force) => {
+  appLabel.addDefaultLangLabels = (lang, usecase, force, cb) => {
+      console.log("Creating default labels");
+    
       const defaultLabels = marketplaceConfig[usecase].i18n(lang);
       const labelGroups = marketplaceConfig[usecase].labelGroups();
       
       const batchLabels = Object.keys(defaultLabels)
         .map(labelKey => {
           return {
-            labelKey,
-            labelGroup: labelGroups[labelKey],
+            labelKey: labelKey.toUpperCase(),
+            labelGroup: labelGroups[labelKey] ? labelGroups[labelKey].toUpperCase() : null,
             labelValue: defaultLabels[labelKey],
             lang
           };
         });
 
-      return appLabel.bulkCreateOrUpdate(batchLabels, force);
+      return appLabel.bulkCreateOrUpdate(batchLabels, force, cb);
   };
 
   return appLabel;

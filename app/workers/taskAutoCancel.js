@@ -42,26 +42,26 @@ const taskAutoCancel = (tenantId) => {
             .eachSeries(tasks, (task, cb) => {
                 cancelled++;
 
-                taskEmitter.emit('cancelled', models, task);
+                taskEmitter.emit("cancelled", models, task);
 
                 task
                 .update({
                     status: models.task.TASK_STATUS.INACTIVE
                 })
-                .then(_ => {
+                .then(() => {
                     requestCtrl
                     .declineAllPendingRequestsForTask(models, task.id, err => {
                         if (err) {
                             console.error(err);
 
-                            cb(err);
+                            return cb(err);
                         }
     
                         console.log(`[SUCCESS] All pending requests for task ${task.id} have been declined!`);
 
                         return cb();
                     });
-                })
+                });
             }, cb);
         }
     ], err => {

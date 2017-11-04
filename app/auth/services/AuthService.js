@@ -1,6 +1,6 @@
-const bcrypt = require('bcrypt-nodejs');
+const bcrypt = require("bcrypt-nodejs");
 const async = require("async");
-const randtoken = require('rand-token');
+const randomToken = require("random-token");
 const logIndex = "[AuthService]";
 
 const generateHashSync = password => bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
@@ -13,7 +13,7 @@ const validPasswordSync = (password, encryptedPassword) => {
 	}
 
 	return bcrypt.compareSync(password, encryptedPassword);
-}
+};
 
 const createNewUser = (models, callback) => {
 	return models.userAuth
@@ -25,7 +25,7 @@ const createNewPassword = (models, userId, password, cb) => {
 	cb = cb || function() {};
 
 	if (!userId || !password) {
-		return cb('INIT_PARAMS');
+		return cb("INIT_PARAMS");
 	}
 
 	models.userPassword
@@ -37,14 +37,15 @@ const createNewPassword = (models, userId, password, cb) => {
 		},
 		password: generateHashSync(password)
 	})
-	.then(_ => {
-		return models.userPassword.create({
+	.then(() => {
+		models
+		.userPassword
+		.create({
 			userId: userId, 
 			password: generateHashSync(password)
 		})
-	})
-	.then(_ => cb())
-	.catch(cb);
+		.then(() => cb(), cb)
+	}, cb);
 };
 
 const createNewEmail = (models, userId, email, callback) => async.series([
@@ -71,7 +72,7 @@ const createNewEmail = (models, userId, email, callback) => async.series([
 			userId: userId, 
 			email: email
 		})
-		.then(instance => cb(), cb);
+		.then(() => cb(), cb);
 	}
 ], err => callback(err));
 
@@ -81,13 +82,13 @@ const getUserIdFromNetwork = (models, network, networkId, callback) => {
 	var sql = "SELECT user.id AS userId FROM user AS user";
 
 	sql += " INNER JOIN userNetwork AS network";
-	sql += " ON network.userId = user.id"
+	sql += " ON network.userId = user.id";
 	sql += ` WHERE network.networkId = ${networkId} AND network.network = '${network}'`;
 
 	models.seq.query(sql)
 	.then(result => {
 		if (result.length) {
-			return callback(null, result[0])
+			return callback(null, result[0]);
 		}
 
 		return callback(null, false);
@@ -102,7 +103,7 @@ const updateNetworkToken = (models, userId, network, networkId, token) =>
 			where: {
 				$and: [ 
 					 { networkId },
-					 { userId },
+					 { userId }
 				]
 			}
 		})
@@ -119,15 +120,21 @@ const createNewNetwork = (models, userId, network, networkId, token, refreshToke
 		})
 		.then(instance => callback(), err => callback(err));
 
-const createNewToken = (models, userId, callback) =>
-	models.userToken
-		.create({
-			token: randtoken.generate(250),
-			userId: userId,
-		}, {
-			raw: true
-		})
-		.then(instance => callback(null, instance.dataValues), err => callback(err));
+const createNewToken = (models, userId, cb) => {
+	console.log(`[${models.tenantId}]: Creating new user token for vqUserId ${userId}`);
+
+	models
+	.userToken
+	.create({
+		token: randomToken(250),
+		userId: userId
+	})
+	.then(instance => {
+		console.log("Token successfuly created.");
+
+		return cb(null, instance.dataValues)
+	}, cb)
+};
 
 const checkToken = (models, token, callback) => {
 	models.userToken
@@ -140,7 +147,7 @@ const checkToken = (models, token, callback) => {
 			var response = instance || false;
 
 			return callback(null, response);
-		}, err => callback(err))
+		}, err => callback(err));
 };
 
 const checkPassword = (models, userId, password, callback) => {
@@ -160,7 +167,7 @@ const checkPassword = (models, userId, password, callback) => {
 			}
 
 			return callback(null, isCorrect);
-		}, err => callback(err))
+		}, err => callback(err));
 };
 
 const getEmailsFromUserId = (models, userId, callback) => {
@@ -175,7 +182,7 @@ const getEmailsFromUserId = (models, userId, callback) => {
 		.then(instances =>
 			callback(null, instances || false),
 			err => callback(err)
-		)
+		);
 };
 
 const getUserIdFromEmail = (models, email, callback) => {
@@ -190,7 +197,7 @@ const getUserIdFromEmail = (models, email, callback) => {
 		.then(
 			instance => callback(null, instance || false),
 			err => callback(err)
-		)
+		);
 };
 
 const addUserProp = (models, userId, propKey, propValue, callback) => {

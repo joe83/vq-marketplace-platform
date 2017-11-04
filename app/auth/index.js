@@ -1,9 +1,9 @@
 const async = require("async");
 const randomToken = require("random-token");
-const AuthService = require('./services/AuthService');
-const SignupCtrl = require('./controllers/SignupCtrl');
-const AuthCtrl = require('./controllers/AuthCtrl');
-const LoginCtrl = require('./controllers/LoginCtrl');
+const AuthService = require("./services/AuthService");
+const SignupCtrl = require("./controllers/SignupCtrl");
+const AuthCtrl = require("./controllers/AuthCtrl");
+const LoginCtrl = require("./controllers/LoginCtrl");
 
 const localSignup = (models, email, password, cb) => {
     SignupCtrl.createLocalAccount(models, email, password, (err, authUser) => {
@@ -27,7 +27,7 @@ const requestPasswordReset = (models, email, cb) => {
             .then(rUserEmail => {
                 if (!rUserEmail) {
                     return setTimeout(() => {
-                        return cb("EMAIL_NOT_FOUND")
+                        return cb("EMAIL_NOT_FOUND");
                     }, 100);
                 }
 
@@ -64,7 +64,7 @@ const resetPassword = (models, resetCode, newPassword, cb) => {
             .then(rUserResetCode => {
                 if (!rUserResetCode) {
                     return setTimeout(() =>
-                        cb('WRONG_RESET_CODE'),
+                        cb("WRONG_RESET_CODE"),
                         500
                     );
                 }

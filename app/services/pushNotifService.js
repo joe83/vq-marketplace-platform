@@ -1,6 +1,6 @@
-const async = require('async');
-const https = require('https');
-const config = require('../config/configProvider.js')();
+const async = require("async");
+const https = require("https");
+const config = require("../config/configProvider.js")();
 
 const getAppId = () => {
   return config["oneSignal.appId"];
@@ -26,12 +26,12 @@ const requestOptions = () => {
 
 const sendNotification = data => {
   var req = https.request(requestOptions(), (res, body) => {
-    res.on('data', data => {
+    res.on("data", data => {
       console.log("[SUCCESS] Push Notif Send");
     });
   });
 
-  req.on('error', e => {
+  req.on("error", e => {
     console.log("ERROR:", e);
   });
 

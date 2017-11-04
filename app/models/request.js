@@ -1,12 +1,12 @@
 module.exports = (sequelize, DataTypes) => {
   const REQUEST_STATUS = {
-    PENDING: '0',
-    ACCEPTED: '5',
-    MARKED_DONE: '10',
-    CLOSED: '14',
-    SETTLED: '15',
-    DECLINED: '20',
-    CANCELED: '25'
+    PENDING: "0",
+    ACCEPTED: "5",
+    MARKED_DONE: "10",
+    CLOSED: "14",
+    SETTLED: "15",
+    DECLINED: "20",
+    CANCELED: "25"
   };
 
   const Request = sequelize.define("request", {
@@ -27,13 +27,13 @@ module.exports = (sequelize, DataTypes) => {
         required: true
       }
   }, {
-      tableName: 'request',
+      tableName: "request",
   });
 
   Request.associate = models => {
     Request.belongsTo(models.task);
-    Request.belongsTo(models.user, { as: 'fromUser', constraints: true });
-    Request.belongsTo(models.user, { as: 'toUser', constraints: true });
+    Request.belongsTo(models.user, { as: "fromUser", constraints: true });
+    Request.belongsTo(models.user, { as: "toUser", constraints: true });
     Request.hasOne(models.review);
     Request.hasOne(models.order);
   };

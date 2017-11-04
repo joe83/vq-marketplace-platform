@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
       default: 0
     }
   }, {
-    tableName: 'taskTiming'
+    tableName: "taskTiming"
   });
 
   TaskTiming.associate = models => {

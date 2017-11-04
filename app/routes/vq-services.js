@@ -1,8 +1,8 @@
-var NodeGeocoder = require('node-geocoder');
+var NodeGeocoder = require("node-geocoder");
 var options = {
- provider: 'google',
+ provider: "google",
  // Optional depending on the providers
- httpAdapter: 'http', // Default
+ httpAdapter: "http", // Default
  // apiKey: 'YOUR_API_KEY', // for Mapquest, OpenCage, Google Premier
  // formatter: null         // 'gpx', 'string', ...
 };
@@ -10,7 +10,7 @@ var options = {
 var geocoder = NodeGeocoder(options);
 
 module.exports = app => {
-    app.post('/api/vq-services/address-validation', (req, res) => {
+    app.post("/api/vq-services/address-validation", (req, res) => {
         const addressBody = req.body;
         
         const addressString = `${addressBody.street}, ${addressBody.city}, ${addressBody.countryCode}`;

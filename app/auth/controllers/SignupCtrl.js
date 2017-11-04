@@ -10,6 +10,7 @@ const createLocalAccount = (models, email, password, callback) => {
   }
   
   var newUser = {};
+  var userToken;
 
 	if (password) {
 		newUser.password = AuthService.generateHashSync(password);
@@ -27,13 +28,27 @@ const createLocalAccount = (models, email, password, callback) => {
     }),
     callback => AuthService.createNewEmail(models, newUser.id, email, callback),
     callback => AuthService.createNewPassword(models, newUser.id, password, callback),
-    callback => AuthService.createNewToken(models, newUser.id, callback)
-  ], (err, rUserToken) => {
+    callback => AuthService.createNewToken(models, newUser.id, (err, rUserToken) => {
+      if (err) {
+        console.error(err);
+  
+        return callback(err);
+      }
+
+      userToken = rUserToken;
+
+      return callback();
+    })
+  ], (err) => {
     if (err) {
       console.error(err);
+
+      return callback(err);
     }
 
-    callback(err, rUserToken);
+    console.log(`[${models.tenantId}] Auth Data created`);
+
+    return callback(err, userToken);
   });
 };
 

@@ -4,14 +4,14 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING, allowNull: false
       }
   }, {
-      tableName: 'message'
+      tableName: "message"
   });
 
   Message.associate = models => {
     Message.belongsTo(models.request);
     Message.belongsTo(models.task);
-    Message.belongsTo(models.user, { as: 'fromUser' });
-    Message.belongsTo(models.user, { as: 'toUser' });
+    Message.belongsTo(models.user, { as: "fromUser" });
+    Message.belongsTo(models.user, { as: "toUser" });
   };
 
   return Message;

@@ -1,4 +1,4 @@
-"use strict"
+"use strict";
 
 const EventEmitter = require("events");
 const randtoken = require("rand-token");
@@ -11,14 +11,14 @@ const vqAuth = require("../auth");
 
 module.exports = userEmitter;
     userEmitter
-    .on('created', (models, user) => {
+    .on("created", (models, user) => {
         const VERIFICATION_LINK = cryptoService.buildVerificationUrl(models.tenantId, config.SERVER_URL, user);
 
         return emailService.sendWelcome(models, user, VERIFICATION_LINK);
     });
 
     userEmitter
-    .on('blocked', (models, user) => {
+    .on("blocked", (models, user) => {
         vqAuth
         .getEmailsFromUserId(models, user.vqUserId, (err, rUserEmails) => {
             if (err) {
@@ -29,6 +29,6 @@ module.exports = userEmitter;
             .map(_ => _.email);
 
             emailService
-                .getEmailAndSend(models, 'user-blocked', emails, {});
+                .getEmailAndSend(models, "user-blocked", emails, {});
         });
     });

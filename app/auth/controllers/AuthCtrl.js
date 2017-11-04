@@ -41,7 +41,7 @@ const changePassword = (models, userId, newPassword) => {
     ]
   }).then(() => {
     AuthService.createNewPassword(models, userId, newPassword, () => {});
-  })
+  });
 };
 
 

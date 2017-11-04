@@ -11,7 +11,7 @@ module.exports = app => {
     next();
   }
 
-  app.get('/api/user/:userId/preference', (req, res) => {
+  app.get("/api/user/:userId/preference", (req, res) => {
     req.models
     .userPreference
     .findAll({ 
@@ -25,7 +25,7 @@ module.exports = app => {
     );
   });
 
-  app.get('/api/user/:userId/preference/:type', (req, res) => {
+  app.get("/api/user/:userId/preference/:type", (req, res) => {
     req.models.userPreference.findAll({
       where: {
           $and: [
@@ -40,10 +40,10 @@ module.exports = app => {
     );
   });
 
-  app.post('/api/user/:userId/preference', isLoggedIn, (req, res) => {
+  app.post("/api/user/:userId/preference", isLoggedIn, (req, res) => {
     const preference = {
         userId: req.user.id,
-        type: 'category',
+        type: "category",
         value: req.body.value
     };
     
@@ -84,7 +84,7 @@ module.exports = app => {
     });
   });
 
-    app.delete('/api/user/:userId/preference/:preferenceId', isLoggedIn, (req, res) => {
+    app.delete("/api/user/:userId/preference/:preferenceId", isLoggedIn, (req, res) => {
         const preference = {
             id: req.params.preferenceId,
             userId: req.user.id,
@@ -100,7 +100,7 @@ module.exports = app => {
                 }
             })
             .then(() => {
-                responseController.sendResponse(res, null, { desc: 'Deleted '});
+                responseController.sendResponse(res, null, { desc: "Deleted "});
             }, err => responseController.sendResponse(res, err));
     });
 };

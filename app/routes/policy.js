@@ -3,113 +3,19 @@ const cust = require("../config/customizing.js");
 const emailService = require("../services/emailService.js");
 const cryptoService = require("../services/cryptoService");
 const responseController = require("../controllers/responseController.js");
+const authCtrl = require("../controllers/authCtrl.js");
 const sendResponse = responseController.sendResponse;
 const vqAuth = require("../auth");
 const userEmitter = require("../events/user");
 const config = require("../config/configProvider.js")();
 
-const validateEmail = email => { 
-    const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    
-	return re.test(email);
-};
-
 module.exports = app => {
 	var isLoggedIn = responseController.isLoggedIn;
 	
-	app.post("/api/signup/email", (req, res) => {
-		const email = req.body.email;
-		const password = req.body.password;
-		const userData = {};
-		
-		if (!validateEmail(email)) {
-			return responseController
-			.sendResponse(res, {
-				httpCode: 400,
-				code: "EMAIL_WRONGLY_FORMATTED",
-				desc: "Email wrongly formatted"
-			});
-		}
-
-		const propertiesToBeExcluded = [ "email", "password", "repeatPassword" ];
-
-		Object.keys(req.body)
-			.filter(prop => propertiesToBeExcluded.indexOf(prop) === -1)
-			.forEach(prop => {
-				userData[prop] = req.body[prop];
-			});
-		
-		var vqUserId, vqAuthUser, user;
-		var shouldBeAdmin = false;
-
-		async
-			.waterfall([
-				cb => {
-					return vqAuth
-						.localSignup(req.models, email, password, (err, rUser) => {
-							if (err) {
-								return cb(err);
-							}
-
-							vqAuthUser = rUser;
-							vqUserId = rUser.userId;
-
-							return cb();
-						});
-				},
-				cb => req.models.user
-				.count({})
-				.then(count => {
-					shouldBeAdmin = !count;
-
-					return cb();
-				}, cb),
-				cb => req.models.user
-					.create({
-						accountType: "PRIVATE",
-						vqUserId,
-						isAdmin: shouldBeAdmin,
-						firstName: userData.firstName,
-						lastName: userData.lastName,
-						userType: userData.userType || 0
-					})
-					.then(rUser => {
-						user = rUser;
-
-						return cb();
-					}, cb),
-				cb => async
-				.each(
-					Object.keys(userData),
-					(prop, cb) =>
-						req.models.userProperty
-						.create({
-							propKey: prop,
-							propValue: userData[prop],
-							userId: user.id
-						})
-						.then(rUser => cb()),
-					cb
-				)
-			], err => {
-				if (err) {
-					return responseController
-						.sendResponse(res, err);
-				}
-
-				const responseData = vqAuthUser;
-
-				responseData.user = user;
-
-				responseController
-					.sendResponse(res, err, vqAuthUser);
-
-				const emittedUser = JSON.parse(JSON.stringify(user));
-
-				emittedUser.emails = [ email ];
-				userEmitter.emit('created', req.models, emittedUser);
-			});
-		});
+	app.post("/api/signup/email", (req, res) => authCtrl
+		.createNewAccount(req.models, req.body, (err, responseData) =>
+			responseController.sendResponse(res, err, responseData)
+		));
 
 	app.post("/api/auth/reset-password", (req, res) => {
 		const code = req.body.code;
@@ -117,7 +23,7 @@ module.exports = app => {
 		const repeatNewPassword = req.body.repeatNewPassword;
 
 		if (newPassword !== repeatNewPassword) {
-			return sendResponse(res, { code: 'PASSWORDS_DO_NOT_MATCH' });
+			return sendResponse(res, { code: "PASSWORDS_DO_NOT_MATCH" });
 		}
 
 		vqAuth
@@ -142,13 +48,13 @@ module.exports = app => {
 			req.models.appConfig
 			.findOne({
 				where: {
-					fieldKey: 'DOMAIN'
+					fieldKey: "DOMAIN"
 				}
 			})
 			.then(configField => {
 				configField = configField || {};
 				
-				const urlBase = configField.fieldValue || 'http://localhost:3000';
+				const urlBase = configField.fieldValue || "http://localhost:3000";
 				
 				const ACTION_URL = 
 				`${urlBase}/app/change-password?code=${resetCode}`;
@@ -230,12 +136,12 @@ module.exports = app => {
 		var user, userRef;
 
 		try {
-			encryptedToken = encryptedToken.split(' ').join('+');
+			encryptedToken = encryptedToken.split(" ").join("+");
 			
 			user = cryptoService.decodeObj(encryptedToken);
 		} catch(err) {
-			res.set('Content-Type', 'text/html');
-			res.send(new Buffer('<p>Could not verify</p>'));
+			res.set("Content-Type", "text/html");
+			res.send(new Buffer("<p>Could not verify</p>"));
 		}
 		
 		async.waterfall([
@@ -247,7 +153,7 @@ module.exports = app => {
 					if (rUser.status === req.models.user.USER_STATUS.USER_BLOCKED) {
 						return cb({
 							httpCode: 401,
-							code: 'USER_BLOCKED'
+							code: "USER_BLOCKED"
 						});
 					}
 
@@ -260,7 +166,7 @@ module.exports = app => {
 				if (rUser.status && rUser.status !== req.models.user.USER_STATUS.UNVERIFIED) {
 					return cb({
 						httpCode: 400,
-						code: 'WRONG_USER_STATUS'
+						code: "WRONG_USER_STATUS"
 					});
 				}
 
@@ -280,7 +186,7 @@ module.exports = app => {
 				.appConfig
 				.findOne({
 					where: {
-						fieldKey: 'DOMAIN'
+						fieldKey: "DOMAIN"
 					}
 				})
 				.then(configField => {
@@ -294,26 +200,26 @@ module.exports = app => {
 			}
 		], (err, configField) => {
 			if (err) {
-				res.set('Content-Type', 'text/html');
+				res.set("Content-Type", "text/html");
 
 				return res.send(new Buffer(`<p>This verification link is no longer valid.<span style="display:none;">${err.code}</span></p>`));
 			}
 			
 			if (!configField) {
-				res.set('Content-Type', 'text/html');
+				res.set("Content-Type", "text/html");
 				
-				return res.send(new Buffer(`<p>Missing configuration. Configure DOMAIN.</p>`));
+				return res.send(new Buffer("<p>Missing configuration. Configure DOMAIN.</p>"));
 			}
 
 			if (userRef.userType === 1) {
-				return res.redirect(configField.fieldValue + '/app/new-listing');
+				return res.redirect(configField.fieldValue + "/app/new-listing");
 			}
 
-			return res.redirect(configField.fieldValue + '/app/dashboard');
+			return res.redirect(configField.fieldValue + "/app/dashboard");
 		});
 	});
 	
-	app.post('/api/login', (req, res) => {
+	app.post("/api/login", (req, res) => {
 		var User;
 		var email = req.body.email;
 		var password = req.body.password;
@@ -351,7 +257,7 @@ module.exports = app => {
 
 				User.user = rUser ? rUser.dataValues : null;
 
-				if (rUser.status == '20') {
+				if (rUser.status == "20") {
 					return cb(cust.errorCodes.USER_BLOCKED);
 				}
 
@@ -370,7 +276,7 @@ module.exports = app => {
 				.sendResponse(res, err, User));
 	});
 
-	app.post('/api/auth/password', isLoggedIn, (req, res) => {
+	app.post("/api/auth/password", isLoggedIn, (req, res) => {
 		var currentPassword = req.body.currentPassword;
 		var newPassword = req.body.newPassword;
 
@@ -380,7 +286,7 @@ module.exports = app => {
 		});
 	});
 
-	app.post('/api/logout', (req, res) => {
+	app.post("/api/logout", (req, res) => {
 		// @todo destroy token!
 		res.status(200).send();
 	});

@@ -4,18 +4,18 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING(2048),
       },
       rate: {
-        type: DataTypes.ENUM('0', '1', '2', '3', '4', '5'),
+        type: DataTypes.ENUM("0", "1", "2", "3", "4", "5"),
       }
   }, {
-      tableName: 'review'
+      tableName: "review"
   });
 
   Review.associate = models => {
     Review.belongsTo(models.user, {
-      as: 'fromUser'
+      as: "fromUser"
     });
     Review.belongsTo(models.user, {
-        as: 'toUser'
+        as: "toUser"
     });
     Review.belongsTo(models.task);
     Review.belongsTo(models.request);

@@ -1,19 +1,19 @@
-const async = require('async');
+const async = require("async");
 const resCtrl = require("../controllers/responseController.js");
 const cust = require("../config/customizing.js");
 const isLoggedIn = resCtrl.isLoggedIn;
 const sendResponse = resCtrl.sendResponse;
 const isLoggedInAndVerified = resCtrl.isLoggedInAndVerified;
 const isAdmin = resCtrl.isAdmin;
-const models  = require('../models/models');
+const models  = require("../models/models");
 const reviewEmitter = require("../events/review");
 
-const RESOURCE = 'review';
+const RESOURCE = "review";
 
 const REVIEW_TYPES = {
     ORDER: 1,
     REQUEST: 2
-}
+};
 
 module.exports = app => {
     /**
@@ -41,11 +41,11 @@ module.exports = app => {
             reviewType = REVIEW_TYPES.REQUEST;
         }
 
-        if ([ '0', '1', '2', '3', '4', '5' ].indexOf(rate) === -1) {
+        if ([ "0", "1", "2", "3", "4", "5" ].indexOf(rate) === -1) {
             return res.status(400).send({
-                code: 'WRONG_RATE',
-                desc: 'Rate must be between 0 and 5'
-            })
+                code: "WRONG_RATE",
+                desc: "Rate must be between 0 and 5"
+            });
         }
 
         var order, request;
@@ -66,9 +66,9 @@ module.exports = app => {
                     .then(review => {
                         if (review) {
                             return cb({
-                                code: 'ALREADY_REVIEWED',
+                                code: "ALREADY_REVIEWED",
                                 httpCode: 400,
-                                desc: 'You have already rated this order / request'
+                                desc: "You have already rated this order / request"
                             });
                         }
 
@@ -94,8 +94,8 @@ module.exports = app => {
                 .then(rOrder => {
                     if (!rOrder) {
                         return cb({
-                            code: 'ORDER_NOT_FOUND',
-                            desc: 'Order has not been found',
+                            code: "ORDER_NOT_FOUND",
+                            desc: "Order has not been found",
                             httpCode: 400
                         });
                     }
@@ -109,13 +109,13 @@ module.exports = app => {
                     ) {
                         return cb({
                             httpCode: 400,
-                            code: 'WRONG_ORDER_STATUS_FOR_REVIEW',
-                            desc: 'Order needs to be completed to review it.'
-                        })
+                            code: "WRONG_ORDER_STATUS_FOR_REVIEW",
+                            desc: "Order needs to be completed to review it."
+                        });
                     }
 
                     return cb();
-                }, cb)
+                }, cb);
             },
             cb => {
                 if (reviewType === REVIEW_TYPES.ORDER) {
@@ -134,8 +134,8 @@ module.exports = app => {
                 .then(rRequest => {
                     if (!rRequest) {
                         return cb({
-                            code: 'REQUEST_NOT_FOUND',
-                            desc: 'Request has not been found',
+                            code: "REQUEST_NOT_FOUND",
+                            desc: "Request has not been found",
                             httpCode: 400
                         });
                     }
@@ -149,22 +149,22 @@ module.exports = app => {
                     ) {
                         return cb({
                             httpCode: 400,
-                            code: 'WRONG_REQUEST_STATUS_FOR_REVIEW',
-                            desc: 'Request needs to be completed to review it.'
-                        })
+                            code: "WRONG_REQUEST_STATUS_FOR_REVIEW",
+                            desc: "Request needs to be completed to review it."
+                        });
                     }
 
                     return cb();
-                }, cb)
+                }, cb);
             },
             cb => {
                 const toUserId = reviewType === REVIEW_TYPES.ORDER ? order.request.fromUserId : request.toUserId;
 
                 if (toUserId === userId) {
                     return cb({
-                        code: 'WRONG_REVIEW_SIDE',
-                        desc: 'You cannot leave review to yourself'
-                    })
+                        code: "WRONG_REVIEW_SIDE",
+                        desc: "You cannot leave review to yourself"
+                    });
                 }
 
                 const newReview = {
@@ -187,7 +187,7 @@ module.exports = app => {
                 .create(newReview)
                 .then(rReview => {
                     return cb(null, rReview);
-                }, cb)
+                }, cb);
             }
             ], (err, rReview) => {
                 if (err) {
@@ -195,12 +195,12 @@ module.exports = app => {
 
                     return res
                     .status(400)
-                    .send(err)
+                    .send(err);
                 }
 
                 res.send(rReview);
 
-                reviewEmitter.emit('review-left', req.models, rReview.id);
+                reviewEmitter.emit("review-left", req.models, rReview.id);
             });
     });
 
@@ -209,21 +209,21 @@ module.exports = app => {
 
         if (!toUserId) {
             return res.status(400).send({
-                code: 'MISSING_QUERY',
-                desc: 'Specify query param "toUserId"',
-            })
+                code: "MISSING_QUERY",
+                desc: "Specify query param \"toUserId\"",
+            });
         }
 
         req.models.review
             .findAll({
-                order: [[ 'createdAt', 'DESC' ]],
+                order: [[ "createdAt", "DESC" ]],
                 where: {
                     toUserId
                 },
                 include: [
                     {   
                         model: req.models.user,
-                        as: 'fromUser'  
+                        as: "fromUser"  
                     },
                     { model: req.models.task }
                 ]

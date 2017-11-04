@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
             required: true
         }
     }, {
-      tableName: 'userPreference',
+      tableName: "userPreference",
     });
   
     UserPreference.associate = models => {

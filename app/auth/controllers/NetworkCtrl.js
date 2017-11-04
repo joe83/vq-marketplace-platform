@@ -1,4 +1,4 @@
-var bcrypt = require('bcrypt-nodejs');
+var bcrypt = require("bcrypt-nodejs");
 var async = require("async");
 var AuthService = require("../services/AuthService");
 
@@ -37,7 +37,7 @@ function connectToFacebook(models, token, refreshToken, profile, callback) {
 
 	async.waterfall([
 		function(callback) {
-			AuthService.getUserIdFromNetwork('facebook', fbId, function(err, rUser) {
+			AuthService.getUserIdFromNetwork("facebook", fbId, function(err, rUser) {
 				if (err) {
 					return callback(err);
 				}
@@ -48,7 +48,7 @@ function connectToFacebook(models, token, refreshToken, profile, callback) {
 
 		function(callback) {
 			if (User) {
-				AuthService.updateNetworkToken(User.user_id, 'facebook', fbId, token);
+				AuthService.updateNetworkToken(User.user_id, "facebook", fbId, token);
 				return callback();
 			}
 
@@ -81,7 +81,7 @@ function connectToFacebook(models, token, refreshToken, profile, callback) {
 					}
 				},
 				function(callback) {
-					AuthService.createNewNetwork(models, User.userId, 'facebook',fbId, token, refreshToken, function(err) {
+					AuthService.createNewNetwork(models, User.userId, "facebook",fbId, token, refreshToken, function(err) {
 						if (err) {
 							return callback(err);
 						}

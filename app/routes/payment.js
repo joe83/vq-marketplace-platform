@@ -1,14 +1,14 @@
-const stripe = require('stripe')('sk_test_Hops88AqZwLgedHPbzyiTXps');
+const stripe = require("stripe")("sk_test_Hops88AqZwLgedHPbzyiTXps");
 const responseController = require("../controllers/responseController.js");
 const isLoggedIn = responseController.isLoggedIn;
 
 module.exports = app => {
-    app.post('/api/payment/sub', isLoggedIn, (req, res) => {
+    app.post("/api/payment/sub", isLoggedIn, (req, res) => {
         var customer = {};
         var User = req.user;
 
         if (User.stripe && User.stripe.subId) {
-            return res.status(400).send('Already on subscription');
+            return res.status(400).send("Already on subscription");
         }
 
         stripe.customers.create({
@@ -18,7 +18,7 @@ module.exports = app => {
 
             return stripe.customers.createSource(customer.id, {
                 source: {
-                    object: 'card',
+                    object: "card",
                     exp_month: req.body.exp_month,
                     exp_year: req.body.exp_year,
                     number: req.body.number,

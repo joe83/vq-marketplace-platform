@@ -10,7 +10,7 @@
   "scripts": {
     "start": "node app.js",
     "start:local": "TENANT_ID=testmarketplace node app.js",
-    "start:dev": "ST_ENV=dev node app.js",
+    "start:dev": "node app --config /../test-config.json",
     "start:production": "ST_ENV=production node app.js",
     "test": "ST_ENV=local jasmine",
     "lint": "./node_modules/.bin/eslint app"
@@ -68,6 +68,10 @@
   "devDependencies": {
     "eslint": "^4.9.0",
     "gulp": "^3.9.1",
+    "pre-commit": "^1.2.2",
     "yargs": "^7.1.0"
-  }
+  },
+  "pre-commit": [
+    "lint"
+  ]
 }

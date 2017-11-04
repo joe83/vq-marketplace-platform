@@ -59,9 +59,9 @@ const loginWithPassword = (models, email, password, callback) => {
 
         return callback();
       });
-    }, 
+    }
   ], err => callback(err, Token));
-}
+};
 
 module.exports = {
 	loginWithPassword

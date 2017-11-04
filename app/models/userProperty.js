@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
       required: true
     }
   }, {
-    tableName: 'userProperty',
+    tableName: "userProperty",
   });
 
   UserProperty.associate = models => {

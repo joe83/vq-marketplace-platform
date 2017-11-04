@@ -10,12 +10,8 @@ config/setups/*
 # mac bullshit
 .DS_Store
 npm-debug.log
-<<<<<<< HEAD
-package-lock.json
-=======
-
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
->>>>>>> b261f182352cbc23c239ebd79a6614cd279d4a10
+

@@ -1,13 +1,13 @@
 module.exports = (sequelize, DataTypes) => {
   const Model = sequelize.define("userToken", {
-        token: { type: DataTypes.STRING },
+        token: { type: DataTypes.STRING, required: true },
         deleted: { type: DataTypes.BOOLEAN, defaultValue: 0 }
   }, {
-    tableName: 'auth_userToken'
+    tableName: "auth_userToken"
   });
 
   Model.associate = models => {
-    Model.belongsTo(models.userAuth, { as: 'user' });
+    Model.belongsTo(models.userAuth, { as: "user" });
   };
 
   return Model;

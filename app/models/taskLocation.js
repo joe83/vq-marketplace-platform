@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
       required: true
     },
     geo: {
-       type: DataTypes.GEOMETRY('POINT'),
+       type: DataTypes.GEOMETRY("POINT"),
        required: true
     },
     countryCode: { 
@@ -34,7 +34,7 @@ module.exports = (sequelize, DataTypes) => {
     addressAddition: { type: DataTypes.STRING },
     region: { type: DataTypes.STRING }
   }, {
-    tableName: 'taskLocation',
+    tableName: "taskLocation",
   });
 
   TaskLocation.associate = models => {

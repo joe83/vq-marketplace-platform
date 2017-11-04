@@ -1,51 +1,98 @@
 /**
  * Customizing model for application definition and meta data like corporate identity, logos, pricing levels etc etc.
  */
-const marketplaceConfig = require('vq-marketplace-config');
+const async = require("async");
+const marketplaceConfig = require("vq-marketplace-config");
+
+const tableName = "_appConfig";
 
 module.exports = (sequelize, DataTypes) => {
   const AppConfig = sequelize.define("appConfig", {
-      fieldKey: { type: DataTypes.STRING },
+      fieldKey: {
+        type: DataTypes.STRING,
+        required: true,
+        unique: true
+      },
       fieldValue: { type: DataTypes.STRING }
   }, {
-      tableName: '_appConfig',
-      classMethods: {
-        associate: models => {
-        }
-      }
+      tableName,
+      createdAt: false,
+      updatedAt: false
   });
 
   // expansion of model
-  AppConfig.updateFactory = () => (fieldKey, fieldValue) => AppConfig
-        .findOne({ where: { fieldKey }})
+  AppConfig.updateFactory = () => (fieldKey, fieldValue, cb) => AppConfig
+        .findOne({
+          where: {
+            fieldKey
+          }
+        })
         .then(obj => {
           if (!obj) {
+            console.log(`Adding config: ${fieldKey}`);
+            
             return AppConfig
-              .create({ fieldKey, fieldValue });
+              .create({
+                fieldKey,
+                fieldValue
+              })
+              .then(() => cb(), cb);
           }
 
-          obj.fieldValue !== fieldValue && AppConfig.update({ fieldValue }, { where: { id: obj.id } });
-        });
+          if (obj.fieldValue !== fieldValue) {
+            console.log(`Updating CONFIG: ${fieldKey}`);
+            
+            return obj
+              .update({ fieldValue })
+              .then(() => cb(), cb);
+          }
 
-  AppConfig.upsertFactory = () => (fieldKey, fieldValue, lang) => AppConfig
-        .findOne({ where: { fieldKey }})
-        .then(obj => !obj && AppConfig.create({ fieldKey, fieldValue, lang }));
+          return cb();
+        }, cb);
 
-  AppConfig.bulkCreateOrUpdate = (configs, forceUpdate) => new Promise(resolve => {
-      const upsert = forceUpdate ? AppConfig.updateFactory() : AppConfig.upsertFactory();
-      
-      configs.forEach(config => {
-        if (!config.fieldKey) {
-          return;
+  AppConfig.upsertFactory = () => (fieldKey, fieldValue, cb) => {
+      AppConfig
+      .findOne({
+        where: { fieldKey }
+      })
+      .then(obj => {
+        if (!obj) {
+          return AppConfig
+          .create({
+            fieldKey,
+            fieldValue
+          })
+          .then(() => {
+            return cb();
+          }, cb);
         }
 
-        upsert(config.fieldKey.toUpperCase(), config.fieldValue);
-      });
-  
-      return resolve();
-  });
+        return cb();
+      }, cb);
+  };
 
-  const addDefaultConfig = (usecase) => {
+  AppConfig.bulkCreateOrUpdate = (configs, forceUpdate, cb) => {
+    const upsert = forceUpdate ? AppConfig.updateFactory() : AppConfig.upsertFactory();
+    
+    const updateConfigs = configs
+      .filter(_ => _.fieldKey)
+      .map(_ => {
+        _.fieldKey = _.fieldKey.toUpperCase();
+
+        return _;
+      })
+
+    async
+    .eachSeries(updateConfigs, (config, cb) =>
+      upsert(config.fieldKey, config.fieldValue, cb)
+    , (err) => {
+      cb(err);
+    });
+  };
+
+  const addDefaultConfig = (usecase, cb) => {
+    console.log("Creating default config");
+    
     const defaultConfigs = marketplaceConfig[usecase].config();
     const dataProcessed = Object.keys(defaultConfigs)
       .map(fieldKey => {
@@ -55,7 +102,31 @@ module.exports = (sequelize, DataTypes) => {
         };
       });
 
-    AppConfig.bulkCreateOrUpdate(dataProcessed, false);
+    AppConfig.bulkCreateOrUpdate(dataProcessed, false, cb);
+  };
+
+  AppConfig.insertSeed = (usecase, cb) => {
+    console.log("[appConfig.insertSeed] Creating seed configs");
+
+    const defaultConfigs = marketplaceConfig[usecase].config();
+    
+    const values = Object.keys(defaultConfigs)
+      .map(fieldKey => {
+        return "(" + [
+          `'${fieldKey.toUpperCase()}'`,
+          defaultConfigs[fieldKey] ? `'${String(defaultConfigs[fieldKey]).replace(/'/g,"''")}'` : "NULL"
+        ].join(",") + ")";
+      })
+      .join(",");
+
+    let sql = `INSERT INTO ${tableName} (fieldKey, fieldValue) VALUES ${values}`;
+    
+    console.time("configSeedInsert");
+    sequelize.query(sql, { type: sequelize.QueryTypes.INSERT })
+      .then(() => cb(), cb)
+      .finally(() => {
+        console.timeEnd("configSeedInsert");
+      });
   };
 
   AppConfig.addDefaultConfig = addDefaultConfig;

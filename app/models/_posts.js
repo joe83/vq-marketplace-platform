@@ -1,4 +1,7 @@
-const marketplaceConfig = require('vq-marketplace-config');
+const async = require("async");
+const marketplaceConfig = require("vq-marketplace-config");
+
+const tableName = "_posts";
 
 module.exports = (sequelize, DataTypes) => {
   const posts = sequelize.define("post", {
@@ -7,10 +10,9 @@ module.exports = (sequelize, DataTypes) => {
       type: { type: DataTypes.STRING, required: true },
       body: { type: DataTypes.TEXT }
   }, {
-      tableName: '_posts',
-      classMethods: {
-        associate: models => {}
-      }
+      tableName,
+      createdAt: false,
+      updatedAt: false
   });
 
 
@@ -37,15 +39,42 @@ module.exports = (sequelize, DataTypes) => {
         });
     });
 
-  posts.addDefaultPosts = (usecase, force) => {
-    const defaultPosts = marketplaceConfig[usecase].posts();
-    const updateOrCreate = posts.createOrUpdate();
+    posts.insertSeed = (usecase, cb) => {
+        console.log("[posts.insertSeed] Creating seed posts");
+    
+        const defaultPosts = marketplaceConfig[usecase].posts();
 
-    defaultPosts
-    .forEach(defaultPost => {
-        updateOrCreate(defaultPost.code, defaultPost.type, defaultPost.title, defaultPost.body);
-    });
-  };  
+        const values = defaultPosts
+          .map(post => {
+            return "(" + [
+              `'${post.code}'`,
+              `'${post.type}'`,
+              `'${post.title}'`,
+                post.body ? `'${post.body.replace(/'/g,"''")}'` : ""
+            ].join(",") + ")";
+          })
+          .join(",");
+    
+        let sql = `INSERT INTO ${tableName} (code, type, title, body) VALUES ${values}`;
+        
+        console.time("postSeedInsert");
+        sequelize.query(sql, { type: sequelize.QueryTypes.INSERT })
+          .then(() => cb(), cb)
+          .finally(() => {
+            console.timeEnd("postSeedInsert");
+          });
+    };
 
-  return posts;
+    posts.addDefaultPosts = (usecase, force, cb) => {
+        const defaultPosts = marketplaceConfig[usecase].posts();
+        const updateOrCreate = posts.createOrUpdate();
+
+        async.eachLimit(defaultPosts, 2, (post, cb) => {
+            updateOrCreate(post.code, post.type, post.title, post.body);
+
+            cb();
+        }, cb);
+    };  
+
+    return posts;
 };

@@ -5,11 +5,11 @@ module.exports = (sequelize, DataTypes) => {
       token: { type: DataTypes.STRING, required: true },
       refreshToken: { type: DataTypes.STRING }
   }, {
-    tableName: 'auth_userNetwork'
+    tableName: "auth_userNetwork"
   });
 
   Model.associate = models => {
-    Model.belongsTo(models.userAuth, { as: 'user' });
+    Model.belongsTo(models.userAuth, { as: "user" });
 };
 
   return Model;

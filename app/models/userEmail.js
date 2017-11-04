@@ -3,11 +3,11 @@ module.exports = (sequelize, DataTypes) => {
         email: { type: DataTypes.STRING, required: true },
         verified: { type: DataTypes.BOOLEAN, defaultValue: 0 }
     }, {
-        tableName: 'auth_userEmail'
+        tableName: "auth_userEmail"
     });
 
     Model.associate = models => {
-        Model.belongsTo(models.userAuth, { as: 'user' });
+        Model.belongsTo(models.userAuth, { as: "user" });
     };
 
     return Model;

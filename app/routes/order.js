@@ -1,13 +1,13 @@
-const async = require('async');
+const async = require("async");
 const responseController = require("../controllers/responseController");
-const models = require('../models/models');
+const models = require("../models/models");
 const isLoggedIn = responseController.isLoggedIn;
 const sendResponse = responseController.sendResponse;
 const orderEmitter = require("../events/order");
 const requestEmitter = require("../events/request");
 const orderCtrl = require("../controllers/orderCtrl");
 const requestCtrl = require("../controllers/requestCtrl");
-const RESOURCE = 'order';
+const RESOURCE = "order";
 
 module.exports = app => {
     app.post(`/api/${RESOURCE}`,
@@ -55,11 +55,11 @@ module.exports = app => {
                 sendResponse(res, null, createdOrder);
 
                 orderEmitter
-                    .emit('new-order', req.models, createdOrder.id);
+                    .emit("new-order", req.models, createdOrder.id);
 
                 requestEmitter
-                    .emit('request-accepted', req.models, createdOrder.requestId);
-            })
+                    .emit("request-accepted", req.models, createdOrder.requestId);
+            });
         });
 
     app.get(`/api/${RESOURCE}/:${RESOURCE}Id`,
@@ -84,8 +84,8 @@ module.exports = app => {
                     {
                         model: req.models.request,
                         include: [
-                            { model: req.models.user, as: 'fromUser' },
-                            { model: req.models.user, as: 'toUser' }
+                            { model: req.models.user, as: "fromUser" },
+                            { model: req.models.user, as: "toUser" }
                         ]
                     },
                     {
@@ -99,13 +99,13 @@ module.exports = app => {
             .then(order => {
                 if (!order) {
                     return sendResponse(res, {
-                        code: 'ORDER_NOT_FOUND'
+                        code: "ORDER_NOT_FOUND"
                     });
                 }
 
                 return sendResponse(res, null, order);
             }, err => {
-                sendResponse(res, err)
+                sendResponse(res, err);
             });
         });
 
@@ -119,7 +119,7 @@ module.exports = app => {
                 ]
             };
 
-            if (req.query.view === 'in_progress') {
+            if (req.query.view === "in_progress") {
                 where.$and.push({
                     $or: [
                         { status: req.models.order.ORDER_STATUS.PENDING },
@@ -128,7 +128,7 @@ module.exports = app => {
                 });
             }
 
-            if (req.query.view === 'completed') {
+            if (req.query.view === "completed") {
                 where.$and
                 .push({
                     $or: [
@@ -221,7 +221,7 @@ module.exports = app => {
         });
 
         
-    app.put('/api/order/:orderId/actions/close',
+    app.put("/api/order/:orderId/actions/close",
         isLoggedIn,
         (req, res) => {
             const orderId = req.params.orderId;
@@ -250,7 +250,7 @@ module.exports = app => {
             .then(order => {
                 if (!order) {
                     return sendResponse(res, {
-                        code: 'NOT_FOUND'
+                        code: "NOT_FOUND"
                     });
                 }
                 
@@ -265,24 +265,24 @@ module.exports = app => {
                         }
                     })
                     .then(data => {
-                        requestEmitter.emit('closed', req.models, order.requestId);
+                        requestEmitter.emit("closed", req.models, order.requestId);
 
                         order
                         .update({
                             status: req.models.order.ORDER_STATUS.CLOSED
                         })
                         .then(_ => {
-                            orderEmitter.emit('closed', req.models, order.id);
+                            orderEmitter.emit("closed", req.models, order.id);
 
                             sendResponse(res, null, {
-                                ok: 'ok'
+                                ok: "ok"
                             });
                         }, err => sendResponse(res, err));
                     }, err => sendResponse(res, err));
             });
         });
 
-    app.put('/api/order/:orderId/actions/cancel-autosettlement',
+    app.put("/api/order/:orderId/actions/cancel-autosettlement",
         isLoggedIn,
         (req, res) => {
             const orderId = req.params.orderId;
@@ -303,14 +303,14 @@ module.exports = app => {
                     }
                 })
                 .then(order => {
-                    sendResponse(res, null, { ok: 'ok' });
+                    sendResponse(res, null, { ok: "ok" });
                 }, err => sendResponse(res, err));
         });
 
     /**
      * Settles the order and the underlying request
      */
-    app.put('/api/order/:orderId',
+    app.put("/api/order/:orderId",
         isLoggedIn,
         (req, res) => {
             const orderId = req.params.orderId;

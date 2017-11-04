@@ -12,11 +12,11 @@ module.exports = app => {
     next();
   }
 
-  app.get('/api/me', isLoggedIn, (req, res) => {
+  app.get("/api/me", isLoggedIn, (req, res) => {
       return sendResponse(res, null, req.user);
   });
 
-  app.get('/api/user/:userId', isLoggedIn, (req, res) => {
+  app.get("/api/user/:userId", isLoggedIn, (req, res) => {
     req.models.user.findOne({ 
       where:
         { 
@@ -39,19 +39,19 @@ module.exports = app => {
           });
         }
 
-        return sendResponse(res, null, user)
+        return sendResponse(res, null, user);
       }, 
       err => sendResponse(res, err)
     );
   });
 
-  app.put('/api/user/:userId', isLoggedIn, (req, res) => {
+  app.put("/api/user/:userId", isLoggedIn, (req, res) => {
     const mutableFields = [
-      'firstName',
-      'lastName',
-      'bio',
-      'website',
-      'imageUrl'
+      "firstName",
+      "lastName",
+      "bio",
+      "website",
+      "imageUrl"
     ];
     
     const updateObj = {};
@@ -62,9 +62,9 @@ module.exports = app => {
       .filter(_ => mutableFields.indexOf(_) !== -1)
       .forEach(fieldKey => {
         updateObj[fieldKey] = req.body[fieldKey];
-      })
+      });
     } catch(err) {
-      return sendResponse(res, err)
+      return sendResponse(res, err);
     }
 
     req.models.user
@@ -82,7 +82,7 @@ module.exports = app => {
   /**
    * Deactivates user account
    */
-  app.delete('/api/user/:userId', isLoggedIn, (req, res) => {
+  app.delete("/api/user/:userId", isLoggedIn, (req, res) => {
       req.models.user.destroy({
             where: {
                 id: req.user.id

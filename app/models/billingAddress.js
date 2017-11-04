@@ -41,7 +41,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN, default: false
     }
   }, {
-    tableName: 'billingAddress',
+    tableName: "billingAddress",
   });
 
   BillingAddress.associate = models => {

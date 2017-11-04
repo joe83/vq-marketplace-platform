@@ -1,10 +1,10 @@
 module.exports = (sequelize, DataTypes) => {
   const ORDER_STATUS = {
-    PENDING: '0',
-    MARKED_DONE: '10',
-    SETTLED: '15',
-    CLOSED: '14',
-    CANCELED: '25',
+    PENDING: "0",
+    MARKED_DONE: "10",
+    SETTLED: "15",
+    CLOSED: "14",
+    CANCELED: "25",
   };
 
   const Order = sequelize.define("order", {
@@ -32,10 +32,10 @@ module.exports = (sequelize, DataTypes) => {
         required: false
       },
       currency: {
-        type: DataTypes.ENUM('PLN', 'HUF', 'EUR'),
+        type: DataTypes.ENUM("PLN", "HUF", "EUR"),
       }
   }, {
-      tableName: 'order'
+      tableName: "order"
   });
 
 

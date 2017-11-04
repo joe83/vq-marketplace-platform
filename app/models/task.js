@@ -1,10 +1,10 @@
 module.exports = (sequelize, DataTypes) => {
   const TASK_STATUS = {
-    ACTIVE: '0',
-    INACTIVE: '103',
-    CREATION_IN_PROGRESS: '10',
-    BOOKED: '20',
-    SPAM: '99'
+    ACTIVE: "0",
+    INACTIVE: "103",
+    CREATION_IN_PROGRESS: "10",
+    BOOKED: "20",
+    SPAM: "99"
   };
 
   const PRICE_TYPE = {
@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
     ON_REQUEST: 2
   };
 
-  const SUPPORTED_CURRENCIES = [ 'HUF', 'EUR' ];
+  const SUPPORTED_CURRENCIES = [ "HUF", "EUR" ];
 
   const Task = sequelize.define("task", {
     taskType: { type: DataTypes.INTEGER },
@@ -40,7 +40,7 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: TASK_STATUS.CREATION_IN_PROGRESS
     }
   }, {
-    tableName: 'task'
+    tableName: "task"
   });
 
   Task.TASK_STATUS = TASK_STATUS;

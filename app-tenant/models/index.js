@@ -12,6 +12,8 @@ const create = (tenantId, cb) => {
     throw new Error(`Tenant ${tenantId} already initialised!`);
   }
 
+  console.log(`Creating ${tenantId}`);
+
   var isNewDatabase = false;
 
   async.waterfall([
@@ -21,6 +23,8 @@ const create = (tenantId, cb) => {
         user: config.VQ_DB_USER,
         password: config.VQ_DB_PASSWORD
       });
+
+      connection.connect();
 
       connection.query(
         'CREATE DATABASE ?? CHARACTER SET utf8 COLLATE utf8_general_ci;',
@@ -39,6 +43,8 @@ const create = (tenantId, cb) => {
           cb();
         }
       );
+
+      connection.end();
     },
     cb => {
       const db = {};
@@ -82,28 +88,6 @@ const create = (tenantId, cb) => {
         cb();
       }, cb);
     },
-    cb => {
-      if (!isNewDatabase) {
-        return cb();
-      }
-
-      console.log('INITIALIZING...');
-
-      const marketplaceType = 'services';
-      const models = tenantConnections[tenantId];
-
-      models.appConfig.addDefaultConfig(marketplaceType, true);
-
-      models.appLabel.addDefaultLangLabels('en', marketplaceType, true)
-      .then(_ => _, _ => _);
-      
-
-      models.post.addDefaultPosts(marketplaceType, true);
-
-      models.appUserProperty.addDefaultUserProperties(marketplaceType, true);
-
-      cb();
-    }
   ], cb);
 };
 
