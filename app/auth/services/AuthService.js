@@ -37,14 +37,15 @@ const createNewPassword = (models, userId, password, cb) => {
 		},
 		password: generateHashSync(password)
 	})
-	.then(_ => {
-		return models.userPassword.create({
+	.then(() => {
+		models
+		.userPassword
+		.create({
 			userId: userId, 
 			password: generateHashSync(password)
-		});
-	})
-	.then(_ => cb())
-	.catch(cb);
+		})
+		.then(() => cb(), cb)
+	});
 };
 
 const createNewEmail = (models, userId, email, callback) => async.series([
@@ -125,11 +126,12 @@ const createNewToken = (models, userId, callback) => {
 	models.userToken
 	.create({
 		token: randtoken.generate(250),
-		userId: userId,
+		userId: userId
 	})
 	.then(instance => {
 		console.log("Token successfuly created.");
-		callback(null, instance)
+
+		return callback(null, instance)
 	}, err => callback(err))
 };
 
