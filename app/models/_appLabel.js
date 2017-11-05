@@ -5,7 +5,6 @@ const tableName = "_appLabel";
 
 module.exports = (sequelize, DataTypes) => {
   const appLabel = sequelize.define("appLabel", {
-      labelGroup: { type: DataTypes.STRING },
       labelKey: { type: DataTypes.STRING, required: true },
       labelValue: { type: DataTypes.STRING },
       lang: {
@@ -19,21 +18,32 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   // expansion of model
-  appLabel.updateFactory = () => (labelKey, labelGroup, labelValue, lang, cb) => { 
+  appLabel.updateFactory = () => (labelKey, labelValue, lang, cb) => { 
       appLabel
-      .findOne({ where: { $and: [ { labelKey }, { lang } ] }})
+      .findOne({
+        where: {
+          $and: [
+            { labelKey },
+            { lang }
+          ]
+        }
+      })
       .then(obj => {
         if (!obj) {
-          console.log(`Creating ${lang} label ${labelGroup}->${labelKey}`);
+          console.log(`Creating label ${labelKey} (lang: ${lang} )`);
 
           return appLabel
-            .create({ labelKey, labelGroup, labelValue, lang })
+            .create({ labelKey, labelValue, lang })
             .then(() => cb(), cb);
         }
 
         if (obj.labelValue !== labelValue) {
-          return appLabel
-            .update({ labelGroup, labelValue, lang }, { where: { id: obj.id } })
+          console.log(`Updating label ${labelKey} (lang: ${lang})`);
+
+          return obj
+            .update({
+              labelValue
+            })
             .then(() => cb(), cb);
         }
 
@@ -41,7 +51,7 @@ module.exports = (sequelize, DataTypes) => {
       }, cb);
   };
 
-  appLabel.upsertFactory = () => (labelKey, labelGroup, labelValue, lang, cb) => {
+  appLabel.upsertFactory = () => (labelKey, labelValue, lang, cb) => {
           appLabel
           .findOne({ 
             where: {
@@ -57,7 +67,6 @@ module.exports = (sequelize, DataTypes) => {
                 return appLabel
                   .create({
                     labelKey,
-                    labelGroup,
                     labelValue,
                     lang
                   })
@@ -65,16 +74,6 @@ module.exports = (sequelize, DataTypes) => {
             }
 
             console.log(`Label "${labelKey}" already exists.`);
-
-            if (obj.labelGroup !== labelGroup) {
-              console.log(`Group of the label "${labelKey}" differs! Should be ${labelGroup}`);
-
-              return obj
-                .update({
-                  labelGroup
-                })
-                .then(() => cb(), cb);
-            }
 
             return cb();
           }, cb);
@@ -111,13 +110,14 @@ module.exports = (sequelize, DataTypes) => {
       const upsert = forceUpdate ? appLabel.updateFactory() : appLabel.upsertFactory();
       // const upsert = appLabel.upsertFactory();
 
-      async.eachSeries(labels, (label, cb) => upsert(
-        label.labelKey,
-        label.labelGroup,
-        label.labelValue,
-        label.lang,
-        cb
-      ), cb);
+      async.eachSeries(labels, (label, cb) =>
+        upsert(
+          label.labelKey,
+          label.labelValue,
+          label.lang,
+          cb
+        )
+      , cb);
   };
 
   // init of the table / ensuring default labels exist

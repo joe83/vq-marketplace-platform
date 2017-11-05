@@ -6,21 +6,24 @@ const isAdmin = responseController.isAdmin;
 module.exports = app => {
     app.get("/api/app_config", (req, res) =>
         req.models.appConfig
-            .findAll({ order: [ "fieldKey" ] })
+            .findAll({
+                order: [ "fieldKey" ]
+            })
             .then(configs => res.send(configs), err => res.status(400).send(err))
     );
 
     app.post("/api/app_config", isAdmin, (req, res) => {
         const labels = req.body || [];
 
-        const forceUpdate = true;
-
-        req.models.appConfig.bulkCreateOrUpdate(labels, forceUpdate, err => {
+        req.models.appConfig
+        .bulkCreateOrUpdate(labels, true, err => {
             if (err) {
-                res.status(400).send(err);
+                return res.status(400).send(err);
             }
 
-            res.send({ ok: true });
+            res.send({
+                ok: true
+            });
         });
     });
 };

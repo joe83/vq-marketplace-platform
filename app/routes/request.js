@@ -161,6 +161,12 @@ module.exports = app => {
                         cb();
                     }, cb),
                     cb => {
+                        if (!item.dataValues.lastMsg) {
+                            item.dataValues.with = null;
+
+                            return cb();
+                        }
+
                         const fromUserId = item.dataValues.lastMsg.fromUserId;
                         const toUserId = item.dataValues.lastMsg.toUserId;
 
@@ -226,8 +232,8 @@ module.exports = app => {
             }, err => err ? res.status(500).send(err) : res.send(data)))
             .catch(err => {
                 res
-                    .status(500)
-                    .send(err);
+                .status(500)
+                .send(err);
             });
     });
 

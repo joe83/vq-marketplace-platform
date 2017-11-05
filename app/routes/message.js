@@ -154,20 +154,20 @@ module.exports = app => {
                 }),
             callback => req.models.user.findOne({
                 where: {
-                    id: result.messages[0].fromUserId
+                    id: result.request.fromUserId
                 }
             })
             .then(user => {
-                result.users[result.messages[0].fromUserId] = user;
+                result.users[result.request.fromUser.id] = user;
 
                 return callback();
             }),
             callback => req.models.user.findOne({ 
                 where: {
-                    id: result.messages[0].toUserId
+                    id: result.request.toUserId
                 }
             }).then(user => {
-                result.users[result.messages[0].toUserId] = user;
+                result.users[result.request.toUserId] = user;
 
                 return callback();
             }),
