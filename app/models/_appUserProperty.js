@@ -9,10 +9,8 @@ module.exports = (sequelize, DataTypes) => {
       required: { type: DataTypes.BOOLEAN, default: false },
   }, {
       tableName,
-      classMethods: {
-        associate: models => {
-        }
-      }
+      createdAt: false,
+      updatedAt: false
   });
 
   // expansion of model

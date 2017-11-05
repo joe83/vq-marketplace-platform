@@ -46,9 +46,7 @@ const deployNewMarketplace = (tenantId, apiKey, password, repeatPassword, cb) =>
                     .update({
                         status: 2
                     })
-                    .spread(() => {
-                        return cb();
-                    }, cb);
+                    .then(() => cb(), cb);
             });
         },
         cb => {
@@ -66,7 +64,7 @@ const deployNewMarketplace = (tenantId, apiKey, password, repeatPassword, cb) =>
             tenantRef
             .update({
                 status: 3
-            }).spread(() => {
+            }).then(() => {
                 console.log("Success! Created Marketplace, config and user account.");
             }, err => {
                 console.log("Error!", err);
