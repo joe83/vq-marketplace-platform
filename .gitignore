@@ -1,6 +1,7 @@
 .elasticbeanstalk
 apps/st-invoice/tmp/
 bower_components/
+scripts/transport-tw-users-to-vq.js
 node_modules/
 apidoc/
 deployments

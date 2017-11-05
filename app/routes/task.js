@@ -94,8 +94,6 @@ module.exports = app => {
                 model: req.models.taskTiming,
             };
 
-
-
             if (req.query.untilNow) {
                 const now = new Date(); 
                 const nowUtc = new Date(

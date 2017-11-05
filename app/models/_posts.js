@@ -28,14 +28,10 @@ module.exports = (sequelize, DataTypes) => {
             });
         }
 
-        return posts.update({ 
+        return obj.update({ 
             title: postTitle,
             type: postType,
             body: postBody
-        }, {
-            where: {
-                id: obj.id
-            }
         });
     });
 
@@ -70,9 +66,10 @@ module.exports = (sequelize, DataTypes) => {
         const updateOrCreate = posts.createOrUpdate();
 
         async.eachLimit(defaultPosts, 2, (post, cb) => {
-            updateOrCreate(post.code, post.type, post.title, post.body);
-
-            cb();
+            updateOrCreate(post.code, post.type, post.title, post.body)
+            .then(() => {
+                cb();
+            }, cb)
         }, cb);
     };  
 

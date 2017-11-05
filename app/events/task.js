@@ -49,9 +49,14 @@ const handlerFactory = (emailCode) => (models, task) => {
                             return console.error(err);
                         }
     
-                        const ACTION_URL = 
-                            `${domain}/app/new-listing`;  
-    
+                        let ACTION_URL;
+
+                        if (emailCode === 'task-request-cancelled') {
+                            ACTION_URL = `${domain}/app/task/${task.id}`;
+                        } else {
+                            ACTION_URL = `${domain}/app/new-listing`;  
+                        }
+
                         emailService
                         .getEmailAndSend(models, emailCode, emails, {
                             ACTION_URL,
