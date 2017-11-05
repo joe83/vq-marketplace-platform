@@ -20,6 +20,7 @@ const initApp = app => {
 	app.use(bodyParser.json());
 };
 
+
 initApp(app);
 initApp(tenantApp);
 
@@ -128,5 +129,5 @@ async.waterfall([
 setInterval(() => {
 	const usedMemory = process.memoryUsage().heapUsed / 1024 / 1024;
 
-	console.log(`[VQ-MARKETPLACE-API] The process is consuming now approximately ${Math.round(usedMemory * 100) / 100} MB memory.`);
+	//console.log(`[VQ-MARKETPLACE-API] The process is consuming now approximately ${Math.round(usedMemory * 100) / 100} MB memory.`);
 }, 5000);
