@@ -1,17 +1,8 @@
 const responseController = require("../controllers/responseController.js");
-const cust = require("../config/customizing.js");
-
-const identifyUser = responseController.identifyUser;
 const isLoggedIn = responseController.isLoggedIn;
 const sendResponse = responseController.sendResponse;
 
 module.exports = app => {
-  function pong (req, res, next) {
-    sendResponse(res);
-    
-    next();
-  }
-
   app.get("/api/me", isLoggedIn, (req, res) => {
       return sendResponse(res, null, req.user);
   });
@@ -56,7 +47,7 @@ module.exports = app => {
     
     const updateObj = {};
 
-    try {
+    try {
       Object
       .keys(req.body)
       .filter(_ => mutableFields.indexOf(_) !== -1)
@@ -89,7 +80,7 @@ module.exports = app => {
             }
       })
       .then(
-        _ => {
+        () => {
           return sendResponse(res, null, {});
         }, 
         err => sendResponse(res, err)

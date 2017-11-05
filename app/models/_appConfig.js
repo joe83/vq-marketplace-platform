@@ -80,7 +80,7 @@ module.exports = (sequelize, DataTypes) => {
         _.fieldKey = _.fieldKey.toUpperCase();
 
         return _;
-      })
+      });
 
     async
     .eachSeries(updateConfigs, (config, cb) =>

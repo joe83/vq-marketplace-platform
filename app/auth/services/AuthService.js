@@ -44,7 +44,7 @@ const createNewPassword = (models, userId, password, cb) => {
 			userId: userId, 
 			password: generateHashSync(password)
 		})
-		.then(() => cb(), cb)
+		.then(() => cb(), cb);
 	}, cb);
 };
 
@@ -132,8 +132,8 @@ const createNewToken = (models, userId, cb) => {
 	.then(instance => {
 		console.log("Token successfuly created.");
 
-		return cb(null, instance.dataValues)
-	}, cb)
+		return cb(null, instance.dataValues);
+	}, cb);
 };
 
 const checkToken = (models, token, callback) => {

@@ -4,8 +4,9 @@ const db = require('../app/models/models');
 const workers = require('../app/workers');
 const authCtrl = require("../app/controllers/authCtrl");
 
-const deployNewMarketplace = (tenantId, apiKey, password, repeatPassword, cb) => {
+const deployNewMarketplace = (tenantId, apiKey, password, repeatPassword, marketplaceConfig, cb) => {
     const tenantModels = tenantDb.get('vq-marketplace');
+    let marketplaceModels;
 
     let tenantRef;
 
@@ -50,6 +51,27 @@ const deployNewMarketplace = (tenantId, apiKey, password, repeatPassword, cb) =>
             });
         },
         cb => {
+            marketplaceModels = db.get(tenantId);
+
+            marketplaceModels.appConfig
+            .bulkCreateOrUpdate(
+                Object.keys(marketplaceConfig)
+                .map(fieldKey => {
+                    return {
+                        fieldKey,
+                        fieldValue: marketplaceConfig[fieldKey]
+                    };
+                }),
+                true,
+                err => {
+                    if (err) {
+                        return cb(err);
+                    }
+        
+                    cb();
+                });
+        },
+        cb => {
             const userData = {
                 email: tenantRef.email,
                 firstName: tenantRef.firstName,
@@ -61,17 +83,18 @@ const deployNewMarketplace = (tenantId, apiKey, password, repeatPassword, cb) =>
                 repeatPassword: repeatPassword,
             };
 
+            authCtrl
+            .createNewAccount(marketplaceModels, userData, err => cb(err));
+        },
+        cb => {
             tenantRef
             .update({
                 status: 3
             }).then(() => {
-                console.log("Success! Created Marketplace, config and user account.");
-            }, err => {
-                console.log("Error!", err);
-            });
+                console.log("Success! Created Marketplace, initial config and user account.");
 
-            return authCtrl
-                .createNewAccount(db.get(tenantId), userData, cb);
+              return cb();
+            }, cb);
         }
     ], cb);
 };

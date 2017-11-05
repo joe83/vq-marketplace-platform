@@ -311,7 +311,24 @@ const initRoutes = (app, express) => {
             }
             
             // this can last some time, up to one minute, it should be run async
-            service.deployNewMarketplace(tenantId, apiKey, tenant.password, tenant.repeatPassword, (err, authData) => {
+            service.deployNewMarketplace(tenantId, apiKey, tenant.password, tenant.repeatPassword, {
+                /**
+                 * check an example configuration here:
+                 * https://github.com/vq-labs/vq-marketplace-config/blob/master/examples/service-marketplace/config/config.json
+                 */
+                NAME: tenantRef.marketplaceName,
+                
+                // this needs to be addited when in production
+                DOMAIN: `http://${tenantRef.tenantId}.viciqloud.com`,
+                PRICING_DEFAULT_CURRENCY: "EUR",
+                LISTING_TIMING_MODE: "0",
+                LISTINGS_VIEW_LIST: "1",
+                LISTINGS_VIEW_MAP: "1",
+                LISTINGS_DEFAULT_VIEW: "2" // this is the list
+                /**
+                 * ... add new configuration here
+                 */
+            }, (err, authData) => {
                 console.log("MARKETPLACE CREATED");
             });
 
