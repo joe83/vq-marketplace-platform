@@ -17,6 +17,19 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "debug:prod-talentwand",
+            "program": "${workspaceRoot}/app.js",
+            "cwd": "${workspaceRoot}",
+            "env": {
+                "TENANT_ID": "vq"
+            },
+            "args": [
+                "--config=/../production-config.json"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "debug:dev-tenant",
             "program": "${workspaceRoot}/app.js",
             "cwd": "${workspaceRoot}",
