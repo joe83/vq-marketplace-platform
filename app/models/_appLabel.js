@@ -83,7 +83,6 @@ module.exports = (sequelize, DataTypes) => {
     console.log("[appLabel.insertSeed] Creating seed labels");
 
     const defaultLabels = marketplaceConfig[usecase].i18n(lang);
-    const labelGroups = marketplaceConfig.labelGroups();
     
     const values = Object.keys(defaultLabels)
       .map(labelKey => {
