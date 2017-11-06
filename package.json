@@ -66,6 +66,7 @@
     "when": "~3.7.7"
   },
   "devDependencies": {
+    "bson": "^1.0.4",
     "eslint": "^4.9.0",
     "gulp": "^3.9.1",
     "mongodb": "^2.2.33",
