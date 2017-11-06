@@ -9,6 +9,7 @@ const authCtrl = require("../app/controllers/authCtrl");
 const cryptoService = require("../app/services/cryptoService");
 const emailService = require("../app/services/emailService.js");
 
+const service = require("./service");
 
 const rootDbName = 'vq-marketplace';
 let models = null;
@@ -70,248 +71,271 @@ const initRoutes = (app, express) => {
 
 				return res.send({
 					id: rTenant.id,
-					tenantId: rTenant.tenantId,
+                    tenantId: rTenant.tenantId,
+                    emailVerified: rTenant.emailVerified,
 					marketplaceName: rTenant.marketplaceName,
 					marketplaceType: rTenant.marketplaceType,
-					status: rTenant.status || null
+					status: rTenant.status
 				});
 			}, err => res.status(400).send(err));
 		});
 	});
 
-	app.post('/api/tenant', (req, res) => {
-		let savedTenant = null;
-		const tenant = req.body;
+    /* Trial Form User Registration Steps */
+    app.post('/api/trial-registration/step-1', (req, res) => {
+        const tenant = req.body;
 
-		tenant.tenantId = utils.stringToSlug(tenant.marketplaceName);
-		tenant.apiKey = randomstring.generate(32);
+        getModels((err, tenantModels) => {
+            if (err) {
+                return cb(err);
+            }
 
-		if (tenant.tenantId === rootDbName) {
-			return res.status(400).send({
-				code: 'TENANT_ID_NOT_ALLOWED'
-			});
-		}
+            tenantModels
+            .tenant
+            .findOrCreate({
+                where: {
+                    email: tenant.email
+                },
+                defaults: {
+		            apiKey: randomstring.generate(32)
+                }
+            })
+            .spread((tenant, isNew) => {
+                if (!isNew) {
+                    return res.status(400).send({
+                        httpCode: 400,
+                        code: "TENANT_EMAIL_TAKEN"
+                    });
+                }
 
-		async.waterfall([
-			cb => getModels((err, tenantModels) => {
-				if (err) {
-					return cb(err);
-				}
+                tenant.verificationKey = cryptoService
+                .encodeObj(tenant.apiKey);
+                /*const VERIFICATON_LINK = config.TENANT_SERVER_URL || 'http://localhost:8081'*/
 
-				tenantModels
-				.tenant
-				.create(tenant)
-				.then((rTenant) => {
-					savedTenant = rTenant;
+                emailService.sendNewTenant(tenant.email, "Your verification code is: " + tenant.verificationKey);
 
-					cb();
-				}, err => {
-					if (err.name === 'SequelizeUniqueConstraintError') {
-						return cb({
-							code: 'MARKETPLACE_NAME_TAKEN'
-						});
-					}
+                // we should not send here the API KEY
+                return res.send({
+                    tenant: tenant
+                });
+            });
+        });
+    });
 
-					cb(err);
-				})
-			}),
-			cb => {
-				const VERIFICATION_LINK = cryptoService
-					.buildVerificationUrl(tenant.tenantId, config.TENANT_SERVER_URL || 'http://localhost:8081', {
-						id: savedTenant.id
-					});
-			
-				emailService.sendNewTenant(savedTenant.email, VERIFICATION_LINK);
+    app.post('/api/trial-registration/step-2', (req, res) => {
+        // WE SHALL NOT HAVE HERE API KEY. IT IS ENCRYPTED IN THE VER. CODE
+        delete req.body.apiKey
 
-				cb();
-			}
-		], (err) => {
-			if (err) {
-				return res.status(400).send(err);
-			}
-
-			res.send(savedTenant);
-		});
-	});
-
-	app.get('/api/verify/email', (req, res) => {
-		let encryptedToken = req.query.code;
-		let tenantPrimaryId;
-		let tenantRef;
+        const tenant = req.body;
+        let encryptedToken = tenant.verificationCode;
+		let apiKey;
 
 		try {
 			encryptedToken = encryptedToken.split(' ').join('+');
-			
-			tenantPrimaryId = cryptoService.decodeObj(encryptedToken).id;
+			apiKey = cryptoService.decodeObj(encryptedToken);
 		} catch(err) {
 			res.set('Content-Type', 'text/html');
-			res.send(new Buffer('<p>Could not verify</p>'));
+            
+            return res.send(new Buffer('<p>Could not verify</p>'));
 		}
 
-		async.waterfall([
-			cb => getModels((err, tenantModels) => {
-				if (err) {
-					return cb(err);
-				}
+        getModels((err, tenantModels) => {
+            if (err) {
+                return cb(err);
+            }
 
-				tenantModels
-				.tenant
-				.findById(tenantPrimaryId)
-				.then((rTenant) => {
-					tenantRef = rTenant;
+           tenantModels
+            .tenant
+            .findOne({
+                where: {
+                    apiKey
+                }
+            })
+            .then(rTenant => {
+                if (!rTenant) {
+                    return res.send({
+                        httpCode: 400,
+                        code: "WRONG_DATA"
+                    });
+                }
 
-					cb();
-				}, cb)
-			}),
-			cb => {
-				tenantRef
-				.update({
-					emailVerified: true
-				})
-				.then(() => {
-					cb();
-				}, cb);
-			},
-			
-		], (err) => {
-			if (err) {
-				return res.status(400).send(err);
-			}
+                return rTenant
+                    .update({
+                        emailVerified: 1
+                    })
+                    .then(() => {
+                        res.send({
+                            tenant: rTenant
+                        })
+                    }, err => {
+                        res.status(400).send(err)
+                    });
+            }, err => res.status(400).send(err));
+        });
+    });
 
-			res.redirect(`${config.TENANT_SERVER_URL || 'http://localhost:8081'}/onboarding?apiKey=${tenantRef.apiKey}&tenantId=${tenantRef.tenantId}`);
-		})
-	});
+    app.post('/api/trial-registration/step-3', (req, res) => {
+        const tenant = req.body;
 
-	app.post('/api/marketplace', (req, res) => getModels((err, models) => {
-		const tenantId = req.body.tenantId;
-		const apiKey = req.body.apiKey;
-		let tenantRef;
+        getModels((err, tenantModels) => {
+            if (err) {
+                return cb(err);
+            }
 
-		const data = {
-			password: req.body.password,
-			repeatPassword: req.body.repeatPassword
-		};
+            tenantModels
+            .tenant
+            .update({
+                firstName: tenant.firstName,
+                lastName: tenant.lastName,
+                country: tenant.country
+            },
+            {
+              where: {
+                apiKey: tenant.apiKey
+              }
+            })
+            .then(tenant => {
+                return res.send({
+                    tenant: tenant
+                });
+            }, err => res.status(400).send(err));
+        });
+    });
 
-		let hasResponded = false;
+    /**
+     * It starts the marketplace!
+     * This endpoint is called after:
+     * 1) tenant has been initialized
+     * 2) tenant has confirmed its email
+     * 
+     * Here the tenant can give a marketplace.
+     * 
+     * Request:
+     * apiKey:YDJkyR6dPdeqtHd05bR3BIqUw3BA8JlM
+     * marketplaceName:Adrian
+     * password:hello
+     * repeatPassword:hello
+     */
+    app.post('/api/trial-registration/step-4', (req, res) => {
+        const tenant = req.body;
+        const apiKey = tenant.apiKey;
+        const tenantId = utils.stringToSlug(tenant.marketplaceName);
+        
+        const reserveredKeywords = [ 'blog', rootDbName, 'help' ];
+        
+        if (reserveredKeywords.indexOf(tenantId) !== -1) {
+            return res.status(400)
+                .send({
+                    code: 'MARKETPLACE_NAME_NOT_ALLOWED'
+                });
+        }
 
-		async.waterfall([
-			cb => {
-					models
-					.tenant
-					.findOne({
-						where: {
-							$and: [
-								{ tenantId },
-								{ apiKey }
-							]
-						}
-					})
-					.then(tenant => {
-						if (!tenant) {
-							return cb({
-								httpCode: 400,
-								code: "WRONG_REQUEST"
-							});
-						}
+        let tenantModels;
+        let tenantRef;
 
-						if (!tenant.emailVerified) {
-							return cb({
-								httpCode: 400,
-								code: "EMAIL_NOT_VERIFIED"
-							});
-						}
+        async.waterfall([
+            cb => {
+                getModels((err, rTenantModels) => {
+                    if (err) {
+                        return cb(err);
+                    }
 
-						if (tenant.status !== 0) {
-							return cb({
-								httpCode: 400,
-								code: "ALREADY_DEPLOYED"
-							});
-						}
+                    tenantModels = rTenantModels;
 
-						tenantRef = tenant;
+                    cb();
+                });
+            },
+            cb => tenantModels
+                .tenant
+                .findOne({
+                    where: {
+                        tenantId
+                    }
+                })
+                .then(foundTenant => {
+                    if (foundTenant) {
+                        return cb({
+                            httpCode: 400,
+                            code: 'MARKETPLACE_NAME_NOT_ALLOWED'
+                        });
+                    }
 
-						res.send(tenant);
-						hasResponded = true;
+                    return cb();
+                }, cb),
+            cb => tenantModels
+                .tenant
+                .findOne({
+                    where: {
+                        apiKey: tenant.apiKey
+                    }
+                })
+                .then(rTenant => {
+                    if (!rTenant) {
+                        return setTimeout(() => {
+                            return cb({
+                                httpCode: 400,
+                                code: 'WRONG_API_KEY'
+                            })
+                        }, 500);
+                    }
+              
+                    if (!rTenant.emailVerified) {
+                        return cb({
+                            httpCode: 400,
+                            code: "EMAIL_NOT_VERIFIED"
+                        });
+                    }
 
-						return cb();
-					}, cb);
-			},
-			cb => {
-				db.create(tenantId, err => {
-					if (err) {
-						return cb(err);
-					}
+                    // Has api key been used?
+                    if (rTenant.status !== 0) {
+                        return cb({
+                            httpCode: 400,
+                            code: "API_KEY_USED"
+                        });
+                    }
 
-					workers.registerWorkers(tenantId);
+                    tenantRef = rTenant;
 
-					models
-					.tenant
-					.update({
-						status: 2
-					}, {
-						where: {
-							$and: [
-								{ tenantId }
-							]
-						}
-					})
-					.then(() => {
-						return cb();
-					}, cb);
-				});
-			},
-			cb => {
-				console.log("Creating first account on newly created marketplace.");
+                    cb();
+                }),
+                cb => tenantRef
+                    .update({
+                        marketplaceName: tenant.marketplaceName,
+                        tenantId,
+                        status: 1 // 1: deployment triggered
+                    })
+                    .then(() => cb(), cb),
+        ], err => {
+            if (err) {
+                return res.status(err.httpCode).send(err);
+            }
+            
+            // this can last some time, up to one minute, it should be run async
+            service.deployNewMarketplace(tenantId, apiKey, tenant.password, tenant.repeatPassword, {
+                /**
+                 * check an example configuration here:
+                 * https://github.com/vq-labs/vq-marketplace-config/blob/master/examples/service-marketplace/config/config.json
+                 */
+                NAME: tenantRef.marketplaceName,
+                
+                // this needs to be addited when in production
+                DOMAIN: `http://${tenantRef.tenantId}.viciqloud.com`,
+                PRICING_DEFAULT_CURRENCY: "EUR",
+                LISTING_TIMING_MODE: "0",
+                LISTINGS_VIEW_LIST: "1",
+                LISTINGS_VIEW_MAP: "1",
+                LISTINGS_DEFAULT_VIEW: "2" // this is the list
+                /**
+                 * ... add new configuration here
+                 */
+            }, (err, authData) => {
+                console.log("MARKETPLACE CREATED");
+            });
 
-				const userData = {
-					firstName: tenantRef.firstName,
-					lastName: tenantRef.lastName,
-					email: tenantRef.email,
-					userType: 0,
-					isAdmin: true,
-					accountType: "PRIVATE",
-					password: data.password,
-					repeatPassword: data.repeatPassword,
-				};
-
-				const marketplaceModels = db.get(tenantId);
-
-				if (!marketplaceModels) {
-					console.log("Marketplace models could not be retrieved.");
-				}
-
-				authCtrl
-				.createNewAccount(marketplaceModels, userData, (err, authData) => {
-					return cb(err, authData);
-				});
-			},
-		], (err, authData) => {
-			if (err) {
-				if (!hasResponded) {
-					res.status(err.httpCode || 400).send(err);
-				}
-
-				return;
-			}
-
-			models
-			.tenant
-			.update({
-				status: 3
-			}, {
-				where: {
-					$and: [
-						{ tenantId }
-					]
-				}
-			})
-			.then(() => {
-				console.log("Success! Created Marketplace, config and user account.");
-			});
-		});
-	}));
+            res.send(tenantRef);
+        });
+    });
 };
-
 
 
 module.exports = {

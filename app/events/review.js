@@ -148,8 +148,8 @@ reviewEmitter
 if (module.parent) {
 	module.exports = reviewEmitter;
 } else {
-	console.log(process.argv[2]);
-	console.log(process.argv[3]);
+	//console.log(process.argv[2]);
+	//console.log(process.argv[3]);
 	
 	reviewEmitter.emit(process.argv[2], process.argv[3]);
 }

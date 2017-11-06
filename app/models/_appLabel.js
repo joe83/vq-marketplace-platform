@@ -83,20 +83,19 @@ module.exports = (sequelize, DataTypes) => {
     console.log("[appLabel.insertSeed] Creating seed labels");
 
     const defaultLabels = marketplaceConfig[usecase].i18n(lang);
-    const labelGroups = marketplaceConfig[usecase].labelGroups();
+    const labelGroups = marketplaceConfig.labelGroups();
     
     const values = Object.keys(defaultLabels)
       .map(labelKey => {
         return "(" + [
           `'${labelKey.toUpperCase()}'`,
-          labelGroups[labelKey] ? `'${labelGroups[labelKey].toUpperCase()}'` : "NULL",
           `'${lang}'`,
           defaultLabels[labelKey] ? `'${defaultLabels[labelKey].replace(/'/g,"''")}'` : "NULL"
         ].join(",") + ")";
       })
       .join(",");
 
-    let sql = `INSERT INTO ${tableName} (labelKey, labelGroup, lang, labelValue) VALUES ${values}`;
+    let sql = `INSERT INTO ${tableName} (labelKey, lang, labelValue) VALUES ${values}`;
     
     console.time("labelSeedInsert");
     sequelize.query(sql, { type: sequelize.QueryTypes.INSERT })

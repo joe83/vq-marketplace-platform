@@ -4,8 +4,6 @@ const identifyUser = require("../controllers/responseController.js").identifyUse
 const isLoggedIn = require("../controllers/responseController.js").isLoggedIn;
 const requestCtrl = require("../controllers/requestCtrl.js");
 const isLoggedInAndVerified = require("../controllers/responseController.js").isLoggedInAndVerified;
-const utils = require("../utils");
-const striptags = require("striptags");
 const taskEmitter = require("../events/task");
 
 const isMyTask = (models, taskId, myUserId) => {
@@ -240,7 +238,7 @@ module.exports = app => {
                                             return _;
                                         });
                                     } catch (err) {
-
+                                        console.error(err);
                                     }
 
                                     task.images = taskAdditionalInfo.images;
@@ -329,7 +327,7 @@ module.exports = app => {
                 async.each(req.body, (code, cb) => {
                     return req.models.taskCategory
                         .create({ code, taskId: req.params.taskId })
-                        .then(ok => cb(), err => cb(err));
+                        .then(() => cb(), err => cb(err));
                 }, err => {
                     if (err) {
                         return reject(err);
@@ -337,7 +335,7 @@ module.exports = app => {
 
                     return resolve();
             })))
-            .then(task => sendResponse(res, null, { ok: true }), err => sendResponse(res, err));
+            .then(() => sendResponse(res, null, { ok: true }), err => sendResponse(res, err));
         });
 
    app.post("/api/task/:taskId/image",
@@ -353,7 +351,7 @@ module.exports = app => {
                 async.each(req.body, (image, cb) => {
                     return req.models.taskImage
                         .create({ imageUrl: image.imageUrl, taskId: req.params.taskId })
-                        .then(ok => cb(), err => cb(err));
+                        .then(() => cb(), err => cb(err));
                 }, err => {
                     if (err) {
                         return reject(err);
@@ -361,7 +359,7 @@ module.exports = app => {
 
                     return resolve();
             })))
-            .then(task => sendResponse(res, null, { ok: true }), err => sendResponse(res, err));
+            .then(() => sendResponse(res, null, { ok: true }), err => sendResponse(res, err));
         });
 
     app.post("/api/task/:taskId/timing",
@@ -375,8 +373,8 @@ module.exports = app => {
                     taskId
                 }
             }))
-            .then(() => new Promise((resolve, reject) =>
-                async.each(req.body.dates, (timing, cb) => {
+            .then(() => new Promise((resolve, reject) => async
+                .each(req.body.dates, (timing, cb) => {
                     timing.endDate = timing.endDate || timing.date;
 
                     return req.models.taskTiming
@@ -387,7 +385,7 @@ module.exports = app => {
                             type: "",
                             taskId
                         })
-                        .then(ok => cb(), err => cb(err));
+                        .then(() => cb(), err => cb(err));
                 }, err => {
                     if (err) {
                         return reject(err);
@@ -395,7 +393,7 @@ module.exports = app => {
 
                     return resolve();
             })))
-            .then(task => sendResponse(res, null, { ok: true }), err => sendResponse(res, err));
+            .then(() => sendResponse(res, null, { ok: true }), err => sendResponse(res, err));
         });
 
    /*
@@ -494,11 +492,7 @@ module.exports = app => {
 
                     return taskLocationRef
                         .update(taskLocation)
-                        .then(_ => {
-                            sendResponse(res, null, taskLocation);
-                        }, err => {
-                            sendResponse(res, err);
-                        });
+                        .then(() => sendResponse(res, null, taskLocation), err => sendResponse(res, err));
                 }
               
                 return req.models
@@ -656,8 +650,6 @@ module.exports = app => {
             }
         });
         
-        const updatedFields = req.body;
-
         updatedTask.status = updatedTask.status ? String(updatedTask.status) : "0";     
         
         var task;
@@ -674,9 +666,7 @@ module.exports = app => {
             cb => {
                 task
                 .update(updatedTask)
-                .then(_ => {
-                    cb();
-                }, cb);
+                .then(() => cb(), cb);
             },
             cb => {
                 if (newStatus === req.models.task.TASK_STATUS.ACTIVE) {

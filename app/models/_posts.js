@@ -69,7 +69,7 @@ module.exports = (sequelize, DataTypes) => {
             updateOrCreate(post.code, post.type, post.title, post.body)
             .then(() => {
                 cb();
-            }, cb)
+            }, cb);
         }, cb);
     };  
 

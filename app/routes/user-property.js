@@ -1,17 +1,9 @@
 const async = require("async");
 const responseController = require("../controllers/responseController.js");
-const cust = require("../config/customizing.js");
 const isLoggedIn = responseController.isLoggedIn;
 const identifyUser = responseController.identifyUser;
 
-
 module.exports = app => {
-  function pong (req, res, next) {
-    responseController.sendResponse(res);
-    
-    next();
-  }
- 
   app.get("/api/user/:userId/property", identifyUser, (req, res) => {
     const userId = req.params.userId;
 
@@ -63,7 +55,7 @@ module.exports = app => {
                         .update({
                             propValue
                         })
-                        .then(updatedProperty => {
+                        .then(() => {
                             commitedProperty = prop;
                             
                             return cb();

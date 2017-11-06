@@ -76,7 +76,7 @@ const createNewAccount = (models, data, cb) => {
                     console.log("Admin user created.");
 
                     return cb();
-                }, cb)
+                }, cb);
             },
             cb => async
             .eachSeries(

@@ -1,16 +1,7 @@
-var responseController = require("../controllers/responseController.js");
-var cust = require("../config/customizing.js");
-
-var identifyUser = responseController.identifyUser;
-var isLoggedIn = responseController.isLoggedIn;
+const responseController = require("../controllers/responseController.js");
+const isLoggedIn = responseController.isLoggedIn;
 
 module.exports = app => {
-  function pong (req, res, next) {
-    responseController.sendResponse(res);
-    
-    next();
-  }
-
   app.get("/api/user/:userId/preference", (req, res) => {
     req.models
     .userPreference
@@ -71,7 +62,7 @@ module.exports = app => {
                         { id: rPreference.id }
                     ]
                 })
-                .then(rCreatedPreference => {
+                .then(() => {
                     responseController.sendResponse(res, null, updatedPreference);
                 }, err => responseController.sendResponse(res, err));
         } else {

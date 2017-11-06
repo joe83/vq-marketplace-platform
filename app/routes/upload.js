@@ -15,8 +15,7 @@ module.exports = app => {
                 fileSize: 5 * 1024 * 1024 // 5MB is the limit
             }
         })
-        .single("file")
-        (req, res, err => {
+        .single("file")(req, res, err => {
             if (err) {
                 if (err.code === "LIMIT_FILE_SIZE") {
                     return res.status(400).send({
@@ -29,7 +28,6 @@ module.exports = app => {
                 return res.status(400).send("No files uploaded!");
             }
     
-            const userId = req.user.id;
             const imageBuffer = new Buffer(req.file.buffer);
             const width = Number(req.query.width);
             const height = Number(req.query.height);
@@ -79,8 +77,7 @@ module.exports = app => {
                 fileSize: 5 * 1024 * 1024 // 5MB is the limit
             }
         })
-        .single("file")
-        (req, res, err => {
+        .single("file")(req, res, err => {
             if (err) {
                 if (err.code === "LIMIT_FILE_SIZE") {
                     return res.status(400).send({

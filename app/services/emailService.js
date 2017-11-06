@@ -97,34 +97,13 @@ const getEmailAndSend = (models, emailCode, email, emailData) =>
 
 			return sendEmail(models, compiledEmail, typeof email === "string" ? [
 				email
-			] : email, params, (err, res) => {
+			] : email, params, err => {
 				if (err) {
 					console.error(err);
 				}
 			});
 		});
 	});
-
-const sendResetPasswordEmail = (models, email, ACTION_URL) => {
-	getEmailBody(models, EMAILS.PASSWORD_RESET)
-	.then(emailBody => {
-		const params = {};
-
-		const compiledEmail = ejs.compile(unescape(emailBody.body))({
-			ACTION_URL
-		});
-
-		params.subject = emailBody.title;
-
-		return sendEmail(compiledEmail, [
-			email
-		], params, (err, res) => {
-			if (err) {
-				console.error(err);
-			}
-		});
-	});
-};
 
 const sendWelcome = (models, user, VERIFICATION_LINK) => {
 	getEmailBody(models, EMAILS.WELCOME)
@@ -139,7 +118,7 @@ const sendWelcome = (models, user, VERIFICATION_LINK) => {
 
 		return sendEmail(models, compiledEmail, [
 			user.emails[0]
-		], params, (err, res) => {
+		], params, err => {
 			if (err) {
 				console.error(err);
 			}
