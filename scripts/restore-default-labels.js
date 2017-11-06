@@ -17,14 +17,13 @@ console.log(USECASE, TARGET_LANG, SHOULD_FORCE);
 
 db.create(TENANT_ID, () => {
     db.get(TENANT_ID)
-    .appLabel
-    .addDefaultLangLabels(TARGET_LANG, USECASE, SHOULD_FORCE)
-    .then((data) => {
-        console.log(data);
-        console.log('Success');
+        .appLabel
+        .addDefaultLangLabels(TARGET_LANG, USECASE, SHOULD_FORCE, (err, data) => {
+            console.log(err, data);
+            console.log('Success');
 
-        process.exit();
-    });
+            process.exit();
+        });
 });
     
 

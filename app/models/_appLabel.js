@@ -83,7 +83,6 @@ module.exports = (sequelize, DataTypes) => {
     console.log("[appLabel.insertSeed] Creating seed labels");
 
     const defaultLabels = marketplaceConfig[usecase].i18n(lang);
-    const labelGroups = marketplaceConfig.labelGroups();
     
     const values = Object.keys(defaultLabels)
       .map(labelKey => {
@@ -124,13 +123,11 @@ module.exports = (sequelize, DataTypes) => {
       console.log("Creating default labels");
     
       const defaultLabels = marketplaceConfig[usecase].i18n(lang);
-      const labelGroups = marketplaceConfig[usecase].labelGroups();
       
       const batchLabels = Object.keys(defaultLabels)
         .map(labelKey => {
           return {
             labelKey: labelKey.toUpperCase(),
-            labelGroup: labelGroups[labelKey] ? labelGroups[labelKey].toUpperCase() : null,
             labelValue: defaultLabels[labelKey],
             lang
           };

@@ -324,7 +324,8 @@ const initRoutes = (app, express) => {
                 LISTING_TIMING_MODE: "0",
                 LISTINGS_VIEW_LIST: "1",
                 LISTINGS_VIEW_MAP: "1",
-                LISTINGS_DEFAULT_VIEW: "2" // this is the list
+                LISTINGS_DEFAULT_VIEW: "2", // this is the list,
+                DEFAULT_LANG: "en"
                 /**
                  * ... add new configuration here
                  */
