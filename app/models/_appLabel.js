@@ -124,13 +124,11 @@ module.exports = (sequelize, DataTypes) => {
       console.log("Creating default labels");
     
       const defaultLabels = marketplaceConfig[usecase].i18n(lang);
-      const labelGroups = marketplaceConfig[usecase].labelGroups();
       
       const batchLabels = Object.keys(defaultLabels)
         .map(labelKey => {
           return {
             labelKey: labelKey.toUpperCase(),
-            labelGroup: labelGroups[labelKey] ? labelGroups[labelKey].toUpperCase() : null,
             labelValue: defaultLabels[labelKey],
             lang
           };
