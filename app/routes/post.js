@@ -15,11 +15,11 @@ module.exports = app => {
                 code: req.params.code
             }
         })
-		.then(data => data ? res.send(data) : res.status(404).send(data)));
+		.then(data => data ? res.send(data) : res.status(404).send({ code: "NOT_FOUND" })));
 
     app.get("/api/post/:postId/id", /* isLoggedIn, isAdmin, */ (req, res) => req.models.post
 		.findById(req.params.postId)
-		.then(data => data ? res.send(data) : res.status(404).send(data)));
+		.then(data => data ? res.send(data) : res.status(404).send({ code: "NOT_FOUND" })));
 
     app.post("/api/post", isLoggedIn, isAdmin, (req, res) => req.models.post
         .create(req.body)
