@@ -24,7 +24,7 @@ const initApp = app => {
 initApp(app);
 initApp(tenantApp);
 
-app.use(morgan('combined'));
+// app.use(morgan('combined'));
 tenantApp.use(morgan('combined'));
 
 app.use((req, res, next) => {
