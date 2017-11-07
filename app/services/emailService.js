@@ -165,6 +165,35 @@ const sendNewTenant = (email, VERIFICATION_LINK) => {
 	});	
 };
 
+const sendTemplateEmail = (email, subject, body) => {
+	const params = {};
+
+	const message = getRawMessagePrototype();
+
+	message.subject = subject;
+	message.html = body;
+	message.text = body;
+	message.to = [{
+		email,
+		type: "to"
+	}];
+
+	var lAsync = false;
+	var ip_pool = "Main Pool";
+
+	mandrill_client
+	.messages
+	.send({
+		"message": message,
+		"async": lAsync,
+		"ip_pool": ip_pool
+	}, result => {
+		console.log(result);
+	}, e => {
+		console.log("A mandrill error occurred: " + e.name + " - " + e.message);
+	});
+};
+
 const getRawMessagePrototype = (fromName, supportEmail, domain) => ({
 	"from_email": "noreply@vq-labs.com",
 	"from_name": fromName,
@@ -230,6 +259,7 @@ module.exports = {
 	checkIfShouldSendEmail,
 	getEmailAndSend,
 	sendEmail,
+	sendTemplateEmail,
 	sendWelcome,
 	sendNewTenant
 };
