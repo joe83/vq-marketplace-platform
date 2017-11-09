@@ -11,7 +11,7 @@ const getConfig = () => {
 		return require(`${appDir}${argv.config}`);
 	}
 
-	if (env === "production") {
+	if (env === "production" || env === "development") {
 		// null is replaced by env variables
 		return {
 			"production": true,
@@ -23,10 +23,10 @@ const getConfig = () => {
 			"secret" : null,
 			"SERVER_URL" : null,
 			"WEB_URL" : null,
-			"s3.bucket": null,
-			"s3.region": "eu-central-1",
-			"s3.accessKeyId": null,
-			"s3.secretAccessKey": null,
+			"AWS_S3_BUCKET": null,
+			"AWS_S3_REGION": "eu-central-1",
+			"AWS_S3_ACCESS_KEY_ID": null,
+			"AWS_S3_SECRET_ACCESS_KEY": null,
 			"mandrill": null
 		};
 	}
@@ -41,10 +41,10 @@ const getConfig = () => {
 		"secret" : "test",
 		"SERVER_URL" : "http://vqtest.localhost:8080",
 		"WEB_URL" : "http://localhost:3000",
-		"s3.bucket": null,
-		"s3.region": "eu-central-1",
-		"s3.accessKeyId": null,
-		"s3.secretAccessKey": null,
+		"AWS_S3_BUCKET": null,
+		"AWS_S3_REGION": "eu-central-1",
+		"AWS_S3_ACCESS_KEY_ID": null,
+		"AWS_S3_SECRET_ACCESS_KEY": null,
 		"mandrill": null
 	};
 };

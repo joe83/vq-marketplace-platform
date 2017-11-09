@@ -1,10 +1,10 @@
-var multer = require("multer");
-var async = require("async");
-var UploadService = require("../services/UploadService");
-var responseController = require("../controllers/responseController");
-var isLoggedIn = responseController.isLoggedIn;
-
-var uploader = UploadService("egamix");
+const multer = require("multer");
+const async = require("async");
+const UploadService = require("../services/UploadService");
+const responseController = require("../controllers/responseController");
+const isLoggedIn = responseController.isLoggedIn;
+const config = require("../config/configProvider.js")();
+const uploader = UploadService(config.AWS_BUCKET);
 
 module.exports = app => {
     app.post("/api/upload/image",
@@ -49,7 +49,7 @@ module.exports = app => {
     
             async.waterfall([
                 fn => uploader
-                .uploadToBucket(imageBuffer, "st", mimetype, width, height, (err, locationPath) => {
+                .uploadToBucket(imageBuffer, req.models.tenantId, mimetype, width, height, (err, locationPath) => {
                     if (err) {
                         return fn(err, locationPath);
                     }
