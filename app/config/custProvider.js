@@ -1,5 +1,3 @@
-const async = require("async");
-
 const appConfig = {};
 
 const getConfig = (models) => new Promise((resolve, reject) => {

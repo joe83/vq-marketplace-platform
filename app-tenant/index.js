@@ -334,7 +334,8 @@ const initRoutes = (app, express) => {
                  * https://github.com/vq-labs/vq-marketplace-config/blob/master/examples/service-marketplace/config/config.json
                  */
                 NAME: tenantRef.marketplaceName,
-
+                SEO_TITLE: tenantRef.marketplaceName,
+                COLOR_PRIMARY: "#000639",
                 // this needs to be addited when in production
                 DOMAIN: `http://${tenantRef.tenantId}.viciqloud.com`,
                 PRICING_DEFAULT_CURRENCY: "EUR",
