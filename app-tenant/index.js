@@ -370,7 +370,8 @@ const initRoutes = (app, express) => {
                         apiKey: apiKey
                     },
                     attributes: [
-                        'status'
+                        'status',
+                        'tenantId'
                     ]
                 })
                 .then(tenant => {
