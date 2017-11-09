@@ -113,14 +113,14 @@ const initRoutes = (app, express) => {
 
 
                     var body = '<p style="color: #374550;">You can copy and paste the verification code below or click the link to continue with the registration process:</p><br><br>' +
-                            '<span style="color: #374550;"><b>Verification Code: </b>' + rTenant.verificationKey + '</span><br><br>' +
-                            '<span style="color: #374550;"><b><a href="' + config.WEB_URL + '/trial?verificationCode=' + encodeURIComponent(rTenant.verificationKey) + '">Click here if you are unable to paste the code</a></b></span>';
+                        '<span style="color: #374550;"><b>Verification Code: </b>' + rTenant.verificationKey + '</span><br><br>' +
+                        '<span style="color: #374550;"><b><a href="' + config.WEB_URL + '/trial?verificationCode=' + encodeURIComponent(rTenant.verificationKey) + '">Click here if you are unable to paste the code</a></b></span>';
 
                     emailTemplateGenerator.generateSingleColumnEmail(
                         'Marketplace Registration',
                         'Welcome to VQ-Marketplace',
                         body,
-                        function(html) {
+                        function (html) {
                             emailService.sendTemplateEmail(rTenant.email, "Welcome to VQ-Marketplace", html);
                             // we should not send here the API KEY
                             return res.send({
@@ -348,6 +348,37 @@ const initRoutes = (app, express) => {
                  */
             }, (err, authData) => {
                 console.log("MARKETPLACE CREATED");
+                const marketplaceUrl =
+                    config.production ?
+                        'https://' + tenantRef.tenantId + '.vq-labs.com/app' :
+                        'https://' + tenantRef.tenantId + '.viciqloud.com/app';
+
+                var body = `<p style="color: #374550;">
+                                Your journey to run an online marketplace has just begun! You can now easily build and manage your online marketplace for free and at the same time go to market, get your first users and validate your idea.
+                            </p>
+                            <br>
+                            <p style="color: #374550;"><b>Here is your marketplace information</b></p>
+                            <p style="color: #374550;"><b>- Your account's email address:</b> ${tenantRef.email}</p>
+                            <p style="color: #374550; margin-bottom: 0;"><b>- Your marketplace address:</b> <a href="${marketplaceUrl}">${marketplaceUrl}</a></p>
+                            <p style="color: #374550; margin:0;">This is the public address of your marketplace, the one you should share with your visitors. </p>
+                            <p style="color: #374550; margin-bottom: 0;"><b>- Your marketplace admin panel:</b> <a href="${marketplaceUrl}/admin">${marketplaceUrl}/admin</a></p>
+                            <p style="color: #374550; margin:0;">This is where you, as the owner, can make changes to your marketplace.</p>
+                            <br>
+                            <p style="color: #374550;"><b>We are here to help you</b></p>
+                            <p style="color: #374550;">VQ Labs does not leave you alone! Do not forget to check out <a href="${marketplaceUrl}/admin/get-started">our get started guide</a> in order to easily build your online marketplace. You have a question that couldn’t find an answer? Just contact the team by simply sending an email to <a href="mailto:info@vq-labs.com">info@vq-labs.com</a>. We will get back to you as soon as possible.
+</p>
+                            <br>
+                            <p>Cheers,<br>
+                            VQ Labs Team</p>`
+
+                emailTemplateGenerator.generateSingleColumnEmail(
+                    'Marketplace Registration',
+                    'Welcome to your Marketplace, ' + tenantRef.firstName,
+                    body,
+                    (html) => {
+                        emailService.sendTemplateEmail(tenantRef.email, "Welcome to your Marketplace", html);
+                    }
+                );
             });
 
             res.send(tenantRef);
@@ -403,7 +434,7 @@ const initRoutes = (app, express) => {
                                 httpCode: 400,
                                 code: "WRONG_DATA"
                             });
-                    } else if (rTenant.emailVerified){
+                    } else if (rTenant.emailVerified) {
                         return res.status(400).json({
                             httpCode: 400,
                             code: "EMAIL_ALREADY_VERIFIED",
@@ -411,19 +442,18 @@ const initRoutes = (app, express) => {
                         });
                     } else {
                         rTenant.verificationKey = cryptoService
-                        .encodeObj(rTenant.apiKey);
+                            .encodeObj(rTenant.apiKey);
 
                         var body = '<p>You can copy and paste the verification code below or click the link to continue with the registration process:</p><br><br>' +
                             '<b>Verification Code: </b>' + rTenant.verificationKey + '<br><br>' +
-                            '<b><a href="' + config.WEB_URL + '/trial?verificationCode=' + encodeURIComponent(rTenant.verificationKey) + '">Click here if you are unable to paste the code</a></b>';
+                            '<b><a href="' + config.WEB_URL + '/trial?verificationCode=' + encodeURIComponent(rTenant.verificationKey).replace(/%20/g, "+") + '">Click here if you are unable to paste the code</a></b>';
 
                         emailTemplateGenerator.generateSingleColumnEmail(
                             'Marketplace Registration',
                             'Welcome to VQ-Marketplace',
                             body,
-                            function(html) {
+                            function (html) {
                                 emailService.sendTemplateEmail(rTenant.email, "Your VQ-Marketplace Validation Code", html);
-                                // we should not send here the API KEY
                                 return res.send({
                                     tenant: rTenant
                                 });
