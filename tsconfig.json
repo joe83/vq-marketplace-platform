@@ -3,6 +3,8 @@
         "target": "es6",
         "allowJs": true,
         "module": "commonjs",
+        "noImplicitAny": true,
+        "moduleResolution": "node",
         "outDir": "./built"
     },
     "include": [
