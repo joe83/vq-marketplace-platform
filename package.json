@@ -9,7 +9,7 @@
   },
   "scripts": {
     "start": "node app.js",
-    "start:local": "TENANT_ID=testmarketplace node app.js",
+    "start:local": "node app.js",
     "start:dev": "node app --config /../test-config.json",
     "start:production": "ST_ENV=production node app.js",
     "test": "ST_ENV=local jasmine",
@@ -57,7 +57,7 @@
     "sequelize": "^4.8.3",
     "sharp": "^0.17.2",
     "st-render": "git+https://github.com/viciqloud/st-render.git",
-    "stripe": "^4.15.0",
+    "stripe": "^4.25.0",
     "striptags": "^3.1.0",
     "underscore": "^1.8.3",
     "unescape": "^1.0.1",
