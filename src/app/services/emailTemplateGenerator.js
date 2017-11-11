@@ -19,7 +19,7 @@ const replaceDefaultValues = (html) => {
 };
 
 const generateSingleColumnEmail = (heading, title, body, cb) => {
-    fs.readFile(path.join(__dirname,'../emailTemplates/singleColumn.html'), 'utf8', function(err, html) {
+    fs.readFile(path.join(__dirname,'../emailTemplates/singleColumn.html'), 'utf8', (err, html) => {
 
         var headingRegExp = new RegExp("#heading#", "g");
         var titleRegExp = new RegExp("#title#", "g");
@@ -35,7 +35,7 @@ const generateSingleColumnEmail = (heading, title, body, cb) => {
 };
 
 const generateDoubleColumnEmail = (heading, title, bodyLeft, bodyRight, cb) => {
-    fs.readFile(path.join(__dirname,'../emailTemplates/doubleColumn.html'), 'utf8', function(err, html) {
+    fs.readFile(path.join(__dirname,'../emailTemplates/doubleColumn.html'), 'utf8', (err, html) => {
 
         var headingRegExp = new RegExp("#heading#", "g");
         var titleRegExp = new RegExp("#title#", "g");
@@ -53,7 +53,7 @@ const generateDoubleColumnEmail = (heading, title, bodyLeft, bodyRight, cb) => {
 };
 
 const generateTriplePanelTopEmail = (heading, title, bodyTop, bodyLeft, bodyRight, cb) => {
-    fs.readFile(path.join(__dirname,'../emailTemplates/triplePanelTop.html'), 'utf8', function(err, html) {
+    fs.readFile(path.join(__dirname,'../emailTemplates/triplePanelTop.html'), 'utf8', (err, html) => {
 
         var headingRegExp = new RegExp("#heading#", "g");
         var titleRegExp = new RegExp("#title#", "g");
@@ -73,7 +73,7 @@ const generateTriplePanelTopEmail = (heading, title, bodyTop, bodyLeft, bodyRigh
 };
 
 const generateTriplePanelBottomEmail = (heading, title, bodyLeft, bodyRight, bodyBottom, cb) => {
-    fs.readFile(path.join(__dirname,'../emailTemplates/triplePanelBottom.html'), 'utf8', function(err, html) {
+    fs.readFile(path.join(__dirname,'../emailTemplates/triplePanelBottom.html'), 'utf8', (err, html) => {
 
         var headingRegExp = new RegExp("#heading#", "g");
         var titleRegExp = new RegExp("#title#", "g");
@@ -93,7 +93,7 @@ const generateTriplePanelBottomEmail = (heading, title, bodyLeft, bodyRight, bod
 };
 
 const generateFourPanelEmail = (heading, title, bodyBottom, bodyLeft, bodyRight, cb) => {
-    fs.readFile(path.join(__dirname,'../emailTemplates/fourPanel.html'), 'utf8', function(err, html) {
+    fs.readFile(path.join(__dirname,'../emailTemplates/fourPanel.html'), 'utf8', (err, html) => {
 
         var headingRegExp = new RegExp("#heading#", "g");
         var titleRegExp = new RegExp("#title#", "g");
