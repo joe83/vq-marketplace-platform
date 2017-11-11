@@ -1,11 +1,8 @@
 .elasticbeanstalk
-apps/st-invoice/tmp/
-bower_components/
 scripts/transport-tw-users-to-vq.js
+built/
 node_modules/
-apidoc/
 deployments
-config/setups/*
 # our credentials
 .credentials
 # mac bullshit
