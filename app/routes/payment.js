@@ -25,7 +25,11 @@ const createAccount = (type, country, email, cb) => {
 // createAccount("standard", "hu", "adrianbarwicki+2@gmail.com");
 
 module.exports = app => {
-    app.post("/api/payment/:paymentProvider/account", isLoggedIn, isAdmin, (req, res) => {
+    /**
+     * Creates an account for the marketplace
+     * Stripe is the only one supported payment provider at a time
+     */
+    app.post("/api/payment/account", isLoggedIn, isAdmin, (req, res) => {
         const tenantModels = tenantDb.get();
 
         tenantModels
