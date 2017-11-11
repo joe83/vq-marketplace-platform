@@ -29,6 +29,7 @@ module.exports = app => {
 	// end-user
 	require("./routes/message.js")(app);
 	require("./routes/policy.js")(app);
+	require("./routes/payment.js")(app);
 	require("./routes/user.js")(app);
 	require("./routes/user-preference.js")(app);
 	require("./routes/user-property.js")(app);
