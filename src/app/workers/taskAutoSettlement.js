@@ -26,33 +26,33 @@ const taskAutoSettlement = (tenantId) => {
             console.log(`[WORKER AUTOSETTLEMENT] Retrieved ${orders.length} orders.`);
 
             async
-            .eachSeries(orders, (order, cb) => {
+            .eachSeries(orders, (order, cb2) => {
                 if (!order.autoSettlementStartedAt) {
-                    return cb();
+                    return cb2();
                 }
-                
+
                 const nowUnixTime = utils.getUtcUnixTimeNow();
                 const timeDiff = nowUnixTime - order.autoSettlementStartedAt;
                 const adjustedTimeDiffInHours = timeDiff / 60 / 60;
-                
-                console.log(`[WORKER AUTOSETTLEMENT] Now: ${nowUnixTime}, autoSettlementStartedAt: ${order.autoSettlementStartedAt}, timeDiffInHours: ${adjustedTimeDiffInHours}`);
+
+                console.log("[WORKER AUTOSETTLEMENT]");
 
                 if (adjustedTimeDiffInHours >= 8) {
                     return orderCtrl
-                        .settleOrder(models, order.id, order.userId, (err, order) => {
+                        .settleOrder(models, order.id, order.userId, (err, rSettledOrder) => {
                             if (err) {
-                                return cb(err);
+                                return cb2(err);
                             }
 
                             settled++;
 
-                            console.log(`[WORKER AUTOSETTLEMENT] Settled order ${order.userId}`);
+                            console.log(`[WORKER AUTOSETTLEMENT] Settled order ${rSettledOrder.userId}`);
 
-                            return cb();
+                            return cb2();
                         });
                 }
 
-                return cb();
+                return cb2();
             }, cb);
         }
     ], err => {
@@ -76,5 +76,4 @@ if (module.parent) {
     db.create(tenantId, () => {
         taskAutoSettlement(tenantId);
     });
-}  
-
+}

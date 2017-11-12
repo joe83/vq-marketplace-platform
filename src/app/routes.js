@@ -1,9 +1,4 @@
 const responseController = require("./controllers/responseController.js");
-const isEmailVerified = require("./middleware/isEmailVerified.js");
-const cust = require("./config/customizing.js");
-
-const identifyUser = responseController.identifyUser;
-const isLoggedIn = responseController.isLoggedIn;
 
 module.exports = app => {
 	function pong (req, res, next) {

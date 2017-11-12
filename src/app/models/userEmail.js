@@ -7,7 +7,9 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     Model.associate = models => {
-        Model.belongsTo(models.userAuth, { as: "user" });
+        Model.belongsTo(models.userAuth, {
+            as: "user"
+        });
     };
 
     return Model;

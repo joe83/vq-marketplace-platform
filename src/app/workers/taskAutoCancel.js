@@ -10,18 +10,20 @@ const taskAutoCancel = (tenantId) => {
 
     console.log("[WORKER] Task hourly cancel started.");
 
-    const now = new Date(); 
+    const now = new Date();
     const nowUtc = new Date(
-        now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(),  now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds()
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate(),
+        now.getUTCHours(),
+        now.getUTCMinutes(),
+        now.getUTCSeconds()
     );
 
     async.waterfall([
         cb => {
             models.task
             .findAll({
-                where: {
-                    status: models.task.TASK_STATUS.ACTIVE
-                },
                 include: [
                     {
                         model: models.taskTiming,
@@ -31,7 +33,10 @@ const taskAutoCancel = (tenantId) => {
                             }
                         }
                     }
-                ]
+                ],
+                where: {
+                    status: models.task.TASK_STATUS.ACTIVE
+                }
             })
             .then(tasks => {
                 cb(null, tasks);
@@ -39,7 +44,7 @@ const taskAutoCancel = (tenantId) => {
         },
         (tasks, cb) => {
             async
-            .eachSeries(tasks, (task, cb) => {
+            .eachSeries(tasks, (task, cb2) => {
                 cancelled++;
 
                 taskEmitter.emit("cancelled", models, task);
@@ -54,12 +59,12 @@ const taskAutoCancel = (tenantId) => {
                         if (err) {
                             console.error(err);
 
-                            return cb(err);
+                            return cb2(err);
                         }
-    
+
                         console.log(`[SUCCESS] All pending requests for task ${task.id} have been declined!`);
 
-                        return cb();
+                        return cb2();
                     });
                 });
             }, cb);
@@ -81,4 +86,4 @@ if (module.parent) {
     module.exports = taskAutoCancel;
 } else {
     taskAutoCancel();
-}  
+}

@@ -1,20 +1,19 @@
 const async = require("async");
 const cors = require("cors");
-const cookieParser = require('cookie-parser');
-const bodyParser = require('body-parser');
+const bodyParser = require("body-parser");
 const config = require("./app/config/configProvider.js")();
-const morgan = require('morgan')
-const db = require('./app/models/models');
-const tenantService = require('./app-tenant');
-const workers = require('./app/workers');
-const express = require('express');
+const morgan = require("morgan")
+const db = require("./app/models/models");
+const tenantService = require("./app-tenant");
+const workers = require("./app/workers");
+const express = require("express");
 const app = express();
 const tenantApp = express();
 
 const initApp = app => {
-	app.set('view engine', 'ejs');
-	app.set('json spaces', 2);
-	app.set('superSecret', config.secret);
+	app.set("view engine", "ejs");
+	app.set("json spaces", 2);
+	app.set("superSecret", config.secret);
 	app.use(cors());
 	app.use(bodyParser.urlencoded({ extended: false }));
 	app.use(bodyParser.json());
@@ -24,12 +23,12 @@ const initApp = app => {
 initApp(app);
 initApp(tenantApp);
 
-// app.use(morgan('combined'));
-tenantApp.use(morgan('combined'));
+// app.use(morgan("combined"));
+tenantApp.use(morgan("combined"));
 
 app.use((req, res, next) => {
 	req.auth = {
-		token: req.headers['x-auth-token']
+		token: req.headers["x-auth-token"]
 	};
 
 	let tenantId;
@@ -48,7 +47,7 @@ app.use((req, res, next) => {
 
 	if (!req.models) {
 		return res.status(400).send({
-			code: 'TENANT_NOT_FOUND'
+			code: "TENANT_NOT_FOUND"
 		});
 	}
 
@@ -61,7 +60,7 @@ if (config.production === true) {
 	console.log("-------------------------------------------------");
 }
 
-require('./app/routes.js')(app);
+require("./app/routes.js")(app);
 
 tenantService.initRoutes(tenantApp, express);
 
@@ -98,7 +97,7 @@ async.waterfall([
 					return cb(err);
 				}
 
-				require('./app/workers/index.js')
+				workers
 				.registerWorkers(tenant);
 
 				cb(null, tenants);
@@ -106,21 +105,19 @@ async.waterfall([
 			cb
 		);
 	}
-], (err, tenants) => {
+], (err) => {
 	if (err) {
 		throw new Error(err);
 	}
 
 	const appServer = app.listen(config.port, () => {
-		var host = appServer.address().address;
-		var port = appServer.address().port;
+		const port = appServer.address().port;
 
 		console.log(`VQ-Marketplace API listening at port ${port}. Supporting ${db.getTenantIds().length} tenants.`);
 	});
 
 	const tenantServer = tenantApp.listen(config.TENANT_APP_PORT, () => {
-		var host = tenantServer.address().address;
-		var port = tenantServer.address().port;
+		const port = tenantServer.address().port;
 
 		console.log(`Tenant management API listening at port ${port}.`);
 	});
@@ -129,5 +126,5 @@ async.waterfall([
 setInterval(() => {
 	const usedMemory = process.memoryUsage().heapUsed / 1024 / 1024;
 
-	//console.log(`[VQ-MARKETPLACE-API] The process is consuming now approximately ${Math.round(usedMemory * 100) / 100} MB memory.`);
+	console.log(`[VQ-MARKETPLACE-API] The process is consuming now approximately ${Math.round(usedMemory * 100) / 100} MB memory.`);
 }, 5000);

@@ -34,10 +34,10 @@ const getModels = cb => {
 const initRoutes = (app, express) => {
     app.use(express.static(__dirname + '/public'));
 
-    app.get('/api/tenant', (req, res) => {
+    app.get("/api/tenant", (req, res) => {
         getModels((err, tenantModels) => {
             if (err) {
-                return cb(err);
+                return res.status(400).send(err);
             }
 
             tenantModels
@@ -51,10 +51,10 @@ const initRoutes = (app, express) => {
         });
     });
 
-    app.get('/api/tenant/:tenantId', (req, res) => {
+    app.get("/api/tenant/:tenantId", (req, res) => {
         getModels((err, tenantModels) => {
             if (err) {
-                return cb(err);
+                return res.status(400).send(err);
             }
 
             tenantModels.tenant
@@ -88,7 +88,7 @@ const initRoutes = (app, express) => {
 
         getModels((err, tenantModels) => {
             if (err) {
-                return cb(err);
+                return res.status(400).send(err);
             }
 
             tenantModels
@@ -151,7 +151,7 @@ const initRoutes = (app, express) => {
 
         getModels((err, tenantModels) => {
             if (err) {
-                return cb(err);
+                return res.status(400).send(err);
             }
 
             tenantModels
@@ -196,7 +196,7 @@ const initRoutes = (app, express) => {
 
         getModels((err, tenantModels) => {
             if (err) {
-                return cb(err);
+                return res.status(400).send(err);
             }
 
             tenantModels

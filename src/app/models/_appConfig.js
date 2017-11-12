@@ -13,6 +13,7 @@ module.exports = (sequelize, DataTypes) => {
         required: true,
         unique: true
       },
+      // secret: { type: DataType.Boolean },
       fieldValue: { type: DataTypes.STRING }
   }, {
       tableName,

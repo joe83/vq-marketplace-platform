@@ -13,11 +13,6 @@ module.exports = (sequelize, DataTypes) => {
   };
 
   const User = sequelize.define("user", {
-    vqUserId: {
-      type: DataTypes.INTEGER,
-      required: true,
-      unique: true
-    },
     status: {
       defaultValue: USER_STATUS.UNVERIFIED,
       type: DataTypes.ENUM(
@@ -46,6 +41,11 @@ module.exports = (sequelize, DataTypes) => {
       required: false,
       defaultValue: false
     },
+    country: {
+      type: DataTypes.STRING(2),
+      required: false,
+      defaultValue: false
+    },
     lastName: {
       type: DataTypes.STRING,
       required: true
@@ -69,6 +69,10 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   User.associate = models => {
+    User.belongsTo(models.userAuth, {
+      as: "vqUser"
+    });
+
     User.hasMany(models.userProperty);
     User.hasMany(models.userPreference);
     User.hasMany(models.review, {
