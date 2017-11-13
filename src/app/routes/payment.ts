@@ -8,6 +8,13 @@ const isAdmin = responseController.isAdmin;
 
 const tenantDb = require("../../app-tenant/models");
 
+interface ResAccount {
+    // id is present only if it is an user account!
+    id?: number,
+    networkId: string,
+    accountId: string
+}
+
 const createAccount = (type: string, country: string, email: string, cb: (err: any, account?: any) => void) => {
     stripe.accounts.create({
         type,
@@ -32,7 +39,7 @@ module.exports = (app: any) => {
         whereAndObj.push({ userId: (req as any).user.id });
 
         if (((req as any).params as any).networkId) {
-            whereAndObj.push({ userId: (req as any).params.networkId });
+            whereAndObj.push({ networkId: (req as any).params.networkId });
         }
         
         (req as any).models
@@ -50,12 +57,13 @@ module.exports = (app: any) => {
             }
 
             // we map it and drop many attributes for security reasons!
-            const accounts = {
+            const account: ResAccount = {
                 id: paymentAccount.id,
                 networkId: paymentAccount.networkId,
                 accountId: paymentAccount.accountId,
             };
-            return (res as any).send(accounts);
+
+            return (res as any).send(account);
         }, (err: any) => (res as any).status(400).send(err));
     });
 
@@ -63,17 +71,31 @@ module.exports = (app: any) => {
         const models = req.models;
 
         models
-        .userAuth
+        .user
         .findOne({
             where: {
-                id: req.user.vqUserId
+                id: req.user.id
             },
             include: [
-                { model: models.userEmail }
+                {
+                    model: models.billingAddress
+                }, {
+                    as: "vqUser",
+                    model: models.userAuth,
+                    include: [
+                        { model: models.userEmail }
+                    ]
+                }
             ]
         })
-        .then((vqUser: any) => {
-            createAccount("standard", req.user.country, vqUser.userEmails[0].address, (err, rAccount) => {
+        .then((rUser: any) => {
+            if (!rUser.billingAddresses.length) {
+                return res.status(400).send({
+                    code: "MISSING_BILLING_INFORMATION"
+                });
+            }
+
+            createAccount("standard", rUser.billingAddresses[0].countryCode, rUser.vqUser.userEmails[0].email, (err, rAccount) => {
                 if (err) {
                     if (err.type === "StripeInvalidRequestError") {
                         return res.status(400).send({
@@ -91,17 +113,20 @@ module.exports = (app: any) => {
                 models
                 .userPaymentAccount
                 .create({
+                   userId: req.user.id,
                    networkId: "stripe",
                    accountId: rAccount.id,
                    publicKey: rAccount.keys.publishable,
                    secretKey: rAccount.keys.secret,
                    data: rAccount // json object
                 }).then((createdAccount: any) => {
-                    return res.send({
+                    const resAccount: ResAccount = {
                         id: createdAccount.id,
                         networkId: createdAccount.networkId,
                         accountId: createdAccount.accountId
-                    });
+                    };
+
+                    return res.send(resAccount);
                 }, (err: any) => res.status(400).send(err));
             });
         }, (err: any) => {
@@ -127,7 +152,12 @@ module.exports = (app: any) => {
             }
         })
         .then((rTenant: any) => {
-            return res.send(rTenant);
+            const resAccount: ResAccount = {
+                networkId: "stripe",
+                accountId: rTenant.stripeAccount.id
+            };
+
+            return res.send(resAccount);
         }, (err: any) => res.status(400).send(err));
     });
 
@@ -167,7 +197,12 @@ module.exports = (app: any) => {
                     stripeAccount: rAccount
                 })
                 .then(() => {
-                    return res.send(rAccount);
+                    const resAccount: ResAccount = {
+                        networkId: "stripe",
+                        accountId: rAccount.id
+                    };
+
+                    return res.send(resAccount);
                 }, (err: any) => res.status(400).send(err));
             });
         });

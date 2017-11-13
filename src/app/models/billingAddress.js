@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
         required: true
     },
     countryCode: { 
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(2),
         required: true
     },
     street: {

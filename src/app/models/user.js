@@ -75,6 +75,7 @@ module.exports = (sequelize, DataTypes) => {
 
     User.hasMany(models.userProperty);
     User.hasMany(models.userPreference);
+    User.hasMany(models.billingAddress);
     User.hasMany(models.review, {
       foreignKey: "toUserId"
     });

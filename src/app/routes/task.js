@@ -670,8 +670,11 @@ module.exports = app => {
             },
             cb => {
                 if (newStatus === req.models.task.TASK_STATUS.ACTIVE) {
-                    taskEmitter
+                    // emails are enabled now just for one scenario
+                    if (task.taskType === 1) {
+                        taskEmitter
                         .emit("new-task", req.models, task.id);
+                    }
                 }
 
                 if (newStatus === req.models.task.TASK_STATUS.INACTIVE) {

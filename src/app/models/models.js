@@ -32,7 +32,7 @@ const create = (tenantId, cb) => {
     cb => pool.query(
       "CREATE DATABASE ?? CHARACTER SET utf8 COLLATE utf8_general_ci;",
       [ tenantId ],
-      (err, results, fields) => {
+      (err) => {
         if (err) {
           if (err.code === "ER_DB_CREATE_EXISTS") {
             return cb();
