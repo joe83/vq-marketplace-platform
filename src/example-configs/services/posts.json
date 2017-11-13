@@ -1,0 +1,133 @@
+[
+    {
+       "code": "review-completed",
+       "title": "Review completed",
+       "body": "<p>Review completed!</p>",
+       "type": "process"
+   }, {
+       "code": "booking-completed",
+       "title": "Booking completed",
+       "body": "<p>The booking has been succesfull!</p>",
+       "type": "process"
+   }, {
+       "code": "request-sent",
+       "title": "Request sent",
+       "body": "<p>Your request has been sent!</p>",
+       "type": "process"
+   }, {
+       "code": "privacy-policy",
+       "title": "Privacy Policy",
+       "body": "Add Privacy policy",
+       "type": "terms"
+   }, {
+       "code": "terms-of-service",
+       "title": "Terms of Service",
+       "body": "Add Terms of Service",
+       "type": "terms"
+   }, {
+       "code": "welcome",
+       "title": "Welcome email",
+       "body": "<p>Hello!</p> <p><br></p> <p>To complete your sign-up please open the following link:</p> <p><br></p> <p>&lt;%-VERIFICATION_LINK%&gt;</p> <p><br></p> <p>Best regards,</p> <p>Your VQ LABS team</p>",
+       "type": "email"
+   }, {
+       "code": "new-request-received",
+       "title": "New request received",
+       "body": "<p>Hello!</p> <p><br></p> <p>You have received a new request for your listing. Respond here:</p> <p><br></p> <p>&lt;%-ACTION_URL%&gt;</p> <p><br></p> <p>Best regards,</p> <p>Your VQ LABS team</p>",
+       "type": "email"
+   }, {
+       "code": "listing-cancelled",
+       "title": "Listing has been cancelled",
+       "body": "<p>Hello!</p><p>Your listing '<%- LISTING_TITLE %>' has been cancelled.</p> <p><br></p> <p>You can a new listing here: '<%- ACTION_URL %>'</p> <p><br></p> <p>Best regards,</p> <p>Your VQ LABS team</p>",
+       "type": "email"
+   },  {
+       "code": "new-task",
+       "title": "New task",
+       "body": "<p>Check out the new task here:</p> <p><%- ACTION_URL %></p> <p><br></p> <p>Best regards,</p> <p>Your VQ LABS team</p>",
+       "type": "email"
+   }, {
+       "code": "new-request-sent",
+       "title": "New request sent",
+       "body": "<p>Hello!</p> <p><br></p> <p>You have sent a request for the listing</p> <p><br></p> <p>&lt;%-ACTION_URL%&gt;</p> <p><br></p> <p>Best regards,</p> <p>Your VQ LABS team</p>",
+       "type": "email"
+   }, {
+       "code": "request-declined",
+       "title": "Your request has been declined",
+       "body": "<p>Hello!</p> <p><br></p> <p>Your application has been cancelled. Possible reasons may be: <ul><li>Task owner has choosen someone else for the job</li><li>The job has been cancelled</li></ul></p> <p><br></p> <p>&lt;%-ACTION_URL%&gt;</p> <p><br></p> <p>Best regards,</p> <p>Your VQ LABS team</p>",
+       "type": "email"
+   }, {
+       "code": "request-cancelled",
+       "title": "Your request has been cancelled",
+       "body": "<p>Hello!</p> <p><br></p> <p>You have cancelled your request for a listing your applied for. Apply for other listings here:</p> <p><br></p> <p>&lt;%-ACTION_URL%&gt;</p> <p><br></p> <p>Best regards,</p> <p>Your VQ LABS team</p>",
+       "type": "email"
+   }, {
+       "code": "task-request-cancelled",
+       "title": "Request for your task has been cancelled",
+       "body": "<p>Hello!</p> <p><br></p> <p>Order request has been cancelled.</p> <p><br></p> <p>&lt;%-ACTION_URL%&gt;</p> <p><br></p> <p>Best regards,</p> <p>Your VQ LABS team</p>",
+       "type": "email"
+   }, {
+       "code": "task-marked-spam",
+       "title": "Your task has been marked as spam",
+       "body": "<p>Hello!</p> <p><br></p> <p>Your task has been marked as spam.</p> <p><br></p> <p><br></p> <p>Best regards,</p> <p>Your VQ LABS team</p>",
+       "type": "email"
+   }, {
+       "code": "user-blocked",
+       "title": "You have been blocked!",
+       "body": "<p>Hello!</p> <p><br></p> <p>You have been blocked from the platform. In case of questions, please contact support.</p> <p><br></p> <p><br></p> <p>Best regards,</p> <p>Your VQ LABS team</p>",
+       "type": "email"
+   }, {
+       "code": "request-accepted",
+       "title": "Request has been accepted",
+       "body": "<p>Hello!</p> <p><br></p> <p>Your request has been accepted. Visit your dashboard to see more information</p> <p><br></p> <p>&lt;%-ACTION_URL%&gt;</p> <p><br></p> <p>Best regards,</p> <p>Your VQ LABS team</p>",
+       "type": "email"
+   }, {
+       "code": "request-marked-as-done",
+       "title": "You marked the task as done",
+       "body": "<p>Hello!</p> <p><br></p> <p>You have marked the task as done. See more information on your dashboard:</p> <p><br></p> <p>&lt;%-ACTION_URL%&gt;</p> <p><br></p> <p>Best regards,</p> <p>Your VQ LABS team</p>",
+       "type": "email"
+   }, {
+       "code": "request-completed",
+       "title": "Assignment has been completed",
+       "body": "<p>Hello!</p> <p><br></p> <p>The order has been completed. See more information on your dashboard:</p> <p><br></p> <p>&lt;%-ACTION_URL%&gt;</p> <p><br></p> <p>Best regards,</p> <p>Your VQ LABS team</p>",
+       "type": "email"
+   }, {
+       "code": "new-order",
+       "title": "Order confirmed",
+       "body": "<p>Hello!</p> <p><br></p> <p>You have successfully created an order. See more information on your dashboard:</p> <p><br></p> <p>&lt;%-ACTION_URL%&gt;</p> <p><br></p> <p>Best regards,</p> <p>Your VQ LABS team</p>",
+       "type": "email"
+   }, {
+       "code": "order-marked-as-done",
+       "title": "Order has been marked as done",
+       "body": "<p>Hello!</p> <p><br></p> <p>The order has been marked as done. See more information on your dashboard:</p> <p><br></p> <p>&lt;%-ACTION_URL%&gt;</p> <p><br></p> <p>Best regards,</p> <p>Your VQ LABS team</p>",
+       "type": "email"
+   }, {
+       "code": "order-completed",
+       "title": "Order has been completed",
+       "body": "<p>Hello!</p> <p><br></p> <p>The order has been completed. See more information on your dashboard:</p> <p><br></p> <p>&lt;%-ACTION_URL%&gt;</p> <p><br></p> <p>Best regards,</p> <p>Your VQ LABS team</p>",
+       "type": "email"
+   }, {
+       "code": "message-received",
+       "title": "New message",
+       "body": "<p>Hello!</p> <p><br></p> <p><%-SENDER_FIRST_NAME%> <%-SENDER_LAST_NAME%> sent you a message regarding the listing '<%-LISTING_TITLE%>'. See more information:</p> <p><br></p> <p>&lt;%-ACTION_URL%&gt;</p> <p><br></p> <p>Best regards,</p> <p>Your VQ LABS team</p>",
+       "type": "email"
+   }, {
+       "code": "review-left",
+       "title": "New review",
+       "body": "<p>Hello!</p> <p><br></p> <p>You have a new review. See more:</p> <p><br></p> <p>&lt;%-ACTION_URL%&gt;</p> <p><br></p> <p>Best regards,</p> <p>Your VQ LABS team</p>",
+       "type": "email"
+   }, {
+       "code": "order-closed",
+       "title": "You closed the booking",
+       "body": "<p>Hello!</p> <p><br></p> <p>You closed the booking</p> <p>You can leave review here:</p> <p><br></p> <p>&lt;%-ACTION_URL%&gt;</p> <p><br></p> <p>Best regards,</p> <p>Your VQ LABS team</p>",
+       "type": "email"
+   }, {
+       "code": "request-closed",
+       "title": "Your task has been closed",
+       "body": "<p>Hello!</p> <p><br></p> <p>The task you are assigned to, has been closed.</p> <p><br></p> <p>You can leave review here:</p> <p>&lt;%-ACTION_URL%&gt;</p> <p><br></p> <p>Best regards,</p> <p>Your VQ LABS team</p>",
+       "type": "email"
+   }, {
+       "code": "password-reset",
+       "title": "Password reset",
+       "body": "<p>Hello!</p> <p><br></p> <p>With the following link you can reset your password:</p> <p><br></p> <p>&lt;%-ACTION_URL%&gt;</p> <p><br></p> <p>Best regards,</p> <p>Your VQ LABS team</p>",
+       "type": "email"
+   }
+]
