@@ -1,6 +1,4 @@
 const async = require("async");
-const marketplaceConfig = require("vq-marketplace-config");
-
 const tableName = "_appLabel";
 
 module.exports = (sequelize, DataTypes) => {

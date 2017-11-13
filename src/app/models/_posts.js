@@ -1,6 +1,4 @@
 const async = require("async");
-const marketplaceConfig = require("vq-marketplace-config");
-
 const tableName = "_posts";
 
 module.exports = (sequelize, DataTypes) => {
@@ -38,7 +36,7 @@ module.exports = (sequelize, DataTypes) => {
     posts.insertSeed = (usecase, cb) => {
         console.log("[posts.insertSeed] Creating seed posts");
     
-        const defaultPosts = marketplaceConfig[usecase].posts();
+        const defaultPosts = require("../../example-configs/services/posts.json");
 
         const values = defaultPosts
           .map(post => {
@@ -62,7 +60,7 @@ module.exports = (sequelize, DataTypes) => {
     };
 
     posts.addDefaultPosts = (usecase, force, cb) => {
-        const defaultPosts = marketplaceConfig[usecase].posts();
+        const defaultPosts = require("../../example-configs/services/posts.json");
         const updateOrCreate = posts.createOrUpdate();
 
         async.eachLimit(defaultPosts, 2, (post, cb) => {
@@ -71,7 +69,7 @@ module.exports = (sequelize, DataTypes) => {
                 cb();
             }, cb);
         }, cb);
-    };  
+    };
 
     return posts;
 };

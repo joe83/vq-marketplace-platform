@@ -331,7 +331,7 @@ const initRoutes = (app, express) => {
             service.deployNewMarketplace(tenantId, apiKey, tenant.password, tenant.repeatPassword, {
                 /**
                  * check an example configuration here:
-                 * https://github.com/vq-labs/vq-marketplace-config/blob/master/examples/service-marketplace/config/config.json
+                 * /example-configs/services
                  */
                 NAME: tenantRef.marketplaceName,
                 SEO_TITLE: tenantRef.marketplaceName,

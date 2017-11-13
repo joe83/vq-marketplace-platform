@@ -6,18 +6,8 @@ VQ Marketplace API is a web services layer of VQ marketplace developed with Node
 Some parts of the application have been wrapped as modules and open-sourced. You will find our repos here:
 
 * [vq-marketplace-web-app](https://github.com/vq-labs/vq-marketplace-web-app) - ReactJS Marketplace Front-End
-* [vq-marketplace-config](https://github.com/vq-labs/vq-marketplace-config) - Default configuration of the marketplace (TaskRabbit copy)
-* [nodejs-authentication-microservice](https://github.com/vq-labs/nodejs-authentication-microservice) - Authentification microservice
 
 The application communicates with some external services: payments provider, email services etc.
-
-## Important libraries used
-In the whole application, you will see a lot of use of the 'async' library, which helps us mange the flow of the callbacks.
-
-[https://github.com/caolan/async](https://github.com/caolan/async)
-
-Also, for modeling the data and DB drived, we use [Sequelize](http://sequelize.com/).
-
 ## System setup
 
 ### Ubuntu
