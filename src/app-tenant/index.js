@@ -111,7 +111,6 @@ const initRoutes = (app, express) => {
                     rTenant.verificationKey = cryptoService
                         .encodeObj(rTenant.apiKey);
 
-
                     var body = '<p style="color: #374550;">You can copy and paste the verification code below or click the link to continue with the registration process:</p><br><br>' +
                         '<span style="color: #374550;"><b>Verification Code: </b>' + rTenant.verificationKey + '</span><br><br>' +
                         '<span style="color: #374550;"><b><a href="' + config.WEB_URL + '/get-started?verificationCode=' + encodeURIComponent(rTenant.verificationKey) + '">Click here if you are unable to paste the code</a></b></span>';
@@ -337,7 +336,7 @@ const initRoutes = (app, express) => {
                 SEO_TITLE: tenantRef.marketplaceName,
                 COLOR_PRIMARY: "#000639",
                 // this needs to be addited when in production
-                DOMAIN: `http://${tenantRef.tenantId}.viciqloud.com`,
+                DOMAIN: `http://${tenantRef.tenantId}.vqmarketplace.com`,
                 PRICING_DEFAULT_CURRENCY: "EUR",
                 LISTING_TIMING_MODE: "0",
                 LISTINGS_VIEW_LIST: "1",
@@ -351,8 +350,8 @@ const initRoutes = (app, express) => {
                 console.log("MARKETPLACE CREATED");
                 const marketplaceUrl =
                     config.production ?
-                        'https://' + tenantRef.tenantId + '.vq-labs.com/app' :
-                        'https://' + tenantRef.tenantId + '.viciqloud.com/app';
+                        'https://' + tenantRef.tenantId + '.vqmarketplace.com/app' :
+                        'https://' + tenantRef.tenantId + '.vqmarketplace.com/app';
 
                 var body = `<p style="color: #374550;">
                                 Your journey to run an online marketplace has just begun! You can now easily build and manage your online marketplace for free and at the same time go to market, get your first users and validate your idea.
