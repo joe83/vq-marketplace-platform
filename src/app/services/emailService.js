@@ -76,22 +76,21 @@ const getEmailAndSend = (models, emailCode, email, emailData) =>
 					EMAIL_SETTINGS_URL: `${config.DOMAIN}/app/account/notifications`
 				};
 			} else {
-				emailData = {
-					ACTION_URL: emailData.ACTION_URL || "<ACTION_URL NOT SPECIFIED>",
-					LISTING_TITLE: emailData.LISTING_TITLE || "<LISTING_TITLE NOT SPECIFIED>",
-					SENDER_FIRST_NAME: emailData.SENDER_FIRST_NAME || "<SENDER_FIRST_NAME NOT SPECIFIED>",
-					SENDER_LAST_NAME: emailData.SENDER_LAST_NAME || "<SENDER_LAST_NAME NOT SPECIFIED>",
-					MESSAGE_BODY: emailData.MESSAGE_BODY || "<MESSAGE_BODY NOT SPECIFIED>",
-					EMAIL_SETTINGS_URL: `${config.DOMAIN}/app/account/notifications`
-				};
+				emailData.ACTION_URL = emailData.ACTION_URL || "<ACTION_URL NOT SPECIFIED>";
+				emailData.LISTING_TITLE = emailData.LISTING_TITLE || "<LISTING_TITLE NOT SPECIFIED>";
+				emailData.SENDER_FIRST_NAME = emailData.SENDER_FIRST_NAME || "<SENDER_FIRST_NAME NOT SPECIFIED>";
+				emailData.SENDER_LAST_NAME = emailData.SENDER_LAST_NAME || "<SENDER_LAST_NAME NOT SPECIFIED>";
+				emailData.MESSAGE_BODY = emailData.MESSAGE_BODY || "<MESSAGE_BODY NOT SPECIFIED>";
+				emailData.EMAIL_SETTINGS_URL = emailData.EMAIL_SETTINGS_URL = `${config.DOMAIN}/app/account/notifications`;
 			}
+
+			emailData.CONFIG = config;
 
 			try {
 				compiledEmail = ejs.compile(unescape(emailBody.body))(emailData);
 			} catch (err) {
 				return console.error(err);
 			}
-			
 
 			params.subject = emailBody.title;
 
@@ -104,27 +103,6 @@ const getEmailAndSend = (models, emailCode, email, emailData) =>
 			});
 		});
 	});
-
-const sendWelcome = (models, user, VERIFICATION_LINK) => {
-	getEmailBody(models, EMAILS.WELCOME)
-	.then(emailBody => {
-		const params = {};
-
-		const compiledEmail = ejs.compile(unescape(emailBody.body))({
-			VERIFICATION_LINK
-		});
-
-		params.subject = emailBody.title;
-
-		return sendEmail(models, compiledEmail, [
-			user.emails[0]
-		], params, err => {
-			if (err) {
-				console.error(err);
-			}
-		});
-	});
-};
 
 const sendNewTenant = (email, VERIFICATION_LINK) => {
 	const emailBody = `
@@ -260,6 +238,5 @@ module.exports = {
 	getEmailAndSend,
 	sendEmail,
 	sendTemplateEmail,
-	sendWelcome,
 	sendNewTenant
 };

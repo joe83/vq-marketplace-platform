@@ -1,11 +1,8 @@
 const async = require("async");
 const randomstring = require('randomstring');
-const db = require('../app/models/models');
 const tenantDb = require('./models');
 const config = require("../app/config/configProvider.js")();
 const utils = require('../app/utils');
-const workers = require('../app/workers');
-const authCtrl = require("../app/controllers/authCtrl");
 const cryptoService = require("../app/services/cryptoService");
 const emailService = require("../app/services/emailService.js");
 const emailTemplateGenerator = require("../app/services/emailTemplateGenerator.js");
@@ -336,7 +333,7 @@ const initRoutes = (app, express) => {
                 SEO_TITLE: tenantRef.marketplaceName,
                 COLOR_PRIMARY: "#000639",
                 // this needs to be addited when in production
-                DOMAIN: `http://${tenantRef.tenantId}.vqmarketplace.com`,
+                DOMAIN: `https://${tenantRef.tenantId}.vqmarketplace.com`,
                 PRICING_DEFAULT_CURRENCY: "EUR",
                 LISTING_TIMING_MODE: "0",
                 LISTINGS_VIEW_LIST: "1",
@@ -390,7 +387,7 @@ const initRoutes = (app, express) => {
 
         getModels((err, tenantModels) => {
             if (err) {
-                return cb(err);
+                return res.status(400).send(err);
             }
 
             tenantModels
@@ -417,7 +414,7 @@ const initRoutes = (app, express) => {
 
         getModels((err, tenantModels) => {
             if (err) {
-                return cb(err);
+                return res.status(400).send(err);
             }
 
             tenantModels

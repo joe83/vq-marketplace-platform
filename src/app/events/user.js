@@ -14,7 +14,10 @@ module.exports = userEmitter;
     .on("created", (models, user) => {
         const VERIFICATION_LINK = cryptoService.buildVerificationUrl(models.tenantId, config.SERVER_URL, user);
 
-        return emailService.sendWelcome(models, user, VERIFICATION_LINK);
+        return emailService
+            .getEmailAndSend(models, emailService.EMAILS.WELCOME, user.emails[0], {
+                VERIFICATION_LINK
+            });
     });
 
     userEmitter

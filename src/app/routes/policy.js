@@ -121,13 +121,14 @@ module.exports = app => {
 							cb();
 						}, cb);
 				});
-			}], err => {
-				const VERIFICATION_LINK = cryptoService.buildVerificationUrl(req.models.tenantId, config.SERVER_URL, { id: userId });
+			}], () => {
+				const VERIFICATION_LINK = cryptoService
+					.buildVerificationUrl(req.models.tenantId, config.SERVER_URL, { id: userId });
 				
 				return emailService
-					.sendWelcome(req.models, {
-						emails
-					}, VERIFICATION_LINK);
+					.getEmailAndSend(req.models, emailService.EMAILS.WELCOME, emails, {
+						VERIFICATION_LINK
+					});
 			});
 	});
 
