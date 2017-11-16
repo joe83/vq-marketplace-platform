@@ -1,6 +1,8 @@
 {
     "MY_LISTINGS": "My listings",
     "MY_REQUESTS": "My requests",
+    "NEW_SUPPLY_LISTING_ADDRESS_HEADER": "Location of the listing",
+    "NEW_SUPPLY_LISTING_ADDRESS_DESC": "Nearby users will be notified!",
     "NEW_SUPPLY_LISTING_SUCCESS_HEADER": "Congratulations",
     "NEW_SUPPLY_LISTING_SUCCESS_DESC": "You have successfully posted your listing",
     "OFFER_LISTINGS_POSTED": "Active listings",

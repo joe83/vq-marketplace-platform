@@ -1,19 +1,14 @@
 const async = require("async");
-const moment = require("moment");
-const cust = require("../config/customizing.js");
-const db  = require("../models/models");
 const requestEmitter = require("../events/request");
 const orderEmitter = require("../events/order");
 const taskEmitter = require("../events/task");
 const utils = require("../utils");
 
-const declineRequest = (models, requestId, cb) => {
-    const newStatus = models.request.REQUEST_STATUS.DECLINED;
-  
+const declineRequest = (models: any, requestId: number, cb: any) => {
     models
     .request
     .findById(requestId)
-    .then(request => {
+    .then((request: any) => {
         request
         .update({
             status: models.request.REQUEST_STATUS.DECLINED
@@ -27,7 +22,7 @@ const declineRequest = (models, requestId, cb) => {
     }, cb);
 };
 
-const declineAllPendingRequestsForTask = (models, taskId, cb) => {
+const declineAllPendingRequestsForTask = (models: any, taskId: number, cb: any) => {
     models.request.findAll({
         where: {
             $and: [
@@ -35,60 +30,54 @@ const declineAllPendingRequestsForTask = (models, taskId, cb) => {
                 { status: models.request.REQUEST_STATUS.PENDING }
             ]
         }
-    }).then(pendingRequests => {
-        async.eachSeries(pendingRequests, (request, cb) => {
+    }).then((pendingRequests: any[]) => {
+        async.eachSeries(pendingRequests, (request: any, cb: any) => {
             return declineRequest(models, request.id, cb);
         }, cb);
     });
 };
 
-const changeRequestStatus = (models, requestId, newStatus, userId, cb) => {
+const changeRequestStatus = (models: any, requestId: number, newStatus: string, userId: number, cb: any) => {
     newStatus = String(newStatus);
     userId = Number(userId);
     requestId = Number(requestId);
 
-    var request, order, oldRequest;
-
-    var autoSettlementEnabled = false;
-
-    const REQUEST_STATUS = models.request.REQUEST_STATUS;
+    var order: any, oldRequest: any;
 
     async.waterfall([
-        cb => {
+        (cb: any) => {
             models
             .request
             .findById(requestId)
-            .then(rOldRequest => {
-                if (!rOldRequest) {
-                    return cb("REQUEST_NOT_FOUND");
+            .then((requestRef: any) => {
+                if (!requestRef) {
+                    return cb({
+                        code: "REQUEST_NOT_FOUND"
+                    });
                 }
 
-                if (rOldRequest.status === newStatus) {
-                    return cb("NO_ACTION_REQUIRED");
+                if (requestRef.status === newStatus) {
+                    return cb({
+                        code: "NO_ACTION_REQUIRED"
+                    });
                 }
-
-                oldRequest = rOldRequest;
                 
-                return cb();
+                return cb(null, requestRef);
             });
         },
-        cb => {
-            models.request
-            .update({
-                status: newStatus
-            }, {
-                where: {
-                    id: requestId,
-                    fromUserId: userId
-                }
-            })
-            .then(rRequest => {
-                // request = rRequest;
+        (requestRef: any, cb: any) => {
+            if (requestRef.fromUserId !== userId) {
+                return cb({
+                    code: "NOT_YOUR_REQUEST"
+                });
+            }
 
-                cb();
-            }, cb);
+            requestRef.update({
+                status: newStatus
+            })
+            .then(() => cb(), cb);
         },
-        cb => {
+        (cb: any) => {
             if (newStatus !== models.request.REQUEST_STATUS.MARKED_DONE) {
                 return cb();
             }
@@ -103,7 +92,7 @@ const changeRequestStatus = (models, requestId, newStatus, userId, cb) => {
                         requestId
                     }
                 })
-                .then(rOrder => {
+                .then((rOrder: any) => {
                     order = rOrder;
 
                     order
@@ -111,11 +100,11 @@ const changeRequestStatus = (models, requestId, newStatus, userId, cb) => {
                             autoSettlementStartedAt,
                             status: models.order.ORDER_STATUS.MARKED_DONE
                         })
-                        .then(_ => cb(), cb);
+                        .then(() => cb(), cb);
                 }, cb);
             }
         }
-    ], err => {
+    ], (err: Error) => {
         if (err) {
             return cb(err);
         }
@@ -132,7 +121,7 @@ const changeRequestStatus = (models, requestId, newStatus, userId, cb) => {
             models
                 .task
                 .findById(oldRequest.taskId)
-                .then(rTask => {
+                .then((rTask: any) => {
                     taskEmitter
                         .emit("task-request-cancelled", models, rTask);
                     

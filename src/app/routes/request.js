@@ -1,15 +1,16 @@
 const async = require("async");
 const resCtrl = require("../controllers/responseController.js");
-const cust = require("../config/customizing.js");
 const isLoggedIn = resCtrl.isLoggedIn;
 const sendResponse = resCtrl.sendResponse;
 const isLoggedInAndVerified = resCtrl.isLoggedInAndVerified;
-const isAdmin = resCtrl.isAdmin;
 const requestCtrl = require("../controllers/requestCtrl");
 const requestEmitter = require("../events/request");
-const orderEmitter = require("../events/order");
 
 module.exports = app => {
+    /**
+     * Creates a request for a demand or supply listings
+     * 1. Can only submit requests for active listings.
+     */
     app.post("/api/request", isLoggedIn, isLoggedInAndVerified, (req, res) => {
         const message = req.body.message;
         const taskId = req.body.taskId;
@@ -48,19 +49,18 @@ module.exports = app => {
                 .then(rRequest => {
                     request = rRequest;
 
-                    req.models
-                    .message
-                    .create({
-                        requestId: request.id,
-                        taskId,
-                        fromUserId,
-                        toUserId,
-                        message
-                    })
-                    .then(rMessage => {
-                        cb(null, rMessage);
-                    }, cb);
+                    cb();
+                }, cb),
+            cb => req.models
+                .message
+                .create({
+                    requestId: request.id,
+                    taskId,
+                    fromUserId,
+                    toUserId,
+                    message
                 })
+                .then(rMessage => cb(null, rMessage), cb)
             ], (err, rMessage) => {
                 if (err) {
                     return res.status(400).send(err);
@@ -154,8 +154,8 @@ module.exports = app => {
                     .then(msg => {
                         try {
                             item.dataValues.lastMsg = msg;
-                        } catch (err){
-
+                        } catch (err) {
+                            // @todo
                         }
 
                         cb();
@@ -243,7 +243,7 @@ module.exports = app => {
         const requestId = req.params.requestId;
        
         requestCtrl
-            .changeRequestStatus(req.models, requestId, newStatus, userId, (err, request) =>{
+            .changeRequestStatus(req.models, requestId, newStatus, userId, (err, request) => {
                 return sendResponse(res, err, request);
             });
     });
