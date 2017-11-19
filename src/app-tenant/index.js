@@ -1,15 +1,15 @@
 const async = require("async");
-const randomstring = require('randomstring');
-const tenantDb = require('./models');
+const randomstring = require("randomstring");
+const tenantDb = require("./models");
 const config = require("../app/config/configProvider.js")();
-const utils = require('../app/utils');
+const utils = require("../app/utils");
 const cryptoService = require("../app/services/cryptoService");
 const emailService = require("../app/services/emailService.js");
 const emailTemplateGenerator = require("../app/services/emailTemplateGenerator.js");
 
 const service = require("./service");
 
-const rootDbName = 'vq-marketplace';
+const rootDbName = "vq-marketplace";
 let models = null;
 
 const getModels = cb => {
@@ -29,7 +29,7 @@ const getModels = cb => {
 };
 
 const initRoutes = (app, express) => {
-    app.use(express.static(__dirname + '/public'));
+    app.use(express.static(__dirname + "/public"));
 
     app.get("/api/tenant", (req, res) => {
         getModels((err, tenantModels) => {
@@ -80,7 +80,7 @@ const initRoutes = (app, express) => {
     });
 
     /* Trial Form User Registration Steps */
-    app.post('/api/trial-registration/step-1', (req, res) => {
+    app.post("/api/trial-registration/step-1", (req, res) => {
         const tenant = req.body;
 
         getModels((err, tenantModels) => {
@@ -108,13 +108,13 @@ const initRoutes = (app, express) => {
                     rTenant.verificationKey = cryptoService
                         .encodeObj(rTenant.apiKey);
 
-                    var body = '<p style="color: #374550;">You can copy and paste the verification code below or click the link to continue with the registration process:</p><br><br>' +
-                        '<span style="color: #374550;"><b>Verification Code: </b>' + rTenant.verificationKey + '</span><br><br>' +
-                        '<span style="color: #374550;"><b><a href="' + config.WEB_URL + '/get-started?verificationCode=' + encodeURIComponent(rTenant.verificationKey) + '">Click here if you are unable to paste the code</a></b></span>';
+                    var body = "<p style=\"color: #374550;\">You can copy and paste the verification code below or click the link to continue with the registration process:</p><br><br>" +
+                        "<span style=\"color: #374550;\"><b>Verification Code: </b>" + rTenant.verificationKey + "</span><br><br>" +
+                        "<span style=\"color: #374550;\"><b><a href=\"" + config.WEB_URL + "/get-started?verificationCode=" + encodeURIComponent(rTenant.verificationKey) + "\">Click here if you are unable to paste the code</a></b></span>";
 
                     emailTemplateGenerator.generateSingleColumnEmail(
-                        'Marketplace Registration',
-                        'Welcome to VQ-Marketplace',
+                        "Marketplace Registration",
+                        "Welcome to VQ-Marketplace",
                         body,
                         function (html) {
                             emailService.sendTemplateEmail(rTenant.email, "Welcome to VQ-Marketplace", html);
@@ -128,14 +128,14 @@ const initRoutes = (app, express) => {
         });
     });
 
-    app.post('/api/trial-registration/step-2', (req, res) => {
+    app.post("/api/trial-registration/step-2", (req, res) => {
 
         const tenant = req.body;
         let encryptedToken = tenant.verificationCode;
         let apiKey;
 
         try {
-            encryptedToken = encryptedToken.split(' ').join('+');
+            encryptedToken = encryptedToken.split(" ").join("+");
             apiKey = cryptoService.decodeObj(encryptedToken);
         } catch (err) {
             return res.status(400)
@@ -179,15 +179,15 @@ const initRoutes = (app, express) => {
                         .then(() => {
                             res.send({
                                 tenant: rTenant
-                            })
+                            });
                         }, err => {
-                            res.status(400).send(err)
+                            res.status(400).send(err);
                         });
                 }, err => res.status(400).send(err));
         });
     });
 
-    app.post('/api/trial-registration/step-3', (req, res) => {
+    app.post("/api/trial-registration/step-3", (req, res) => {
         const tenant = req.body;
 
         getModels((err, tenantModels) => {
@@ -229,17 +229,17 @@ const initRoutes = (app, express) => {
      * password:hello
      * repeatPassword:hello
      */
-    app.post('/api/trial-registration/step-4', (req, res) => {
+    app.post("/api/trial-registration/step-4", (req, res) => {
         const tenant = req.body;
         const apiKey = tenant.apiKey;
         const tenantId = utils.stringToSlug(tenant.marketplaceName);
 
-        const reserveredKeywords = ['blog', rootDbName, 'help'];
+        const reserveredKeywords = ["blog", rootDbName, "help"];
 
         if (reserveredKeywords.indexOf(tenantId) !== -1) {
             return res.status(400)
                 .send({
-                    code: 'MARKETPLACE_NAME_NOT_ALLOWED'
+                    code: "MARKETPLACE_NAME_NOT_ALLOWED"
                 });
         }
 
@@ -269,7 +269,7 @@ const initRoutes = (app, express) => {
                     if (foundTenant) {
                         return cb({
                             httpCode: 400,
-                            code: 'MARKETPLACE_NAME_NOT_ALLOWED'
+                            code: "MARKETPLACE_NAME_NOT_ALLOWED"
                         });
                     }
 
@@ -287,8 +287,8 @@ const initRoutes = (app, express) => {
                         return setTimeout(() => {
                             return cb({
                                 httpCode: 400,
-                                code: 'WRONG_API_KEY'
-                            })
+                                code: "WRONG_API_KEY"
+                            });
                         }, 500);
                     }
 
@@ -343,15 +343,16 @@ const initRoutes = (app, express) => {
                 /**
                  * ... add new configuration here
                  */
-            }, (err, authData) => {
+            }, () => {
                 console.log("MARKETPLACE CREATED");
+
                 const marketplaceUrl =
                     config.production ?
-                        'https://' + tenantRef.tenantId + '.vqmarketplace.com/app' :
-                        'https://' + tenantRef.tenantId + '.vqmarketplace.com/app';
+                        "https://" + tenantRef.tenantId + ".vqmarketplace.com/app" :
+                        "https://" + tenantRef.tenantId + ".vqmarketplace.com/app";
 
                 var body = `<p style="color: #374550;">
-                                Your journey to run an online marketplace has just begun! You can now easily build and manage your online marketplace for free and at the same time go to market, get your first users and validate your idea.
+                                Your journey to run an online marketplace has just begun! You can now easily build and manage your online marketplace and at the same time go to market, get your first users and validate your idea.
                             </p>
                             <br>
                             <p style="color: #374550;"><b>Here is your marketplace information</b></p>
@@ -361,19 +362,30 @@ const initRoutes = (app, express) => {
                             <p style="color: #374550; margin-bottom: 0;"><b>- Your marketplace admin panel:</b> <a href="${marketplaceUrl}/admin">${marketplaceUrl}/admin</a></p>
                             <p style="color: #374550; margin:0;">This is where you, as the owner, can make changes to your marketplace.</p>
                             <br>
-                            <p style="color: #374550;"><b>We are here to help you</b></p>
-                            <p style="color: #374550;">VQ Labs does not leave you alone! Do not forget to check out <a href="${marketplaceUrl}/admin/get-started">our get started guide</a> in order to easily build your online marketplace. You have a question that couldn’t find an answer? Just contact the team by simply sending an email to <a href="mailto:info@vq-labs.com">info@vq-labs.com</a>. We will get back to you as soon as possible.
-</p>
+
+                            <p style="color: #374550;">
+                                Please beware that the marketplace platform is the BETA version which means it is under development based on the feedback we collect from BETA users.
+                                We would be happy if you also gave us feedback so that we can build a platform that meets your expectations. Anyone who gives feedback will be rewarded once VQ-Marketplace goes public.
+                            </p>
+
+                            <p style="color: #374550;">
+                                If you need any help with configuring your marketplace or you want to contact us for a feedback, send us an email to ani@vq-labs.com.
+                            </p>
                             <br>
                             <p>Cheers,<br>
-                            VQ Labs Team</p>`
+                            VQ Labs Team</p>`;
 
-                emailTemplateGenerator.generateSingleColumnEmail(
-                    'Marketplace Registration',
-                    'Welcome to your Marketplace, ' + tenantRef.firstName,
+                emailTemplateGenerator
+                .generateSingleColumnEmail(
+                    "Marketplace Registration",
+                    "Welcome to your Marketplace, " + tenantRef.firstName,
                     body,
-                    (html) => {
-                        emailService.sendTemplateEmail(tenantRef.email, "Welcome to your Marketplace", html);
+                    html => {
+                        emailService.sendTemplateEmail(
+                            tenantRef.email,
+                            `Welcome to your Marketplace, ${tenantRef.firstName}`,
+                            html
+                        );
                     }
                 );
             });
@@ -382,7 +394,7 @@ const initRoutes = (app, express) => {
         });
     });
 
-    app.post('/api/trial-registration/getTenantStatus', (req, res) => {
+    app.post("/api/trial-registration/getTenantStatus", (req, res) => {
         const apiKey = req.body.apiKey;
 
         getModels((err, tenantModels) => {
@@ -397,8 +409,8 @@ const initRoutes = (app, express) => {
                         apiKey: apiKey
                     },
                     attributes: [
-                        'status',
-                        'tenantId'
+                        "status",
+                        "tenantId"
                     ]
                 })
                 .then(tenant => {
@@ -409,7 +421,7 @@ const initRoutes = (app, express) => {
         });
     });
 
-    app.post('/api/trial-registration/resendVerificationCode', (req, res) => {
+    app.post("/api/trial-registration/resendVerificationCode", (req, res) => {
         const apiKey = req.body.apiKey;
 
         getModels((err, tenantModels) => {
@@ -441,13 +453,13 @@ const initRoutes = (app, express) => {
                         rTenant.verificationKey = cryptoService
                             .encodeObj(rTenant.apiKey);
 
-                        var body = '<p>You can copy and paste the verification code below or click the link to continue with the registration process:</p><br><br>' +
-                            '<b>Verification Code: </b>' + rTenant.verificationKey + '<br><br>' +
-                            '<b><a href="' + config.WEB_URL + '/get-started?verificationCode=' + encodeURIComponent(rTenant.verificationKey).replace(/%20/g, "+") + '">Click here if you are unable to paste the code</a></b>';
+                        var body = "<p>You can copy and paste the verification code below or click the link to continue with the registration process:</p><br><br>" +
+                            "<b>Verification Code: </b>" + rTenant.verificationKey + "<br><br>" +
+                            "<b><a href=\"" + config.WEB_URL + "/get-started?verificationCode=" + encodeURIComponent(rTenant.verificationKey).replace(/%20/g, "+") + "\">Click here if you are unable to paste the code</a></b>";
 
                         emailTemplateGenerator.generateSingleColumnEmail(
-                            'Marketplace Registration',
-                            'Welcome to VQ-Marketplace',
+                            "Marketplace Registration",
+                            "Welcome to VQ-Marketplace",
                             body,
                             function (html) {
                                 emailService.sendTemplateEmail(rTenant.email, "Your VQ-Marketplace Validation Code", html);

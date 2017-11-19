@@ -144,8 +144,6 @@ const sendNewTenant = (email, VERIFICATION_LINK) => {
 };
 
 const sendTemplateEmail = (email, subject, body) => {
-	const params = {};
-
 	const message = getRawMessagePrototype();
 
 	message.subject = subject;

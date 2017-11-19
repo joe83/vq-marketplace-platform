@@ -27,11 +27,11 @@ const create = (tenantId, cb) => {
       connection.connect();
 
       connection.query(
-        'CREATE DATABASE ?? CHARACTER SET utf8 COLLATE utf8_general_ci;',
+        "CREATE DATABASE ?? CHARACTER SET utf8 COLLATE utf8_general_ci;",
         [ tenantId ],
         (err, results, fields) => {
           if (err) {
-            if (err.code === 'ER_DB_CREATE_EXISTS') {
+            if (err.code === "ER_DB_CREATE_EXISTS") {
               return cb();
             }
 
@@ -51,7 +51,7 @@ const create = (tenantId, cb) => {
       const sequelize = new Sequelize(tenantId, config.VQ_DB_USER, config.VQ_DB_PASSWORD, {
         host: config.VQ_DB_HOST,
         logging: false,
-        dialect: 'mysql',
+        dialect: "mysql",
         pool: {
           max: 5,
           min: 0,

@@ -2,7 +2,7 @@ const async = require("async");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const config = require("./app/config/configProvider.js")();
-const morgan = require("morgan")
+const morgan = require("morgan");
 const db = require("./app/models/models");
 const tenantService = require("./app-tenant");
 const workers = require("./app/workers");
@@ -86,7 +86,7 @@ async.waterfall([
 
 				cb(null, tenants);
 			}, cb);
-		})
+		});
 	},
 	(tenants, cb) => {
 		async.eachLimit(

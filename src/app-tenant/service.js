@@ -1,11 +1,11 @@
 const async = require("async");
-const tenantDb = require('./models');
-const db = require('../app/models/models');
-const workers = require('../app/workers');
+const tenantDb = require("./models");
+const db = require("../app/models/models");
+const workers = require("../app/workers");
 const authCtrl = require("../app/controllers/authCtrl");
 
 const deployNewMarketplace = (tenantId, apiKey, password, repeatPassword, marketplaceConfig, cb) => {
-    const tenantModels = tenantDb.get('vq-marketplace');
+    const tenantModels = tenantDb.get("vq-marketplace");
     let marketplaceModels;
 
     let tenantRef;
@@ -27,7 +27,7 @@ const deployNewMarketplace = (tenantId, apiKey, password, repeatPassword, market
                         return cb({
                             code: "TENANT_NOT_FOUND",
                             httpCode: 400
-                        })
+                        });
                     }
 
                     tenantRef = rTenantRef;
