@@ -1,7 +1,6 @@
 /// <reference types="express-serve-static-core" />
 /// <reference types="serve-static" />
-
-const stripe = require("stripe")("sk_test_YBNHjAXJ2I1fKOrQaLTdP0e4");
+const stripe = require("../../shared-providers/stripe");
 const responseController = require("../controllers/responseController.js");
 const isLoggedIn = responseController.isLoggedIn;
 const isAdmin = responseController.isAdmin;
@@ -15,11 +14,15 @@ interface ResAccount {
     accountId: string
 }
 
+const STRIPE_OAUTH_URL = "https://connect.stripe.com/oauth/authorize?response_type=code&client_id=ca_BkVVRC7fm3enzQf5vokZONlatEfC6tiF&scope=read_write&state=*";
+
 const createAccount = (type: string, country: string, email: string, cb: (err: any, account?: any) => void) => {
-    stripe.accounts.create({
+    stripe
+    .accounts
+    .create({
         type,
         country,
-        email,
+        email
    })
    .then((rAccount: any) => {
        console.log(rAccount);
@@ -33,38 +36,46 @@ const createAccount = (type: string, country: string, email: string, cb: (err: a
 };
 
 module.exports = (app: any) => {
-    app.get("/api/user/payment/account/:networkId", isLoggedIn, (req: Express.Request, res: Express.Response) => {
-        const whereAndObj = [];
+    app.get(
+        "/api/user/payment/account/:networkId",
+        isLoggedIn,
+        (req: Express.Request, res: Express.Response) => {
+            const whereAndObj = [];
 
-        whereAndObj.push({ userId: (req as any).user.id });
+            whereAndObj.push({
+                userId: (req as any).user.id
+            });
 
-        if (((req as any).params as any).networkId) {
-            whereAndObj.push({ networkId: (req as any).params.networkId });
-        }
-        
-        (req as any).models
-        .userPaymentAccount
-        .findOne({
-            where: {
-                $and: whereAndObj
+            if (((req as any).params as any).networkId) {
+                whereAndObj.push({ networkId: (req as any).params.networkId });
             }
-        })
-        .then((paymentAccount: any) => {
-            if (!paymentAccount) {
-                return (res as any).status(404).send({
-                    code: "NOT_FOUND"
-                });
-            }
+            
+            (req as any)
+            .models
+            .userPaymentAccount
+            .findOne({
+                where: {
+                    $and: whereAndObj
+                }
+            })
+            .then((paymentAccount: any) => {
+                if (!paymentAccount) {
+                    return (res as any)
+                        .status(400)
+                        .send({
+                            code: "STRIPE_NOT_CONNECTED"
+                        });
+                }
 
-            // we map it and drop many attributes for security reasons!
-            const account: ResAccount = {
-                id: paymentAccount.id,
-                networkId: paymentAccount.networkId,
-                accountId: paymentAccount.accountId,
-            };
+                // we map it and drop many attributes for security reasons!
+                const account: ResAccount = {
+                    id: paymentAccount.id,
+                    networkId: paymentAccount.networkId,
+                    accountId: paymentAccount.accountId,
+                };
 
-            return (res as any).send(account);
-        }, (err: any) => (res as any).status(400).send(err));
+                return (res as any).send(account);
+            }, (err: any) => (res as any).status(400).send(err));
     });
 
     app.post("/api/user/payment/account/:networkId", isLoggedIn, (req: any, res: any) => {
@@ -97,17 +108,20 @@ module.exports = (app: any) => {
 
             createAccount("standard", rUser.billingAddresses[0].countryCode, rUser.vqUser.userEmails[0].email, (err, rAccount) => {
                 if (err) {
-                    if (err.type === "StripeInvalidRequestError") {
-                        return res.status(400).send({
-                            code: "STRIPE_ERROR",
-                            desc: err.message
-                        });
-                    }
+                    console.log(err);
 
-                    return res.status(400).send({
+                    const resError = {
                         code: "STRIPE_ERROR",
-                        desc: err.message
-                    });
+                        desc: err.message,
+                        redirectUrl: STRIPE_OAUTH_URL
+                            .replace("*", `${models.tenantId}`)
+                    };
+
+                    if (err.type === "StripeInvalidRequestError") {
+                        return res.status(400).send(resError);
+                    }
+                    
+                    return res.status(400).send(resError);
                 }
 
                 models
@@ -119,7 +133,8 @@ module.exports = (app: any) => {
                    publicKey: rAccount.keys.publishable,
                    secretKey: rAccount.keys.secret,
                    data: rAccount // json object
-                }).then((createdAccount: any) => {
+                })
+                .then((createdAccount: any) => {
                     const resAccount: ResAccount = {
                         id: createdAccount.id,
                         networkId: createdAccount.networkId,
@@ -140,7 +155,7 @@ module.exports = (app: any) => {
      * Creates an account for the marketplace
      * Stripe is the only one supported payment provider at a time
      */
-    app.get("/api/payment/account", isLoggedIn, isAdmin, (req: any, res: any) => {
+    app.get("/api/payment/account/:networkId", isLoggedIn, isAdmin, (req: any, res: any) => {
         const tenantModels = tenantDb.get("vq-marketplace");
         const models = req.models;
 
@@ -154,18 +169,20 @@ module.exports = (app: any) => {
         .then((rTenant: any) => {
             const resAccount: ResAccount = {
                 networkId: "stripe",
-                accountId: rTenant.stripeAccount.id
+                accountId: rTenant.stripeAccountId
             };
 
             return res.send(resAccount);
-        }, (err: any) => res.status(400).send(err));
+        }, (err: any) => {
+            res.status(400).send(err)
+        });
     });
 
     /**
      * Creates an account for the marketplace
      * Stripe is the only one supported payment provider at a time
      */
-    app.post("/api/payment/account", isLoggedIn, isAdmin, (req: any, res: any) => {
+    app.post("/api/payment/account/:networkId", isLoggedIn, isAdmin, (req: any, res: any) => {
         const tenantModels = tenantDb.get("vq-marketplace");
         const models = req.models;
 
@@ -179,17 +196,19 @@ module.exports = (app: any) => {
         .then((rTenant: any) => {
             createAccount("standard", rTenant.country, rTenant.email, (err, rAccount) => {
                 if (err) {
-                    if (err.type === "StripeInvalidRequestError") {
-                        return res.status(400).send({
-                            code: "STRIPE_ERROR",
-                            desc: err.message
-                        });
-                    }
+                    console.log(err);
 
-                    return res.status(400).send({
+                    const resError = {
                         code: "STRIPE_ERROR",
-                        desc: err.message
-                    });
+                        desc: err.message,
+                        redirectUrl: STRIPE_OAUTH_URL.replace("*", models.tenantId)
+                    };
+
+                    if (err.type === "StripeInvalidRequestError") {
+                        return res.status(400).send(resError);
+                    }
+                    
+                    return res.status(400).send(resError);
                 }
 
                 rTenant

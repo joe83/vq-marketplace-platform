@@ -1,13 +1,15 @@
 const async = require("async");
 const randomstring = require("randomstring");
 const tenantDb = require("./models");
+const db = require("../app/models/models");
 const config = require("../app/config/configProvider.js")();
 const utils = require("../app/utils");
 const cryptoService = require("../app/services/cryptoService");
 const emailService = require("../app/services/emailService.js");
 const emailTemplateGenerator = require("../app/services/emailTemplateGenerator.js");
-
+const configProvider = require("../app/config/configProvider");
 const service = require("./service");
+const request = require("request");
 
 const rootDbName = "vq-marketplace";
 let models = null;
@@ -30,6 +32,123 @@ const getModels = cb => {
 
 const initRoutes = (app, express) => {
     app.use(express.static(__dirname + "/public"));
+
+    app.get("/cb/stripe", (req, res) => {
+        const tenantId = req.query.state;
+        const stripeAuthCode = req.query.code;
+
+        request
+        .post({
+            url: "https://connect.stripe.com/oauth/token",
+            form: {
+                grant_type: "authorization_code",
+                client_id: configProvider().STRIPE_ID,
+                code: stripeAuthCode,
+                client_secret: configProvider().STRIPE_SECRET
+            }
+        }, (err, response, body) => {
+            if (err) {
+                res.status(400).send(err);
+
+                return;
+            }
+
+            const stripeAccountAccess = JSON.parse(body);
+
+            if (stripeAccountAccess.error) {
+                res.status(400).send(stripeAccountAccess);
+                
+                return;
+            }
+
+            getModels((err, tenantModels) => {
+                tenantModels
+                .tenant
+                .findOne({
+                    where: {
+                        tenantId
+                    }
+                })
+                .then(tenantRef => {
+                    if (!tenantRef) {
+                        res.status(400).send({
+                            code: "TENANT_NOT_FOUND"
+                        });
+
+                        return;
+                    }
+
+                    const models = db.get(tenantId);
+
+                    if (!models) {
+                        res.status(400).send({
+                            code: "TENANT_NOT_FOUND"
+                        });
+                    }
+
+                    models
+                    .userEmail
+                    .findOne({
+                        where: {
+                            email: tenantRef.email
+                        }
+                    })
+                    .then(userRef => {
+                        async
+                        .parallel([
+                            cb => models
+                            .userPaymentAccount
+                            .findOne({
+                                where: {
+                                    $and: [
+                                        {
+                                            networkId: "stripe"
+                                        }, {
+                                            userId: userRef.id
+                                        }
+                                    ]
+                                }
+                            })
+                            .then(paymentAccount => {
+                                if (paymentAccount) {
+                                    return cb();
+                                }
+
+                                models
+                                .userPaymentAccount
+                                .create({
+                                    userId: userRef.id,
+                                    accountId: stripeAccountAccess.stripe_user_id,
+                                    networkId: "stripe"
+                                }, () => cb(), cb);
+                            }, cb),
+                            cb => {
+                                if (tenantRef.stripeAccountId) {
+                                    return cb();
+                                }
+
+                                tenantRef
+                                .update({
+                                    stripeAccountId: stripeAccountAccess.stripe_user_id
+                                })
+                                .then(() => {
+                                    cb();
+                                }, cb);
+                            }
+                        ], err => {
+                            if (err) {
+                                return res.status(400).send(err);
+                            }
+
+                            res.redirect(
+                                `https://${models.tenantId}.vqmarketplace.com/app/admin/payments`
+                            );
+                        });
+                    }, err => res.status(400).send(err));
+                });
+            });
+        });
+    });
 
     app.get("/api/tenant", (req, res) => {
         getModels((err, tenantModels) => {
@@ -350,7 +469,7 @@ const initRoutes = (app, express) => {
                     config.production ?
                         "https://" + tenantRef.tenantId + ".vqmarketplace.com/app" :
                         "https://" + tenantRef.tenantId + ".vqmarketplace.com/app";
-
+                        
                 var body = `<p style="color: #374550;">
                                 Your journey to run an online marketplace has just begun! You can now easily build and manage your online marketplace and at the same time go to market, get your first users and validate your idea.
                             </p>
@@ -362,7 +481,7 @@ const initRoutes = (app, express) => {
                             <p style="color: #374550; margin-bottom: 0;"><b>- Your marketplace admin panel:</b> <a href="${marketplaceUrl}/admin">${marketplaceUrl}/admin</a></p>
                             <p style="color: #374550; margin:0;">This is where you, as the owner, can make changes to your marketplace.</p>
                             <br>
-
+                            
                             <p style="color: #374550;">
                                 Please beware that the marketplace platform is the BETA version which means it is under development based on the feedback we collect from BETA users.
                                 We would be happy if you also gave us feedback so that we can build a platform that meets your expectations. Anyone who gives feedback will be rewarded once VQ-Marketplace goes public.

@@ -27,7 +27,9 @@ const getConfig = () => {
 			"AWS_S3_REGION": "eu-central-1",
 			"AWS_S3_ACCESS_KEY_ID": null,
 			"AWS_S3_SECRET_ACCESS_KEY": null,
-			"mandrill": null
+			"mandrill": null,
+			"STRIPE_ID": null,
+			"STRIPE_SECRET": null
 		};
 	}
 
@@ -45,7 +47,9 @@ const getConfig = () => {
 		"AWS_S3_REGION": "eu-central-1",
 		"AWS_S3_ACCESS_KEY_ID": null,
 		"AWS_S3_SECRET_ACCESS_KEY": null,
-		"mandrill": null
+		"mandrill": null,
+		"STRIPE_ID": null,
+		"STRIPE_SECRET": null
 	};
 };
 
