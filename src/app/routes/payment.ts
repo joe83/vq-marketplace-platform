@@ -167,6 +167,12 @@ module.exports = (app: any) => {
             }
         })
         .then((rTenant: any) => {
+            if (!rTenant.stripeAccountId) {
+                return res.status(400).send({
+                    code: "STRIPE_NOT_CONNECTED"
+                });
+            }
+
             const resAccount: ResAccount = {
                 networkId: "stripe",
                 accountId: rTenant.stripeAccountId
