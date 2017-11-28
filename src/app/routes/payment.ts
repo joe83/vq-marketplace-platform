@@ -35,7 +35,77 @@ const createAccount = (type: string, country: string, email: string, cb: (err: a
    });
 };
 
+interface vqExpressRequest extends Express.Request {
+    models: any;
+    params: any;
+    body: any;
+}
+
 module.exports = (app: any) => {
+    app.get(
+        "/api/payment-object/:provider/:objType/:objId",
+        isLoggedIn,
+        (req: vqExpressRequest, res: Express.Response) => {
+            /**
+             * Here we pass the call to the payment gateway to retrive details
+             */
+
+            switch (req.params.provider) {
+                case "stripe":
+                    // @todo
+                    break;
+
+                case "barion":
+                    // @todo
+                    break;
+
+                default:
+                // @todo
+            }
+
+
+            (res as any).send("NOT IMPLEMENTED YET");
+        });
+
+    app.get(
+        "/api/payment-object/:provider/:objType",
+        isLoggedIn,
+        (req: vqExpressRequest, res: Express.Response) => {
+            req
+            .models
+            .paymentObject
+            .findAll({
+                where: {
+                    $and: [
+                        { provider: req.params.provider },
+                        { type: req.params.type }
+                    ]
+                }
+            })
+            .then(
+                (data: any) => (res as any).send(data),
+                (err: any) => (res as any).status(400).send(err)
+            );
+        });
+
+    app.post(
+        "/api/payment-object/:provider/:type",
+        isLoggedIn,
+        (req: vqExpressRequest, res: Express.Response) => {
+            req
+            .models
+            .paymentObject
+            .create({
+                provider: req.params.provider,
+                type: req.params.type,
+                objId: req.body.objId
+            })
+            .then(
+                (data: any) => (res as any).send(data),
+                (err: any) => (res as any).status(400).send(err)
+            );
+        });
+
     app.get(
         "/api/user/payment/account/:networkId",
         isLoggedIn,

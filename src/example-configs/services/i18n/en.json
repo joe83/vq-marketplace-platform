@@ -224,6 +224,7 @@
     "HEADER_LISTINGS": "Browse",
     "HEADER_SUPPLY_LISTINGS": "Browse",
     "DEMAND_LISTING_CALL_TO_ACTION": "Send a request",
+    "SUPPLY_LISTING_CALL_TO_ACTION": "Send an application",
     "MARK_DONE": "Job completed",
     "REQUEST_ACTION_MARK_DONE": "Job completed",
     "REQUEST_ACTION_MARK_DONE_SUCCESS": "Success",
