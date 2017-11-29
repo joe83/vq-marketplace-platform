@@ -7,7 +7,6 @@ const utils = require("../app/utils");
 const cryptoService = require("../app/services/cryptoService");
 const emailService = require("../app/services/emailService.js");
 const emailTemplateGenerator = require("../app/services/emailTemplateGenerator.js");
-const configProvider = require("../app/config/configProvider");
 const service = require("./service");
 const request = require("request");
 
@@ -37,116 +36,139 @@ const initRoutes = (app, express) => {
         const tenantId = req.query.state;
         const stripeAuthCode = req.query.code;
 
-        request
-        .post({
-            url: "https://connect.stripe.com/oauth/token",
-            form: {
-                grant_type: "authorization_code",
-                client_id: configProvider().STRIPE_ID,
-                code: stripeAuthCode,
-                client_secret: configProvider().STRIPE_SECRET
-            }
-        }, (err, response, body) => {
-            if (err) {
-                res.status(400).send(err);
+        let tenantRef;
 
-                return;
-            }
+        async.waterfall([
+            cb => {
+                getModels((err, tenantModels) => {
+                    tenantModels
+                    .tenant
+                    .findOne({
+                        where: {
+                            tenantId
+                        }
+                    })
+                    .then(rTenantRef => {
+                        if (!rTenantRef) {
+                            cb({
+                                code: "TENANT_NOT_FOUND"
+                            });
+        
+                            return;
+                        }
+        
+                        tenantRef = rTenantRef;
 
-            const stripeAccountAccess = JSON.parse(body);
+                        cb();
+                    });
+                });
+            },
+            cb => {
+                if (!tenantRef.stripeAccount) {
+                    return cb({
+                        code: "PAYMENTS_NOT_CONFIGURED"
+                    });
+                }
 
-            if (stripeAccountAccess.error) {
-                res.status(400).send(stripeAccountAccess);
-                
-                return;
-            }
-
-            getModels((err, tenantModels) => {
-                tenantModels
-                .tenant
-                .findOne({
-                    where: {
-                        tenantId
+                request
+                .post({
+                    url: "https://connect.stripe.com/oauth/token",
+                    form: {
+                        grant_type: "authorization_code",
+                        code: stripeAuthCode,
+                        client_id: tenantRef.stripeAccount.keys.publishable,
+                        client_secret: tenantRef.stripeAccount.keys.secret,
                     }
-                })
-                .then(tenantRef => {
-                    if (!tenantRef) {
-                        res.status(400).send({
-                            code: "TENANT_NOT_FOUND"
+                }, (err, response, body) => {
+                    if (err) {
+                        res.status(400).send(err);
+        
+                        return;
+                    }
+        
+                    const stripeAccountAccess = JSON.parse(body);
+        
+                    if (stripeAccountAccess.error) {
+                        cb({
+                            code: "PAYMENTS_ERROR",
+                            err: stripeAccountAccess
                         });
-
+                        
                         return;
                     }
 
-                    const models = db.get(tenantId);
-
-                    if (!models) {
-                        res.status(400).send({
-                            code: "TENANT_NOT_FOUND"
-                        });
-                    }
-
-                    models
-                    .userEmail
-                    .findOne({
-                        where: {
-                            email: tenantRef.email
-                        }
-                    })
-                    .then(userRef => {
-                        async
-                        .parallel([
-                            cb => models
-                            .userPaymentAccount
-                            .findOne({
-                                where: {
-                                    $and: [
-                                        {
-                                            networkId: "stripe"
-                                        }, {
-                                            userId: userRef.id
-                                        }
-                                    ]
-                                }
-                            })
-                            .then(paymentAccount => {
-                                if (paymentAccount) {
-                                    return cb();
-                                }
-
-                                models
-                                .userPaymentAccount
-                                .create({
-                                    userId: userRef.id,
-                                    accountId: stripeAccountAccess.stripe_user_id,
-                                    networkId: "stripe"
-                                }, () => cb(), cb);
-                            }, cb),
-                            cb => {
-                                if (tenantRef.stripeAccountId) {
-                                    return cb();
-                                }
-
-                                tenantRef
-                                .update({
-                                    stripeAccountId: stripeAccountAccess.stripe_user_id
-                                })
-                                .then(() => {
-                                    cb();
-                                }, cb);
-                            }
-                        ], err => {
-                            if (err) {
-                                return res.status(400).send(err);
-                            }
-
-                            res.redirect(
-                                `https://${models.tenantId}.vqmarketplace.com/app/admin/payments`
-                            );
-                        });
-                    }, err => res.status(400).send(err));
+                    cb(undefined, stripeAccountAccess);
                 });
-            });
+            },
+            (stripeAccountAccess, cb) => {
+                const models = db.get(tenantId);
+            
+                if (!models) {
+                    res.status(400).send({
+                        code: "TENANT_NOT_FOUND"
+                    });
+                }
+            
+                models
+                .userEmail
+                .findOne({
+                    where: {
+                        email: tenantRef.email
+                    }
+                })
+                .then(userRef => {
+                    async
+                    .parallel([
+                        cb => models
+                        .userPaymentAccount
+                        .findOne({
+                            where: {
+                                $and: [
+                                    {
+                                        networkId: "stripe"
+                                    }, {
+                                        userId: userRef.id
+                                    }
+                                ]
+                            }
+                        })
+                        .then(paymentAccount => {
+                            if (paymentAccount) {
+                                return cb();
+                            }
+
+                            models
+                            .userPaymentAccount
+                            .create({
+                                userId: userRef.id,
+                                accountId: stripeAccountAccess.stripe_user_id,
+                                networkId: "stripe"
+                            }, () => cb(), cb);
+                        }, cb),
+                        cb => {
+                            if (tenantRef.stripeAccountId) {
+                                return cb();
+                            }
+
+                            tenantRef
+                            .update({
+                                stripeAccountId: stripeAccountAccess.stripe_user_id
+                            })
+                            .then(() => {
+                                cb();
+                            }, cb);
+                        }
+                    ], cb);
+                });
+             }
+        ], err => {
+            if (err) {
+                return res.status(400).send(err);
+            }
+
+            res.redirect(
+                `https://${models.tenantId}.vqmarketplace.com/app/admin/payments`
+            );
         });
     });
 
