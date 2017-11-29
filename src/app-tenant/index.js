@@ -162,7 +162,19 @@ const initRoutes = (app, express) => {
                     where: req.query
                 })
                 .then((rTenants) => {
-                    res.send(rTenants.map(_ => _.tenantId));
+                    const processedTenants = rTenants
+                        .map(_ => {
+                            return {
+                                tenantId: _.tenantId,
+                                stripePublicKey: _.stripeAccount ? _.stripeAccount.keys.publishable : undefined,
+
+                                // other payment public keys...
+                                // @bariontodo
+                                barionPublicKey: "NOT_IMPLEMENTED_YET"
+                            };
+                        });
+
+                    res.send(processedTenants);
                 }, err => res.status(400).send(err));
         });
     });
