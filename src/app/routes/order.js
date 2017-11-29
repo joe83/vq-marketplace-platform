@@ -1,6 +1,6 @@
 const async = require("async");
 const responseController = require("../controllers/responseController");
-const models = require("../models/models");
+const stripe = require("../../shared-providers/stripe");
 const isLoggedIn = responseController.isLoggedIn;
 const sendResponse = responseController.sendResponse;
 const orderEmitter = require("../events/order");
@@ -10,16 +10,81 @@ const requestCtrl = require("../controllers/requestCtrl");
 const RESOURCE = "order";
 
 module.exports = app => {
+
+    /**
+     * Order can only be created from a request sent to supply or demand listing.
+     * Orders can only by created by Demand Users.
+     */
     app.post(`/api/${RESOURCE}`,
         isLoggedIn,
         (req, res) => {
+            let createdOrder, requestRef, taskRef, userPaymentAccount;
             const order = req.body;
-            var createdOrder;
+            
 
             order.userId = req.user.id;
             order.status = req.models.order.ORDER_STATUS.PENDING;
 
             async.waterfall([
+                // gets the request
+                cb => req.models.task
+                    .findById(order.taskId)
+                    .then(rTask => {
+                        taskRef = rTask;
+
+                        cb();
+                    }, cb),
+
+                // gets the request
+                cb => req.models.request
+                    .findById(order.requestId)
+                    .then(rRequest => {
+                        requestRef = rRequest;
+
+                        if (requestRef.status !== req.models.request.REQUEST_STATUS.PENDING) {
+                            return cb({
+                                httpCode: 400,
+                                code: "WRONG_REQUEST_STATUS"
+                            });
+                        }
+
+                        cb();
+                    }, cb),
+
+                // gets payment account of the supplier
+                cb => {
+                    const DEMAND_TASK_TYPE_CODE = 1;
+
+                    const supplyUserId = taskRef.taskType === DEMAND_TASK_TYPE_CODE ?
+                        requestRef.fromUserId :
+                        requestRef.toUserId;
+
+                    req
+                    .models
+                    .userPaymentAccount
+                    .findOne({
+                        where: {
+                            $and: [
+                                { userId: supplyUserId },
+                                { networkId: "stripe" }
+                            ]
+                        }
+                    })
+                    .then(rUserPaymentAccount => {
+                        if (!rUserPaymentAccount) {
+                            return cb({
+                                httpCode: 400,
+                                code: "NO_SUPPLY_PAYMENT_ACCOUNT"
+                            });
+                        }
+
+                        userPaymentAccount = rUserPaymentAccount;
+
+                        cb();
+                    }, cb);
+                },
+
+                // creating initial order
                 cb => req.models.order
                     .create(order)
                     .then(rCreatedOrder => {
@@ -27,17 +92,123 @@ module.exports = app => {
 
                         cb();
                     }, cb),
-                cb => req.models.request
+                cb => {
+                    let provisionConfig, paymentObjectCard, charge;
+
+                    async.waterfall([
+                        cb => {
+                            req
+                            .models
+                            .appConfig
+                            .findOne({
+                                fieldKey: "MARKETPLACE_PROVISION",
+                            })
+                            .then(rProvisionConfig => {
+                                provisionConfig = rProvisionConfig;
+
+                                cb();
+                            }, cb);
+                        },
+                        cb => {
+                            req
+                            .models
+                            .paymentObject
+                            .findOne({
+                                where: {
+                                    $and: [
+                                        { userId: req.user.id },
+                                        { provider: "stripe" },
+                                        { type: "card" }
+                                    ]
+                                }
+                            })
+                            .then(rPaymentObjectCard => {
+                                if (!rPaymentObjectCard) {
+                                    return cb({
+                                        httpCode: 400,
+                                        code: "NO_PAYMENT_METHOD"
+                                    });
+                                }
+
+                                paymentObjectCard = rPaymentObjectCard;
+
+                                cb();
+                            }, cb);
+                        },
+                        cb => {
+                            const platformFeeRelative = Number(provisionConfig.fieldValue) || 0;
+                            const totalAmount = createdOrder.currency === "HUF" ?
+                                createdOrder.amount :
+                                createdOrder.amount * 100;
+
+                            const platformFees = totalAmount * platformFeeRelative;
+
+                            let amountToBeTransferred = totalAmount - platformFees;
+
+                            stripe
+                            .charges
+                            .create({
+                                capture: false,
+                                amount: totalAmount,
+                                currency: createdOrder.currency,
+                                description:
+                                `"${taskRef.title}" - BookingId: ${createdOrder.id}, UserId: ${req.user.id}, RequestId: ${createdOrder.requestId}`,
+                                source: paymentObjectCard.obj.id,
+                                destination: {
+                                    amount: amountToBeTransferred,
+                                    account: userPaymentAccount.accountId
+                                },
+                                metadata: {
+                                    orderId: createdOrder.id,
+                                    requestId: createdOrder.requestId,
+                                    userId: req.user.id 
+                                }
+                            }, (err, rCharge) => {
+                                if (err) {
+                                    return cb({
+                                        code: "PAYMENT_ERROR",
+                                        err
+                                    });
+                                }
+
+                                charge = rCharge;
+
+                                cb();
+                            });
+                        },
+                        cb => {
+                            req
+                            .models
+                            .paymentObject
+                            .create({
+                                userId: req.user.id,
+                                orderId: createdOrder.id,
+                                provider: "stripe",
+                                type: "charge",
+                                obj: charge,
+                            })
+                            .then(() => {
+                                return cb();
+                            }, cb);
+                        }
+                    ], cb);
+                },
+                cb => requestRef
                     .update({
                         status: req.models.request.REQUEST_STATUS.ACCEPTED
-                    }, {
-                        where: {
-                            id: order.requestId
-                        }
                     })
                     .then(() => cb(), cb),
+
+                /**
+                 * @configure-it start
+                 * THIS FUNCTIONALITY NEEDS TO BE REVIEWED AND MADE CONFIGURABLE
+                 */
+
+                // @todo: this needs to be made configurable!
                 cb => requestCtrl
                     .declineAllPendingRequestsForTask(req.models, order.taskId, cb),
+
+                // @todo: sometimes we do not want to refuse other requests!
                 cb => req.models.task
                     .update({
                         status: req.models.task.TASK_STATUS.BOOKED
@@ -47,6 +218,9 @@ module.exports = app => {
                         }
                     })
                     .then(() => cb(), cb)
+                /**
+                 * @configure-it end
+                 */
             ], err => {
                 if (err) {
                     return sendResponse(res, err);

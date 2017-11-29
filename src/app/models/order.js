@@ -38,7 +38,6 @@ module.exports = (sequelize, DataTypes) => {
       tableName: "order"
   });
 
-
   Order.associate = models => {
     Order.belongsTo(models.user);
     Order.belongsTo(models.task);

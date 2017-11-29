@@ -14,14 +14,17 @@ module.exports = (sequelize, DataTypes) => {
         },
         // we get it directly from payment gataway and store for further reference
         objId: {
-            allowNull: false,
             type: DataTypes.STRING,
-            required: true
+            required: false
+        },
+        // dumping data if needed
+        obj: {
+            type: DataTypes.JSON,
+            required: false
         }
     }, {
         tableName: "paymentObject"
     });
-  
   
     PaymentObject.associate = models => {
         PaymentObject.belongsTo(models.user);

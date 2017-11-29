@@ -1,11 +1,14 @@
 /// <reference types="express-serve-static-core" />
 /// <reference types="serve-static" />
+import * as async from "async";
+
 const stripe = require("../../shared-providers/stripe");
 const responseController = require("../controllers/responseController.js");
 const isLoggedIn = responseController.isLoggedIn;
 const isAdmin = responseController.isAdmin;
-
 const tenantDb = require("../../app-tenant/models");
+
+import { VQExpressRequest } from "../../core/interfaces";
 
 interface ResAccount {
     // id is present only if it is an user account!
@@ -35,17 +38,11 @@ const createAccount = (type: string, country: string, email: string, cb: (err: a
    });
 };
 
-interface vqExpressRequest extends Express.Request {
-    models: any;
-    params: any;
-    body: any;
-}
-
 module.exports = (app: any) => {
     app.get(
         "/api/payment-object/:provider/:objType/:objId",
         isLoggedIn,
-        (req: vqExpressRequest, res: Express.Response) => {
+        (req: VQExpressRequest, res: Express.Response) => {
             /**
              * Here we pass the call to the payment gateway to retrive details
              */
@@ -68,17 +65,18 @@ module.exports = (app: any) => {
         });
 
     app.get(
-        "/api/payment-object/:provider/:objType",
+        "/api/payment-object/:paymentProvider/:objType",
         isLoggedIn,
-        (req: vqExpressRequest, res: Express.Response) => {
+        (req: VQExpressRequest, res: Express.Response) => {
             req
             .models
             .paymentObject
             .findAll({
                 where: {
                     $and: [
-                        { provider: req.params.provider },
-                        { type: req.params.type }
+                        { userId: req.user.id },
+                        { provider: req.params.paymentProvider },
+                        { type: req.params.objType }
                     ]
                 }
             })
@@ -91,19 +89,52 @@ module.exports = (app: any) => {
     app.post(
         "/api/payment-object/:provider/:type",
         isLoggedIn,
-        (req: vqExpressRequest, res: Express.Response) => {
-            req
-            .models
-            .paymentObject
-            .create({
-                provider: req.params.provider,
-                type: req.params.type,
-                objId: req.body.objId
-            })
-            .then(
-                (data: any) => (res as any).send(data),
-                (err: any) => (res as any).status(400).send(err)
-            );
+        (req: VQExpressRequest, res: Express.Response) => {
+            async.waterfall([
+                (cb: any) => {
+                    if (req.params.type !== "card") {
+                        return cb();
+                    }
+
+                    // for security reasons we destroy all previous card tokens, so they cannot be used anymore
+                    req
+                    .models
+                    .paymentObject
+                    .destroy({
+                        where: {
+                            $and: [
+                                { type: "card" },
+                                { userId: req.user.id }
+                            ]
+                        }
+                    })
+                    .then(() => {
+                        cb();
+                    }, cb);
+                },
+                (cb: any) => {
+                    req
+                    .models
+                    .paymentObject
+                    .create({
+                        orderId: req.body.orderId,
+                        userId: req.user.id,
+                        provider: req.params.provider,
+                        type: req.params.type,
+                        objId: req.body.objId,
+                        obj: req.body.obj
+                    })
+                    .then((data: any) => cb(undefined, data), cb);
+                }
+            ], (err: any, data: any) => {
+                if (err) {
+                    (res as any).status(400).send(err);
+                    
+                    return;
+                }
+
+                (res as any).send(data);
+            });
         });
 
     app.get(

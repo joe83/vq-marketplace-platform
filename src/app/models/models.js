@@ -58,7 +58,7 @@ const create = (tenantId, cb) => {
           idle: 10000
         }
       });
-      
+
       fs.readdirSync(__dirname)
           .filter(file => {
               return (file.indexOf(".") !== 0) && (file !== "models.js");
@@ -73,7 +73,7 @@ const create = (tenantId, cb) => {
           db[modelName].associate(db);
         }
       });
-      
+
       db.tenantId = tenantId;
       db.seq = sequelize;
       db.Sequelize = Sequelize;
@@ -82,6 +82,7 @@ const create = (tenantId, cb) => {
 
       cb();
     },
+
     cb => {
       const models = tenantConnections[tenantId];
 

@@ -172,11 +172,13 @@ module.exports = app => {
 			);
 		});
 
-	app.get("/api/admin/order", isLoggedIn, isAdmin, (req, res) => req.models.request
+	app.get("/api/admin/order", isLoggedIn, isAdmin, (req, res) => req.models.order
 		.findAll({
 			order: [[ "createdAt", "DESC" ]],
 			include: [
-				{ model: req.models.task }
+				{ model: req.models.task },
+				{ model: req.models.user },
+				{ model: req.models.request }
 			]
 		})
 		.then(data => res.send(data)));

@@ -1,4 +1,6 @@
 {
+    "PAYMENT_SETTINGS_HEADER": "Payment Settings",
+    "PAYMENT_SETTINGS_DESC": "Connect your Stripe payment account to be able to receive payouts.",
     "MY_LISTINGS": "My listings",
     "MY_REQUESTS": "My requests",
     "NEW_SUPPLY_LISTING_ADDRESS_HEADER": "Location of the listing",
