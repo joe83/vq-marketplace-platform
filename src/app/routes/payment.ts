@@ -18,7 +18,9 @@ interface ResAccount {
     accountId: string
 }
 
-let STRIPE_OAUTH_URL = "https://connect.stripe.com/oauth/authorize?response_type=code&scope=read_write&state=*";
+let STRIPE_OAUTH_URL = "https://connect.stripe.com/oauth/authorize";
+
+STRIPE_OAUTH_URL += "?response_type=code&scope=read_write&stripe_landing=register&state=*";
 
 const createAccount = (type: string, country: string, email: string, cb: (err: any, account?: any) => void) => {
     stripe
