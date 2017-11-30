@@ -33,12 +33,22 @@ const initRoutes = (app, express) => {
     app.use(express.static(__dirname + "/public"));
 
     app.get("/cb/stripe", (req, res) => {
-        const tenantId = req.query.state;
+        
         const stripeAuthCode = req.query.code;
 
-        let tenantRef;
+
+        let tenantId, userId;
         let appConfig;
 
+        try {
+            const splitted = req.query.state.split("@");
+            
+            tenantId = splitted[0];
+            userId = splitted[1];
+        } catch (err) {
+            return res.status(400).send("Missing state param");
+        }
+        
         const models = db.get(tenantId);
         
         if (!models) {
@@ -57,30 +67,6 @@ const initRoutes = (app, express) => {
 
                     cb();
                 }, cb);
-            },
-            cb => {
-                getModels((err, tenantModels) => {
-                    tenantModels
-                    .tenant
-                    .findOne({
-                        where: {
-                            tenantId
-                        }
-                    })
-                    .then(rTenantRef => {
-                        if (!rTenantRef) {
-                            cb({
-                                code: "TENANT_NOT_FOUND"
-                            });
-        
-                            return;
-                        }
-        
-                        tenantRef = rTenantRef;
-
-                        cb();
-                    });
-                });
             },
             cb => {
                 const stripePublicKey = appConfig.find(_ => _.fieldKey === "STRIPE_PUBLIC_KEY" && _.fieldValue);
@@ -123,14 +109,6 @@ const initRoutes = (app, express) => {
                 });
             },
             (stripeAccountAccess, cb) => {
-                models
-                .userEmail
-                .findOne({
-                    where: {
-                        email: tenantRef.email
-                    }
-                })
-                .then(userRef => {
                     async
                     .parallel([
                         cb => models
@@ -141,7 +119,7 @@ const initRoutes = (app, express) => {
                                     {
                                         networkId: "stripe"
                                     }, {
-                                        userId: userRef.id
+                                        userId: userId
                                     }
                                 ]
                             }
@@ -154,13 +132,12 @@ const initRoutes = (app, express) => {
                             models
                             .userPaymentAccount
                             .create({
-                                userId: userRef.id,
+                                userId,
                                 accountId: stripeAccountAccess.stripe_user_id,
                                 networkId: "stripe"
                             }, () => cb(), cb);
                         }, cb)
                     ], cb);
-                });
              }
         ], err => {
             if (err) {
@@ -168,7 +145,7 @@ const initRoutes = (app, express) => {
             }
 
             res.redirect(
-                `https://${models.tenantId}.vqmarketplace.com/app/admin/payments`
+                `https://${models.tenantId}.vqmarketplace.com/app/account/payments`
             );
         });
     });

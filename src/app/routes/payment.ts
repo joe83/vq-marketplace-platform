@@ -187,7 +187,7 @@ module.exports = (app: any) => {
         const models = req.models;
 
         let userRef: any;
-        let redirectUrl = STRIPE_OAUTH_URL.replace("*", `${models.tenantId}`);
+        let redirectUrl = STRIPE_OAUTH_URL.replace("*", `${models.tenantId}@${req.user.id}`);
 
         async.waterfall([
             (cb: any) => {
