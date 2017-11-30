@@ -84,7 +84,7 @@ const initRoutes = (app, express) => {
             },
             cb => {
                 const stripePublicKey = appConfig.find(_ => _.fieldKey === "STRIPE_PUBLIC_KEY" && _.fieldValue);
-                const stripePrivateKey = appConfig.find(_ => _.fieldKey === "STRIPE_PUBLIC_KEY" && _.fieldValue);
+                const stripePrivateKey = appConfig.find(_ => _.fieldKey === "STRIPE_PRIVATE_KEY" && _.fieldValue);
 
                 if (!stripePublicKey || !stripePrivateKey) {
                     return cb({
