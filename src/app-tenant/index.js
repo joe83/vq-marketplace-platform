@@ -37,8 +37,27 @@ const initRoutes = (app, express) => {
         const stripeAuthCode = req.query.code;
 
         let tenantRef;
+        let appConfig;
+
+        const models = db.get(tenantId);
+        
+        if (!models) {
+            res.status(400).send({
+                code: "TENANT_NOT_FOUND"
+            });
+        }
 
         async.waterfall([
+            cb => {
+                models
+                .appConfig
+                .findAll()
+                .then(rAppConfig => {
+                    appConfig = rAppConfig;
+
+                    cb();
+                }, cb);
+            },
             cb => {
                 getModels((err, tenantModels) => {
                     tenantModels
@@ -64,7 +83,10 @@ const initRoutes = (app, express) => {
                 });
             },
             cb => {
-                if (!tenantRef.stripeAccount) {
+                const stripePublicKey = appConfig.find(_ => _.fieldKey === "STRIPE_PUBLIC_KEY" && _.fieldValue);
+                const stripePrivateKey = appConfig.find(_ => _.fieldKey === "STRIPE_PUBLIC_KEY" && _.fieldValue);
+
+                if (!stripePublicKey || !stripePrivateKey) {
                     return cb({
                         code: "PAYMENTS_NOT_CONFIGURED"
                     });
@@ -76,8 +98,8 @@ const initRoutes = (app, express) => {
                     form: {
                         grant_type: "authorization_code",
                         code: stripeAuthCode,
-                        client_id: tenantRef.stripeAccount.keys.publishable,
-                        client_secret: tenantRef.stripeAccount.keys.secret,
+                        client_id: stripePublicKey.fieldValue,
+                        client_secret: stripePrivateKey.fieldValue
                     }
                 }, (err, response, body) => {
                     if (err) {
@@ -101,14 +123,6 @@ const initRoutes = (app, express) => {
                 });
             },
             (stripeAccountAccess, cb) => {
-                const models = db.get(tenantId);
-            
-                if (!models) {
-                    res.status(400).send({
-                        code: "TENANT_NOT_FOUND"
-                    });
-                }
-            
                 models
                 .userEmail
                 .findOne({
@@ -144,20 +158,7 @@ const initRoutes = (app, express) => {
                                 accountId: stripeAccountAccess.stripe_user_id,
                                 networkId: "stripe"
                             }, () => cb(), cb);
-                        }, cb),
-                        cb => {
-                            if (tenantRef.stripeAccountId) {
-                                return cb();
-                            }
-
-                            tenantRef
-                            .update({
-                                stripeAccountId: stripeAccountAccess.stripe_user_id
-                            })
-                            .then(() => {
-                                cb();
-                            }, cb);
-                        }
+                        }, cb)
                     ], cb);
                 });
              }

@@ -222,14 +222,16 @@ module.exports = (app: any) => {
                 }, cb);
             },
             (cb: any) => {
-                req.models.appConfig
+                req
+                .models
+                .appConfig
                 .findOne({
                     where: {
                         fieldKey: "STRIPE_CLIENT_ID"
                     }
                 })
                 .then((stripeConfig: any) => {
-                    if (!stripeConfig.fieldValue) {
+                    if (!stripeConfig || !stripeConfig.fieldValue) {
                         return cb({
                             code: "PAYMENTS_NOT_CONFIGURED"
                         });
