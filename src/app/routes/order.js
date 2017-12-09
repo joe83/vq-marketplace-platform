@@ -114,7 +114,7 @@ module.exports = app => {
                                 stripePrivateKey = rPaymentConfigs
                                     .find(_=> _.fieldKey === "STRIPE_PRIVATE_KEY");
 
-                                if (!stripePrivateKey) {
+                                if (!stripePrivateKey || !stripePrivateKey.fieldValue) {
                                     cb({
                                         code: "PAYMENTS_ERROR"
                                     });

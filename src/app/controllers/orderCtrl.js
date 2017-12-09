@@ -5,9 +5,10 @@ const requestEmitter = require("../events/request");
 const utils = require("../utils");
 
 const settleOrder = (models, orderId, userId, cb) => {
-    var requestId;
-    var order;
-    
+    let requestId;
+    let order;
+    let stripePrivateKey;
+
     userId = Number(userId);
     orderId = Number(orderId);
     
@@ -39,12 +40,38 @@ const settleOrder = (models, orderId, userId, cb) => {
 
                 return cb();
             }, cb),
+        cb => {
+            models
+            .appConfig
+            .findAll({
+                $where: {
+                    $or: [
+                        { fieldKey: "MARKETPLACE_PROVISION" },
+                        { fieldKey: "STRIPE_PRIVATE_KEY" }
+                    ]
+                }
+            })
+            .then(rPaymentConfigs => {
+                stripePrivateKey = rPaymentConfigs
+                    .find(_=> _.fieldKey === "STRIPE_PRIVATE_KEY");
+
+                if (!stripePrivateKey || !stripePrivateKey.fieldValue) {
+                    cb({
+                        code: "PAYMENTS_ERROR"
+                    });
+
+                    return;
+                }
+
+                cb();
+            }, cb);
+        },
         /**
          * WE CAPTURE THE CHARGE!
          */
         cb => {
             const stripe = stripeProvider
-                .getTenantStripe();
+                .getTenantStripe(stripePrivateKey.fieldValue);
 
             models
             .paymentObject
@@ -57,6 +84,15 @@ const settleOrder = (models, orderId, userId, cb) => {
                 }
             })
             .then(rCharge => {
+                if (!rCharge) {
+                    cb({
+                        code: "NO_ORDER_CHARGE",
+                        desc: "No charge has been created for this booking."
+                    });
+
+                    return;
+                }
+
                 stripe
                 .charges
                 .capture(rCharge.obj.id, err => {
