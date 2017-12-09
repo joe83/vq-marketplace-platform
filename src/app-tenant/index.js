@@ -33,9 +33,7 @@ const initRoutes = (app, express) => {
     app.use(express.static(__dirname + "/public"));
 
     app.get("/cb/stripe", (req, res) => {
-        
         const stripeAuthCode = req.query.code;
-
 
         let tenantId, userId;
         let appConfig;
@@ -52,9 +50,13 @@ const initRoutes = (app, express) => {
         const models = db.get(tenantId);
         
         if (!models) {
-            res.status(400).send({
+            res
+            .status(400)
+            .send({
                 code: "TENANT_NOT_FOUND"
             });
+
+            return;
         }
 
         async.waterfall([
@@ -73,9 +75,11 @@ const initRoutes = (app, express) => {
                 const stripePrivateKey = appConfig.find(_ => _.fieldKey === "STRIPE_PRIVATE_KEY" && _.fieldValue);
 
                 if (!stripePublicKey || !stripePrivateKey) {
-                    return cb({
+                    cb({
                         code: "PAYMENTS_NOT_CONFIGURED"
                     });
+
+                    return;
                 }
 
                 request
@@ -89,7 +93,7 @@ const initRoutes = (app, express) => {
                     }
                 }, (err, response, body) => {
                     if (err) {
-                        res.status(400).send(err);
+                        cb(err);
         
                         return;
                     }
@@ -109,35 +113,35 @@ const initRoutes = (app, express) => {
                 });
             },
             (stripeAccountAccess, cb) => {
-                    async
-                    .parallel([
-                        cb => models
-                        .userPaymentAccount
-                        .findOne({
-                            where: {
-                                $and: [
-                                    {
-                                        networkId: "stripe"
-                                    }, {
-                                        userId: userId
-                                    }
-                                ]
-                            }
-                        })
-                        .then(paymentAccount => {
-                            if (paymentAccount) {
-                                return cb();
-                            }
+                async
+                .parallel([
+                    cb => models
+                    .userPaymentAccount
+                    .findOne({
+                        where: {
+                            $and: [
+                                {
+                                    networkId: "stripe"
+                                }, {
+                                    userId: userId
+                                }
+                            ]
+                        }
+                    })
+                    .then(paymentAccount => {
+                        if (paymentAccount) {
+                            return cb();
+                        }
 
-                            models
-                            .userPaymentAccount
-                            .create({
-                                userId,
-                                accountId: stripeAccountAccess.stripe_user_id,
-                                networkId: "stripe"
-                            }, () => cb(), cb);
-                        }, cb)
-                    ], cb);
+                        models
+                        .userPaymentAccount
+                        .create({
+                            userId,
+                            accountId: stripeAccountAccess.stripe_user_id,
+                            networkId: "stripe"
+                        }, () => cb(), cb);
+                    }, cb)
+                ], cb);
              }
         ], err => {
             if (err) {
