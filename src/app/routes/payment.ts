@@ -2,7 +2,7 @@
 /// <reference types="serve-static" />
 import * as async from "async";
 
-const stripe = require("../../shared-providers/stripe");
+const stripeProvider = require("../../shared-providers/stripe");
 const responseController = require("../controllers/responseController.js");
 const isLoggedIn = responseController.isLoggedIn;
 const isAdmin = responseController.isAdmin;
@@ -22,8 +22,9 @@ let STRIPE_OAUTH_URL = "https://connect.stripe.com/oauth/authorize";
 
 STRIPE_OAUTH_URL += "?response_type=code&scope=read_write&stripe_landing=register&state=*";
 
-const createAccount = (type: string, country: string, email: string, cb: (err: any, account?: any) => void) => {
-    stripe
+const createAccount = (stripePrivateKey: string, type: string, country: string, email: string, cb: (err: any, account?: any) => void) => {
+    stripeProvider
+    .getTenantStripe(stripePrivateKey)
     .accounts
     .create({
         type,
@@ -227,25 +228,38 @@ module.exports = (app: any) => {
                 req
                 .models
                 .appConfig
-                .findOne({
+                .findAll({
                     where: {
-                        fieldKey: "STRIPE_CLIENT_ID"
+                        $or: [
+                            { fieldKey: "STRIPE_CLIENT_ID" },
+                            { fieldKey: "STRIPE_PRIVATE_KEY" },
+                            { fieldKey: "STRIPE_PUBLIC_KEY" }
+                        ]
                     }
                 })
-                .then((stripeConfig: any) => {
-                    if (!stripeConfig || !stripeConfig.fieldValue) {
+                .then((stripeConfigs: any) => {
+                    const stripePrivateKeyObj = stripeConfigs
+                        .find((_: any) => _.fieldKey === "STRIPE_PRIVATE_KEY");
+                    const stripeClientIdObj = stripeConfigs
+                        .find((_: any) => _.fieldKey === "STRIPE_CLIENT_ID");
+
+                    if (
+                        (!stripeClientIdObj || !stripeClientIdObj.fieldValue) ||
+                        (!stripePrivateKeyObj || !stripePrivateKeyObj.fieldValue)
+                    ) {
                         return cb({
                             code: "PAYMENTS_NOT_CONFIGURED"
                         });
                     }
 
-                    redirectUrl += `&client_id=${stripeConfig.fieldValue}`;
+                    redirectUrl += `&client_id=${stripeClientIdObj.fieldValue}`;
 
-                    cb();
+                    cb(undefined, stripePrivateKeyObj.fieldValue);
                 }, cb);
             },
-            (cb: any) => {
+            (stripePrivateKey: string, cb: any) => {
                 createAccount(
+                stripePrivateKey,
                 "standard",
                 userRef.billingAddresses[0].countryCode,
                 userRef.vqUser.userEmails[0].email,

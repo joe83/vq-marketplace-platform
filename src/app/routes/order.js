@@ -1,6 +1,6 @@
 const async = require("async");
 const responseController = require("../controllers/responseController");
-const stripe = require("../../shared-providers/stripe");
+const stripeProvider = require("../../shared-providers/stripe");
 const isLoggedIn = responseController.isLoggedIn;
 const sendResponse = responseController.sendResponse;
 const orderEmitter = require("../events/order");
@@ -18,7 +18,7 @@ module.exports = app => {
     app.post(`/api/${RESOURCE}`,
         isLoggedIn,
         (req, res) => {
-            let createdOrder, requestRef, taskRef, userPaymentAccount;
+            let createdOrder, requestRef, taskRef, userPaymentAccount, stripePrivateKey;
             const order = req.body;
             
 
@@ -100,11 +100,27 @@ module.exports = app => {
                             req
                             .models
                             .appConfig
-                            .findOne({
-                                fieldKey: "MARKETPLACE_PROVISION",
+                            .findAll({
+                                $where: {
+                                    $or: [
+                                        { fieldKey: "MARKETPLACE_PROVISION" },
+                                        { fieldKey: "STRIPE_PRIVATE_KEY" }
+                                    ]
+                                }
                             })
-                            .then(rProvisionConfig => {
-                                provisionConfig = rProvisionConfig;
+                            .then(rPaymentConfigs => {
+                                provisionConfig = rPaymentConfigs
+                                    .find(_ => _.fieldKey === "MARKETPLACE_PROVISION");
+                                stripePrivateKey = rPaymentConfigs
+                                    .find(_=> _.fieldKey === "STRIPE_PRIVATE_KEY");
+
+                                if (!stripePrivateKey) {
+                                    cb({
+                                        code: "PAYMENTS_ERROR"
+                                    });
+
+                                    return;
+                                }
 
                                 cb();
                             }, cb);
@@ -136,18 +152,16 @@ module.exports = app => {
                             }, cb);
                         },
                         cb => {
-                            const platformFeeRelative = Number(provisionConfig.fieldValue) || 0;
+                            const platformFeeRelative = Number(provisionConfig.fieldValue) / 100 || 0;
                             const totalAmount = createdOrder.currency === "HUF" ?
                                 createdOrder.amount :
                                 createdOrder.amount * 100;
 
-                            const platformFees = totalAmount * platformFeeRelative;
+                            const platformFees = Math.floor(totalAmount * platformFeeRelative);
 
                             let amountToBeTransferred = totalAmount - platformFees;
 
-                            stripe
-                            .charges
-                            .create({
+                            const chargeData = {
                                 capture: false,
                                 amount: totalAmount,
                                 currency: createdOrder.currency,
@@ -163,7 +177,15 @@ module.exports = app => {
                                     requestId: createdOrder.requestId,
                                     userId: req.user.id 
                                 }
-                            }, (err, rCharge) => {
+                            };
+
+                            console.log("Creating StripeCharge");
+                            console.log(chargeData);
+
+                            stripeProvider
+                            .getTenantStripe(stripePrivateKey.fieldValue)
+                            .charges
+                            .create(chargeData, (err, rCharge) => {
                                 if (err) {
                                     return cb({
                                         code: "PAYMENT_ERROR",
@@ -490,7 +512,7 @@ module.exports = app => {
             const orderId = req.params.orderId;
             
             orderCtrl
-                .settleOrder(req.models, orderId, req.user.id, (err, order) => {
+            .settleOrder(req.models, orderId, req.user.id, (err, order) => {
                 sendResponse(res, err, order);
             });
         });

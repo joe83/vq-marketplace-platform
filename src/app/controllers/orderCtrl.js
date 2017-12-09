@@ -1,5 +1,5 @@
 const async = require("async");
-const db = require("../models/models");
+const stripeProvider = require("../../shared-providers/stripe");
 const orderEmitter = require("../events/order");
 const requestEmitter = require("../events/request");
 const utils = require("../utils");
@@ -39,6 +39,31 @@ const settleOrder = (models, orderId, userId, cb) => {
 
                 return cb();
             }, cb),
+        /**
+         * WE CAPTURE THE CHARGE!
+         */
+        cb => {
+            const stripe = stripeProvider
+                .getTenantStripe();
+
+            models
+            .paymentObject
+            .findOne({
+                where: {
+                    $and: [
+                        { type: "charge" },
+                        { orderId: order.id }
+                    ]
+                }
+            })
+            .then(rCharge => {
+                stripe
+                .charges
+                .capture(rCharge.obj.id, err => {
+                    cb(err);
+                });
+            }, cb);
+        },
         cb => models.order
             .update({
                 status: models.order.ORDER_STATUS.SETTLED,
