@@ -1,7 +1,8 @@
 module.exports = (sequelize, DataTypes) => {
   const TaskComment = sequelize.define("taskComment", {
       comment: {
-        type: DataTypes.TEXT, allowNull: false
+        type: DataTypes.TEXT,
+        allowNull: false
       }
   }, {
       tableName: "taskComment",
