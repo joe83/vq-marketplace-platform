@@ -4,6 +4,8 @@ bower_components/
 scripts/transport-tw-users-to-vq.js
 node_modules/
 apidoc/
+built
+build
 deployments
 config/setups/*
 # our credentials
