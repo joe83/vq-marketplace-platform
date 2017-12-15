@@ -1,8 +1,8 @@
 module.exports = (sequelize, DataTypes) => {
   const USER_TYPES = {
     ANY: 0,
-    BUYER: 1,
-    SELLER: 2
+    DEMAND: 1,
+    SUPPLY: 2
   };
 
   const USER_STATUS = {
