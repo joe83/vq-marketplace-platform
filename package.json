@@ -12,10 +12,10 @@
     "tslint": "./node_modules/tslint/bin/tslint -c tslint.json -p tsconfig.json",
     "build:nolint": "rm -rf ./built && gulp build",
     "build": "npm run tslint && rm -rf ./built && gulp build",
-    "start:click4work": "npm run build && TENANT_ID=click4work node ./built/app --config /../../production-config.json",
+    "start:click4work": "npm run build && TENANT_ID=click4work node ./built/app --config /../../../production-config.json",
     "start": "npm run build && node built/app.js",
     "start:local": "npm run build && node built/app.js",
-    "start:dev": "npm run build && node built/app --config /../../../test-config.json",
+    "start:dev": "npm run build && node built/app --config /../../test-config.json",
     "test": "ST_ENV=local jasmine"
   },
   "author": "vq-labs.com",

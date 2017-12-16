@@ -4,6 +4,7 @@
     "COLOR_PRIMARY": "#000639",
     "COLOR_SECONDARY": "#000639",
     "DOMAIN": "https://vq-labs.com",
+    "EMAILS_ENABLED": "1",
     "SOCIAL_FB_USERNAME": "vqlabs",
     "SOCIAL_TWITTER_USERNAME": "vqlabs",
     "SOCIAL_INSTAGRAM_USERNAME": "",

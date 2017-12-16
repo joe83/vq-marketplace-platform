@@ -125,10 +125,14 @@ module.exports = app => {
 				const VERIFICATION_LINK = cryptoService
 					.buildVerificationUrl(req.models.tenantId, config.SERVER_URL, { id: userId });
 				
-				return emailService
+				emailService
 					.getEmailAndSend(req.models, emailService.EMAILS.WELCOME, emails, {
 						VERIFICATION_LINK
 					});
+
+				res.send({
+					code: "EMAIL_SENT"
+				});
 			});
 	});
 

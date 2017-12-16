@@ -57,6 +57,11 @@ const getEmailAndSend = (models, emailCode, email, emailData) =>
 	custProvider
 	.getConfig(models)
 	.then(config => {
+		// in case emails are disabled... only the welcome email can be sent.
+		if (emailCode !== EMAILS.WELCOME && config.EMAILS_ENABLED !== "1") {
+			return;
+		}
+
 		getEmailBody(models, emailCode)
 		.then(emailBody => {
 			const params = {};
