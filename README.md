@@ -1,22 +1,11 @@
 # VQ Marketplace API
 
 ## Overview
-VQ Marketplace API is a web services layer of VQ marketplace developed with NodeJS. We use [Express Framework](http://expressjs.com/) for buiding on top of it. The Web Services communicate with a mySQL database.
+VQ Marketplace API - a web services for creating Sharing Economy Marketplaces. 
 
-Some parts of the application have been wrapped as modules and open-sourced. You will find our repos here:
+You can use the web services with the official VQ Marketplace Storefront:
 
 * [vq-marketplace-web-app](https://github.com/vq-labs/vq-marketplace-web-app) - ReactJS Marketplace Front-End
-* [vq-marketplace-config](https://github.com/vq-labs/vq-marketplace-config) - Default configuration of the marketplace (TaskRabbit copy)
-* [nodejs-authentication-microservice](https://github.com/vq-labs/nodejs-authentication-microservice) - Authentification microservice
-
-The application communicates with some external services: payments provider, email services etc.
-
-## Important libraries used
-In the whole application, you will see a lot of use of the 'async' library, which helps us mange the flow of the callbacks.
-
-[https://github.com/caolan/async](https://github.com/caolan/async)
-
-Also, for modeling the data and DB drived, we use [Sequelize](http://sequelize.com/).
 
 ## System setup
 
@@ -71,50 +60,33 @@ We deploy the application with Elastic Beanstalk.
 ## Configuration
 
 ***NAME***<br>
-Name of the marketplace - Will appear as a sender of the emails.
+Name of the marketplace
 
-## API Endpoints
-@todo
+## API
 
-## Development
+### Creating User Accounts
+#### Supply side
+#### Demand side
 
-### Folder Structure
-**app.js**
+### Creating Supply Listings
 
-Entry point of ST Web Services.
+### Creating Demand Listings
 
-**./app/config/**
+### Creating Requests for Listings
 
-**./app/routes/**
+### Creating an order / booking
+*** POST /api/order ***
+Orders can only be created for requests by users of type "Demand".
+There can be only one order per request.
 
-Declaration of our RESTful API. Here you will find the open paths of the API, like 'GET /task' or 'POST /task'
+### Order settlements and transferring reservered funds to Suppliers
 
-**./app/models/**
-
-Sequelize models
-
-**./app/controllers**
-Controllers combine complex business logic.
-
-**./app/events**
-
-### Branching model
-1. Never push to 'master'
-2. Never push to 'dev'
-3. Developers are only allowed to merge features with dev.
-4. Before merging your branch push it first and pull the branch you want to merge to.
-4. Git masters are allowed to merge 'dev' with 'master'.
-5. Git masters are allowed to deploy.
-6. Every commit should contain working code. So before commiting, check your code and test your application!
-7. Every push MUST contain working code.
-8. If you create new branch, create it from dev.
-9. Commit and push frequently. Deliver code quickly by merging with dev.
-
+## Contribute
 We follow the following branching model:
 [http://nvie.com/posts/a-successful-git-branching-model/](http://nvie.com/posts/a-successful-git-branching-model/)
 
 ## Licence
-MIT.
+MIT
 
 ## Contributors
 [VQ LABS](https://vq-labs.com)

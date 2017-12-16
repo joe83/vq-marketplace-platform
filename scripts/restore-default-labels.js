@@ -1,4 +1,4 @@
-const db = require('../app/models/models.js');
+const db = require('../built/app/models/models.js');
 
 const TENANT_ID = process.env.TENANT_ID;
 const USECASE = process.argv[2];
@@ -15,13 +15,14 @@ if (!TARGET_LANG) {
 
 console.log(USECASE, TARGET_LANG, SHOULD_FORCE);
 
-db.create(TENANT_ID, () => {
+db.create(TENANT_ID, (ref) => {
+    console.log(ref);
+
     db.get(TENANT_ID)
         .appLabel
         .addDefaultLangLabels(TARGET_LANG, USECASE, SHOULD_FORCE, (err, data) => {
             console.log(err, data);
-            console.log('Success');
-
+            
             process.exit();
         });
 });

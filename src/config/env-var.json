@@ -1,0 +1,19 @@
+{
+    "port": "PORT",
+    "db": "ST_DB",
+    "VQ_DB_HOST": "VQ_DB_HOST",
+    "VQ_DB_USER": "VQ_DB_USER",
+    "VQ_DB_PASSWORD": "VQ_DB_PASSWORD",
+    "TENANT_APP_PORT": "TENANT_APP_PORT",
+    "secret": "VQ_SECRET",
+    "SERVER_URL": "SERVER_URL",
+    "WEB_URL": "WEB_URL",
+    "TENANT_ID": "TENANT_ID",
+    "AWS_S3_BUCKET": "AWS_S3_BUCKET",
+    "AWS_S3_REGION": "AWS_S3_REGION",
+    "AWS_S3_ACCESS_KEY_ID": "AWS_S3_ACCESS_KEY_ID",
+    "AWS_S3_SECRET_ACCESS_KEY": "AWS_S3_SECRET_ACCESS_KEY",
+    "mandrill": "ST_MANDRILL_API_SECRET",
+    "STRIPE_ID": null,
+    "STRIPE_SECRET": null
+}

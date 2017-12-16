@@ -7,6 +7,12 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Launch Program",
+            "program": "${workspaceFolder}/app.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "debug:dev",
             "program": "${workspaceRoot}/app.js",
             "cwd": "${workspaceRoot}",
@@ -31,13 +37,13 @@
             "type": "node",
             "request": "launch",
             "name": "debug:dev-tenant",
-            "program": "${workspaceRoot}/app.js",
+            "program": "${workspaceRoot}/built/app.js",
             "cwd": "${workspaceRoot}",
             "env": {
-                "TENANT_ID": "testmarketplace"
+                "TENANT_ID": "heyo"
             },
             "args": [
-                "--config=/../test-config.json"
+                "--config=/../../test-config.json"
             ]
         },
         {
