@@ -230,6 +230,7 @@ const initRoutes = (app, express) => {
                         email: tenant.email
                     },
                     defaults: {
+                        source: tenant.source,
                         apiKey: randomstring.generate(32)
                     }
                 })
@@ -240,6 +241,7 @@ const initRoutes = (app, express) => {
                             code: "TENANT_EMAIL_TAKEN"
                         });
                     }
+
                     rTenant.verificationKey = cryptoService
                         .encodeObj(rTenant.apiKey);
 
@@ -247,7 +249,8 @@ const initRoutes = (app, express) => {
                         "<span style=\"color: #374550;\"><b>Verification Code: </b>" + rTenant.verificationKey + "</span><br><br>" +
                         "<span style=\"color: #374550;\"><b><a href=\"" + config.WEB_URL + "/get-started?verificationCode=" + encodeURIComponent(rTenant.verificationKey) + "\">Click here if you are unable to paste the code</a></b></span>";
 
-                    emailTemplateGenerator.generateSingleColumnEmail(
+                    emailTemplateGenerator
+                    .generateSingleColumnEmail(
                         "Marketplace Registration",
                         "Welcome to VQ-Marketplace",
                         body,
