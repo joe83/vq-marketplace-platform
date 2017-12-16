@@ -4,10 +4,64 @@ const orderEmitter = require("../events/order");
 const requestEmitter = require("../events/request");
 const utils = require("../utils");
 
+const tryGetPaymentConfigs = (models, cb) => {
+    let paymentsEnabledConfig;
+    let stripePrivateKeyConfig;
+    let provisionConfig;
+
+    async.waterfall([
+        cb => {
+            models
+            .appConfig
+            .findAll({
+                $where: {
+                    $or: [
+                        { fieldKey: "PAYMENTS_ENABLED" },
+                        { fieldKey: "MARKETPLACE_PROVISION" },
+                        { fieldKey: "STRIPE_PRIVATE_KEY" }
+                    ]
+                }
+            })
+            .then(rPaymentConfigs => {
+                paymentsEnabledConfig = rPaymentConfigs
+                    .find(_ => _.fieldKey === "PAYMENTS_ENABLED");
+
+                stripePrivateKeyConfig = rPaymentConfigs
+                    .find(_=> _.fieldKey === "STRIPE_PRIVATE_KEY");
+
+                provisionConfig = rPaymentConfigs
+                    .find(_ => _.fieldKey === "MARKETPLACE_PROVISION");
+
+                cb();
+            }, cb);
+        },
+        cb => {
+            if (paymentsEnabledConfig.fieldValue !== "1") {
+                return cb();
+            }
+
+            if (!stripePrivateKeyConfig || !stripePrivateKeyConfig.fieldValue) {
+                cb({
+                    code: "PAYMENTS_ERROR"
+                });
+
+                return;
+            }
+        }
+    ], err => {
+        cb(err, {
+            paymentsEnabledConfig,
+            stripePrivateKeyConfig,
+            provisionConfig
+        });
+    });
+};
+
 const settleOrder = (models, orderId, userId, cb) => {
     let requestId;
     let order;
     let stripePrivateKey;
+    let paymentsEnabledConfig;
 
     userId = Number(userId);
     orderId = Number(orderId);
@@ -40,36 +94,39 @@ const settleOrder = (models, orderId, userId, cb) => {
 
                 return cb();
             }, cb),
+        cb => tryGetPaymentConfigs(models, (err, paymentConfigs) => {
+            if (err) {
+                return cb(err);
+            }
+
+            paymentsEnabledConfig = paymentConfigs.paymentsEnabledConfig;
+            stripePrivateKey = paymentConfigs.stripePrivateKeyConfig;
+
+            cb();
+        }),
         cb => {
-            models
-            .appConfig
-            .findAll({
-                $where: {
-                    $or: [
-                        { fieldKey: "MARKETPLACE_PROVISION" },
-                        { fieldKey: "STRIPE_PRIVATE_KEY" }
-                    ]
-                }
-            })
-            .then(rPaymentConfigs => {
-                stripePrivateKey = rPaymentConfigs
-                    .find(_=> _.fieldKey === "STRIPE_PRIVATE_KEY");
+            if (paymentsEnabledConfig.fieldValue !== "1") {
+                return cb();
+            }
 
-                if (!stripePrivateKey || !stripePrivateKey.fieldValue) {
-                    cb({
-                        code: "PAYMENTS_ERROR"
-                    });
+            if (!stripePrivateKey || !stripePrivateKey.fieldValue) {
+                cb({
+                    code: "PAYMENTS_ERROR"
+                });
 
-                    return;
-                }
-
-                cb();
-            }, cb);
+                return;
+            }
         },
         /**
          * WE CAPTURE THE CHARGE!
          */
         cb => {
+            if (paymentsEnabledConfig.fieldValue !== "1") {
+                cb();
+
+                return;
+            }
+
             const stripe = stripeProvider
                 .getTenantStripe(stripePrivateKey.fieldValue);
 
@@ -138,7 +195,8 @@ const settleOrder = (models, orderId, userId, cb) => {
 
 if (module.parent) {
     module.exports = {
-        settleOrder
+        settleOrder,
+        tryGetPaymentConfigs
     };
 } else {
     settleOrder(process.argv[2], process.argv[3], err => {

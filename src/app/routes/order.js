@@ -18,7 +18,7 @@ module.exports = app => {
     app.post(`/api/${RESOURCE}`,
         isLoggedIn,
         (req, res) => {
-            let createdOrder, requestRef, taskRef, userPaymentAccount, stripePrivateKey;
+            let createdOrder, requestRef, taskRef, userPaymentAccount, stripePrivateKey, provisionConfig, paymentsEnabledConfig;
             const order = req.body;
             
 
@@ -27,6 +27,18 @@ module.exports = app => {
 
             async.waterfall([
                 // gets the request
+                cb => orderCtrl
+                .tryGetPaymentConfigs(req.models, (err, paymentConfigs) => {
+                    if (err) {
+                        return cb(err);
+                    }
+        
+                    provisionConfig = paymentConfigs.provisionConfig;
+                    paymentsEnabledConfig = paymentConfigs.paymentsEnabledConfig;
+                    stripePrivateKey = paymentConfigs.stripePrivateKeyConfig;
+        
+                    cb();
+                }),
                 cb => req.models.task
                     .findById(order.taskId)
                     .then(rTask => {
@@ -53,6 +65,10 @@ module.exports = app => {
 
                 // gets payment account of the supplier
                 cb => {
+                    if (paymentsEnabledConfig.fieldValue !== "1") {
+                        return cb();
+                    }
+
                     const DEMAND_TASK_TYPE_CODE = 1;
 
                     const supplyUserId = taskRef.taskType === DEMAND_TASK_TYPE_CODE ?
@@ -93,38 +109,13 @@ module.exports = app => {
                         cb();
                     }, cb),
                 cb => {
+                    if (paymentsEnabledConfig.fieldValue !== "1") {
+                        return cb();
+                    }
+
                     let provisionConfig, paymentObjectCard, charge;
 
                     async.waterfall([
-                        cb => {
-                            req
-                            .models
-                            .appConfig
-                            .findAll({
-                                $where: {
-                                    $or: [
-                                        { fieldKey: "MARKETPLACE_PROVISION" },
-                                        { fieldKey: "STRIPE_PRIVATE_KEY" }
-                                    ]
-                                }
-                            })
-                            .then(rPaymentConfigs => {
-                                provisionConfig = rPaymentConfigs
-                                    .find(_ => _.fieldKey === "MARKETPLACE_PROVISION");
-                                stripePrivateKey = rPaymentConfigs
-                                    .find(_=> _.fieldKey === "STRIPE_PRIVATE_KEY");
-
-                                if (!stripePrivateKey || !stripePrivateKey.fieldValue) {
-                                    cb({
-                                        code: "PAYMENTS_ERROR"
-                                    });
-
-                                    return;
-                                }
-
-                                cb();
-                            }, cb);
-                        },
                         cb => {
                             req
                             .models
@@ -369,7 +360,6 @@ module.exports = app => {
                 
                 async
                     .eachLimit(orders, 3, (order, cb) => {
-                        const data = {};
                         const fromUserId = order.request.fromUserId;
                         const task = order.task;
 
@@ -460,7 +450,7 @@ module.exports = app => {
                             id: order.requestId
                         }
                     })
-                    .then(data => {
+                    .then(() => {
                         requestEmitter.emit("closed", req.models, order.requestId);
 
                         order
@@ -498,7 +488,7 @@ module.exports = app => {
                         ]
                     }
                 })
-                .then(order => {
+                .then(() => {
                     sendResponse(res, null, { ok: "ok" });
                 }, err => sendResponse(res, err));
         });
@@ -512,8 +502,8 @@ module.exports = app => {
             const orderId = req.params.orderId;
             
             orderCtrl
-            .settleOrder(req.models, orderId, req.user.id, (err, order) => {
-                sendResponse(res, err, order);
-            });
+            .settleOrder(req.models, orderId, req.user.id, (err, order) =>
+                sendResponse(res, err, order)
+            );
         });
 };
