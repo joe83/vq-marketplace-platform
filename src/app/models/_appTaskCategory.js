@@ -6,9 +6,9 @@ module.exports = (sequelize, DataTypes) => {
       label: { type: DataTypes.STRING, required: true },
       desc: { type: DataTypes.STRING },
       minPriceHour: { type: DataTypes.INTEGER, default: 0 },
-      minQuantity: { type: DataTypes.INTEGER },
-      maxQuantity: { type: DataTypes.INTEGER },
-      quantityStep: { type: DataTypes.INTEGER },
+      minQuantity: { type: DataTypes.FLOAT },
+      maxQuantity: { type: DataTypes.FLOAT },
+      quantityStep: { type: DataTypes.FLOAT },
       unitOfMeasure: { type: DataTypes.STRING(10) }
   }, {
       tableName: "_appTaskCategory"
@@ -16,3 +16,4 @@ module.exports = (sequelize, DataTypes) => {
 
   return appTaskCategory;
 };
+

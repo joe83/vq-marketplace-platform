@@ -14,8 +14,6 @@ const create = (tenantId, cb) => {
 
   console.log(`Creating ${tenantId}`);
 
-  var isNewDatabase = false;
-
   async.waterfall([
     cb => {
       const connection = mysql.createConnection({
@@ -29,7 +27,7 @@ const create = (tenantId, cb) => {
       connection.query(
         "CREATE DATABASE ?? CHARACTER SET utf8 COLLATE utf8_general_ci;",
         [ tenantId ],
-        (err, results, fields) => {
+        (err) => {
           if (err) {
             if (err.code === "ER_DB_CREATE_EXISTS") {
               return cb();
@@ -37,8 +35,6 @@ const create = (tenantId, cb) => {
 
             return cb(err);
           }
-
-          isNewDatabase = true;
 
           cb();
         }
@@ -84,8 +80,11 @@ const create = (tenantId, cb) => {
     cb => {
       const models = tenantConnections[tenantId];
 
-      models.seq.sync().then(() => {
-        cb();
+      models
+      .seq
+      .sync()
+      .then(() => {
+        cb(undefined, models);
       }, cb);
     },
   ], cb);
