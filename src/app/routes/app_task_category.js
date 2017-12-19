@@ -44,13 +44,14 @@ module.exports = app => {
             minPriceHour: req.body.minPriceHour,
             bigImageUrl: req.body.bigImageUrl,
             imageUrl: req.body.imageUrl,
-            unitOfMeasure: req.body.unitOfMeasure,
-            minQuantity: req.body.minQuantity,
-            maxQuantity: req.body.maxQuantity,
-            quantityStep: req.body.quantityStep
+            unitOfMeasure: req.body.unitOfMeasure || undefined,
+            minQuantity: req.body.minQuantity || undefined,
+            maxQuantity: req.body.maxQuantity || undefined,
+            quantityStep: req.body.quantityStep || undefined
         };
       
-        req.models.appTaskCategory.update(category, {
+        req.models.appTaskCategory
+        .update(category, {
             where: { id }
         })
         .then(data => res.status(200).send(data))
