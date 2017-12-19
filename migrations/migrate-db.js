@@ -1,4 +1,6 @@
 /**
+ * Updates all tenant databases with the migration scripts
+ * 
  * Example call:
  * VQ_DB_HOST=* VQ_DB_USER=* VQ_DB_PASSWORD=* migrations/migrate-db.js 20171218222426-001.sql
  */
