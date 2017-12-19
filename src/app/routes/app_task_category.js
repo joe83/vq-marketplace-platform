@@ -21,10 +21,16 @@ module.exports = app => {
             desc: req.body.desc,
             minPriceHour: req.body.minPriceHour || 0,
             bigImageUrl: req.body.bigImageUrl,
-            imageUrl: req.body.imageUrl
+            imageUrl: req.body.imageUrl,
+            unitOfMeasure: req.body.unitOfMeasure,
+            minQuantity: req.body.minQuantity,
+            maxQuantity: req.body.maxQuantity,
+            quantityStep: req.body.quantityStep
         };
         
-        req.models.appTaskCategory.create(category)
+        req.models
+        .appTaskCategory
+        .create(category)
         .then(data => res.status(200).send(data))
         .catch(err => res.status(400).send(err));
     });
@@ -37,7 +43,11 @@ module.exports = app => {
             desc: req.body.desc,
             minPriceHour: req.body.minPriceHour,
             bigImageUrl: req.body.bigImageUrl,
-            imageUrl: req.body.imageUrl
+            imageUrl: req.body.imageUrl,
+            unitOfMeasure: req.body.unitOfMeasure,
+            minQuantity: req.body.minQuantity,
+            maxQuantity: req.body.maxQuantity,
+            quantityStep: req.body.quantityStep
         };
       
         req.models.appTaskCategory.update(category, {
