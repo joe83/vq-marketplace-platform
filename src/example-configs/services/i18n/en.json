@@ -1,4 +1,12 @@
 {
+    "LISTING_TYPE": "Type",
+    "SUPPLY_LISTING": "Sell",
+    "DEMAND_LISTING": "Buy",
+    "LISTING_QUANTITY": "Quantity",
+    "NEW_LISTING_TYPE_HEADER": "Specify listing type",
+    "NEW_LISTING_TYPE_DESC": " ",
+    "NEW_DEMAND_LISTING": "Request listing",
+    "NEW_SUPPLY_LISTING": "Offer listing",
     "PAYMENT_SETTINGS_HEADER": "Payment Settings",
     "PAYMENT_SETTINGS_DESC": "Connect your Stripe payment account to be able to receive payouts.",
     "MY_LISTINGS": "My listings",
