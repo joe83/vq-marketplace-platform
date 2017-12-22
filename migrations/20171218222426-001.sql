@@ -10,6 +10,7 @@ create procedure doMigration ()
         ALTER TABLE _appTaskCategory ADD COLUMN unitOfMeasure VARCHAR(10);
         ALTER TABLE task ADD COLUMN quantity FLOAT;
         ALTER TABLE task ADD COLUMN unitOfMeasure VARCHAR(10);
+        ALTER TABLE taskImage ADD COLUMN featured TINYINT(1);
 	end;;
     
 call doMigration();
