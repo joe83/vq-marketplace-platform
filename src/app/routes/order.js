@@ -65,7 +65,7 @@ module.exports = app => {
 
                 // gets payment account of the supplier
                 cb => {
-                    if (paymentsEnabledConfig.fieldValue !== "1") {
+                    if (!paymentsEnabledConfig || paymentsEnabledConfig.fieldValue !== "1") {
                         return cb();
                     }
 
@@ -109,7 +109,7 @@ module.exports = app => {
                         cb();
                     }, cb),
                 cb => {
-                    if (paymentsEnabledConfig.fieldValue !== "1") {
+                    if (!paymentsEnabledConfig || paymentsEnabledConfig.fieldValue !== "1") {
                         return cb();
                     }
 

@@ -4,16 +4,16 @@ module.exports = (sequelize, DataTypes) => {
       bigImageUrl: { type: DataTypes.STRING },
       imageUrl: { type: DataTypes.STRING },
       label: { type: DataTypes.STRING, required: true },
+      desc: { type: DataTypes.STRING },
       minPriceHour: { type: DataTypes.INTEGER, default: 0 },
-      desc: { type: DataTypes.STRING }
+      minQuantity: { type: DataTypes.FLOAT },
+      maxQuantity: { type: DataTypes.FLOAT },
+      quantityStep: { type: DataTypes.FLOAT },
+      unitOfMeasure: { type: DataTypes.STRING(10) }
   }, {
-      tableName: "_appTaskCategory",
-      classMethods: {
-        associate: models => {
-            // appTaskCategory.belongsTo(req.models.appTaskCategory);
-        }
-      }
+      tableName: "_appTaskCategory"
   });
 
   return appTaskCategory;
 };
+
