@@ -453,7 +453,7 @@ const initRoutes = (app, express) => {
             cb => tenantRef
                 .update({
                     marketplaceName: tenant.marketplaceName,
-                    martketplaceType: marketplaceType,
+                    marketplaceType: marketplaceType,
                     tenantId,
                     status: 1 // 1: deployment triggered
                 })
