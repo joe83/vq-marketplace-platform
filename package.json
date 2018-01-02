@@ -8,8 +8,8 @@
     "url": "git+https://github.com/vq-labs/vq-marketplace-api"
   },
   "scripts": {
-    "lint": "./node_modules/.bin/eslint src",
-    "tslint": "./node_modules/tslint/bin/tslint -c tslint.json -p tsconfig.json",
+    "lint": "node ./node_modules/.bin/eslint src",
+    "tslint": "node ./node_modules/tslint/bin/tslint -c tslint.json -p tsconfig.json",
     "build:nolint": "rm -rf ./built && gulp build",
     "build": "npm run tslint && rm -rf ./built && gulp build",
     "start:click4work": "npm run build && TENANT_ID=click4work node ./built/app --config /../../../production-config.json",
@@ -71,12 +71,10 @@
     "@types/stripe": "^4.8.0",
     "bson": "^1.0.4",
     "eslint": "^4.9.0",
-    "execsql": "0.0.3",
     "gulp": "^3.9.1",
     "gulp-typescript": "^3.2.3",
     "mongodb": "^2.2.33",
     "pre-commit": "^1.2.2",
-    "sequelize-cli": "^3.2.0",
     "tslint": "^5.8.0",
     "typescript": "^2.6.1",
     "yargs": "^7.1.0"
