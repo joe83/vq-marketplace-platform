@@ -42,7 +42,7 @@ module.exports = (sequelize, DataTypes) => {
 
   // init of the table / ensuring default labels exist
   appUserProperty.addDefaultUserProperties = (marketplaceType, force) => {
-    const userProperties = require("../../marketplace-configs/services/user-properties.json");
+    const userProperties = require("../../example-configs/services/user-properties.json");
 
     const batchData = Object.keys(userProperties)
       .map(propKey => {
@@ -57,7 +57,7 @@ module.exports = (sequelize, DataTypes) => {
   };
 
   appUserProperty.insertSeed = (marketplaceType, cb) => {
-    const userProperties = require("../../marketplace-configs/services/user-properties.json");
+    const userProperties = require("../../example-configs/services/user-properties.json");
 
     const values = Object.keys(userProperties)
     .map(propKey => {

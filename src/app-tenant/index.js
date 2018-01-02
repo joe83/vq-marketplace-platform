@@ -230,7 +230,6 @@ const initRoutes = (app, express) => {
                         email: tenant.email
                     },
                     defaults: {
-                        source: tenant.source,
                         apiKey: randomstring.generate(32)
                     }
                 })
@@ -241,7 +240,6 @@ const initRoutes = (app, express) => {
                             code: "TENANT_EMAIL_TAKEN"
                         });
                     }
-
                     rTenant.verificationKey = cryptoService
                         .encodeObj(rTenant.apiKey);
 
@@ -249,8 +247,7 @@ const initRoutes = (app, express) => {
                         "<span style=\"color: #374550;\"><b>Verification Code: </b>" + rTenant.verificationKey + "</span><br><br>" +
                         "<span style=\"color: #374550;\"><b><a href=\"" + config.WEB_URL + "/get-started?verificationCode=" + encodeURIComponent(rTenant.verificationKey) + "\">Click here if you are unable to paste the code</a></b></span>";
 
-                    emailTemplateGenerator
-                    .generateSingleColumnEmail(
+                    emailTemplateGenerator.generateSingleColumnEmail(
                         "Marketplace Registration",
                         "Welcome to VQ-Marketplace",
                         body,
@@ -370,7 +367,6 @@ const initRoutes = (app, express) => {
     app.post("/api/trial-registration/step-4", (req, res) => {
         const tenant = req.body;
         const apiKey = tenant.apiKey;
-        const marketplaceType = tenant.marketplaceType;
         const tenantId = utils.stringToSlug(tenant.marketplaceName);
 
         const reserveredKeywords = ["blog", rootDbName, "help"];
@@ -453,7 +449,6 @@ const initRoutes = (app, express) => {
             cb => tenantRef
                 .update({
                     marketplaceName: tenant.marketplaceName,
-                    marketplaceType: marketplaceType,
                     tenantId,
                     status: 1 // 1: deployment triggered
                 })
@@ -464,11 +459,26 @@ const initRoutes = (app, express) => {
             }
 
             // this can last some time, up to one minute, it should be run async
-
-            //Sercan: here we will pass marketplaceType:string (coming from req.body) as the fifth argument (which is either services or rental)
-            //at the moment it is the default config (which was here before)
-            //see method for more details
-            service.deployNewMarketplace(tenantId, apiKey, tenant.password, tenant.repeatPassword, tenantRef, 'default', () => {
+            service.deployNewMarketplace(tenantId, apiKey, tenant.password, tenant.repeatPassword, {
+                /**
+                 * check an example configuration here:
+                 * /example-configs/services
+                 */
+                NAME: tenantRef.marketplaceName,
+                SEO_TITLE: tenantRef.marketplaceName,
+                COLOR_PRIMARY: "#000639",
+                // this needs to be addited when in production
+                DOMAIN: `https://${tenantRef.tenantId}.vqmarketplace.com`,
+                PRICING_DEFAULT_CURRENCY: "EUR",
+                LISTING_TIMING_MODE: "0",
+                LISTINGS_VIEW_LIST: "1",
+                LISTINGS_VIEW_MAP: "1",
+                LISTINGS_DEFAULT_VIEW: "2", // this is the list,
+                DEFAULT_LANG: "en"
+                /**
+                 * ... add new configuration here
+                 */
+            }, () => {
                 console.log("MARKETPLACE CREATED");
 
                 const marketplaceUrl =

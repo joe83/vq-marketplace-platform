@@ -4,18 +4,6 @@ const db = require("../app/models/models");
 const workers = require("../app/workers");
 const authCtrl = require("../app/controllers/authCtrl");
 
-
-//Sercan: at the moment only the default config is exposed as JS file. services.json is an example (I did no changes to that file).
-//we have to revise services and other configs to work like the default config (export them as functions)
-//seeds need to be updated aswell to work with the new JS configs if we do this
-
-//we can also use JSON files with placeholders that we can insert strings such as name, seo_title but that will need more work
-//otherwise we have to use JS functions to dynamically create configs like I did
-const marketplaceConfigs = {
-  default: require('../marketplace-configs/default/config'), //default config that was passed at app-tenant/index.js
-  services: require('../marketplace-configs/services/config.json'),
-};
-
 const deployNewMarketplace = (tenantId, apiKey, password, repeatPassword, marketplaceConfig, cb) => {
     const tenantModels = tenantDb.get("vq-marketplace");
     let marketplaceModels;
@@ -63,10 +51,6 @@ const deployNewMarketplace = (tenantId, apiKey, password, repeatPassword, market
             });
         },
         cb => {
-
-            //Sercan: this calls the object key with the marketplace type which returns the config object
-            marketplaceConfig = marketplaceConfigs[marketplaceConfig](tenanRef);
-
             marketplaceModels = db.get(tenantId);
 
             marketplaceModels.appConfig

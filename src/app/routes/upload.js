@@ -4,7 +4,7 @@ const UploadService = require("../services/UploadService");
 const responseController = require("../controllers/responseController");
 const isLoggedIn = responseController.isLoggedIn;
 const config = require("../config/configProvider.js")();
-const uploader = UploadService(config.AWS_S3_BUCKET);
+const uploader = UploadService(config.AWS_BUCKET);
 
 module.exports = app => {
     app.post("/api/upload/image",
