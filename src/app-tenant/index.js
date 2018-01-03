@@ -370,6 +370,7 @@ const initRoutes = (app, express) => {
     app.post("/api/trial-registration/step-4", (req, res) => {
         const tenant = req.body;
         const apiKey = tenant.apiKey;
+        const marketplaceType = tenant.marketplaceType;
         const tenantId = utils.stringToSlug(tenant.marketplaceName);
 
         const reserveredKeywords = ["blog", rootDbName, "help"];
@@ -462,6 +463,8 @@ const initRoutes = (app, express) => {
             }
 
             // this can last some time, up to one minute, it should be run async
+            // Sercan: @var marketplaceType can be used which is either services:string or rentals:string
+            // for the dynamic config
             service.deployNewMarketplace(tenantId, apiKey, tenant.password, tenant.repeatPassword, {
                 /**
                  * check an example configuration here:
