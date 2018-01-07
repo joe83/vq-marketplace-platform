@@ -30,7 +30,6 @@ module.exports = (sequelize, DataTypes) => {
     },
     formattedAddress: { type: DataTypes.STRING },
     streetNumber: { type: DataTypes.STRING },
-    postalCode: { type: DataTypes.STRING },
     addressAddition: { type: DataTypes.STRING },
     region: { type: DataTypes.STRING }
   }, {
