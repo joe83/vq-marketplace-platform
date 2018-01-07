@@ -16,7 +16,7 @@ const pool = mysql.createPool({
   password: config.VQ_DB_PASSWORD
 });
 
-const create = (tenantId, cb) => {
+const create = (tenantId, marketplaceType, cb) => {
   console.log(`[models] Creating tenant model: ${tenantId}`);
 
   if (tenantConnections[tenantId]) {
@@ -97,7 +97,6 @@ const create = (tenantId, cb) => {
 
       console.log("INITIALIZING...");
 
-      const marketplaceType = "services";
       const models = tenantConnections[tenantId];
 
       async.waterfall([

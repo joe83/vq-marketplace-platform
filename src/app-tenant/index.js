@@ -453,6 +453,7 @@ const initRoutes = (app, express) => {
             cb => tenantRef
                 .update({
                     marketplaceName: tenant.marketplaceName,
+                    martketplaceType: marketplaceType,
                     tenantId,
                     status: 1 // 1: deployment triggered
                 })
@@ -462,29 +463,16 @@ const initRoutes = (app, express) => {
                 return res.status(err.httpCode).send(err);
             }
 
+            const configOverwrites = {
+              NAME: tenantRef.marketplaceName,
+              SEO_TITLE: tenantRef.marketplaceName,
+              DOMAIN: `https://${tenantRef.tenantId}.vqmarketplace.com`,
+            };
+
+            console.log(marketplaceType)
+
             // this can last some time, up to one minute, it should be run async
-            // Sercan: @var marketplaceType can be used which is either services:string or rentals:string
-            // for the dynamic config
-            service.deployNewMarketplace(tenantId, apiKey, tenant.password, tenant.repeatPassword, {
-                /**
-                 * check an example configuration here:
-                 * /example-configs/services
-                 */
-                NAME: tenantRef.marketplaceName,
-                SEO_TITLE: tenantRef.marketplaceName,
-                COLOR_PRIMARY: "#000639",
-                // this needs to be addited when in production
-                DOMAIN: `https://${tenantRef.tenantId}.vqmarketplace.com`,
-                PRICING_DEFAULT_CURRENCY: "EUR",
-                LISTING_TIMING_MODE: "0",
-                LISTINGS_VIEW_LIST: "1",
-                LISTINGS_VIEW_MAP: "1",
-                LISTINGS_DEFAULT_VIEW: "2", // this is the list,
-                DEFAULT_LANG: "en"
-                /**
-                 * ... add new configuration here
-                 */
-            }, () => {
+            service.deployNewMarketplace(tenantId, apiKey, tenant.password, tenant.repeatPassword, marketplaceType, configOverwrites, () => {
                 console.log("MARKETPLACE CREATED");
 
                 const marketplaceUrl =
