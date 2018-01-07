@@ -5,7 +5,7 @@ const s3 = require("../config/bucket.js");
 module.exports = bucket => {
     const convertPicture = (buffer, fileFormat, width, height) =>
     new Promise((resolve, reject) => {
-
+        
         if (width && height) {
             return sharp(buffer)
                 .resize(width, height, {
@@ -65,7 +65,7 @@ module.exports = bucket => {
                     });
             });
     };
-
+   
     const uploadFileToBucket = (rawBuffer, namespace, fileFormat, callback) => {
         const key = `${namespace}/${randomToken(32)}.${fileFormat}`;
 
