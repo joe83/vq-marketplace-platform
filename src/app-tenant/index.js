@@ -469,8 +469,6 @@ const initRoutes = (app, express) => {
               DOMAIN: `https://${tenantRef.tenantId}.vqmarketplace.com`,
             };
 
-            console.log(marketplaceType)
-
             // this can last some time, up to one minute, it should be run async
             service.deployNewMarketplace(tenantId, apiKey, tenant.password, tenant.repeatPassword, marketplaceType, configOverwrites, () => {
                 console.log("MARKETPLACE CREATED");
@@ -525,6 +523,8 @@ const initRoutes = (app, express) => {
 
     app.post("/api/trial-registration/getTenantStatus", (req, res) => {
         const apiKey = req.body.apiKey;
+
+        console.log(apiKey)
 
         getModels((err, tenantModels) => {
             if (err) {
