@@ -82,9 +82,7 @@ async.waterfall([
 				}
 			})
 			.then(rTenants => {
-				const tenants = rTenants.map(_ => _.tenantId);
-
-				cb(null, tenants);
+				cb(null, rTenants);
 			}, cb);
 		});
 	},
@@ -92,16 +90,18 @@ async.waterfall([
 		async.eachLimit(
 			tenants,
 			10,
-			(tenant, cb) => db.create(tenant, (err) => {
+			(tenant, cb) => {
+			  db.create(tenant.dataValues.tenantId, tenant.dataValues.marketplaceType, (err) => {
 				if (err) {
 					return cb(err);
 				}
 
 				workers
-				.registerWorkers(tenant);
+				.registerWorkers(tenant.dataValues.tenantId);
 
 				cb(null, tenants);
-			}),
+			})
+      },
 			cb
 		);
 	}
@@ -126,5 +126,5 @@ async.waterfall([
 setInterval(() => {
 	const usedMemory = process.memoryUsage().heapUsed / 1024 / 1024;
 
-	console.log(`[VQ-MARKETPLACE-API] The process is consuming now approximately ${Math.round(usedMemory * 100) / 100} MB memory.`);
+	//console.log(`[VQ-MARKETPLACE-API] The process is consuming now approximately ${Math.round(usedMemory * 100) / 100} MB memory.`);
 }, 5000);

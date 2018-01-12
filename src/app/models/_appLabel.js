@@ -80,7 +80,7 @@ module.exports = (sequelize, DataTypes) => {
   appLabel.insertSeed = (usecase, lang, cb) => {
     console.log("[appLabel.insertSeed] Creating seed labels");
     
-    const defaultLabels = require("../../example-configs/services/i18n/en.json");
+    const defaultLabels = require(`../../example-configs/${usecase}/i18n/${lang}.json`);
     
     const values = Object
     .keys(defaultLabels)
@@ -121,7 +121,7 @@ module.exports = (sequelize, DataTypes) => {
   appLabel.addDefaultLangLabels = (lang, usecase, force, cb) => {
       console.log("Creating default labels");
     
-      const defaultLabels = require("../../example-configs/services/i18n/en.json");
+      const defaultLabels = require(`../../example-configs/${usecase}/i18n/${lang}.json`);
       
       const batchLabels = Object.keys(defaultLabels)
         .map(labelKey => {

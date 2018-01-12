@@ -36,7 +36,7 @@ module.exports = (sequelize, DataTypes) => {
     posts.insertSeed = (usecase, cb) => {
         console.log("[posts.insertSeed] Creating seed posts");
     
-        const defaultPosts = require("../../example-configs/services/posts.json");
+        const defaultPosts = require(`../../example-configs/${usecase}/posts.json`);
 
         const values = defaultPosts
           .map(post => {
@@ -60,7 +60,7 @@ module.exports = (sequelize, DataTypes) => {
     };
 
     posts.addDefaultPosts = (usecase, force, cb) => {
-        const defaultPosts = require("../../example-configs/services/posts.json");
+        const defaultPosts = require(`../../example-configs/${usecase}/posts.json`);
         const updateOrCreate = posts.createOrUpdate();
 
         async.eachLimit(defaultPosts, 2, (post, cb) => {

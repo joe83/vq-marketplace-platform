@@ -18,10 +18,19 @@ module.exports = app => {
         const category = {
             code: req.body.code,
             label: req.body.label,
-            desc: req.body.desc,
+            desc: req.body.desc || undefined,
             minPriceHour: req.body.minPriceHour || 0,
+<<<<<<< HEAD
             bigImageUrl: req.body.bigImageUrl,
             imageUrl: req.body.imageUrl
+=======
+            bigImageUrl: req.body.bigImageUrl || undefined,
+            imageUrl: req.body.imageUrl || undefined,
+            unitOfMeasure: req.body.unitOfMeasure || undefined,
+            minQuantity: req.body.minQuantity || undefined,
+            maxQuantity: req.body.maxQuantity || undefined,
+            quantityStep: req.body.quantityStep || undefined
+>>>>>>> get-started-refactor
         };
         
         req.models.appTaskCategory.create(category)

@@ -92,7 +92,7 @@ module.exports = (sequelize, DataTypes) => {
   const addDefaultConfig = (usecase, cb) => {
     console.log("Creating default config");
     
-    const defaultConfigs = require("../../example-configs/services/config.json");
+    const defaultConfigs = require(`../../example-configs/${usecase}/config.json`);
     const dataProcessed = Object.keys(defaultConfigs)
       .map(fieldKey => {
         return {
@@ -107,7 +107,7 @@ module.exports = (sequelize, DataTypes) => {
   AppConfig.insertSeed = (usecase, cb) => {
     console.log("[appConfig.insertSeed] Creating seed configs");
 
-    const defaultConfigs = require("../../example-configs/services/config.json");
+    const defaultConfigs = require(`../../example-configs/${usecase}/config.json`);
     
     const values = Object.keys(defaultConfigs)
       .map(fieldKey => {
