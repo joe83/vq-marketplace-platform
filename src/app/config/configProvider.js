@@ -1,6 +1,5 @@
 const randomstring = require("randomstring");
 const path = require("path");
-const appDir = path.dirname(require.main.filename);
 const envVars = require("../../config/env-var.json");
 const args = require('yargs').argv;
 const appRoot = require('app-root-path').path;
