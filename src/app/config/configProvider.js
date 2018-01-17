@@ -2,13 +2,15 @@ const randomstring = require("randomstring");
 const path = require("path");
 const appDir = path.dirname(require.main.filename);
 const envVars = require("../../config/env-var.json");
-const argv = require("minimist")(process.argv.slice(2));
+const args = require('yargs').argv;
+const appRoot = require('app-root-path').path;
 
 const env = process.env.ST_ENV ? process.env.ST_ENV.toLowerCase() : "local";
 
+// @todo Sercan: to revisit
 const getConfig = () => {
-	if (argv.config) {
-		return require(`${appDir}${argv.config}`);
+	if (args.config) {
+		return require(path.join(appRoot, args.config));
 	}
 
 	if (env === "production" || env === "development") {
