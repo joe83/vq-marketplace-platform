@@ -114,18 +114,18 @@ async.waterfall([
     if (err) {
         throw new Error(err);
     }
-    const appServer = app.listen(config[args.env.toUpperCase()]["VQ_LABS_COM"]["PORT"], () => {
+    const appServer = app.listen(config[args.env.toUpperCase()]["VQ_MARKETPLACE_API"]["PORT"], () => {
         const port = appServer.address().port;
         console.log(`VQ-Marketplace API listening at port ${port}. Supporting ${db.getTenantIds().length} tenants.`);
     });
-    const tenantServer = tenantApp.listen(config[args.env.toUpperCase()]["VQ_LABS_COM"]["TENANT_PORT"], () => {
+    const tenantServer = tenantApp.listen(config[args.env.toUpperCase()]["VQ_MARKETPLACE_API"]["TENANT_PORT"], () => {
         const port = tenantServer.address().port;
         console.log(`Tenant management API listening at port ${port}.`);
     });
 });
 setInterval(() => {
     const usedMemory = process.memoryUsage().heapUsed / 1024 / 1024;
-    if (config[args.env.toUpperCase()]["VQ_LABS_COM"]["SHOW_MEMORY_USAGE"]) {
+    if (config[args.env.toUpperCase()]["VQ_MARKETPLACE_API"]["SHOW_MEMORY_USAGE"]) {
       console.log(`[VQ-MARKETPLACE-API] The process is consuming now approximately ${Math.round(usedMemory * 100) / 100} MB memory.`);
     }
 }, 5000);
