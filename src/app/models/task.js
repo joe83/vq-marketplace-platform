@@ -13,7 +13,13 @@ module.exports = (sequelize, DataTypes) => {
     ON_REQUEST: 2
   };
 
-  const SUPPORTED_CURRENCIES = [ "HUF", "EUR" ];
+  const SUPPORTED_CURRENCIES = [
+    "HUF",
+    "EUR",
+    "USD",
+    "PLN",
+    "CAD"
+  ];
 
   const Task = sequelize.define("task", {
     taskType: { type: DataTypes.INTEGER },
