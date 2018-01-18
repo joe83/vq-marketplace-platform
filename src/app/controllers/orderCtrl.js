@@ -36,7 +36,7 @@ const tryGetPaymentConfigs = (models, cb) => {
             }, cb);
         },
         cb => {
-            if (paymentsEnabledConfig.fieldValue !== "1") {
+            if (!paymentsEnabledConfig || paymentsEnabledConfig.fieldValue !== "1") {
                 return cb();
             }
 
@@ -105,11 +105,11 @@ const settleOrder = (models, orderId, userId, cb) => {
             cb();
         }),
         cb => {
-            if (paymentsEnabledConfig.fieldValue !== "1") {
+            if (!paymentsEnabledConfig || paymentsEnabledConfig.fieldValue !== "1") {
                 return cb();
             }
 
-            if (!stripePrivateKey || !stripePrivateKey.fieldValue) {
+            if (!stripePrivateKey || !stripePrivateKey.fieldValue ) {
                 cb({
                     code: "PAYMENTS_ERROR"
                 });
@@ -121,7 +121,7 @@ const settleOrder = (models, orderId, userId, cb) => {
          * WE CAPTURE THE CHARGE!
          */
         cb => {
-            if (paymentsEnabledConfig.fieldValue !== "1") {
+            if (!paymentsEnabledConfig || paymentsEnabledConfig.fieldValue !== "1") {
                 cb();
 
                 return;

@@ -18,7 +18,7 @@ module.exports = app => {
     app.post(`/api/${RESOURCE}`,
         isLoggedIn,
         (req, res) => {
-            let createdOrder, requestRef, taskRef, userPaymentAccount, stripePrivateKey, provisionConfig, paymentsEnabledConfig;
+            let createdOrder, requestRef, taskRef, userPaymentAccount, stripePrivateKey, paymentsEnabledConfig;
             const order = req.body;
             
 
@@ -33,7 +33,6 @@ module.exports = app => {
                         return cb(err);
                     }
         
-                    provisionConfig = paymentConfigs.provisionConfig;
                     paymentsEnabledConfig = paymentConfigs.paymentsEnabledConfig;
                     stripePrivateKey = paymentConfigs.stripePrivateKeyConfig;
         
@@ -65,7 +64,7 @@ module.exports = app => {
 
                 // gets payment account of the supplier
                 cb => {
-                    if (paymentsEnabledConfig.fieldValue !== "1") {
+                    if (!paymentsEnabledConfig || paymentsEnabledConfig.fieldValue !== "1") {
                         return cb();
                     }
 
@@ -109,7 +108,7 @@ module.exports = app => {
                         cb();
                     }, cb),
                 cb => {
-                    if (paymentsEnabledConfig.fieldValue !== "1") {
+                    if (!paymentsEnabledConfig || paymentsEnabledConfig.fieldValue !== "1") {
                         return cb();
                     }
 
