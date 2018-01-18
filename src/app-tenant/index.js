@@ -247,7 +247,7 @@ const initRoutes = (app, express) => {
 
                     var body = "<p style=\"color: #374550;\">You can copy and paste the verification code below or click the link to continue with the registration process:</p><br><br>" +
                         "<span style=\"color: #374550;\"><b>Verification Code: </b>" + rTenant.verificationKey + "</span><br><br>" +
-                        "<span style=\"color: #374550;\"><b><a href=\"" + config.WEB_URL + "/get-started?verificationCode=" + encodeURIComponent(rTenant.verificationKey) + "\">Click here if you are unable to paste the code</a></b></span>";
+                        "<span style=\"color: #374550;\"><b><a href=\"" + config[config.env]["VQ_MARKETPLACE_API"]["WEB_URL"] + "/get-started?verificationCode=" + encodeURIComponent(rTenant.verificationKey) + "\">Click here if you are unable to paste the code</a></b></span>";
 
                     emailTemplateGenerator
                     .generateSingleColumnEmail(
@@ -474,7 +474,7 @@ const initRoutes = (app, express) => {
                 console.log("MARKETPLACE CREATED");
 
                 const marketplaceUrl =
-                    config.production ?
+                    config.env === 'PRODUCTION' ?
                         "https://" + tenantRef.tenantId + ".vqmarketplace.com/app" :
                         "https://" + tenantRef.tenantId + ".vqmarketplace.com/app";
                         
@@ -584,7 +584,7 @@ const initRoutes = (app, express) => {
 
                         var body = "<p>You can copy and paste the verification code below or click the link to continue with the registration process:</p><br><br>" +
                             "<b>Verification Code: </b>" + rTenant.verificationKey + "<br><br>" +
-                            "<b><a href=\"" + config.WEB_URL + "/get-started?verificationCode=" + encodeURIComponent(rTenant.verificationKey).replace(/%20/g, "+") + "\">Click here if you are unable to paste the code</a></b>";
+                            "<b><a href=\"" + config[config.env]["VQ_MARKETPLACE_API"]["WEB_URL"] + "/get-started?verificationCode=" + encodeURIComponent(rTenant.verificationKey).replace(/%20/g, "+") + "\">Click here if you are unable to paste the code</a></b>";
 
                         emailTemplateGenerator.generateSingleColumnEmail(
                             "Marketplace Registration",

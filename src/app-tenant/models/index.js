@@ -17,9 +17,9 @@ const create = (tenantId, cb) => {
   async.waterfall([
     cb => {
       const connection = mysql.createConnection({
-        host: config.VQ_DB_HOST,
-        user: config.VQ_DB_USER,
-        password: config.VQ_DB_PASSWORD
+        host: config[config.env]["VQ_MARKETPLACE_API"]["DB"]["HOST"],
+        user: config[config.env]["VQ_MARKETPLACE_API"]["DB"]["USER"],
+        password: config[config.env]["VQ_MARKETPLACE_API"]["DB"]["PASSWORD"]
       });
 
       connection.connect();
@@ -44,8 +44,11 @@ const create = (tenantId, cb) => {
     },
     cb => {
       const db = {};
-      const sequelize = new Sequelize(tenantId, config.VQ_DB_USER, config.VQ_DB_PASSWORD, {
-        host: config.VQ_DB_HOST,
+      const sequelize = new Sequelize(tenantId,
+        config[config.env]["VQ_MARKETPLACE_API"]["DB"]["USER"],
+        config[config.env]["VQ_MARKETPLACE_API"]["DB"]["PASSWORD"],
+        {
+        host: config[config.env]["VQ_MARKETPLACE_API"]["DB"]["HOST"],
         logging: false,
         dialect: "mysql",
         pool: {
