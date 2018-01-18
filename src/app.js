@@ -21,8 +21,7 @@ const generateConfig = () => {
   if (!args.env) {
     console.log("ERROR: Please provide an environment as an argument!")
   }
-  console.log('appRoot', appRoot)
-  console.log('appRootJoin', path.join(appRoot, args.config));
+  
   if(!fs.existsSync(path.join(appRoot, args.config))) {
     console.log("Config file was not found at ", path.join(appRoot, args.config));
     return null;
