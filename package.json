@@ -21,7 +21,6 @@
   "license": "MIT",
   "dependencies": {
     "address-validator": "^0.2.2",
-    "app-root-path": "^2.0.1",
     "async": "^2.0.0-rc.6",
     "aws-sdk": "^2.7.14",
     "bcrypt-nodejs": "0.0.3",
