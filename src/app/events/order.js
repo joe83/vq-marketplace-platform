@@ -3,7 +3,6 @@ const async = require("async");
 const db = require("../models/models");
 const randtoken = require("rand-token");
 const emailService = require("../services/emailService.js");
-const config = require("../config/configProvider.js")();
 const vqAuth = require("../auth");
 
 class DefaultEmitter extends EventEmitter {}

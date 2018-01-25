@@ -2,7 +2,6 @@ const EventEmitter = require("events");
 const async = require("async");
 const emailService = require("../services/emailService");
 const randomstring = require("randomstring");
-const config = require("../config/configProvider.js")();
 const vqAuth = require("../auth");
 
 class DefaultEmitter extends EventEmitter {}

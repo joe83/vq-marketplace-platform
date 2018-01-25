@@ -1,10 +1,9 @@
 const ejs = require("ejs");
 const mandrill = require("mandrill-api/mandrill");
-const config = require("../config/configProvider.js")();
 const custProvider = require("../config/custProvider.js");
 const unescape = require("unescape");
 
-const mandrill_client = new mandrill.Mandrill(config[config.env]["VQ_MARKETPLACE_API"]["MANDRILL"]);
+const mandrill_client = new mandrill.Mandrill(process.env.MANDRILL);
 
 const EMAILS = {
 	WELCOME: "welcome",
@@ -58,7 +57,7 @@ const getEmailAndSend = (models, emailCode, email, emailData) =>
 	.getConfig(models)
 	.then(config => {
 		// in case emails are disabled... only the welcome email can be sent.
-		if (emailCode !== EMAILS.WELCOME && config[config.env]["VQ_MARKETPLACE_API"]["EMAILS_ENABLED"] !== "1") {
+		if (emailCode !== EMAILS.WELCOME && config.EMAILS_ENABLED !== "1") {
 			return;
 		}
 
@@ -78,7 +77,7 @@ const getEmailAndSend = (models, emailCode, email, emailData) =>
 					SENDER_FIRST_NAME: "<SENDER_FIRST_NAME NOT SPECIFIED>",
 					SENDER_LAST_NAME: "<SENDER_LAST_NAME NOT SPECIFIED>",
 					MESSAGE_BODY: "<MESSAGE_BODY NOT SPECIFIED>",
-					EMAIL_SETTINGS_URL: `${config[config.env]["VQ_MARKETPLACE_API"]["APP_URL"]}/app/account/notifications`
+					EMAIL_SETTINGS_URL: `${config.DOMAIN}/app/account/notifications`
 				};
 			} else {
 				emailData.ACTION_URL = emailData.ACTION_URL || "<ACTION_URL NOT SPECIFIED>";
@@ -86,7 +85,7 @@ const getEmailAndSend = (models, emailCode, email, emailData) =>
 				emailData.SENDER_FIRST_NAME = emailData.SENDER_FIRST_NAME || "<SENDER_FIRST_NAME NOT SPECIFIED>";
 				emailData.SENDER_LAST_NAME = emailData.SENDER_LAST_NAME || "<SENDER_LAST_NAME NOT SPECIFIED>";
 				emailData.MESSAGE_BODY = emailData.MESSAGE_BODY || "<MESSAGE_BODY NOT SPECIFIED>";
-				emailData.EMAIL_SETTINGS_URL = emailData.EMAIL_SETTINGS_URL = `${config[config.env]["VQ_MARKETPLACE_API"]["APP_URL"]}/app/account/notifications`;
+				emailData.EMAIL_SETTINGS_URL = emailData.EMAIL_SETTINGS_URL = `${config.DOMAIN}/app/account/notifications`;
 			}
 
 			emailData.CONFIG = config;
@@ -195,7 +194,7 @@ const getMessagePrototype = models => new Promise((resolve, reject) => {
 	custProvider
 	.getConfig(models)
 	.then(config => {
-		return resolve(getRawMessagePrototype(config[config.env]["VQ_MARKETPLACE_API"]["APP_NAME"] || "VQ LABS", config[config.env]["VQ_MARKETPLACE_API"]["APP_SUPPORT_EMAIL"], config[config.env]["VQ_MARKETPLACE_API"]["APP_URL"]));
+		return resolve(getRawMessagePrototype(config.NAME || "VQ LABS", config.SUPPORT_EMAIL, config.DOMAIN));
 	}, reject);
 });
 

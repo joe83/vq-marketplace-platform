@@ -2,7 +2,6 @@ const async = require("async");
 const randomstring = require("randomstring");
 const tenantDb = require("./models");
 const db = require("../app/models/models");
-const config = require("../app/config/configProvider.js")();
 const utils = require("../app/utils");
 const cryptoService = require("../app/services/cryptoService");
 const emailService = require("../app/services/emailService.js");
@@ -247,7 +246,7 @@ const initRoutes = (app, express) => {
 
                     var body = "<p style=\"color: #374550;\">You can copy and paste the verification code below or click the link to continue with the registration process:</p><br><br>" +
                         "<span style=\"color: #374550;\"><b>Verification Code: </b>" + rTenant.verificationKey + "</span><br><br>" +
-                        "<span style=\"color: #374550;\"><b><a href=\"" + config[config.env]["VQ_MARKETPLACE_API"]["WEB_URL"] + "/get-started?verificationCode=" + encodeURIComponent(rTenant.verificationKey) + "\">Click here if you are unable to paste the code</a></b></span>";
+                        "<span style=\"color: #374550;\"><b><a href=\"" + process.env.WEB_URL + "/get-started?verificationCode=" + encodeURIComponent(rTenant.verificationKey) + "\">Click here if you are unable to paste the code</a></b></span>";
 
                     emailTemplateGenerator
                     .generateSingleColumnEmail(
@@ -473,10 +472,7 @@ const initRoutes = (app, express) => {
             service.deployNewMarketplace(tenantId, apiKey, tenant.password, tenant.repeatPassword, marketplaceType, configOverwrites, () => {
                 console.log("MARKETPLACE CREATED");
 
-                const marketplaceUrl =
-                    config.env === 'PRODUCTION' ?
-                        "https://" + tenantRef.tenantId + ".vqmarketplace.com/app" :
-                        "https://" + tenantRef.tenantId + ".vqmarketplace.com/app";
+                const marketplaceUrl = process.env.APP_URL.replace('?tenantId', tenantId);
                         
                 var body = `<p style="color: #374550;">
                                 Your journey to run an online marketplace has just begun! You can now easily build and manage your online marketplace and at the same time go to market, get your first users and validate your idea.
@@ -584,7 +580,7 @@ const initRoutes = (app, express) => {
 
                         var body = "<p>You can copy and paste the verification code below or click the link to continue with the registration process:</p><br><br>" +
                             "<b>Verification Code: </b>" + rTenant.verificationKey + "<br><br>" +
-                            "<b><a href=\"" + config[config.env]["VQ_MARKETPLACE_API"]["WEB_URL"] + "/get-started?verificationCode=" + encodeURIComponent(rTenant.verificationKey).replace(/%20/g, "+") + "\">Click here if you are unable to paste the code</a></b>";
+                            "<b><a href=\"" + process.env.WEB_URL + "/get-started?verificationCode=" + encodeURIComponent(rTenant.verificationKey).replace(/%20/g, "+") + "\">Click here if you are unable to paste the code</a></b>";
 
                         emailTemplateGenerator.generateSingleColumnEmail(
                             "Marketplace Registration",

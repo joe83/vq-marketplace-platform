@@ -1,11 +1,10 @@
+require('dotenv').config();
+
 const async = require("async");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const morgan = require("morgan");
-const fs = require('fs');
-const path = require('path');
 const args = require('yargs').argv;
-const appRoot = require('app-root-path').path;
 const db = require("./app/models/models");
 const tenantService = require("./app-tenant");
 const workers = require("./app/workers");
@@ -13,33 +12,10 @@ const express = require("express");
 const app = express();
 const tenantApp = express();
 
-const generateConfig = () => {
-  if (!args.config) {
-    console.log("ERROR: Please provide a config file as an argument!")
-  }
-
-  if (!args.env) {
-    console.log("ERROR: Please provide an environment as an argument!")
-  }
-  
-  if(!fs.existsSync(path.join(appRoot, args.config))) {
-    console.log("Config file was not found at ", path.join(appRoot, args.config));
-    return null;
-  } else {
-   return fs.readFileSync(path.join(appRoot, args.config), "utf8");
-  }
-}
-
-if (!generateConfig()) {
-  return;
-}
-
-const config = JSON.parse(generateConfig());
-
 const initApp = app => {
     app.set("view engine", "ejs");
     app.set("json spaces", 2);
-    app.set("superSecret", config[args.env.toUpperCase()]["VQ_MARKETPLACE_API"]["SECRET"]);
+    app.set("superSecret", process.env.SECRET);
     app.use(cors());
     app.use(bodyParser.urlencoded({ extended: false }));
     app.use(bodyParser.json());
@@ -53,8 +29,8 @@ app.use((req, res, next) => {
         token: req.headers["x-auth-token"]
     };
     let tenantId;
-    if (args.TENANT_ID || config[args.env.toUpperCase()]["VQ_MARKETPLACE_API"]["TENANT_ID"]) {
-        tenantId = args.TENANT_ID || config[args.env.toUpperCase()]["VQ_MARKETPLACE_API"]["TENANT_ID"];
+    if (args.marketplace || process.env.TENANT_ID) {
+        tenantId = args.marketplace || process.env.TENANT_ID;
     }
     else {
         const subdomains = req.subdomains;
@@ -113,18 +89,18 @@ async.waterfall([
     if (err) {
         throw new Error(err);
     }
-    const appServer = app.listen(config[args.env.toUpperCase()]["VQ_MARKETPLACE_API"]["PORT"], () => {
+    const appServer = app.listen(process.env.PORT, () => {
         const port = appServer.address().port;
         console.log(`VQ-Marketplace API listening at port ${port}. Supporting ${db.getTenantIds().length} tenants.`);
     });
-    const tenantServer = tenantApp.listen(config[args.env.toUpperCase()]["VQ_MARKETPLACE_API"]["TENANT_PORT"], () => {
+    const tenantServer = tenantApp.listen(process.env.TENANT_PORT, () => {
         const port = tenantServer.address().port;
         console.log(`Tenant management API listening at port ${port}.`);
     });
 });
 setInterval(() => {
     const usedMemory = process.memoryUsage().heapUsed / 1024 / 1024;
-    if (config[args.env.toUpperCase()]["VQ_MARKETPLACE_API"]["SHOW_MEMORY_USAGE"]) {
+    if (process.env.SHOW_MEMORY_USAGE) {
       console.log(`[VQ-MARKETPLACE-API] The process is consuming now approximately ${Math.round(usedMemory * 100) / 100} MB memory.`);
     }
 }, 5000);

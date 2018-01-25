@@ -8,7 +8,7 @@ const tsProject = ts.createProject("tsconfig.json");
 
 gulp.task("build", () => {
   fs.emptyDirSync('./built');
-  fs.removeSync('./built')
+  fs.removeSync('./built');
 
   const tsResult = tsProject.src()
     .pipe(tsProject());

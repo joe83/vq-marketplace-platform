@@ -17,22 +17,17 @@ sudo apt-get install nodejs // server-side javascript
 sudo apt-get install nodejs-legacy // links 'nodejs' command to 'node'
 sudo apt-get install npm // npm package manager for nodejs
 sudo apt-get install build-essential
-npm install -g node-gyp
+npm install node-gyp gulp eslint tslint -g
 ```
-
-After installing npm package manager for nodejs, install the following npm packages:
-```
-sudo npm install -g gulp // build automation tool
-```
-
+Review .env file and make necessary changes first!
 ## Installation
 Clone the repository into your local developement envirment.
-
 
 ```
 git clone https://github.com/vq-labs/vq-marketplace-api.git // clones the repository from remote
 cd vq-marketplace-api // goes to the repository folder
 npm install // installs the npm packages from ./package.json
+npm install node-gyp gulp eslint tslint -g // installs global packages
 ```
 ### Common problems
 ```
@@ -40,9 +35,11 @@ sudo ln -s /usr/bin/nodejs /usr/bin/node
 ```
 
 ## Running
+Review .env file and make necessary changes first!
+
 In order to start locally the VQ Web Services, you need to run the command:
 ```
-npm run start:local
+npm start
 ```
 
 The very first time you run this command, all the data tables in the database will be created. We use Sequelize models for it.
@@ -79,7 +76,7 @@ Name of the marketplace
 Orders can only be created for requests by users of type "Demand".
 There can be only one order per request.
 
-### Order settlements and transferring reservered funds to Suppliers
+### Order settlements and transferring reserved funds to Suppliers
 
 ## Contribute
 We follow the following branching model:

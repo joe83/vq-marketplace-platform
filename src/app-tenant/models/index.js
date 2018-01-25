@@ -3,7 +3,6 @@ const fs = require("fs");
 const path = require("path");
 const mysql = require("mysql2");
 const Sequelize = require("sequelize");
-const config = require("../../app/config/configProvider.js")();
 
 const tenantConnections = {};
 
@@ -17,9 +16,9 @@ const create = (tenantId, cb) => {
   async.waterfall([
     cb => {
       const connection = mysql.createConnection({
-        host: config[config.env]["VQ_MARKETPLACE_API"]["DB"]["HOST"],
-        user: config[config.env]["VQ_MARKETPLACE_API"]["DB"]["USER"],
-        password: config[config.env]["VQ_MARKETPLACE_API"]["DB"]["PASSWORD"]
+        host: process.env.DB_HOST,
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD
       });
 
       connection.connect();
@@ -45,10 +44,10 @@ const create = (tenantId, cb) => {
     cb => {
       const db = {};
       const sequelize = new Sequelize(tenantId,
-        config[config.env]["VQ_MARKETPLACE_API"]["DB"]["USER"],
-        config[config.env]["VQ_MARKETPLACE_API"]["DB"]["PASSWORD"],
+        process.env.DB_USER,
+        process.env.DB_PASSWORD,
         {
-        host: config[config.env]["VQ_MARKETPLACE_API"]["DB"]["HOST"],
+        host: process.env.DB_HOST,
         logging: false,
         dialect: "mysql",
         pool: {
