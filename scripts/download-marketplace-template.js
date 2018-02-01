@@ -4,7 +4,7 @@ const fs = require("fs");
 
 const standardTemplates = {
     "bitcoinmeetup": "bitcoinmeetup",
-    "rental-kitchen": "rental-kitchen",
+    "rentals": "rental-kitchen",
     "products": "b2btemplate",
     "services": "vqtemplate-airtasker"
 };
@@ -83,6 +83,4 @@ async.each(Object.keys(standardTemplates), (marketplaceType, cb) => {
     ], err => {
 
     });
-
-    
 });
