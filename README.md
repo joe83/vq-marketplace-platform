@@ -11,6 +11,13 @@ You can use the web services with the official VQ Marketplace Storefront:
 
 * [vq-marketplace-web-app](https://github.com/vq-labs/vq-marketplace-web-app) - ReactJS Marketplace Front-End
 
+## Marketplace templates
+You can view the live demos here:
+* [Product Marketplace - Copy of Tindie](https://b2btemplate.vqmarketplace.com)
+* [Rental Marketplace - Copy of AirBnB](https://rental-kitchen.vqmarketplace.com)
+* [Product Marketplace - Copy of Airtasker](https://vqtemplate-airtasker.vqmarketplace.com)
+* [Exchange Marketplace - Cryptocurrency OTC Exchange](https://bitcoinmeetup.vqmarketplace.com)
+
 ## System setup
 
 ### Ubuntu
