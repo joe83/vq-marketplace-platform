@@ -1,3 +1,5 @@
+const async = require("async");
+
 module.exports = (sequelize, DataTypes) => {
   const appTaskCategory = sequelize.define("appTaskCategory", {
       code: { type: DataTypes.STRING, required: true, unique: true },
@@ -14,5 +16,32 @@ module.exports = (sequelize, DataTypes) => {
       tableName: "_appTaskCategory"
   });
 
-  return appTaskCategory;
+    appTaskCategory.upsertFactory = () => (code, categoryData, cb) => {
+        appTaskCategory
+        .findOne({
+            where: {
+                code
+            }
+        })
+        .then(obj => {
+            if (!obj) {
+            return appTaskCategory
+                .create(categoryData)
+                .then(() => {
+                    return cb();
+                }, cb);
+            }
+
+            return cb();
+        }, cb);
+    };
+
+    appTaskCategory.bulkCreateOrUpdate = (configs, cb) => {
+        const upsert = appTaskCategory.upsertFactory();
+
+        async
+        .eachSeries(configs, (config, cb) => upsert(config.code, config, cb), (err) => cb(err));
+    };
+
+    return appTaskCategory;
 };

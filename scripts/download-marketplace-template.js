@@ -3,7 +3,8 @@ const request = require("request-json");
 const fs = require("fs");
 
 const standardTemplates = {
-    "rentals": "rental-kitchen",
+    "bitcoinmeetup": "bitcoinmeetup",
+    "rental-kitchen": "rental-kitchen",
     "products": "b2btemplate",
     "services": "vqtemplate-airtasker"
 };

@@ -62,7 +62,7 @@
             "type": "node",
             "request": "launch",
             "name": "debug:local",
-            "program": "${workspaceRoot}/app.js",
+            "program": "${workspaceRoot}/built/app.js",
             "cwd": "${workspaceRoot}",
             "env": {
                 "TENANT_ID": "testmarketplace",

@@ -10,11 +10,12 @@ const deployNewMarketplace = (tenantId, apiKey, password, repeatPassword, market
 
   let tenantRef;
 
+  const marketplaceCategories = require(`../example-configs/${marketplaceType}/categories.json`);
   const marketplaceConfig = require(`../example-configs/${marketplaceType}/config.json`);
 
 
   if (!marketplaceConfig) {
-  console.log('Marketplace config for %s was not found in example-configs directory', marketplaceType);
+    console.log('Marketplace config for %s was not found in example-configs directory', marketplaceType);
   }
 
   Object
@@ -65,9 +66,9 @@ const deployNewMarketplace = (tenantId, apiKey, password, repeatPassword, market
         },
         cb => {
           marketplaceModels = db.get(tenantId);
-          console.log(marketplaceModels);
 
-          marketplaceModels.appConfig
+          marketplaceModels
+            .appConfig
             .bulkCreateOrUpdate(
               Object.keys(marketplaceConfig)
                 .map(fieldKey => {
@@ -77,6 +78,21 @@ const deployNewMarketplace = (tenantId, apiKey, password, repeatPassword, market
                   };
                 }),
               true,
+              err => {
+                if (err) {
+                  return cb(err);
+                }
+
+                cb();
+              });
+        },
+        cb => {
+          marketplaceModels = db.get(tenantId);
+
+          marketplaceModels
+            .appTaskCategory
+            .bulkCreateOrUpdate(
+              marketplaceCategories,
               err => {
                 if (err) {
                   return cb(err);
