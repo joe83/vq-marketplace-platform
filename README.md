@@ -18,6 +18,12 @@ You can view the live demos here:
 * [Product Marketplace - Copy of Airtasker](https://vqtemplate-airtasker.vqmarketplace.com)
 * [Exchange Marketplace - Cryptocurrency OTC Exchange](https://bitcoinmeetup.vqmarketplace.com)
 
+In order to download current configuration templates run:
+```
+node scripts/download-marketplace-template.js
+```
+The configuration packages will be saved under "src/example-configs".
+
 ## System setup
 
 ### Ubuntu
