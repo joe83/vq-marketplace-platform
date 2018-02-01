@@ -10,9 +10,18 @@ const deployNewMarketplace = (tenantId, apiKey, password, repeatPassword, market
 
   let tenantRef;
 
-  import(`../example-configs/${marketplaceType}/config.json`)
-    .then(marketplaceConfig => {
-      marketplaceConfig = {...marketplaceConfig, ...configOverwrites};
+  const marketplaceConfig = require(`../example-configs/${marketplaceType}/config.json`);
+
+
+  if (!marketplaceConfig) {
+  console.log('Marketplace config for %s was not found in example-configs directory', marketplaceType);
+  }
+
+  Object
+    .keys(configOverwrites)
+    .forEach(configOverwriteKey => {
+      marketplaceConfig[configOverwriteKey] = configOverwrites[configOverwriteKey];
+    });
 
       async.waterfall([
         cb => {
@@ -95,21 +104,14 @@ const deployNewMarketplace = (tenantId, apiKey, password, repeatPassword, market
           tenantRef
             .update({
               status: 3
-            }).then(() => {
+            })
+            .then(() => {
             console.log("Success! Created Marketplace, initial config and user account.");
 
             return cb();
           }, cb);
         }
       ], cb);
-    })
-    .catch(err => {
-      if (err) {
-        console.log('Marketplace config for %s was not found in example-configs directory', marketplaceType);
-      }
-    });
-
-
 };
 
 module.exports = {

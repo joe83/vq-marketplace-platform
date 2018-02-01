@@ -370,7 +370,19 @@ const initRoutes = (app, express) => {
         const marketplaceType = tenant.marketplaceType;
         const tenantId = utils.stringToSlug(tenant.marketplaceName);
 
-        const reserveredKeywords = ["blog", rootDbName, "help"];
+        if (!tenantId) {
+            return res.status(400)
+                .send({
+                    code: "MARKETPLACE_NAME_WRONG_FORMAT"
+                });
+        }
+
+        const reserveredKeywords = [
+            "innodb",
+            "blog",
+            rootDbName,
+            "help"
+        ];
 
         if (reserveredKeywords.indexOf(tenantId) !== -1) {
             return res.status(400)
@@ -466,8 +478,17 @@ const initRoutes = (app, express) => {
               DOMAIN: `https://${tenantRef.tenantId}.vqmarketplace.com`,
             };
 
+            res.send(tenantRef);
+
             // this can last some time, up to one minute, it should be run async
-            service.deployNewMarketplace(tenantId, apiKey, tenant.password, tenant.repeatPassword, marketplaceType, configOverwrites, () => {
+            service
+            .deployNewMarketplace(
+                tenantId,
+                apiKey,
+                tenant.password,
+                tenant.repeatPassword,
+                marketplaceType,
+                configOverwrites, () => {
                 console.log("MARKETPLACE CREATED");
 
                 const marketplaceUrl =
@@ -475,7 +496,7 @@ const initRoutes = (app, express) => {
                         "https://" + tenantRef.tenantId + ".vqmarketplace.com/app" :
                         "https://" + tenantRef.tenantId + ".vqmarketplace.com/app";
                         
-                var body = `<p style="color: #374550;">
+                const body = `<p style="color: #374550;">
                                 Your journey to run an online marketplace has just begun! You can now easily build and manage your online marketplace and at the same time go to market, get your first users and validate your idea.
                             </p>
                             <br>
@@ -513,8 +534,6 @@ const initRoutes = (app, express) => {
                     }
                 );
             });
-
-            res.send(tenantRef);
         });
     });
 

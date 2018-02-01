@@ -75,6 +75,7 @@
     "gulp-typescript": "^3.2.3",
     "mongodb": "^2.2.33",
     "pre-commit": "^1.2.2",
+    "request-json": "^0.6.2",
     "tslint": "^5.8.0",
     "typescript": "^2.6.1",
     "yargs": "^7.1.0"

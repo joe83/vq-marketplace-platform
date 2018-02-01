@@ -1,0 +1,58 @@
+[
+  {
+    "code": "furniture-assembly",
+    "bigImageUrl": null,
+    "imageUrl": "https://vqassets-dev.s3.eu-central-1.amazonaws.com/vqtemplate-airtasker/4rflr5ejpuuzdgvgamil5mf9evwvqrem.jpeg",
+    "label": "Furniture Assembly",
+    "minPriceHour": 7,
+    "desc": "Get help for your furniture assembly.",
+    "minQuantity": null,
+    "maxQuantity": null,
+    "quantityStep": null,
+    "unitOfMeasure": null,
+    "createdAt": "2018-02-01T18:50:52.000Z",
+    "updatedAt": "2018-02-01T18:50:52.000Z"
+  },
+  {
+    "code": "gardening",
+    "bigImageUrl": null,
+    "imageUrl": "https://vqassets-dev.s3.eu-central-1.amazonaws.com/vqtemplate-airtasker/9gz9ga3fnmnh8iug018cagdaqag0kijk.jpeg",
+    "label": "Gardening",
+    "minPriceHour": 8,
+    "desc": "General garden maintenance",
+    "minQuantity": null,
+    "maxQuantity": null,
+    "quantityStep": null,
+    "unitOfMeasure": null,
+    "createdAt": "2018-02-01T18:48:42.000Z",
+    "updatedAt": "2018-02-01T18:48:42.000Z"
+  },
+  {
+    "code": "households",
+    "bigImageUrl": null,
+    "imageUrl": "https://vqassets-dev.s3.eu-central-1.amazonaws.com/vqtemplate-airtasker/6ril5denz0la0sti12123j29mbeg1pg8.jpeg",
+    "label": "Households",
+    "minPriceHour": 7,
+    "desc": "Cleaning, help in households and more.",
+    "minQuantity": null,
+    "maxQuantity": null,
+    "quantityStep": null,
+    "unitOfMeasure": null,
+    "createdAt": "2018-02-01T18:46:26.000Z",
+    "updatedAt": "2018-02-01T18:46:26.000Z"
+  },
+  {
+    "code": "moving",
+    "bigImageUrl": null,
+    "imageUrl": "https://vqassets-dev.s3.eu-central-1.amazonaws.com/vqtemplate-airtasker/wjp6dnigxb7czke3n1rovt47npz4tcbj.jpeg",
+    "label": "Moving ",
+    "minPriceHour": 7,
+    "desc": "Get help for your moving",
+    "minQuantity": null,
+    "maxQuantity": null,
+    "quantityStep": null,
+    "unitOfMeasure": null,
+    "createdAt": "2018-02-01T18:49:57.000Z",
+    "updatedAt": "2018-02-01T18:49:57.000Z"
+  }
+]
