@@ -56,6 +56,8 @@ const changeRequestStatus = (models: any, requestId: number, newStatus: string, 
                     });
                 }
 
+                oldRequest = requestRef;
+
                 if (requestRef.status === newStatus) {
                     return cb({
                         code: "NO_ACTION_REQUIRED"

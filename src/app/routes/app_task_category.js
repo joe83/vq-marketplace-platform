@@ -36,6 +36,7 @@ module.exports = app => {
         const id = req.params.id;
         const category = {
             code: req.body.code,
+            status: req.body.status,
             label: req.body.label,
             desc: req.body.desc,
             minPriceHour: req.body.minPriceHour,

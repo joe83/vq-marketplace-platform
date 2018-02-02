@@ -14,22 +14,23 @@ const getConfig = () => {
 	if (env === "production" || env === "development") {
 		// null is replaced by env variables
 		return {
-			"production": true,
-			"port": null,
-			"TENANT_APP_PORT": null,
-			"VQ_DB_USER": null,
-			"VQ_DB_PASSWORD": null,
-			"VQ_DB_HOST": null,
-			"secret" : null,
-			"SERVER_URL" : null,
-			"WEB_URL" : null,
-			"AWS_S3_BUCKET": null,
-			"AWS_S3_REGION": "eu-central-1",
-			"AWS_S3_ACCESS_KEY_ID": null,
-			"AWS_S3_SECRET_ACCESS_KEY": null,
-			"mandrill": null,
-			"STRIPE_ID": null,
-			"STRIPE_SECRET": null
+		"production": false,
+		"port": 8080,
+		"TENANT_APP_PORT": 8081,
+		"VQ_DB_USER": "root",
+		"VQ_DB_PASSWORD": "",
+		"VQ_DB_HOST": "localhost",
+      "TENANT_ID": "sercan",
+		"secret" : "test",
+		"SERVER_URL" : "http://localhost:8080",
+		"WEB_URL" : "http://localhost:3000",
+		"AWS_S3_BUCKET": null,
+		"AWS_S3_REGION": "eu-central-1",
+		"AWS_S3_ACCESS_KEY_ID": null,
+		"AWS_S3_SECRET_ACCESS_KEY": null,
+		"mandrill": "JuDZWumK5EeqziSNF0OI7A",
+		"STRIPE_ID": null,
+		"STRIPE_SECRET": null
 		};
 	}
 

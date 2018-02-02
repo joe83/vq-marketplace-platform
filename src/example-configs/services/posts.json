@@ -37,7 +37,7 @@
    }, {
        "code": "listing-cancelled",
        "title": "Listing has been cancelled",
-       "body": "<p>Hello!</p><p>Your listing '<%- LISTING_TITLE %>' has been cancelled.</p> <p><br></p> <p>You can a new listing here: '<%- ACTION_URL %>'</p> <p><br></p> <p>Best regards,</p> <p><%- CONFIG.NAME %> team</p>",
+       "body": "<p>Hello!</p><p>Your listing '<%- LISTING_TITLE %>' has been cancelled.</p> <p><br></p> <p>You can create a new listing here: '<%- ACTION_URL %>'</p> <p><br></p> <p>Best regards,</p> <p><%- CONFIG.NAME %> team</p>",
        "type": "email"
    },  {
        "code": "new-task",
