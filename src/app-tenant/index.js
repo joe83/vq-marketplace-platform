@@ -540,8 +540,6 @@ const initRoutes = (app, express) => {
     app.post("/api/trial-registration/getTenantStatus", (req, res) => {
         const apiKey = req.body.apiKey;
 
-        console.log(apiKey)
-
         getModels((err, tenantModels) => {
             if (err) {
                 return res.status(400).send(err);
@@ -559,8 +557,8 @@ const initRoutes = (app, express) => {
                     ]
                 })
                 .then(tenant => {
-                    return res.send({
-                        tenant: tenant
+                    return res.status(200).send({
+                        tenant
                     });
                 }, err => res.status(400).send(err));
         });
