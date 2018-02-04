@@ -190,24 +190,27 @@ module.exports = app => {
                 }
 
                 if (req.query.minPrice || req.query.maxPrice) {
-                    if (req.query.minPrice) {
+                    const minPrice = Number(req.query.minPrice);
+                    const maxPrice = Number(req.query.maxPrice);
+
+                    if (minPrice) {
                         query
                         .where
                         .$and
                         .push({
                             price: {
-                                $gte: Number(req.query.minPrice)
+                                $gte: minPrice
                             }
                         });
                     }
                     
-                    if (req.query.maxPrice) {
+                    if (maxPrice) {
                         query
                             .where
                             .$and
                             .push({
                                 price: {
-                                    $lte: Number(req.query.maxPrice)
+                                    $lte: maxPrice
                                 }
                             });
                     }
