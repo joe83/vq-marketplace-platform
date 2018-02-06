@@ -1,10 +1,11 @@
 const chargebee = require("chargebee");
 
-chargebee.configure({
-    site : "vq-labs-test",
-    api_key : "test_zxNxwZ7lg1fJhisIkVU3laFf6Sb8p8zcd"
-});
+const config = require("../config/configProvider")();
 
+chargebee.configure({
+    site: config.CHARGEBEE_SITE,
+    api_key: config.CHARGEBEE_API_KEY 
+});
 
 /**
  * Creates customer entity in external CRM and Billing Services for tenant and saves the reference.
