@@ -38,8 +38,8 @@ module.exports = (sequelize, DataTypes) => {
     callToActionLabel: { 
       type: DataTypes.STRING(64) 
     },
-    callToActionUrl: { 
-      type: DataTypes.STRING(64) 
+    callToActionUrl: {
+      type: DataTypes.STRING(254) 
     },
     status: {
       type: DataTypes.ENUM(

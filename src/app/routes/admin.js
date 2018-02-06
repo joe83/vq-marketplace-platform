@@ -3,20 +3,54 @@ const async = require("async");
 const vqAuth = require("../auth");
 const isLoggedIn = resCtrl.isLoggedIn;
 const isAdmin = resCtrl.isAdmin;
+const hasValidSubscription = resCtrl.hasValidSubscription;
 const sendResponse = resCtrl.sendResponse;
 const requestCtrl = require("../controllers/requestCtrl");
 const userEmitter = require("../events/user");
 const taskEmitter = require("../events/task");
+const tenantModelsProvider = require("../../app-tenant/tenantModelsProvider");
+const subscriptionService = require("../services/subscriptionService");
 
 module.exports = app => {
-	app.get("/api/admin/report", isLoggedIn, isAdmin, (req, res) => req.models.report
+	app.post("/api/admin/tenant/subscription", isLoggedIn, isAdmin, (req, res) => {
+		subscriptionService
+		.createSubscription((err, result) => {
+			res.send(result);
+		});
+	});
+
+	app.get("/api/admin/tenant", isLoggedIn, isAdmin, (req, res) => {
+		tenantModelsProvider.getModels((err, tenantModels) => {
+			if (err) {
+				return res.status(500).send(err);
+			}
+
+			tenantModels
+			.tenant
+			.findOne({
+				where: {
+					tenantId: req.models.tenantId
+				}
+			})
+			.then(tenant => {
+				res.send({
+					tenant
+				});
+			})
+			.catch(err => {
+				res.status(500).send(err);
+			});
+		});
+	});
+
+	app.get("/api/admin/report", isLoggedIn, isAdmin, hasValidSubscription, (req, res) => req.models.report
 		.findAll({
 			distinct: "reportName",
 			order: [[ "createdAt", "DESC" ]]
 		})
 		.then(data => res.send(data)));
 
-	app.get("/api/admin/user", isLoggedIn, isAdmin, (req, res) => req.models.user
+	app.get("/api/admin/user", isLoggedIn, isAdmin, hasValidSubscription, (req, res) => req.models.user
 		.findAll({
 			order: [[ "createdAt", "DESC" ]],
 			include: [
@@ -30,7 +64,7 @@ module.exports = app => {
 			res.status(400).send(err);
 		}));
 
-	app.get("/api/admin/user/:userId/emails", (req, res) => {
+	app.get("/api/admin/user/:userId/emails", isLoggedIn, isAdmin, hasValidSubscription, (req, res) => {
 		const userId = req.params.userId;
 
 		req.models
@@ -55,7 +89,7 @@ module.exports = app => {
 			}, err => res.status(500).send(err));
 	});
 
-	app.get("/api/admin/request", isLoggedIn, isAdmin, (req, res) => req.models.request
+	app.get("/api/admin/request", isLoggedIn, isAdmin, hasValidSubscription, (req, res) => req.models.request
 		.findAll({
 			order: [[ "createdAt", "DESC" ]],
 			include: [
@@ -78,7 +112,7 @@ module.exports = app => {
 		})
 		.then(data => res.send(data)));
 
-	app.get("/api/admin/request/:requestId/messages", isLoggedIn, isAdmin, (req, res) =>
+	app.get("/api/admin/request/:requestId/messages", isLoggedIn, isAdmin, hasValidSubscription, (req, res) =>
 		req.models
 		.message
 		.findAll({
@@ -97,7 +131,7 @@ module.exports = app => {
 			return res.status(400).send(err);
 		}));
 
-	app.get("/api/admin/task", isLoggedIn, isAdmin, (req, res) => req.models.task
+	app.get("/api/admin/task", isLoggedIn, isAdmin, hasValidSubscription, (req, res) => req.models.task
 		.findAll({
 			order: [[ "createdAt", "DESC" ]],
 			include: []
@@ -107,6 +141,7 @@ module.exports = app => {
 	app.put("/api/admin/task/:taskId/spam", 
 		isLoggedIn,
 		isAdmin,
+		hasValidSubscription,
 		(req, res) => {
 			req.models
 			.task
@@ -148,6 +183,7 @@ module.exports = app => {
 	app.delete("/api/admin/user/:userId/verifications", 
 		isLoggedIn,
 		isAdmin,
+		hasValidSubscription,
 		(req, res) => {
 			req.models
 			.userProperty
@@ -172,7 +208,11 @@ module.exports = app => {
 			);
 		});
 
-	app.get("/api/admin/order", isLoggedIn, isAdmin, (req, res) => req.models.order
+	app.get("/api/admin/order",
+		isLoggedIn,
+		isAdmin,
+		hasValidSubscription,
+		(req, res) => req.models.order
 		.findAll({
 			order: [[ "createdAt", "DESC" ]],
 			include: [
@@ -186,6 +226,7 @@ module.exports = app => {
 	app.put("/api/admin/user/:userId/block", 
 		isLoggedIn,
 		isAdmin,
+		hasValidSubscription,
 		(req, res) => {
 			const userId = req.params.userId;
 
@@ -330,6 +371,7 @@ module.exports = app => {
 	app.put("/api/admin/user/:userId/unblock", 
 		isLoggedIn,
 		isAdmin,
+		hasValidSubscription,
 		(req, res) => {
 			req.models.user
             .update({
