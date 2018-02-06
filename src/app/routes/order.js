@@ -52,7 +52,7 @@ module.exports = app => {
                     .then(rRequest => {
                         requestRef = rRequest;
 
-                        if (requestRef.status !== req.models.request.REQUEST_STATUS.PENDING) {
+                        if (requestRef.status !== req.models.request.REQUEST_STATUS.PENDING && requestRef.status !== req.models.request.REQUEST_STATUS.ACCEPTED ) {
                             return cb({
                                 httpCode: 400,
                                 code: "WRONG_REQUEST_STATUS"
@@ -207,7 +207,7 @@ module.exports = app => {
                 },
                 cb => requestRef
                     .update({
-                        status: req.models.request.REQUEST_STATUS.ACCEPTED
+                        status: req.models.request.REQUEST_STATUS.BOOKED
                     })
                     .then(() => cb(), cb),
 
@@ -255,7 +255,6 @@ module.exports = app => {
             const userId = req.user.id;
             const where = {
                 $and: [
-                    { userId },
                     { id: orderId }
                 ]
             };

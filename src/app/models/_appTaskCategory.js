@@ -28,5 +28,7 @@ module.exports = (sequelize, DataTypes) => {
       tableName: "_appTaskCategory"
   });
 
+  appTaskCategory.TASK_CATEGORY_STATUS = CATEGORY_STATUS;
+
   return appTaskCategory;
 };

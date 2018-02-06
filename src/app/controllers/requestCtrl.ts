@@ -22,6 +22,22 @@ const declineRequest = (models: any, requestId: number, cb: any) => {
     }, cb);
 };
 
+const cancelRequest = (models: any, requestId: number, cb: any) => {
+    models
+    .request
+    .findById(requestId)
+    .then((request: any) => {
+        request
+        .update({
+            status: models.request.REQUEST_STATUS.CANCELED
+        });
+
+        if (cb) {
+            cb();
+        }
+    }, cb);
+};
+
 const declineAllPendingRequestsForTask = (models: any, taskId: number, cb: any) => {
     models.request.findAll({
         where: {
@@ -33,6 +49,21 @@ const declineAllPendingRequestsForTask = (models: any, taskId: number, cb: any) 
     }).then((pendingRequests: any[]) => {
         async.eachSeries(pendingRequests, (request: any, cb: any) => {
             return declineRequest(models, request.id, cb);
+        }, cb);
+    });
+};
+
+const cancelAllPendingRequestsForTask = (models: any, taskId: number, cb: any) => {
+    models.request.findAll({
+        where: {
+            $and: [
+                { taskId: taskId },
+                { status: models.request.REQUEST_STATUS.PENDING }
+            ]
+        }
+    }).then((pendingRequests: any[]) => {
+        async.eachSeries(pendingRequests, (request: any, cb: any) => {
+            return cancelRequest(models, request.id, cb);
         }, cb);
     });
 };
@@ -139,5 +170,7 @@ const changeRequestStatus = (models: any, requestId: number, newStatus: string, 
 module.exports = {
     declineAllPendingRequestsForTask,
     changeRequestStatus,
-    declineRequest
+    declineRequest,
+    cancelAllPendingRequestsForTask,
+    cancelRequest
 };

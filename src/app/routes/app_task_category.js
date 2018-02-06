@@ -1,5 +1,7 @@
+const async = require("async");
 const responseController = require("../controllers/responseController.js");
 const isAdmin = responseController.isAdmin;
+const taskCtrl = require("../controllers/taskCtrl.js");
 
 module.exports = app => {
     app.get("/api/app_task_categories", (req, res) =>
@@ -43,12 +45,60 @@ module.exports = app => {
             bigImageUrl: req.body.bigImageUrl,
             imageUrl: req.body.imageUrl
         };
-      
-        req.models.appTaskCategory.update(category, {
-            where: { id }
-        })
-        .then(data => res.status(200).send(data))
-        .catch(err => res.status(400).send(err));
+
+        if (category.status && category.status === req.models.appTaskCategory.TASK_CATEGORY_STATUS.INACTIVE) {
+            let appTaskCategory;
+            const tasksOfCategory = [];
+    
+            async.waterfall([
+                cb => {         
+                    req.models.appTaskCategory
+                    .findOne({
+                        where: {
+                            id
+                        }
+                    })
+                    .then(rAppTaskCategory => {
+                        appTaskCategory = rAppTaskCategory;
+    
+                        cb();
+                    }, cb)
+                },
+                cb => {
+                    taskCtrl.cancelAllUnbookedTasks(req.models, appTaskCategory.code, err => {
+                        if (err) {
+                            console.error(err);
+                            cb(err);
+                        }
+    
+                        console.log(`[SUCCESS] All tasks for category '${appTaskCategory.code}' have been cancelled along with their requests!`)
+                        cb();
+                    })
+                },
+                cb => {
+                    req.models.appTaskCategory.update(category, {
+                        where: { id }
+                    })
+                    .then(data => cb(null, data), cb)
+                }
+            ], (err, result) => {
+                if (err) {
+                    return res.status(400).send(err)
+                }
+    
+                return res.status(200).send(result);        
+            });   
+        } else {
+            req.models.appTaskCategory.update(category, {
+                where: { id }
+            })
+            .then(data => res.status(200).send(data))
+            .catch(err => res.status(400).send(err));
+        }
+
+ 
+
+
     });
 
     app.delete("/api/app_task_categories/:id", isAdmin, (req, res) => {
