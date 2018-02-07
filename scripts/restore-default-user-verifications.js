@@ -1,4 +1,4 @@
-const models = require('../app/models/models.js');
+const models = require('../built/app/models/models.js');
 
 models
     .appUserVerification

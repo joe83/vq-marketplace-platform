@@ -66,10 +66,10 @@ npm run start:local
 The very first time you run this command, all the data tables in the database will be created. We use Sequelize models for it.
 Ensure that you also run the init scripts at the very beginning:
 ```
-node scripts/restore-default-config.js services|rental
+node scripts/restore-default-config.js services|rental|products|bitcoinmeetup
 // here we can specify what marketplace type we want. We have some default implementations developed: services|partner|swap. Also you can specify which language you'd like to add.
-node scripts/restore-default-labels.js services en (or rental for marketplaceType)
-node scripts/restore-default-posts.js services (or rental)
+node scripts/restore-default-labels.js services en (or one of 'rental', 'products', 'bitcoinmeetup' for marketplaceType)
+node scripts/restore-default-posts.js services (or one of 'rental', 'products', 'bitcoinmeetup')
 ```
 
 ## Deployment

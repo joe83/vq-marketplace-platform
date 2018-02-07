@@ -1,6 +1,6 @@
 const async = require("async");
-const models = require("../app/models/models.js");
-const orderCtrl = require("../app/controllers/orderCtrl");
+const models = require("../built/app/models/models.js");
+const orderCtrl = require("../built/app/controllers/orderCtrl");
 
 const TIME_INTERVAL = 1000 * 60 * 60;
 

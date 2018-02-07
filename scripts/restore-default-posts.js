@@ -1,4 +1,4 @@
-const db = require('../app/models/models.js');
+const db = require('../built/app/models/models.js');
 
 if (!process.env.TENANT_ID) {
     throw new Error("Specify TENANT_ID");
