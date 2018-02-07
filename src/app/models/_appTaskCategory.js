@@ -60,3 +60,4 @@ module.exports = (sequelize, DataTypes) => {
     appTaskCategory.TASK_CATEGORY_STATUS = CATEGORY_STATUS;
     
     return appTaskCategory;
+}
