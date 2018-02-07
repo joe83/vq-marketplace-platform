@@ -97,7 +97,7 @@ const generateFourPanelEmail = (heading, title, bodyBottom, bodyLeft, bodyRight,
 
         var headingRegExp = new RegExp("#heading#", "g");
         var titleRegExp = new RegExp("#title#", "g");
-        var bodyTopRegExp = new RegExp("#bodyTop#", "g");
+        // var bodyTopRegExp = new RegExp("#bodyTop#", "g");
         var bodyLeftRegExp = new RegExp("#bodyLeft#", "g");
         var bodyRightRegExp = new RegExp("#bodyRight#", "g");
         var bodyBottomRegExp = new RegExp("#bodyBottom#", "g");
@@ -105,7 +105,7 @@ const generateFourPanelEmail = (heading, title, bodyBottom, bodyLeft, bodyRight,
         html = replaceDefaultValues(html);
         html = html.replace(headingRegExp, heading);
         html = html.replace(titleRegExp, title);
-        html = html.replace(bodyTopRegExp, bodyTop);
+        // html = html.replace(bodyTopRegExp, bodyTop);
         html = html.replace(bodyLeftRegExp, bodyLeft);
         html = html.replace(bodyRightRegExp, bodyRight);
         html = html.replace(bodyBottomRegExp, bodyBottom);

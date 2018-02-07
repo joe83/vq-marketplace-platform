@@ -37,6 +37,12 @@ module.exports = (sequelize, DataTypes) => {
     description: { 
       type: DataTypes.STRING(2048) 
     },
+    callToActionLabel: { 
+      type: DataTypes.STRING(64) 
+    },
+    callToActionUrl: {
+      type: DataTypes.STRING(254) 
+    },
     status: {
       type: DataTypes.ENUM(
         TASK_STATUS.ACTIVE,

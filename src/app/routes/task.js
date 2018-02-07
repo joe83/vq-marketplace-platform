@@ -128,7 +128,8 @@ module.exports = app => {
 
                 const lat = req.query.lat;
                 const lng = req.query.lng;
-    
+                const rad = req.query.rad || 2000;
+
                 if (lat && lng) {
                     const location = req.models.seq
                         .literal(`ST_GeomFromText('POINT(${lat} ${lng})')`);
@@ -149,7 +150,7 @@ module.exports = app => {
                     const seqWhereCond = req.models
                         .seq
                         .where(distance, {
-                            $lte: 2000
+                            $lte: rad
                         });
                    
                     query.include.push({
@@ -189,24 +190,27 @@ module.exports = app => {
                 }
 
                 if (req.query.minPrice || req.query.maxPrice) {
-                    if (req.query.minPrice) {
+                    const minPrice = Number(req.query.minPrice);
+                    const maxPrice = Number(req.query.maxPrice);
+
+                    if (minPrice) {
                         query
                         .where
                         .$and
                         .push({
                             price: {
-                                $gte: Number(req.query.minPrice)
+                                $gte: minPrice
                             }
                         });
                     }
                     
-                    if (req.query.maxPrice) {
+                    if (maxPrice) {
                         query
                             .where
                             .$and
                             .push({
                                 price: {
-                                    $lte: Number(req.query.maxPrice)
+                                    $lte: maxPrice
                                 }
                             });
                     }

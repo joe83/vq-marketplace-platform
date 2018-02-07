@@ -1,0 +1,44 @@
+[
+  {
+    "code": "entire-kitchen",
+    "bigImageUrl": null,
+    "imageUrl": "https://egamix.s3.eu-central-1.amazonaws.com/rental-kitchen/m5wacnbuajjxsinzn3g0gt2jy64niw4j.jpeg",
+    "label": "Entire Kitchen",
+    "minPriceHour": 50,
+    "desc": "Commercial Kitchen - Entire Kitchen",
+    "minQuantity": null,
+    "maxQuantity": null,
+    "quantityStep": null,
+    "unitOfMeasure": null,
+    "createdAt": "2018-01-06T10:05:48.000Z",
+    "updatedAt": "2018-01-07T06:22:21.000Z"
+  },
+  {
+    "code": "private-kitchen",
+    "bigImageUrl": null,
+    "imageUrl": "https://vqassets-dev.s3.eu-central-1.amazonaws.com/rental-kitchen/nba7tnbjd37d1xjuh1j6hdu73gjzjvlb.jpeg",
+    "label": "Private Kitchen",
+    "minPriceHour": 50,
+    "desc": "Private Kitchen",
+    "minQuantity": null,
+    "maxQuantity": null,
+    "quantityStep": null,
+    "unitOfMeasure": null,
+    "createdAt": "2018-01-07T11:10:21.000Z",
+    "updatedAt": "2018-01-07T11:10:21.000Z"
+  },
+  {
+    "code": "shared-kitchen",
+    "bigImageUrl": null,
+    "imageUrl": "https://vqassets-dev.s3.eu-central-1.amazonaws.com/rental-kitchen/oqx5c4tirpschn3rf79f50zrm2c5aw57.jpeg",
+    "label": "Shared Kitchen",
+    "minPriceHour": 50,
+    "desc": "Commercial Kitchen - Shared Kitchen",
+    "minQuantity": null,
+    "maxQuantity": null,
+    "quantityStep": null,
+    "unitOfMeasure": null,
+    "createdAt": "2018-01-07T11:07:39.000Z",
+    "updatedAt": "2018-01-07T11:07:39.000Z"
+  }
+]

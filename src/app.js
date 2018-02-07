@@ -37,7 +37,7 @@ app.use((req, res, next) => {
 		tenantId = process.env.TENANT_ID || config.TENANT_ID;
 	} else {
 		const subdomains = req.subdomains;
-		
+
 		tenantId = subdomains[subdomains.length - 1];
 
 		console.log(`Accessing ${tenantId}`);

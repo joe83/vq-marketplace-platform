@@ -1,7 +1,6 @@
 const jwt = require("jsonwebtoken");
 const cust = require("../config/customizing");
 const superSecret = require("../config/configProvider")().secret;
-const models = require("../models/models");
 const vqAuth = require("../auth");
 
 function isAuth(req) {
@@ -93,7 +92,23 @@ const isLoggedInAndVerified = parseUserFactory(true, false, "10");
 const isAdmin = parseUserFactory(true, true);
 const identifyUser = parseUserFactory(false, false);
 
+const subscriptions = {};
+
+const hasValidSubscription = (req, res, next) => {
+	return next();
+	/**
+		if (!subscriptions[req.tenantId]) {
+			return res.status(400).send({
+				code: "INVALID_SUBSCRIPTION"
+			});
+		}
+
+		return next();
+	*/
+};
+
 module.exports = {
+	hasValidSubscription,
 	isAdmin,
 	isLoggedIn,
 	isLoggedInAndVerified,

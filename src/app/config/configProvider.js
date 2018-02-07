@@ -29,7 +29,9 @@ const getConfig = () => {
 			"AWS_S3_SECRET_ACCESS_KEY": null,
 			"mandrill": null,
 			"STRIPE_ID": null,
-			"STRIPE_SECRET": null
+			"STRIPE_SECRET": null,
+			"CHARGEBEE_SITE": null,
+			"CHARGEBEE_API_KEY": null
 		};
 	}
 
@@ -49,7 +51,9 @@ const getConfig = () => {
 		"AWS_S3_SECRET_ACCESS_KEY": null,
 		"mandrill": null,
 		"STRIPE_ID": null,
-		"STRIPE_SECRET": null
+		"STRIPE_SECRET": null,
+		"CHARGEBEE_SITE": null,
+		"CHARGEBEE_API_KEY": null
 	};
 };
 

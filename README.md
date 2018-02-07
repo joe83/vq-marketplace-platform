@@ -1,11 +1,28 @@
-# VQ Marketplace API
+# VQ Marketplace Platform
+The VQ Marketplace Platform is used for running Sharing Economy and On-Demand Marketplace Back-Ends. It supports multi-tenancy and multi-applications. The supported resources include users, listings, listing requests, orders (transactions), reviews and reporting. The Platform follows RESTful standards of data exchange to allow easy and fast integration with third-party providers.
 
-## Overview
-VQ Marketplace API - a web services for creating Sharing Economy Marketplaces. 
+MySQL is the database of choice for VQ Marketplace Platform. Files, images and similar assets are persisted in AWS S3 buckets.
+
+The platform integrates with Stripe - a global payment provider for fiat currency and Mandrill - a Mailchimp Service for E-Mail sending automation.
+
+VQ Marketplace Platform is a priopiatary technology of [VQ LABS](https://vq-labs.com). You can start your marketplace running the VQ Marketplace Platform on [vqmarketplace.com](https://vqmarketplace.com).
 
 You can use the web services with the official VQ Marketplace Storefront:
 
 * [vq-marketplace-web-app](https://github.com/vq-labs/vq-marketplace-web-app) - ReactJS Marketplace Front-End
+
+## Marketplace templates
+You can view the live demos here:
+* [Product Marketplace - Copy of Tindie](https://b2btemplate.vqmarketplace.com)
+* [Rental Marketplace - Copy of AirBnB](https://rental-kitchen.vqmarketplace.com)
+* [Product Marketplace - Copy of Airtasker](https://vqtemplate-airtasker.vqmarketplace.com)
+* [Exchange Marketplace - Cryptocurrency OTC Exchange](https://bitcoinmeetup.vqmarketplace.com)
+
+In order to download current configuration templates run:
+```
+node scripts/download-marketplace-template.js
+```
+The configuration packages will be saved under "src/example-configs".
 
 ## System setup
 
@@ -38,6 +55,7 @@ npm install // installs the npm packages from ./package.json
 ```
 sudo ln -s /usr/bin/nodejs /usr/bin/node
 ```
+
 
 ## Running
 In order to start locally the VQ Web Services, you need to run the command:

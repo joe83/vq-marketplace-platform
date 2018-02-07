@@ -12,7 +12,9 @@ module.exports = (sequelize, DataTypes) => {
         country: { type: DataTypes.STRING, required: true },
         status: { type: DataTypes.INTEGER(1), required: true, defaultValue: 0 },
         stripeAccountId: { type: DataTypes.STRING, required: false },
-        stripeAccount: { type: DataTypes.JSON, required: false }
+        stripeAccount: { type: DataTypes.JSON, required: false },
+        chargebeeCustomerId: { type: DataTypes.STRING, required: false },
+        chargebeeActiveSubscriptionId: { type: DataTypes.STRING, required: false }
   }, {
     tableName: "tenant"
   });

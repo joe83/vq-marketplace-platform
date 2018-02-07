@@ -1,0 +1,44 @@
+[
+  {
+    "code": "diy-electronics",
+    "bigImageUrl": null,
+    "imageUrl": "https://vqassets-dev.s3.eu-central-1.amazonaws.com/b2btemplate/fbsi2whtl2uamba0f78hkyxcozxj3u2j.jpeg",
+    "label": "DIY Electronics",
+    "minPriceHour": 0,
+    "desc": "Do-It-Yourself Electronics",
+    "minQuantity": 1,
+    "maxQuantity": 50,
+    "quantityStep": 1,
+    "unitOfMeasure": "Units",
+    "createdAt": "2017-12-20T23:31:16.000Z",
+    "updatedAt": "2017-12-20T23:31:16.000Z"
+  },
+  {
+    "code": "iot-smart-home",
+    "bigImageUrl": null,
+    "imageUrl": "https://vqassets-dev.s3.eu-central-1.amazonaws.com/b2btemplate/5u311gbvz29pj8dajo3mq0kyqjt5w2td.jpeg",
+    "label": "IoT & Smart Home",
+    "minPriceHour": 0,
+    "desc": "",
+    "minQuantity": 1,
+    "maxQuantity": 50,
+    "quantityStep": 1,
+    "unitOfMeasure": "Units",
+    "createdAt": "2017-12-20T23:26:32.000Z",
+    "updatedAt": "2017-12-21T01:06:10.000Z"
+  },
+  {
+    "code": "robots-drones",
+    "bigImageUrl": null,
+    "imageUrl": "https://vqassets-dev.s3.eu-central-1.amazonaws.com/b2btemplate/1r9y56esj19sst3it8zejkj70ozkjrv3.jpeg",
+    "label": "Robots  & Drones",
+    "minPriceHour": 0,
+    "desc": "",
+    "minQuantity": 1,
+    "maxQuantity": 50,
+    "quantityStep": 1,
+    "unitOfMeasure": "Units",
+    "createdAt": "2017-12-20T23:29:37.000Z",
+    "updatedAt": "2017-12-20T23:29:37.000Z"
+  }
+]

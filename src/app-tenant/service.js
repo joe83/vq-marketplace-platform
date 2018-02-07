@@ -10,9 +10,19 @@ const deployNewMarketplace = (tenantId, apiKey, password, repeatPassword, market
 
   let tenantRef;
 
-  import(`../example-configs/${marketplaceType}/config.json`)
-    .then(marketplaceConfig => {
-      marketplaceConfig = {...marketplaceConfig, ...configOverwrites};
+  const marketplaceCategories = require(`../example-configs/${marketplaceType}/categories.json`);
+  const marketplaceConfig = require(`../example-configs/${marketplaceType}/config.json`);
+
+
+  if (!marketplaceConfig) {
+    console.log('Marketplace config for %s was not found in example-configs directory', marketplaceType);
+  }
+
+  Object
+    .keys(configOverwrites)
+    .forEach(configOverwriteKey => {
+      marketplaceConfig[configOverwriteKey] = configOverwrites[configOverwriteKey];
+    });
 
       async.waterfall([
         cb => {
@@ -56,9 +66,9 @@ const deployNewMarketplace = (tenantId, apiKey, password, repeatPassword, market
         },
         cb => {
           marketplaceModels = db.get(tenantId);
-          console.log(marketplaceModels);
 
-          marketplaceModels.appConfig
+          marketplaceModels
+            .appConfig
             .bulkCreateOrUpdate(
               Object.keys(marketplaceConfig)
                 .map(fieldKey => {
@@ -68,6 +78,21 @@ const deployNewMarketplace = (tenantId, apiKey, password, repeatPassword, market
                   };
                 }),
               true,
+              err => {
+                if (err) {
+                  return cb(err);
+                }
+
+                cb();
+              });
+        },
+        cb => {
+          marketplaceModels = db.get(tenantId);
+
+          marketplaceModels
+            .appTaskCategory
+            .bulkCreateOrUpdate(
+              marketplaceCategories,
               err => {
                 if (err) {
                   return cb(err);
@@ -95,21 +120,14 @@ const deployNewMarketplace = (tenantId, apiKey, password, repeatPassword, market
           tenantRef
             .update({
               status: 3
-            }).then(() => {
+            })
+            .then(() => {
             console.log("Success! Created Marketplace, initial config and user account.");
 
             return cb();
           }, cb);
         }
       ], cb);
-    })
-    .catch(err => {
-      if (err) {
-        console.log('Marketplace config for %s was not found in example-configs directory', marketplaceType);
-      }
-    });
-
-
 };
 
 module.exports = {
