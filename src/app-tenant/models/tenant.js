@@ -1,6 +1,7 @@
 module.exports = (sequelize, DataTypes) => {
   const Model = sequelize.define("tenant", {
         tenantId: { type: DataTypes.STRING, required: true, unique: true },
+        source: { type: DataTypes.STRING },
         email: { type: DataTypes.STRING, required: true, unique: true },
         emailVerified: { type: DataTypes.BOOLEAN, defaultValue: false },
         apiKey: { type: DataTypes.STRING, required: true },

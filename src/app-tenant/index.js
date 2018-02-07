@@ -230,7 +230,8 @@ const initRoutes = (app, express) => {
                         email: tenant.email
                     },
                     defaults: {
-                        apiKey: randomstring.generate(32)
+                        apiKey: randomstring.generate(32),
+                        source: tenant.source
                     }
                 })
                 .spread((rTenant, isNew) => {
