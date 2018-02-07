@@ -10,7 +10,7 @@ const cancelAllUnbookedTasks = (models: any, categoryCode: string, cb: any) => {
     const taskIds: any = [];
     let unBookedTasks: any[];
 
-    async.waterfall([
+    return async.waterfall([
         (cb: any) => {         
             models.taskCategory
             .findAll({
@@ -68,9 +68,7 @@ const cancelAllUnbookedTasks = (models: any, categoryCode: string, cb: any) => {
             }, cb);
         }
 
-    ], (err: any) => {
-        cb(err)
-    });
+    ], cb);
 
 
 

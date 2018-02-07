@@ -76,35 +76,18 @@ module.exports = app => {
         const userId = req.user.id;
 
         const where = {
-            $and: [{
-                $and: [
-                    {
-                        $or: [
-                            { status: req.models.request.REQUEST_STATUS.PENDING },
-                            { status: req.models.request.REQUEST_STATUS.ACCEPTED },
-                            { status: req.models.request.REQUEST_STATUS.MARKED_DONE },
-                            { status: req.models.request.REQUEST_STATUS.SETTLED },
-                            { status: req.models.request.REQUEST_STATUS.CLOSED }
-                        ]
-                    }, {
-                        $or: [
-                            {
-                                fromUserId: userId
-                            }, {
-                                toUserId: userId
-                            }
-                        ]
-                    }
-                ]
-            }]
+            $and: [
+                {
+                    $or: [
+                        {
+                            fromUserId: userId
+                        }, {
+                            toUserId: userId
+                        }
+                    ]
+                }
+            ]
         };
-
-        if (req.query.view === "in_progress") {
-            where.$and.push({ $or: [
-                { status: req.models.request.REQUEST_STATUS.ACCEPTED },
-                { status: req.models.request.REQUEST_STATUS.MARKED_DONE }
-            ]});
-        }
 
         if (req.query.view === "pending") {
             where.$and.push({ 
@@ -112,6 +95,21 @@ module.exports = app => {
                     { status: req.models.request.REQUEST_STATUS.PENDING }
                 ]
             });
+        }
+
+        if (req.query.view === "accepted") {
+            where.$and.push({ 
+                $or: [
+                    { status: req.models.request.REQUEST_STATUS.ACCEPTED }
+                ]
+            });
+        }
+
+        if (req.query.view === "in_progress") {
+            where.$and.push({ $or: [
+                { status: req.models.request.REQUEST_STATUS.BOOKED },
+                { status: req.models.request.REQUEST_STATUS.MARKED_DONE }
+            ]});
         }
 
         if (req.query.view === "completed") {

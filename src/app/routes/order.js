@@ -299,9 +299,7 @@ module.exports = app => {
         (req, res) => {
             const userId = req.user.id;
             const where = {
-                $and: [
-                    { userId }
-                ]
+                $and: []
             };
 
             if (req.query.view === "in_progress") {
@@ -353,8 +351,10 @@ module.exports = app => {
                 ]
             })
             .then(orders => {
+                console.log('orders', orders)
                 orders = orders
-                    .filter(order => order.request);
+                    .filter(order => order.request)
+                    .filter(order => order.request.toUserId === userId || order.request.fromUserId === userId);
                 
                 async
                     .eachLimit(orders, 3, (order, cb) => {

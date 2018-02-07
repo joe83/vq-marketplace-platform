@@ -50,8 +50,8 @@ module.exports = app => {
             let appTaskCategory;
             const tasksOfCategory = [];
     
-            async.waterfall([
-                cb => {         
+            return async.waterfall([
+                cb => {
                     req.models.appTaskCategory
                     .findOne({
                         where: {
@@ -73,13 +73,13 @@ module.exports = app => {
     
                         console.log(`[SUCCESS] All tasks for category '${appTaskCategory.code}' have been cancelled along with their requests!`)
                         cb();
-                    })
+                    });
                 },
                 cb => {
                     req.models.appTaskCategory.update(category, {
                         where: { id }
                     })
-                    .then(data => cb(null, data), cb)
+                    .then(data => cb(undefined, data), cb)
                 }
             ], (err, result) => {
                 if (err) {
@@ -88,16 +88,13 @@ module.exports = app => {
     
                 return res.status(200).send(result);        
             });   
-        } else {
-            req.models.appTaskCategory.update(category, {
-                where: { id }
-            })
-            .then(data => res.status(200).send(data))
-            .catch(err => res.status(400).send(err));
         }
 
- 
-
+        return req.models.appTaskCategory.update(category, {
+            where: { id }
+        })
+        .then(data => res.status(200).send(data))
+        .catch(err => res.status(400).send(err));
 
     });
 
