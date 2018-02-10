@@ -318,7 +318,7 @@
   "SENT_REQUESTS_PENDING": "Pending",
   "SENT_REQUESTS_SETTLED": "Completed jobs",
   "SETTLE_ORDER": "Job is done",
-  "SETTLE_ORDER_DESC": "Tbe booked job will be marked as done and indicated that it has been paid.",
+  "SETTLE_ORDER_DESC": "The booked job will be marked as done and indicated that it has been paid.",
   "SIGNUP": "Signup",
   "SIGNUP_DEMAND_USER_TYPE": "Rent",
   "SIGNUP_PAGE_DESC": "Create an account to get started",

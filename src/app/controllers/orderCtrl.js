@@ -2,6 +2,7 @@ const async = require("async");
 const stripeProvider = require("../../shared-providers/stripe");
 const orderEmitter = require("../events/order");
 const requestEmitter = require("../events/request");
+const taskEmitter = require("../events/task");
 const utils = require("../utils");
 
 const tryGetPaymentConfigs = (models, cb) => {
@@ -183,6 +184,9 @@ const settleOrder = (models, orderId, userId, cb) => {
             return cb(err);
         }
        
+        taskEmitter
+            .emit("task-completed", models, order.taskId);
+
         requestEmitter
             .emit("request-completed", models, requestId);
 

@@ -94,6 +94,12 @@ const changeRequestStatus = (models: any, requestId: number, newStatus: string, 
                         code: "NO_ACTION_REQUIRED"
                     });
                 }
+
+                if (Number(requestRef.status) > Number(newStatus)) {
+                    return cb({
+                        code: "REQUEST_HAS_ALREADY_PASSED_THIS_STEP"
+                    });
+                }
                 
                 return cb(null, requestRef);
             });
@@ -143,11 +149,12 @@ const changeRequestStatus = (models: any, requestId: number, newStatus: string, 
         }
 
         if (newStatus === models.request.REQUEST_STATUS.MARKED_DONE) {
+
             requestEmitter
                 .emit("request-marked-as-done", models, requestId);
 
             orderEmitter
-                .emit("order-marked-as-done", models, order.id);
+                .emit("order-marked-as-done", models, order.id);            
         }
 
         if (newStatus === models.request.REQUEST_STATUS.CANCELED) {

@@ -1,10 +1,11 @@
 module.exports = (sequelize, DataTypes) => {
   const TASK_STATUS = {
     ACTIVE: "0",
-    INACTIVE: "103",
     CREATION_IN_PROGRESS: "10",
     BOOKED: "20",
-    SPAM: "99"
+    COMPLETED: "30",
+    SPAM: "99",
+    INACTIVE: "103",
   };
 
   const PRICE_TYPE = {
@@ -46,10 +47,11 @@ module.exports = (sequelize, DataTypes) => {
     status: {
       type: DataTypes.ENUM(
         TASK_STATUS.ACTIVE,
-        TASK_STATUS.INACTIVE,
         TASK_STATUS.CREATION_IN_PROGRESS,
         TASK_STATUS.BOOKED,
-        TASK_STATUS.SPAM
+        TASK_STATUS.COMPLETED,
+        TASK_STATUS.SPAM,
+        TASK_STATUS.INACTIVE,
       ),
       defaultValue: TASK_STATUS.CREATION_IN_PROGRESS
     }
@@ -67,6 +69,7 @@ module.exports = (sequelize, DataTypes) => {
     Task.hasMany(models.taskComment);
     Task.hasMany(models.taskTiming);
     Task.hasMany(models.request);
+    Task.hasMany(models.review);
   };
 
   return Task;

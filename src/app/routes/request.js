@@ -89,36 +89,17 @@ module.exports = app => {
             ]
         };
 
-        if (req.query.view === "pending") {
+        if (req.query.status) {
+            const statusQuery = [];
+
+            if (Array.isArray(req.query.status)) {
+                req.query.status.forEach(status => statusQuery.push({ status: String(status) }));
+            } else {
+                statusQuery.push({ status: String(req.query.status) });
+            }
+
             where.$and.push({ 
-                $or: [
-                    { status: req.models.request.REQUEST_STATUS.PENDING }
-                ]
-            });
-        }
-
-        if (req.query.view === "accepted") {
-            where.$and.push({ 
-                $or: [
-                    { status: req.models.request.REQUEST_STATUS.ACCEPTED }
-                ]
-            });
-        }
-
-        if (req.query.view === "in_progress") {
-            where.$and.push({ $or: [
-                { status: req.models.request.REQUEST_STATUS.BOOKED },
-                { status: req.models.request.REQUEST_STATUS.MARKED_DONE }
-            ]});
-        }
-
-        if (req.query.view === "completed") {
-            where.$and.push({
-                $or: [{
-                    status: req.models.request.REQUEST_STATUS.SETTLED
-                }, {
-                    status: req.models.request.REQUEST_STATUS.CLOSED
-                }]
+                $or: statusQuery
             });
         }
 
@@ -135,7 +116,6 @@ module.exports = app => {
                 include: [
                     { model: req.models.user, as: "fromUser" },
                     { model: req.models.user, as: "toUser" },
-                    { model: req.models.review },
                     { model: req.models.order }
                 ]
             })
@@ -193,6 +173,7 @@ module.exports = app => {
                                 include: [
                                     { model: req.models.taskTiming },
                                     { model: req.models.taskLocation },
+                                    { model: req.models.review },
                                 ]
                             })
                             .then(task => {
@@ -217,7 +198,6 @@ module.exports = app => {
                         if (err) {
                             return cb(err);
                         }
-
 
                         data.task.dataValues.categories = data.categories;
 

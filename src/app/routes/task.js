@@ -84,8 +84,14 @@ module.exports = app => {
                     { 
                         model: req.models.user,
                         as: "fromUser",
+                    },
+                    {
+                        model: req.models.order
                     }
                 ]
+            },
+            {
+                    model: req.models.review
             });
 
             const timingInclude = {
@@ -164,13 +170,17 @@ module.exports = app => {
                 }
 
 
-
                 if (req.query.status) {
-                    query
-                    .where
-                    .$and
-                    .push({
-                        status: String(req.query.status)
+                    const statusQuery = [];
+                    
+                    if (Array.isArray(req.query.status)) {
+                        req.query.status.forEach(status => statusQuery.push({ status: String(status) }));
+                    } else {
+                        statusQuery.push({ status: String(req.query.status) });
+                    }
+        
+                    query.where.$and.push({ 
+                        $or: statusQuery
                     });
                 }
                 

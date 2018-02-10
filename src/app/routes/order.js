@@ -302,23 +302,25 @@ module.exports = app => {
                 $and: []
             };
 
-            if (req.query.view === "in_progress") {
-                where.$and.push({
-                    $or: [
-                        { status: req.models.order.ORDER_STATUS.PENDING },
-                        { status: req.models.order.ORDER_STATUS.MARKED_DONE }
-                    ]
+            if (req.query.status) {
+                const statusQuery = [];
+    
+                if (Array.isArray(req.query.status)) {
+                    req.query.status.forEach(status => statusQuery.push({ status: String(status) }));
+                } else {
+                    statusQuery.push({ status: String(req.query.status) })
+                }
+    
+                where.$and.push({ 
+                    $or: statusQuery
                 });
             }
 
-            if (req.query.view === "completed") {
-                where.$and
-                .push({
+            if (req.query.userId) {
+                where.$and.push({
                     $or: [
                         {
-                            status: req.models.order.ORDER_STATUS.SETTLED
-                        }, {
-                            status: req.models.order.ORDER_STATUS.CLOSED
+                            userId: req.query.userId
                         }
                     ]
                 });
