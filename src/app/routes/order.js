@@ -353,7 +353,6 @@ module.exports = app => {
                 ]
             })
             .then(orders => {
-                console.log('orders', orders)
                 orders = orders
                     .filter(order => order.request)
                     .filter(order => order.request.toUserId === userId || order.request.fromUserId === userId);
