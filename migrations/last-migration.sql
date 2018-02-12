@@ -9,6 +9,7 @@ create procedure doMigration ()
 		ALTER TABLE request MODIFY COLUMN status ENUM('0','5','6','10','14','15','20','25');
 		ALTER TABLE _appTaskCategory ADD COLUMN status ENUM('0', '103', '99');
 		ALTER TABLE task MODIFY COLUMN status ENUM('0','10','20','30','99','103');
+		UPDATE _appTaskCategory SET status='0';
 	end;;
 
 call doMigration();
