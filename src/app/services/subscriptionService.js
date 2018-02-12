@@ -80,6 +80,10 @@ const ensureCustomerDataSaved = (tenantRef, cb) => {
       */
 };
 
+const getCustomer = (tenantRef, cb) => {
+  chargebee.customer.retrieve(tenantRef.chargebeeCustomerId).request(cb);
+};
+
 const createSubscription = (data, cb) => {
   chargebee.customer.create({
     /**
@@ -97,8 +101,8 @@ const createSubscription = (data, cb) => {
       country : "US"
     }
     */
-  }).request(function(error,result){
-    if(error){
+  }).request((error,result) => {
+    if (error) {
       //handle error
       console.log(error);
     }else{
@@ -180,6 +184,7 @@ const getSubscription = () => {
 };
 
 module.exports = {
+  getCustomer,
   ensureCustomerDataSaved,
   createSubscription,
   getSubscription

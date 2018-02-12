@@ -25,20 +25,47 @@ module.exports = app => {
 				return res.status(500).send(err);
 			}
 
-			tenantModels
-			.tenant
-			.findOne({
-				where: {
-					tenantId: req.models.tenantId
+			let tenant;
+			let customer;
+
+			async.waterfall([
+				cb => {
+					tenantModels
+					.tenant
+					.findOne({
+						where: {
+							tenantId: req.models.tenantId
+						}
+					})
+					.then(rTenant => {
+						tenant = rTenant;
+
+						cb();
+					})
+					.catch(err => {
+						cb(err);
+					});
+				},
+				cb => {
+					subscriptionService.getCustomer(tenant.chargebeeCustomerId, (err, rChargebeeCustomer) => {
+						if (err) {
+							return cb(err);
+						}
+
+						customer = rChargebeeCustomer;
+
+						cb();
+					});
 				}
-			})
-			.then(tenant => {
+			], err => {
+				if (err) {
+					return res.status(500).send(err);
+				}
+
 				res.send({
+					customer,
 					tenant
 				});
-			})
-			.catch(err => {
-				res.status(500).send(err);
 			});
 		});
 	});
