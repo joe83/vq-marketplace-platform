@@ -22,22 +22,6 @@ const declineRequest = (models: any, requestId: number, cb: any) => {
     }, cb);
 };
 
-const cancelRequest = (models: any, requestId: number, cb: any) => {
-    models
-    .request
-    .findById(requestId)
-    .then((request: any) => {
-        request
-        .update({
-            status: models.request.REQUEST_STATUS.CANCELED
-        });
-
-        if (cb) {
-            cb();
-        }
-    }, cb);
-};
-
 const declineAllPendingRequestsForTask = (models: any, taskId: number, cb: any) => {
     models.request.findAll({
         where: {
@@ -49,21 +33,6 @@ const declineAllPendingRequestsForTask = (models: any, taskId: number, cb: any) 
     }).then((pendingRequests: any[]) => {
         async.eachSeries(pendingRequests, (request: any, cb: any) => {
             return declineRequest(models, request.id, cb);
-        }, cb);
-    });
-};
-
-const cancelAllPendingRequestsForTask = (models: any, taskId: number, cb: any) => {
-    models.request.findAll({
-        where: {
-            $and: [
-                { taskId: taskId },
-                { status: models.request.REQUEST_STATUS.PENDING }
-            ]
-        }
-    }).then((pendingRequests: any[]) => {
-        async.eachSeries(pendingRequests, (request: any, cb: any) => {
-            return cancelRequest(models, request.id, cb);
         }, cb);
     });
 };
@@ -92,12 +61,6 @@ const changeRequestStatus = (models: any, requestId: number, newStatus: string, 
                 if (requestRef.status === newStatus) {
                     return cb({
                         code: "NO_ACTION_REQUIRED"
-                    });
-                }
-
-                if (Number(requestRef.status) > Number(newStatus)) {
-                    return cb({
-                        code: "REQUEST_HAS_ALREADY_PASSED_THIS_STEP"
                     });
                 }
                 
@@ -149,12 +112,11 @@ const changeRequestStatus = (models: any, requestId: number, newStatus: string, 
         }
 
         if (newStatus === models.request.REQUEST_STATUS.MARKED_DONE) {
-
             requestEmitter
                 .emit("request-marked-as-done", models, requestId);
 
             orderEmitter
-                .emit("order-marked-as-done", models, order.id);            
+                .emit("order-marked-as-done", models, order.id);
         }
 
         if (newStatus === models.request.REQUEST_STATUS.CANCELED) {
@@ -177,7 +139,5 @@ const changeRequestStatus = (models: any, requestId: number, newStatus: string, 
 module.exports = {
     declineAllPendingRequestsForTask,
     changeRequestStatus,
-    declineRequest,
-    cancelAllPendingRequestsForTask,
-    cancelRequest
+    declineRequest
 };

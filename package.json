@@ -48,6 +48,7 @@
     "multer": "~1.2.1",
     "mysql2": "^1.4.2",
     "node-geocoder": "^3.20.0",
+    "node-slack": "0.0.7",
     "npm": "^4.0.3",
     "passport": "~0.3.2",
     "passport-facebook": "~2.1.1",

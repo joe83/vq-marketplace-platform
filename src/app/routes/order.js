@@ -52,7 +52,7 @@ module.exports = app => {
                     .then(rRequest => {
                         requestRef = rRequest;
 
-                        if (requestRef.status !== req.models.request.REQUEST_STATUS.PENDING && requestRef.status !== req.models.request.REQUEST_STATUS.ACCEPTED ) {
+                        if (requestRef.status !== req.models.request.REQUEST_STATUS.PENDING) {
                             return cb({
                                 httpCode: 400,
                                 code: "WRONG_REQUEST_STATUS"
@@ -207,7 +207,7 @@ module.exports = app => {
                 },
                 cb => requestRef
                     .update({
-                        status: req.models.request.REQUEST_STATUS.BOOKED
+                        status: req.models.request.REQUEST_STATUS.ACCEPTED
                     })
                     .then(() => cb(), cb),
 
@@ -255,6 +255,7 @@ module.exports = app => {
             const userId = req.user.id;
             const where = {
                 $and: [
+                    { userId },
                     { id: orderId }
                 ]
             };
@@ -299,28 +300,28 @@ module.exports = app => {
         (req, res) => {
             const userId = req.user.id;
             const where = {
-                $and: []
+                $and: [
+                    { userId }
+                ]
             };
 
-            if (req.query.status) {
-                const statusQuery = [];
-    
-                if (Array.isArray(req.query.status)) {
-                    req.query.status.forEach(status => statusQuery.push({ status: String(status) }));
-                } else {
-                    statusQuery.push({ status: String(req.query.status) })
-                }
-    
-                where.$and.push({ 
-                    $or: statusQuery
+            if (req.query.view === "in_progress") {
+                where.$and.push({
+                    $or: [
+                        { status: req.models.order.ORDER_STATUS.PENDING },
+                        { status: req.models.order.ORDER_STATUS.MARKED_DONE }
+                    ]
                 });
             }
 
-            if (req.query.userId) {
-                where.$and.push({
+            if (req.query.view === "completed") {
+                where.$and
+                .push({
                     $or: [
                         {
-                            userId: req.query.userId
+                            status: req.models.order.ORDER_STATUS.SETTLED
+                        }, {
+                            status: req.models.order.ORDER_STATUS.CLOSED
                         }
                     ]
                 });
@@ -354,8 +355,7 @@ module.exports = app => {
             })
             .then(orders => {
                 orders = orders
-                    .filter(order => order.request)
-                    .filter(order => order.request.toUserId === userId || order.request.fromUserId === userId);
+                    .filter(order => order.request);
                 
                 async
                     .eachLimit(orders, 3, (order, cb) => {
