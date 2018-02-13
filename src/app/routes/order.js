@@ -14,6 +14,7 @@ module.exports = app => {
     /**
      * Order can only be created from a request sent to supply or demand listing.
      * Orders can only by created by Demand Users.
+     * A request can only be booked once!
      */
     app.post(`/api/${RESOURCE}`,
         isLoggedIn,
@@ -213,23 +214,57 @@ module.exports = app => {
 
                 /**
                  * @configure-it start
-                 * THIS FUNCTIONALITY NEEDS TO BE REVIEWED AND MADE CONFIGURABLE
+                 * THIS FUNCTIONALITY NEEDS TO BE REVIEWED AND MADE CONFIGURABLE WHEN WE SUPPORT NEW USECASES
+                 * Right now we cover:
+                 * A) applications (taskrabbit, click4work)
+                 * B) instant rental bookings (airbnb, rentkitchen)
                  */
+               
+                cb => {
+                     // @todo: this needs to be made configurable!
 
-                // @todo: this needs to be made configurable!
-                cb => requestCtrl
-                    .declineAllPendingRequestsForTask(req.models, order.taskId, cb),
+                     /**
+                      * Request handling for DEMAND (1) Listings
+                      * All other requests are declined.
+                      */
+                     if (Number(taskRef.taskType) === 1) {
+                        requestCtrl
+                            .declineAllPendingRequestsForTask(req.models, order.taskId, cb)
+                     }
 
-                // @todo: sometimes we do not want to refuse other requests!
-                cb => req.models.task
-                    .update({
-                        status: req.models.task.TASK_STATUS.BOOKED
-                    }, {
-                        where: {
-                            id: order.taskId
-                        }
-                    })
-                    .then(() => cb(), cb)
+                    /**
+                      * Request handling for SUPPLY (2) Listings
+                      * All other requests remain until declined manually or listing deactived.
+                      */
+                     if (Number(taskRef.taskType) === 2) {
+                        cb();
+                     }
+                },
+                cb => {
+                    /**
+                      * Task handling for DEMAND (1) Listings
+                      * Task is marked as booked and removed from the pool of active listings.
+                      */
+                    if (Number(taskRef.taskType) === 1) {
+                        return req.models.task
+                            .update({
+                                status: req.models.task.TASK_STATUS.BOOKED
+                            }, {
+                                where: {
+                                    id: order.taskId
+                                }
+                            })
+                            .then(() => cb(), cb);
+                    }
+
+                    /**
+                      * Task handling for SUPPLY (1) Listings
+                      * Task remains in the pool of active listings
+                      */
+                    if (Number(taskRef.taskType) === 2) {
+                        return cb();
+                    }
+                }
                 /**
                  * @configure-it end
                  */
@@ -243,8 +278,11 @@ module.exports = app => {
                 orderEmitter
                     .emit("new-order", req.models, createdOrder.id);
 
-                requestEmitter
-                    .emit("request-accepted", req.models, createdOrder.requestId);
+                if (Number(taskRef.taskType) === 1) {
+                    requestEmitter
+                        .emit("request-accepted", req.models, createdOrder.requestId);
+                }
+                
             });
         });
 
