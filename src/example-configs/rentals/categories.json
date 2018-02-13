@@ -1,6 +1,7 @@
 [
   {
     "code": "entire-kitchen",
+    "status": "0",
     "bigImageUrl": null,
     "imageUrl": "https://egamix.s3.eu-central-1.amazonaws.com/rental-kitchen/m5wacnbuajjxsinzn3g0gt2jy64niw4j.jpeg",
     "label": "Entire Kitchen",
@@ -15,6 +16,7 @@
   },
   {
     "code": "private-kitchen",
+    "status": "0",
     "bigImageUrl": null,
     "imageUrl": "https://vqassets-dev.s3.eu-central-1.amazonaws.com/rental-kitchen/nba7tnbjd37d1xjuh1j6hdu73gjzjvlb.jpeg",
     "label": "Private Kitchen",
@@ -29,6 +31,7 @@
   },
   {
     "code": "shared-kitchen",
+    "status": "0",
     "bigImageUrl": null,
     "imageUrl": "https://vqassets-dev.s3.eu-central-1.amazonaws.com/rental-kitchen/oqx5c4tirpschn3rf79f50zrm2c5aw57.jpeg",
     "label": "Shared Kitchen",

@@ -1,6 +1,7 @@
 [
   {
     "code": "furniture-assembly",
+    "status": "0",
     "bigImageUrl": null,
     "imageUrl": "https://vqassets-dev.s3.eu-central-1.amazonaws.com/vqtemplate-airtasker/4rflr5ejpuuzdgvgamil5mf9evwvqrem.jpeg",
     "label": "Furniture Assembly",
@@ -11,10 +12,11 @@
     "quantityStep": null,
     "unitOfMeasure": null,
     "createdAt": "2018-02-01T18:50:52.000Z",
-    "updatedAt": "2018-02-01T18:50:52.000Z"
+    "updatedAt": "2018-02-13T18:22:35.000Z"
   },
   {
     "code": "gardening",
+    "status": "0",
     "bigImageUrl": null,
     "imageUrl": "https://vqassets-dev.s3.eu-central-1.amazonaws.com/vqtemplate-airtasker/9gz9ga3fnmnh8iug018cagdaqag0kijk.jpeg",
     "label": "Gardening",
@@ -25,10 +27,11 @@
     "quantityStep": null,
     "unitOfMeasure": null,
     "createdAt": "2018-02-01T18:48:42.000Z",
-    "updatedAt": "2018-02-01T18:48:42.000Z"
+    "updatedAt": "2018-02-13T18:22:35.000Z"
   },
   {
     "code": "households",
+    "status": "0",
     "bigImageUrl": null,
     "imageUrl": "https://vqassets-dev.s3.eu-central-1.amazonaws.com/vqtemplate-airtasker/6ril5denz0la0sti12123j29mbeg1pg8.jpeg",
     "label": "Households",
@@ -39,10 +42,11 @@
     "quantityStep": null,
     "unitOfMeasure": null,
     "createdAt": "2018-02-01T18:46:26.000Z",
-    "updatedAt": "2018-02-01T18:46:26.000Z"
+    "updatedAt": "2018-02-13T18:22:35.000Z"
   },
   {
     "code": "moving",
+    "status": "0",
     "bigImageUrl": null,
     "imageUrl": "https://vqassets-dev.s3.eu-central-1.amazonaws.com/vqtemplate-airtasker/wjp6dnigxb7czke3n1rovt47npz4tcbj.jpeg",
     "label": "Moving ",
@@ -53,6 +57,6 @@
     "quantityStep": null,
     "unitOfMeasure": null,
     "createdAt": "2018-02-01T18:49:57.000Z",
-    "updatedAt": "2018-02-01T18:49:57.000Z"
+    "updatedAt": "2018-02-13T18:22:35.000Z"
   }
 ]

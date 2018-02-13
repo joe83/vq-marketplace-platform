@@ -6,7 +6,7 @@ const standardTemplates = {
     "bitcoinmeetup": "bitcoinmeetup",
     "rentals": "rental-kitchen",
     "products": "b2btemplate",
-    "services": "vqtemplate-airtasker"
+    "services": "taskrabbit"
 };
 
 async.each(Object.keys(standardTemplates), (marketplaceType, cb) => {

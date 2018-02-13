@@ -156,13 +156,13 @@
     "body": "<p>Hello!</p> <p><br></p> <p>With the following link you can reset your password:</p> <p><br></p> <p>&lt;%-ACTION_URL%&gt;</p> <p><br></p> <p>Best regards,</p> <p><%- CONFIG.NAME %> team</p>"
   },
   {
-    "title": null,
+    "title": "null",
     "code": "LANDING_PAGE",
     "type": "code",
     "body": "<div>\n\t<div class=\"row\">\n      <div class=\"col-xs-12\">\n          <h1 class=\"text-center\" style=\"margin-bottom: 10px;\">Get more done with Skilled Taskers</h1>\n\n      </div>\n\n      <div class=\"col-xs-12\">\n          <div class=\"col-sm-4 col-xs-12 text-center\">\n              <h3 class=\"text-center\" style=\"color:#0693E3;\">You’re in control</h3>\n              <p class=\"text-center\">\n       \t\t\t\tWhen you're happy with the offers you decide which Tasker you'd like to complete the task.\n              </p>\n          </div>\n\n          <div class=\"col-sm-4 col-xs-12 text-center\">\n             <h3 class=\"text-center\"style=\"color:#0693E3;\">Secure payment</h3>\n             <p class=\"text-center\">\n               \tPayment is held securely until you're happy the task is complete.\n             </p>\n          </div>\n          <div class=\"col-sm-4 col-xs-12 text-center\">\n              <h3 class=\"text-center\"style=\"color:#0693E3;\">Trusted Taskers</h3>\n              <p class=\"text-center\">\n\t\t\t\tRead their verified Reviews and check the Completion Rate to make sure you hire the best person for the task.\n              </p>   \n          </div>\n  \t</div>\n</div>\n</div>\n\n"
   },
   {
-    "title": null,
+    "title": "null",
     "code": "LANDING_PAGE_PROVIDERS",
     "type": "code",
     "body": "<div>\n\t<div class=\"row\">\n      <div class=\"col-xs-12\">\n          <h1 class=\"text-center\" style=\"margin-bottom: 10px;\">Earn up to $5,000 per month completing tasks\n</h1>\n\n      </div>\n\n      <div class=\"col-xs-12\">\n          <div class=\"col-sm-4 col-xs-12 text-center\">\n              <h3 class=\"text-center\"style=\"color:#0693E3;\">You're the boss</h3>\n              <p class=\"text-center\">\n\t\t\t\tWith over $3.5M of tasks posted every month on Airtasker there are lots of opportunities to earn. Choose the tasks you’d like to complete for people that you're happy to work with.              </p>\n          </div>\n\n          <div class=\"col-sm-4 col-xs-12 text-center\">\n             <h3 class=\"text-center\"style=\"color:#0693E3;\">Payments</h3>\n             <p class=\"text-center\">\n\t\t\t\tWith your task payment held secure with Airtasker Pay, you're able to complete the task knowing payment will be made when you're done.             </p>\n          </div>\n          <div class=\"col-sm-4 col-xs-12 text-center\">\n              <h3 class=\"text-center\"style=\"color:#0693E3;\">Top rated insurance</h3>\n              <p class=\"text-center\">\n\t\t\t\tAirtasker Insurance provided by CGU covers the Tasker for their liability to third parties for personal injury or property damage whilst performing certain task activities.              </p>   \n          </div>\n  \t</div>\n</div>\n</div>\n"

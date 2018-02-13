@@ -1,6 +1,7 @@
 [
   {
     "code": "diy-electronics",
+    "status": "0",
     "bigImageUrl": null,
     "imageUrl": "https://vqassets-dev.s3.eu-central-1.amazonaws.com/b2btemplate/fbsi2whtl2uamba0f78hkyxcozxj3u2j.jpeg",
     "label": "DIY Electronics",
@@ -15,6 +16,7 @@
   },
   {
     "code": "iot-smart-home",
+    "status": "0",
     "bigImageUrl": null,
     "imageUrl": "https://vqassets-dev.s3.eu-central-1.amazonaws.com/b2btemplate/5u311gbvz29pj8dajo3mq0kyqjt5w2td.jpeg",
     "label": "IoT & Smart Home",
@@ -29,6 +31,7 @@
   },
   {
     "code": "robots-drones",
+    "status": "0",
     "bigImageUrl": null,
     "imageUrl": "https://vqassets-dev.s3.eu-central-1.amazonaws.com/b2btemplate/1r9y56esj19sst3it8zejkj70ozkjrv3.jpeg",
     "label": "Robots  & Drones",

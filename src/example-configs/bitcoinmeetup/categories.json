@@ -1,6 +1,7 @@
 [
   {
     "code": "bitcoin",
+    "status": "0",
     "bigImageUrl": null,
     "imageUrl": "https://vqassets-dev.s3.eu-central-1.amazonaws.com/bitcoinmeetup/dc2jjoptw9iyelabzszfe1gxe6hvcuvt.jpeg",
     "label": "Bitcoin",
@@ -15,6 +16,7 @@
   },
   {
     "code": "ethereum",
+    "status": "0",
     "bigImageUrl": null,
     "imageUrl": "https://vqassets-dev.s3.eu-central-1.amazonaws.com/bitcoinmeetup/0o4w27f5fb8sw37r31gc8f49zq4qphf9.jpeg",
     "label": "Ethereum",
@@ -29,6 +31,7 @@
   },
   {
     "code": "litecoin",
+    "status": "0",
     "bigImageUrl": null,
     "imageUrl": "https://vqassets-dev.s3.eu-central-1.amazonaws.com/bitcoinmeetup/0cd9sde2xemd9myquzld9je8apupxiyq.jpeg",
     "label": "Litecoin",
@@ -40,5 +43,20 @@
     "unitOfMeasure": "LTC",
     "createdAt": "2017-12-18T20:01:44.000Z",
     "updatedAt": "2017-12-19T21:18:22.000Z"
+  },
+  {
+    "code": "origintrail",
+    "status": "0",
+    "bigImageUrl": null,
+    "imageUrl": "https://vqassets-dev.s3.eu-central-1.amazonaws.com/bitcoinmeetup/blqozn8pjsx926wnlt9h0z1rmq5nl7uo.jpeg",
+    "label": "OriginTrail",
+    "minPriceHour": 0,
+    "desc": "OriginTrail (TRAC)",
+    "minQuantity": 1000,
+    "maxQuantity": 1000000,
+    "quantityStep": 1000,
+    "unitOfMeasure": "TRAC",
+    "createdAt": "2018-02-04T20:35:11.000Z",
+    "updatedAt": "2018-02-04T20:35:11.000Z"
   }
 ]
