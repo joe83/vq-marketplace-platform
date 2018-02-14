@@ -251,6 +251,7 @@
   "PASSWORDS_DO_NOT_MATCH": "Passwords do not match",
   "PAYMENT_SETTINGS_DESC": "Connect your Stripe payment account to be able to receive payouts.",
   "PAYMENT_SETTINGS_HEADER": "Payment Settings",
+  "PENDING_REQUESTS": "Pending requests",
   "PHONE_NO": "Phone number",
   "POSTAL_CODE": "Postal code",
   "POST_NEW_LISTING": "Post new Offer",
