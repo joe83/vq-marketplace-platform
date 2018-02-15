@@ -1,15 +1,18 @@
 # VQ Marketplace Platform
-The VQ Marketplace Platform is used for running Sharing Economy and On-Demand Marketplace Back-Ends. It supports multi-tenancy and multi-applications. The supported resources include users, listings, listing requests, orders (transactions), reviews and reporting. The Platform follows RESTful standards of data exchange to allow easy and fast integration with third-party providers.
+The VQ Marketplace Platform is used for building and running sharing economy and on-demand marketplaces. It supports multi-tenancy. The supported resources include users, listings, listing requests, orders (transactions), reviews and reporting. The Platform follows RESTful standards of data exchange to allow easy and fast integration with third-party providers.
 
 MySQL is the database of choice for VQ Marketplace Platform. Files, images and similar assets are persisted in AWS S3 buckets.
 
 The platform integrates with Stripe - a global payment provider for fiat currency and Mandrill - a Mailchimp Service for E-Mail sending automation.
 
-VQ Marketplace Platform is a priopiatary technology of [VQ LABS](https://vq-labs.com). You can start your marketplace running the VQ Marketplace Platform on [vqmarketplace.com](https://vqmarketplace.com).
+VQ Marketplace Platform is a priopiatary technology of [VQ LABS](https://vq-labs.com). You can start your marketplace running on the VQ Marketplace Platform on [vqmarketplace.com](https://vqmarketplace.com).
 
 You can use the web services with the official VQ Marketplace Storefront:
 
 * [vq-marketplace-web-app](https://github.com/vq-labs/vq-marketplace-web-app) - ReactJS Marketplace Front-End
+
+## Sharing economy marketplace model
+* [Sharing economy marketplace model](https://medium.com/@adrianbarwicki/sharing-economy-marketplace-model-c6732f3e0644)
 
 ## Marketplace templates
 You can view the live demos here:
@@ -55,8 +58,6 @@ npm install // installs the npm packages from ./package.json
 ```
 sudo ln -s /usr/bin/nodejs /usr/bin/node
 ```
-
-
 ## Running
 In order to start locally the VQ Web Services, you need to run the command:
 ```
@@ -75,29 +76,6 @@ node scripts/restore-default-posts.js services (or one of 'rental', 'products', 
 ## Deployment
 We deploy the application with Elastic Beanstalk.
 
-## Configuration
-
-***NAME***<br>
-Name of the marketplace
-
-## API
-
-### Creating User Accounts
-#### Supply side
-#### Demand side
-
-### Creating Supply Listings
-
-### Creating Demand Listings
-
-### Creating Requests for Listings
-
-### Creating an order / booking
-*** POST /api/order ***
-Orders can only be created for requests by users of type "Demand".
-There can be only one order per request.
-
-### Order settlements and transferring reservered funds to Suppliers
 
 ## Contribute
 We follow the following branching model:
