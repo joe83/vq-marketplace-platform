@@ -179,25 +179,7 @@ taskEmitter
     });
 
 taskEmitter
-    .on("task-completed", (models, taskId) => {
-        if (!taskId) {
-            return console.error("TASK_NOT_FOUND");
-        }
-
-        models
-            .task
-            .update({
-                status: models.task.TASK_STATUS.COMPLETED
-            }, {
-                where: {
-                    id: taskId
-                }
-            });
-    });
-
-taskEmitter
     .on("cancelled", handlerFactory("listing-cancelled"));
-
 
 if (module.parent) {
     module.exports = taskEmitter;
