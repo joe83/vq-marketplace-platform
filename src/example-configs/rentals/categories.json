@@ -12,7 +12,7 @@
     "quantityStep": null,
     "unitOfMeasure": null,
     "createdAt": "2018-01-06T10:05:48.000Z",
-    "updatedAt": "2018-01-07T06:22:21.000Z"
+    "updatedAt": "2018-02-13T21:24:20.000Z"
   },
   {
     "code": "private-kitchen",
@@ -27,7 +27,7 @@
     "quantityStep": null,
     "unitOfMeasure": null,
     "createdAt": "2018-01-07T11:10:21.000Z",
-    "updatedAt": "2018-01-07T11:10:21.000Z"
+    "updatedAt": "2018-02-13T21:24:20.000Z"
   },
   {
     "code": "shared-kitchen",
@@ -42,6 +42,6 @@
     "quantityStep": null,
     "unitOfMeasure": null,
     "createdAt": "2018-01-07T11:07:39.000Z",
-    "updatedAt": "2018-01-07T11:07:39.000Z"
+    "updatedAt": "2018-02-13T21:24:20.000Z"
   }
 ]

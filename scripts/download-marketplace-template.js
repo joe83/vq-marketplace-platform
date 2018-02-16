@@ -4,7 +4,7 @@ const fs = require("fs");
 
 const standardTemplates = {
     "bitcoinmeetup": "bitcoinmeetup",
-    "rentals": "rental-kitchen",
+    "rentals": "rentkitchen",
     "products": "b2btemplate",
     "services": "taskrabbit"
 };
