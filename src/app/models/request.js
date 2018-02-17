@@ -11,6 +11,15 @@ module.exports = (sequelize, DataTypes) => {
   };
 
   const Request = sequelize.define("request", {
+      intervalStart: {
+        type: DataTypes.INTEGER,
+      },
+      intervalEnd: {
+        type: DataTypes.INTEGER,
+      },
+      quantity: {
+        type: DataTypes.INTEGER,
+      },
       status: {
         type: DataTypes.ENUM(
           REQUEST_STATUS.PENDING,
