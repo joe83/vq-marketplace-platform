@@ -25,6 +25,12 @@ const getOrderOwnerEmails = (models, orderId, cb) => {
                         include: [
                             { model: models.user, as: "fromUser" }
                         ]
+                    },
+                    { 
+                        model: models.request,
+                        include: [
+                            { model: models.user, as: "toUser" }
+                        ]
                     }
                 ]
             })

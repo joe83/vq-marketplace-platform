@@ -4,7 +4,9 @@ delimiter ;;
 create procedure doMigration ()
 	begin
 		declare continue handler for 1060 begin end;
-		ALTER TABLE task ADD COLUMN intervalUnit INTEGER;
+		ALTER TABLE request ADD COLUMN quantity INTEGER;
+		ALTER TABLE request ADD COLUMN intervalStart INTEGER;
+		ALTER TABLE request ADD COLUMN intervalEnd INTEGER;
 	end;;
 
 call doMigration();
