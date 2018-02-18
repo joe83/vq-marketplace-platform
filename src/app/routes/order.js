@@ -21,7 +21,6 @@ module.exports = app => {
         (req, res) => {
             let createdOrder, requestRef, taskRef, userPaymentAccount, stripePrivateKey, paymentsEnabledConfig;
             const order = req.body;
-            
 
             order.userId = req.user.id;
             order.status = req.models.order.ORDER_STATUS.PENDING;
@@ -275,14 +274,15 @@ module.exports = app => {
 
                 sendResponse(res, null, createdOrder);
 
+                // this goes to demand user
                 orderEmitter
                     .emit("new-order", req.models, createdOrder.id);
 
+                // this goes to supplier
                 if (Number(taskRef.taskType) === 1) {
                     requestEmitter
                         .emit("request-accepted", req.models, createdOrder.requestId);
                 }
-                
             });
         });
 

@@ -1,9 +1,6 @@
 const EventEmitter = require("events");
 const async = require("async");
-const db = require("../models/models");
-const randtoken = require("rand-token");
 const emailService = require("../services/emailService.js");
-const config = require("../config/configProvider.js")();
 const vqAuth = require("../auth");
 
 class DefaultEmitter extends EventEmitter {}
@@ -11,7 +8,7 @@ class DefaultEmitter extends EventEmitter {}
 var orderEmitter = new DefaultEmitter();
 
 const getOrderOwnerEmails = (models, orderId, cb) => {
-    let emails, order, task;
+    let emails, supplyEmails, supplyUserId, order, task, request;
 
     return async.waterfall([
         cb => models
@@ -40,9 +37,12 @@ const getOrderOwnerEmails = (models, orderId, cb) => {
                 
                 order = rOrder;
                 task = rOrder.task;
+                request = rOrder.request;
 
                 return cb();
             }, cb),
+
+        // get demand user emails
         cb => vqAuth
             .getEmailsFromUserId(models, order.user.vqUserId, (err, rUserEmails) => {
                 if (err) {
@@ -52,21 +52,43 @@ const getOrderOwnerEmails = (models, orderId, cb) => {
                 emails = rUserEmails
                     .map(_ => _.email);
 
-                cb();
+                return cb();
+            }),
+
+        // get supplier emails
+        cb => {
+            supplyUserId = request.fromUser.vqUserId === order.user.vqUserId ?
+                request.toUser.vqUserId :
+                request.fromUser.vqUserId;
+
+            vqAuth
+            .getEmailsFromUserId(models, supplyUserId,
+                (err, rUserEmails) => {
+                    if (err) {
+                        return cb(err);
+                    }
+
+                    supplyEmails = rUserEmails
+                        .map(_ => _.email);
+
+                    return cb();
             })
+        }
         ], err => {
             return cb(err, {
+                supplyUserId: 
                 task,
                 order,
-                emails
+                emails,
+                supplyEmails
             });
         });
 };
 
 const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
 	return (models, orderId) => {
-		var user, order, task;
-		var emails;
+		var order, task;
+		var emails, supplyEmails, supplyUserId;
 		var ACTION_URL;
 
 		async.waterfall([
@@ -75,9 +97,11 @@ const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
                     return cb(err);
                 }
 
+                supplyEmails = data.supplyEmails;
                 emails = data.emails;
                 order = data.order;
                 task = data.task;
+                supplyUserId = data.supplyUserId;
 
                 cb();
             }),
@@ -103,18 +127,30 @@ const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
 				return console.error(err);
 			}
  
+            const emailData = {
+                ACTION_URL,
+                LISTING_TITLE: task.title,
+                ORDER_ID: order.id,
+                ORDER_CURRENCY: order.currency,
+                ORDER_AMOUNT: order.amount,
+                ORDER_CREATED_AT: order.createdAt
+            };
+
+            if (task.taskType === 2 && supplyEmails) {
+                emailService
+                .checkIfShouldSendEmail(models, "new-order-for-supply", supplyUserId, () =>
+                    emailService
+                    .getEmailAndSend(models, "new-order-for-supply", supplyEmails, emailData)
+                );
+			}
+
 			if (emails) {
                 emailService
                 .checkIfShouldSendEmail(models, emailCode, order.userId, () =>
                     emailService
-                    .getEmailAndSend(models, emailCode, emails, {
-                        ACTION_URL,
-                        LISTING_TITLE: task.title
-                    })
+                    .getEmailAndSend(models, emailCode, emails, emailData)
                 );
-			} else {
-                console.log("No emails to send notification!");
-            }
+			}
 		});
     };
 };

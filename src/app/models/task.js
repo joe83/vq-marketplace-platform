@@ -23,7 +23,13 @@ module.exports = (sequelize, DataTypes) => {
   ];
 
   const Task = sequelize.define("task", {
-    taskType: { type: DataTypes.INTEGER },
+    // minimal bookable unit in seconds
+    intervalUnit: {
+      type: DataTypes.INTEGER
+    },
+    taskType: {
+      type: DataTypes.INTEGER
+    },
     currency: { 
       type: DataTypes.ENUM(SUPPORTED_CURRENCIES)
     },

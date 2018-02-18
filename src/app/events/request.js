@@ -2,9 +2,7 @@
 
 const EventEmitter = require("events");
 const async = require("async");
-const randtoken = require("rand-token");
 const emailService = require("../services/emailService.js");
-const config = require("../config/configProvider.js")();
 const vqAuth = require("../auth");
 
 class DefaultEmitter extends EventEmitter {}
@@ -82,9 +80,8 @@ const getRequestOwnerEmails = (models, requestId, cb) => {
 
 const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
 	return (models, requestId) => {
-		var user, request, order, task;
+		var request, order, task;
 		var emails;
-		var ACTION_URL;
 		var emailData = {};
 
 		async.waterfall([

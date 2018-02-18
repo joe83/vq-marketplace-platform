@@ -28,7 +28,7 @@ connection.query("SELECT * FROM `vq-marketplace`.`tenant` WHERE status = 3", (er
     console.log(`Tenants found: ${tenants.length}`);
 
     async
-    .eachSeries(tenants, (tenant, cb) => {
+    .eachLimit(tenants, 20, (tenant, cb) => {
         console.log(`Updating tenant db ${tenant.tenantId}`);
 
         const sqlFile = __dirname + "/" + process.argv[2];
