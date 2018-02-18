@@ -23,12 +23,7 @@ const getOrderOwnerEmails = (models, orderId, cb) => {
                     { 
                         model: models.request,
                         include: [
-                            { model: models.user, as: "fromUser" }
-                        ]
-                    },
-                    { 
-                        model: models.request,
-                        include: [
+                            { model: models.user, as: "fromUser" },
                             { model: models.user, as: "toUser" }
                         ]
                     }
@@ -82,7 +77,7 @@ const getOrderOwnerEmails = (models, orderId, cb) => {
         }
         ], err => {
             return cb(err, {
-                supplyUserId: 
+                supplyUserId,
                 task,
                 order,
                 emails,
