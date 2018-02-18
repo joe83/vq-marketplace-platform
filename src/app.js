@@ -89,19 +89,29 @@ async.waterfall([
 	(tenants, cb) => {
 		async.eachLimit(
 			tenants,
-			10,
+			3,
+			// we register it here, they are then lazy loaded when needed.
 			(tenant, cb) => {
-			  db.create(tenant.dataValues.tenantId, tenant.dataValues.marketplaceType, (err) => {
-				if (err) {
-					return cb(err);
-				}
+				console.log(`Registering tenant ${tenant.tenantId}`);
 
-				workers
-				.registerWorkers(tenant.dataValues.tenantId);
+				db.refreshTenantRegister(tenant.tenantId);
+  
+				workers.registerWorkers(tenant.tenantId);
 
-				cb(null, tenants);
-			})
-      },
+				cb();
+					/**
+					 	db.create(tenant.dataValues.tenantId, tenant.dataValues.marketplaceType, (err) => {
+							if (err) {
+								return cb(err);
+							}
+
+							workers
+							.registerWorkers(tenant.dataValues.tenantId);
+
+							cb(null, tenants);
+						})
+					*/
+      		},
 			cb
 		);
 	}
@@ -124,7 +134,26 @@ async.waterfall([
 });
 
 setInterval(() => {
+	Object.keys(db.tenantRegister)
+	.filter(tenantId => db.tenantConnections[tenantId])
+	.forEach(tenantId => {
+	  const secsPassedSinceNotUsed =  (Date.now() / 1000) - db.tenantRegister[tenantId].established;
+	  
+	  console.log(`Tenant ${tenantId} not active since ${secsPassedSinceNotUsed}s`);
+
+	  // is 15 sec ok?
+	  if (secsPassedSinceNotUsed > 15) {
+		console.log(`Closing tenant connection ${tenantId}`);
+
+		db.tenantConnections[tenantId].seq.close();
+  
+		delete db.tenantConnections[tenantId];
+	 }
+	});
+}, 1 * 5000);
+
+setInterval(() => {
 	const usedMemory = process.memoryUsage().heapUsed / 1024 / 1024;
 
-	//console.log(`[VQ-MARKETPLACE-API] The process is consuming now approximately ${Math.round(usedMemory * 100) / 100} MB memory.`);
-}, 5000);
+	console.log(`[VQ-MARKETPLACE-API] ${Math.round(usedMemory * 100) / 100} MB usage | ${Object.keys(db.tenantConnections).length} tenants`);
+}, 1 * 60 * 1000);
