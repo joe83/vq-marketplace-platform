@@ -28,6 +28,8 @@
     "HOMEPAGE_FOOTER_SOCIAL_MEDIA": "Follow us",
     "EMAIL_task-request-cancelled": "Task request cancelled",
     "HEADER_DASHBOARD": "Dashboard",
+    "MY_LISTINGS": "Listings",
+    "MY_REQUESTS": "Requests",
     "START_PAGE_LISTING_CATEGORIES_DESC": "",
     "START_PAGE_LISTING_CATEGORIES_HEADER": "Categories",
     "ORDER_CREATE": "Book",
