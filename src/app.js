@@ -36,7 +36,8 @@ app.use((req, res, next) => {
         const subdomains = req.subdomains;
         tenantId = subdomains[subdomains.length - 1];
         console.log(`Accessing ${tenantId}`);
-    }
+	}
+	args.env = args.env || process.env.ENV.toLowerCase;
     req.models = db.get(tenantId);
     if (!req.models) {
         return res.status(400).send({
@@ -45,7 +46,7 @@ app.use((req, res, next) => {
     }
     next();
 });
-if (args.env === 'production') {
+if (args.env.toLowerCase() === 'production') {
     console.log("-------------------------------------------------");
     console.log("[PRODUCTION MODE] THIS API RUNS IN PRODUCTION MODE..");
     console.log("-------------------------------------------------");

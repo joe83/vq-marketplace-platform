@@ -54,7 +54,8 @@ npm install node-gyp gulp eslint tslint -g // installs global packages
 sudo ln -s /usr/bin/nodejs /usr/bin/node
 ```
 ## Running
-Review .env file and make necessary changes first!
+Review .env file and make necessary changes first then rename it to .env
+We have a rule in .gitignore so that you don't commit this file accidentally as it might contain sensitive information. If you want to commit this anyways, remove .env from .gitignore
 
 In order to start locally the VQ Web Services, you need to run the command:
 ```

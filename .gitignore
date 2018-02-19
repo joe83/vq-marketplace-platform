@@ -2,6 +2,7 @@
 scripts/transport-tw-users-to-vq.js
 built/
 node_modules/
+.env
 apidoc/
 built
 build
