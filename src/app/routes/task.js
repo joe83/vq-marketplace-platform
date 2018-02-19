@@ -84,8 +84,14 @@ module.exports = app => {
                     { 
                         model: req.models.user,
                         as: "fromUser",
+                    },
+                    {
+                        model: req.models.order
                     }
                 ]
+            },
+            {
+                    model: req.models.review
             });
 
             const timingInclude = {
@@ -128,7 +134,8 @@ module.exports = app => {
 
                 const lat = req.query.lat;
                 const lng = req.query.lng;
-    
+                const rad = req.query.rad || 2000;
+
                 if (lat && lng) {
                     const location = req.models.seq
                         .literal(`ST_GeomFromText('POINT(${lat} ${lng})')`);
@@ -149,7 +156,7 @@ module.exports = app => {
                     const seqWhereCond = req.models
                         .seq
                         .where(distance, {
-                            $lte: 2000
+                            $lte: rad
                         });
                    
                     query.include.push({
@@ -163,13 +170,17 @@ module.exports = app => {
                 }
 
 
-
                 if (req.query.status) {
-                    query
-                    .where
-                    .$and
-                    .push({
-                        status: String(req.query.status)
+                    const statusQuery = [];
+                    
+                    if (Array.isArray(req.query.status)) {
+                        req.query.status.forEach(status => statusQuery.push({ status: String(status) }));
+                    } else {
+                        statusQuery.push({ status: String(req.query.status) });
+                    }
+        
+                    query.where.$and.push({ 
+                        $or: statusQuery
                     });
                 }
                 
@@ -189,24 +200,27 @@ module.exports = app => {
                 }
 
                 if (req.query.minPrice || req.query.maxPrice) {
-                    if (req.query.minPrice) {
+                    const minPrice = Number(req.query.minPrice);
+                    const maxPrice = Number(req.query.maxPrice);
+
+                    if (minPrice) {
                         query
                         .where
                         .$and
                         .push({
                             price: {
-                                $gte: Number(req.query.minPrice)
+                                $gte: minPrice
                             }
                         });
                     }
                     
-                    if (req.query.maxPrice) {
+                    if (maxPrice) {
                         query
                             .where
                             .$and
                             .push({
                                 price: {
-                                    $lte: Number(req.query.maxPrice)
+                                    $lte: maxPrice
                                 }
                             });
                     }
@@ -670,7 +684,7 @@ module.exports = app => {
             },
             cb => {
                 if (newStatus === req.models.task.TASK_STATUS.ACTIVE) {
-                    // emails are enabled now just for one scenario
+                    // emails are enabled now just for demand listings
                     if (task.taskType === 1) {
                         taskEmitter
                         .emit("new-task", req.models, task.id);

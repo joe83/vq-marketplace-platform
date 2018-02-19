@@ -7,7 +7,7 @@ module.exports = app => {
       return sendResponse(res, null, req.user);
   });
 
-  app.get("/api/user/:userId", isLoggedIn, (req, res) => {
+  app.get("/api/user/:userId", (req, res) => {
     req.models.user.findOne({ 
       where:
         { 
@@ -22,7 +22,7 @@ module.exports = app => {
       user => {
         user = JSON.parse(JSON.stringify(user));
 
-        if (!req.user.isAdmin && req.query.adminView) {
+        if (req.user && !req.user.isAdmin && req.query.adminView) {
           user.userProperties.forEach(_ => {
               const prop = _;
     

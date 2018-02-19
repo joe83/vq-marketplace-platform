@@ -74,23 +74,6 @@ module.exports = app => {
 
 	app.get("/api/request", isLoggedIn, (req, res) => {
         const userId = req.user.id;
-        let $orUsers;
-
-        if (Number(req.body.fromUserId) === req.user.id) {
-            $orUsers = [
-                {
-                    fromUserId: userId
-                }
-            ];
-        } else {
-            $orUsers = [
-                {
-                    fromUserId: userId
-                }, {
-                    toUserId: userId
-                }
-            ];
-        }
 
         const where = {
             $and: [{
@@ -104,7 +87,13 @@ module.exports = app => {
                             { status: req.models.request.REQUEST_STATUS.CLOSED }
                         ]
                     }, {
-                        $or: $orUsers
+                        $or: [
+                            {
+                                fromUserId: userId
+                            }, {
+                                toUserId: userId
+                            }
+                        ]
                     }
                 ]
             }]

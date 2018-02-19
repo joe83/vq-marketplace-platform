@@ -2,6 +2,7 @@ module.exports = (sequelize, DataTypes) => {
   const REQUEST_STATUS = {
     PENDING: "0",
     ACCEPTED: "5",
+    BOOKED: "6",
     MARKED_DONE: "10",
     CLOSED: "14",
     SETTLED: "15",
@@ -10,10 +11,20 @@ module.exports = (sequelize, DataTypes) => {
   };
 
   const Request = sequelize.define("request", {
+      intervalStart: {
+        type: DataTypes.INTEGER,
+      },
+      intervalEnd: {
+        type: DataTypes.INTEGER,
+      },
+      quantity: {
+        type: DataTypes.INTEGER,
+      },
       status: {
         type: DataTypes.ENUM(
           REQUEST_STATUS.PENDING,
           REQUEST_STATUS.ACCEPTED,
+          REQUEST_STATUS.BOOKED,
           REQUEST_STATUS.MARKED_DONE,
           REQUEST_STATUS.CLOSED,
           REQUEST_STATUS.SETTLED,

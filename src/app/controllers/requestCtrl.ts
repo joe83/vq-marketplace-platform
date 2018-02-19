@@ -56,6 +56,8 @@ const changeRequestStatus = (models: any, requestId: number, newStatus: string, 
                     });
                 }
 
+                oldRequest = requestRef;
+
                 if (requestRef.status === newStatus) {
                     return cb({
                         code: "NO_ACTION_REQUIRED"
@@ -66,7 +68,7 @@ const changeRequestStatus = (models: any, requestId: number, newStatus: string, 
             });
         },
         (requestRef: any, cb: any) => {
-            if (requestRef.fromUserId !== userId) {
+            if (requestRef.fromUserId !== userId && requestRef.toUserId !== userId) {
                 return cb({
                     code: "NOT_YOUR_REQUEST"
                 });

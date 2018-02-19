@@ -1,5 +1,5 @@
 const async = require('async');
-const db = require('../app/models/models.js');
+const db = require('../built/app/models/models.js');
 const MongoClient = require('mongodb').MongoClient
 var BSON = require('bson');
 

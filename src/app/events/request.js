@@ -2,7 +2,6 @@
 
 const EventEmitter = require("events");
 const async = require("async");
-const randtoken = require("rand-token");
 const emailService = require("../services/emailService.js");
 const vqAuth = require("../auth");
 
@@ -81,9 +80,8 @@ const getRequestOwnerEmails = (models, requestId, cb) => {
 
 const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
 	return (models, requestId) => {
-		var user, request, order, task;
+		var request, order, task;
 		var emails;
-		var ACTION_URL;
 		var emailData = {};
 
 		async.waterfall([
@@ -242,7 +240,7 @@ requestEmitter
 
 requestEmitter
 	.on("new-request", (models, requestId) => {
-		var fromUser, toUser, request;
+		var request;
 		var requestSentEmails;
 		var requestReceivedEmails;
 		var ACTION_URL;
@@ -262,6 +260,15 @@ requestEmitter
 				})
 				.then(rRequest => {
 					request = rRequest;
+
+					/**
+					 * We do not send emails for supply listings.
+					 */
+					if (Number(request.task.taskType) === 2) {
+						return cb({
+							skip: true
+						});
+					}
 
 					return cb();
 				}, cb),
@@ -306,6 +313,10 @@ requestEmitter
 				}, cb)
 		], err => {
 			if (err) {
+				if (err.skip) {
+					return;
+				}
+
 				return console.error(err);
 			}
 

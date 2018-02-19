@@ -1,6 +1,6 @@
 const async = require("async");
-const models = require("../app/models/models.js");
-const requestCtrl = require("../app/controllers/requestCtrl");
+const models = require("../built/app/models/models.js");
+const requestCtrl = require("../built/app/controllers/requestCtrl");
 
 const requestId = process.argv[2];
 const userId = process.argv[3];

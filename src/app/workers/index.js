@@ -5,8 +5,6 @@ const runReporting = require("./reporting");
 const WORKER_INTERVAL = 1000 * 60 * 5;
 
 const registerWorkers = tenantId => {
-    console.log(`[WORKERS] Starting for tenant ${tenantId}`);
-
     setInterval(() => {
         taskAutoSettlement(tenantId);
     }, WORKER_INTERVAL);
@@ -18,8 +16,6 @@ const registerWorkers = tenantId => {
     setInterval(() => {
         runReporting(tenantId);
     }, WORKER_INTERVAL);
-
-    console.log(`[WORKERS] Started for tenant ${tenantId}`);
 };
 
 module.exports = {

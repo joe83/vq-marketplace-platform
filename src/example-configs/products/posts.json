@@ -1,0 +1,170 @@
+[
+  {
+    "title": "Review completed",
+    "code": "review-completed",
+    "type": "process",
+    "body": "<p>Review completed!</p>"
+  },
+  {
+    "title": "Booking completed",
+    "code": "booking-completed",
+    "type": "process",
+    "body": "<p>The booking has been succesfull!</p>"
+  },
+  {
+    "title": "Request sent",
+    "code": "request-sent",
+    "type": "process",
+    "body": "<p>Your request has been sent!</p>"
+  },
+  {
+    "title": "Privacy Policy",
+    "code": "privacy-policy",
+    "type": "terms",
+    "body": "Add Privacy policy"
+  },
+  {
+    "title": "Terms of Service",
+    "code": "terms-of-service",
+    "type": "terms",
+    "body": "Add Terms of Service"
+  },
+  {
+    "title": "Welcome email",
+    "code": "welcome",
+    "type": "email",
+    "body": "<p>Hello!</p> <p><br></p> <p>To complete your sign-up please open the following link:</p> <p><br></p> <p>&lt;%-VERIFICATION_LINK%&gt;</p> <p><br></p> <p>Best regards,</p> <p><%- CONFIG.NAME %> team</p>"
+  },
+  {
+    "title": "New request received",
+    "code": "new-request-received",
+    "type": "email",
+    "body": "<p>Hello!</p> <p><br></p> <p>You have received a new request for your listing. Respond here:</p> <p><br></p> <p>&lt;%-ACTION_URL%&gt;</p> <p><br></p> <p>Best regards,</p> <p><%- CONFIG.NAME %> team</p>"
+  },
+  {
+    "title": "Listing has been cancelled",
+    "code": "listing-cancelled",
+    "type": "email",
+    "body": "<p>Hello!</p><p>Your listing '<%- LISTING_TITLE %>' has been cancelled.</p> <p><br></p> <p>You can a new listing here: '<%- ACTION_URL %>'</p> <p><br></p> <p>Best regards,</p> <p><%- CONFIG.NAME %> team</p>"
+  },
+  {
+    "title": "New task",
+    "code": "new-task",
+    "type": "email",
+    "body": "<p>Check out the new task here:</p> <p><%- ACTION_URL %></p> <p><br></p> <p>Best regards,</p> <p><%- CONFIG.NAME %> team</p>"
+  },
+  {
+    "title": "New request sent",
+    "code": "new-request-sent",
+    "type": "email",
+    "body": "<p>Hello!</p> <p><br></p> <p>You have sent a request for the listing</p> <p><br></p> <p>&lt;%-ACTION_URL%&gt;</p> <p><br></p> <p>Best regards,</p> <p><%- CONFIG.NAME %> team</p>"
+  },
+  {
+    "title": "Your request has been declined",
+    "code": "request-declined",
+    "type": "email",
+    "body": "<p>Hello!</p> <p><br></p> <p>Your application has been cancelled. Possible reasons may be: <ul><li>Task owner has choosen someone else for the job</li><li>The job has been cancelled</li></ul></p> <p><br></p> <p>&lt;%-ACTION_URL%&gt;</p> <p><br></p> <p>Best regards,</p> <p><%- CONFIG.NAME %> team</p>"
+  },
+  {
+    "title": "Your request has been cancelled",
+    "code": "request-cancelled",
+    "type": "email",
+    "body": "<p>Hello!</p> <p><br></p> <p>You have cancelled your request for a listing your applied for. Apply for other listings here:</p> <p><br></p> <p>&lt;%-ACTION_URL%&gt;</p> <p><br></p> <p>Best regards,</p> <p><%- CONFIG.NAME %> team</p>"
+  },
+  {
+    "title": "Request for your task has been cancelled",
+    "code": "task-request-cancelled",
+    "type": "email",
+    "body": "<p>Hello!</p> <p><br></p> <p>Order request has been cancelled.</p> <p><br></p> <p>&lt;%-ACTION_URL%&gt;</p> <p><br></p> <p>Best regards,</p> <p><%- CONFIG.NAME %> team</p>"
+  },
+  {
+    "title": "Your task has been marked as spam",
+    "code": "task-marked-spam",
+    "type": "email",
+    "body": "<p>Hello!</p> <p><br></p> <p>Your task has been marked as spam.</p> <p><br></p> <p><br></p> <p>Best regards,</p> <p><%- CONFIG.NAME %> team</p>"
+  },
+  {
+    "title": "You have been blocked!",
+    "code": "user-blocked",
+    "type": "email",
+    "body": "<p>Hello!</p> <p><br></p> <p>You have been blocked from the platform. In case of questions, please contact support.</p> <p><br></p> <p><br></p> <p>Best regards,</p> <p><%- CONFIG.NAME %> team</p>"
+  },
+  {
+    "title": "Request has been accepted",
+    "code": "request-accepted",
+    "type": "email",
+    "body": "<p>Hello!</p> <p><br></p> <p>Your request has been accepted. Visit your dashboard to see more information</p> <p><br></p> <p>&lt;%-ACTION_URL%&gt;</p> <p><br></p> <p>Best regards,</p> <p><%- CONFIG.NAME %> team</p>"
+  },
+  {
+    "title": "You marked the task as done",
+    "code": "request-marked-as-done",
+    "type": "email",
+    "body": "<p>Hello!</p> <p><br></p> <p>You have marked the task as done. See more information on your dashboard:</p> <p><br></p> <p>&lt;%-ACTION_URL%&gt;</p> <p><br></p> <p>Best regards,</p> <p><%- CONFIG.NAME %> team</p>"
+  },
+  {
+    "title": "Assignment has been completed",
+    "code": "request-completed",
+    "type": "email",
+    "body": "<p>Hello!</p> <p><br></p> <p>The order has been completed. See more information on your dashboard:</p> <p><br></p> <p>&lt;%-ACTION_URL%&gt;</p> <p><br></p> <p>Best regards,</p> <p><%- CONFIG.NAME %> team</p>"
+  },
+  {
+    "title": "Order confirmed",
+    "code": "new-order",
+    "type": "email",
+    "body": "<p>Hello!</p> <p><br></p> <p>You have successfully created an order. See more information on your dashboard:</p> <p><br></p> <p>&lt;%-ACTION_URL%&gt;</p> <p><br></p> <p>Best regards,</p> <p><%- CONFIG.NAME %> team</p>"
+  },
+  {
+    "title": "Order has been marked as done",
+    "code": "order-marked-as-done",
+    "type": "email",
+    "body": "<p>Hello!</p> <p><br></p> <p>The order has been marked as done. See more information on your dashboard:</p> <p><br></p> <p>&lt;%-ACTION_URL%&gt;</p> <p><br></p> <p>Best regards,</p> <p><%- CONFIG.NAME %> team</p>"
+  },
+  {
+    "title": "Order has been completed",
+    "code": "order-completed",
+    "type": "email",
+    "body": "<p>Hello!</p> <p><br></p> <p>The order has been completed. See more information on your dashboard:</p> <p><br></p> <p>&lt;%-ACTION_URL%&gt;</p> <p><br></p> <p>Best regards,</p> <p><%- CONFIG.NAME %> team</p>"
+  },
+  {
+    "title": "New message",
+    "code": "message-received",
+    "type": "email",
+    "body": "<p>Hello!</p> <p><br></p> <p><%-SENDER_FIRST_NAME%> <%-SENDER_LAST_NAME%> sent you a message regarding the listing '<%-LISTING_TITLE%>'. See more information:</p> <p><br></p> <p>&lt;%-ACTION_URL%&gt;</p> <p><br></p> <p>Best regards,</p> <p><%- CONFIG.NAME %> team</p>"
+  },
+  {
+    "title": "New review",
+    "code": "review-left",
+    "type": "email",
+    "body": "<p>Hello!</p> <p><br></p> <p>You have a new review. See more:</p> <p><br></p> <p>&lt;%-ACTION_URL%&gt;</p> <p><br></p> <p>Best regards,</p> <p><%- CONFIG.NAME %> team</p>"
+  },
+  {
+    "title": "You closed the booking",
+    "code": "order-closed",
+    "type": "email",
+    "body": "<p>Hello!</p> <p><br></p> <p>You closed the booking</p> <p>You can leave review here:</p> <p><br></p> <p>&lt;%-ACTION_URL%&gt;</p> <p><br></p> <p>Best regards,</p> <p><%- CONFIG.NAME %> team</p>"
+  },
+  {
+    "title": "Your task has been closed",
+    "code": "request-closed",
+    "type": "email",
+    "body": "<p>Hello!</p> <p><br></p> <p>The task you are assigned to, has been closed.</p> <p><br></p> <p>You can leave review here:</p> <p>&lt;%-ACTION_URL%&gt;</p> <p><br></p> <p>Best regards,</p> <p><%- CONFIG.NAME %> team</p>"
+  },
+  {
+    "title": "Password reset",
+    "code": "password-reset",
+    "type": "email",
+    "body": "<p>Hello!</p> <p><br></p> <p>With the following link you can reset your password:</p> <p><br></p> <p>&lt;%-ACTION_URL%&gt;</p> <p><br></p> <p>Best regards,</p> <p><%- CONFIG.NAME %> team</p>"
+  },
+  {
+    "title": null,
+    "code": "LANDING_PAGE",
+    "type": "code",
+    "body": ""
+  },
+  {
+    "title": null,
+    "code": "LANDING_PAGE_PROVIDERS",
+    "type": "code",
+    "body": "<section class=\"tinted buying-steps-full\">\n    <div class=\"container\">\n      <div class=\"row\">\n        <div class=\"col-lg-12\">\n          <div class=\"section-title\">\n            <h2>How to Get Started</h2>\n            <hr>\n          </div>\n        </div>\n      </div>\n        <div class=\"row\">\n            <div class=\"col-lg-12 box clearfix\">\n              <div class=\"icon-wrap\"><i class=\"icon-sign-new-1\"></i></div>\n              <div class=\"text-wrap\">\n                  <h3><a href=\"/products/create/\">1. List a product</a></h3>\n                  <p>\n                    \n                    It is FREE to list products on TechieStore (other marketplaces charge you money to list products, but not us)!\n                    The listings with the best photos and descriptions are the ones that sell the best, so you'll want to ensure that:\n                    </p><ul>\n                        <li>The photos are very high quality and clearly show the product both up close and from several different angles.</li>\n                        <li>The description is thorough and clear.</li>\n                    </ul>\n                    \n                  <p></p>\n              </div>\n            </div>\n            <div class=\"col-lg-12 box clearfix\">\n                <div class=\"icon-wrap\"><i class=\"icon-map-pin\"></i></div>\n                <div class=\"text-wrap\">\n                    <h3>2. Add shipping rates</h3>\n                    <p>\n                    \n                    TechieStore customers are in over 80 countries around the world (and growing)! To ensure that everyone who wants to buy your products can, you should have shipping rates for United States (US), European Union (EU) and Everywhere Else. The <em>\"Everywhere Else\"</em> shipping rate will cover any countries you don't explicitly set.\n                    You can add shipping rates for specific countries if it is particularly expensive or inexpensive to ship to those locations.\n                    \n                    </p>\n                </div>\n            </div>\n            <div class=\"col-lg-12 box clearfix\">\n                <div class=\"icon-wrap\"><i class=\"icon-shop\"></i></div>\n                <div class=\"text-wrap\">\n                    <h3>3. Add store info</h3>\n                    <p>At the heart of TechieStore is a very passionate community, and buyers want to learn more about the sellers making the products. Sellers who include a photo and information about their store sell more products. So please include information about yourself and your business - your photo, location, and a description about yourself. We'd love to meet you!</p>\n                </div>\n            </div>\n            <div class=\"col-lg-12 box clearfix\">\n                <div class=\"icon-wrap\"><i class=\"icon-cash-register\"></i></div>\n                <div class=\"text-wrap\">\n                    <h3>4. Accept orders</h3>\n                    <p>Once an order comes in, we'll email you a link with the order details. No need to keep checking Tindie (unless you want to)!</p>\n                </div>\n            </div>\n            <div class=\"col-lg-12 box clearfix\">\n                <div class=\"icon-wrap\"><i class=\"icon-box-1\"></i></div>\n                <div class=\"text-wrap\">\n                    <h3>5. Ship your order</h3>\n                    <p>When you receive the email about the order, we include information about the shipping rate the buyer selected. After you mail the order, you then mark the order as shipped on Tindie -- that way we can notify the customer the order is on the way.</p>\n                </div>\n            </div>\n            <div class=\"col-lg-12 box clearfix\">\n                <div class=\"icon-wrap\"><i class=\"icon-bank-notes-2\"></i></div>\n                <div class=\"text-wrap\">\n                    <h3>6. Get paid</h3>\n                    <p>\n                    \n                    New sellers will have their disbursements available 30 days after their first order ships. Afterwards, disbursements are available, via our payout system, after orders have been shipped.\n                    \n                    We automatically pay you every 30 days via PayPal, but if you would like to be paid more frequently just head over to the <a href=\"/orders/disbursement/\">Disbursement</a> section of <a href=\"/orders/\">My Orders</a> and request to be paid!\n                    </p>\n                </div>\n            </div>\n        </div><!-- .row -->\n        <p class=\"text-center\"><a href=\"/products/create/\" class=\"btn btn-lg btn-primary\">Start Selling</a></p>\n        <p class=\"text-center\">Have more questions? Check the <a href=\"https://vqmarketplace.com\" target=\"_blank\">TechieStore FAQ</a>.</p>\n    </div>\n</section>\n         \n<section>\n\t<hr />\n\t<div class=\"row text-center\">\n  \t\t<div class=\"col-xs-12\">\n   \t\t\t <h2 class=\"text-center\" style=\"color:#000639;\">\n    \t\t  Powered by VQ MARKETPLACE\n   \t\t\t </h2>\n\t\t</div>\n    </div>\n\t<div class=\"row\" style=\"padding-bottom:50px;\">\n  \t\t<div class=\"col-xs-12 col-sm-6 col-md-6 col-lg-6\">\n\t\t\t\t<p class=\"text-left\">\n    \t\t\tVQ Marketplace will enable you to start and configure your Marketplace, get you on the market quickly and test your business idea.\n    \t\t\t</p>\n\t\t\t\t<br>\n              \t<a href=\"/app\" class=\"btn btn-primary\" style=\"background-color:#000639;\">Start your FREE marketplace</a>\n         </div>\n\t</div>\n</section>"
+  }
+]

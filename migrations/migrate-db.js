@@ -2,7 +2,7 @@
  * Updates all tenant databases with the migration scripts
  * 
  * Example call:
- * VQ_DB_HOST=* VQ_DB_USER=* VQ_DB_PASSWORD=* migrations/migrate-db.js 20171218222426-001.sql
+ * VQ_DB_HOST=* VQ_DB_USER=* VQ_DB_PASSWORD=* migrations/migratedb.js 20171218222426001.sql
  */
 
 const mysql = require("mysql2");
@@ -28,7 +28,7 @@ connection.query("SELECT * FROM `vq-marketplace`.`tenant` WHERE status = 3", (er
     console.log(`Tenants found: ${tenants.length}`);
 
     async
-    .eachSeries(tenants, (tenant, cb) => {
+    .eachLimit(tenants, 5, (tenant, cb) => {
         console.log(`Updating tenant db ${tenant.tenantId}`);
 
         const sqlFile = __dirname + "/" + process.argv[2];

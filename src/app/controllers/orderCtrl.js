@@ -2,6 +2,7 @@ const async = require("async");
 const stripeProvider = require("../../shared-providers/stripe");
 const orderEmitter = require("../events/order");
 const requestEmitter = require("../events/request");
+const taskEmitter = require("../events/task");
 const utils = require("../utils");
 
 const tryGetPaymentConfigs = (models, cb) => {
@@ -109,7 +110,7 @@ const settleOrder = (models, orderId, userId, cb) => {
                 return cb();
             }
 
-            if (!stripePrivateKey || !stripePrivateKey.fieldValue) {
+            if (!stripePrivateKey || !stripePrivateKey.fieldValue ) {
                 cb({
                     code: "PAYMENTS_ERROR"
                 });
@@ -168,7 +169,8 @@ const settleOrder = (models, orderId, userId, cb) => {
             })
             .then(() => cb(), cb),
         cb => {
-            models.request
+            models
+            .request
             .update({
                 status: models.request.REQUEST_STATUS.SETTLED
             }, {
@@ -182,7 +184,7 @@ const settleOrder = (models, orderId, userId, cb) => {
         if (err) {
             return cb(err);
         }
-       
+
         requestEmitter
             .emit("request-completed", models, requestId);
 

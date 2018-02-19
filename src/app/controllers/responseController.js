@@ -94,7 +94,23 @@ const isLoggedInAndVerified = parseUserFactory(true, false, "10");
 const isAdmin = parseUserFactory(true, true);
 const identifyUser = parseUserFactory(false, false);
 
+const subscriptions = {};
+
+const hasValidSubscription = (req, res, next) => {
+	return next();
+	/**
+		if (!subscriptions[req.tenantId]) {
+			return res.status(400).send({
+				code: "INVALID_SUBSCRIPTION"
+			});
+		}
+
+		return next();
+	*/
+};
+
 module.exports = {
+	hasValidSubscription,
 	isAdmin,
 	isLoggedIn,
 	isLoggedInAndVerified,

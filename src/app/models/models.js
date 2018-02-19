@@ -4,6 +4,7 @@ const path = require("path");
 const mysql = require("mysql2");
 const Sequelize = require("sequelize");
 
+const tenantRegister = {};
 const tenantConnections = {};
 
 const getTenantIds = () => Object.keys(tenantConnections);
@@ -14,6 +15,47 @@ const pool = mysql.createPool({
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD
 });
+
+const createSeqConnection = (tenantId) => {
+  const db = {};
+      const sequelize = new Sequelize(tenantId, process.env.VQ_DB_USER, process.env.VQ_DB_PASSWORD, {
+        host: process.env.VQ_DB_HOST,
+        logging: false,
+        dialect: "mysql",
+        pool: {
+          max: 1,
+          min: 0,
+          idle: 10000
+        }
+      });
+
+      fs.readdirSync(__dirname)
+          .filter(file => {
+              return (file.indexOf(".") !== 0) && (file !== "models.js");
+          })
+          .forEach(file => {
+              var model = sequelize.import(path.join(__dirname, file));
+              db[model.name] = model;
+          });
+      
+      Object.keys(db).forEach(modelName => {
+        if ("associate" in db[modelName]) {
+          db[modelName].associate(db);
+        }
+      });
+
+      db.tenantId = tenantId;
+      db.seq = sequelize;
+      db.Sequelize = Sequelize;
+
+      return db;
+};
+
+const refreshTenantRegister = tenantId => {
+  tenantRegister[tenantId] = {
+    established: Date.now() / 1000
+  };
+};
 
 const create = (tenantId, marketplaceType, cb) => {
   console.log(`[models] Creating tenant model: ${tenantId}`);
@@ -46,41 +88,9 @@ const create = (tenantId, marketplaceType, cb) => {
       }
     ),
     cb => {
-      const db = {};
-      const sequelize = new Sequelize(tenantId,
-          process.env.DB_USER,
-          process.env.DB_PASSWORD,
-      {
-        host: process.env.DB_HOST,
-        logging: false,
-        dialect: "mysql",
-        pool: {
-          max: 1,
-          min: 0,
-          idle: 10000
-        }
-      });
+      tenantConnections[tenantId] = createSeqConnection(tenantId);
 
-      fs.readdirSync(__dirname)
-          .filter(file => {
-              return (file.indexOf(".") !== 0) && (file !== "models.js");
-          })
-          .forEach(file => {
-              var model = sequelize.import(path.join(__dirname, file));
-              db[model.name] = model;
-          });
-      
-      Object.keys(db).forEach(modelName => {
-        if ("associate" in db[modelName]) {
-          db[modelName].associate(db);
-        }
-      });
-
-      db.tenantId = tenantId;
-      db.seq = sequelize;
-      db.Sequelize = Sequelize;
-    
-      tenantConnections[tenantId] = db;
+      refreshTenantRegister(tenantId);
 
       cb();
     },
@@ -139,16 +149,37 @@ const create = (tenantId, marketplaceType, cb) => {
           });
         }, 
       ], (err) => {
+        // we delete the object not to waste the sql connection
+        tenantConnections[tenantId].seq.close();
+        
+        delete tenantConnections[tenantId];
+        console.log(`Completed for ${tenantId}`);
+
         cb(err);
       });
     }], cb);
 };
 
 const get = tenantId => {
+  if (!tenantRegister[tenantId]) {
+    return undefined;
+  }
+
+  refreshTenantRegister(tenantId);
+
+  if (tenantConnections[tenantId]) {
+    return tenantConnections[tenantId];
+  }
+
+  tenantConnections[tenantId] = createSeqConnection(tenantId);
+
   return tenantConnections[tenantId];
 };
 
 module.exports = {
+  tenantRegister,
+  tenantConnections,
+  refreshTenantRegister,
   create,
   get,
   getTenantIds

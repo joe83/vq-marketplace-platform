@@ -42,7 +42,7 @@ const handlerFactory = (emailCode) => (models, task) => {
     
                     const emails = rUserEmails
                         .map(_ => _.email);
-    
+
                     getDomainName(models, (err, domain) => {
                         if (err) {
                             return console.error(err);
@@ -179,7 +179,6 @@ taskEmitter
 
 taskEmitter
     .on("cancelled", handlerFactory("listing-cancelled"));
-
 
 if (module.parent) {
     module.exports = taskEmitter;

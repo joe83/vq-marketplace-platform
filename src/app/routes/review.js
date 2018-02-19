@@ -4,6 +4,7 @@ const cust = require("../config/customizing.js");
 const isLoggedIn = resCtrl.isLoggedIn;
 const sendResponse = resCtrl.sendResponse;
 const isLoggedInAndVerified = resCtrl.isLoggedInAndVerified;
+const identifyUser = resCtrl.identifyUser;
 const isAdmin = resCtrl.isAdmin;
 const models  = require("../models/models");
 const reviewEmitter = require("../events/review");
@@ -48,7 +49,7 @@ module.exports = app => {
             });
         }
 
-        var order, request;
+        var order, request, task;
 
         async.waterfall([
             cb => {
@@ -102,6 +103,7 @@ module.exports = app => {
 
                     order = rOrder;
                     request = rOrder.request;
+                    task = rOrder.task;
 
                     if (
                         order.status !== req.models.order.ORDER_STATUS.SETTLED &&
@@ -128,7 +130,8 @@ module.exports = app => {
                         id: requestId
                     },
                     include: [
-                        { model: req.models.order }
+                        { model: req.models.order },
+                        { model: req.models.task }
                     ],
                 })
                 .then(rRequest => {
@@ -142,6 +145,7 @@ module.exports = app => {
 
                     request = rRequest;
                     order = rRequest.order;
+                    task = rRequest.task;
 
                     if (
                         request.status !== req.models.request.REQUEST_STATUS.SETTLED &&
@@ -157,8 +161,14 @@ module.exports = app => {
                     return cb();
                 }, cb);
             },
-            cb => {
-                const toUserId = reviewType === REVIEW_TYPES.ORDER ? order.request.fromUserId : request.toUserId;
+            cb => {             
+
+                const toUserId = reviewType === REVIEW_TYPES.ORDER ? 
+                    Number(task.taskType) === 1 ?
+                        request.fromUserId : request.toUserId
+                        : 
+                    Number(task.taskType) === 1 ?
+                        request.toUserId : request.fromUserId
 
                 if (toUserId === userId) {
                     return cb({
@@ -204,7 +214,7 @@ module.exports = app => {
             });
     });
 
-	app.get("/api/review", (req, res) => {
+	app.get("/api/review", identifyUser, (req, res) => {
         const toUserId = Number(req.query.toUserId);
 
         if (!toUserId) {
@@ -240,18 +250,92 @@ module.exports = app => {
                             }
                         })
                         .then(oppositeReview => {
-                            if (oppositeReview) {
-                                review.dataValues.canBeShown = true;
 
-                                return cb();
-                            }
+                            req.models
+                                .appConfig
+                                .findAll({
+                                    $where: {
+                                        $or: [
+                                            { fieldKey: "LISTING_TASK_WORKFLOW_FOR_SUPPLY_LISTINGS" },
+                                            { fieldKey: "LISTING_TASK_WORKFLOW_FOR_DEMAND_LISTINGS" },
+                                            { fieldKey: "LISTING_TASK_WORKFLOW_FOR_SUPPLY_LISTINGS_REVIEW_STEP_ENABLED" },
+                                            { fieldKey: "LISTING_TASK_WORKFLOW_FOR_DEMAND_LISTINGS_REVIEW_STEP_ENABLED" },
+                                            { fieldKey: "LISTING_TASK_WORKFLOW_FOR_SUPPLY_LISTINGS_REVIEW_STEP_REQUIRE_BOTH_REVIEWS" },
+                                            { fieldKey: "LISTING_TASK_WORKFLOW_FOR_DEMAND_LISTINGS_REVIEW_STEP_REQUIRE_BOTH_REVIEWS" },
+                                        ]
+                                    }
+                                })
+                                .then(rWorkflowConfigs => {
 
-                            delete review.dataValues.rate;
-                            delete review.dataValues.body;
+                                    const supplyWorkflow = rWorkflowConfigs
+                                        .find(_ => _.fieldKey === "LISTING_TASK_WORKFLOW_FOR_SUPPLY_LISTINGS");
 
-                            review.dataValues.body;
-                            
-                            return cb();
+                                    const demandWorkflow = rWorkflowConfigs
+                                        .find(_=> _.fieldKey === "LISTING_TASK_WORKFLOW_FOR_DEMAND_LISTINGS");
+
+                                    const supplyWorkflowRequestsEnabled = rWorkflowConfigs
+                                        .find(_ => _.fieldKey === "LISTING_TASK_WORKFLOW_FOR_SUPPLY_LISTINGS_REVIEW_STEP_ENABLED");
+
+                                    const demandWorkflowRequestsEnabled = rWorkflowConfigs
+                                        .find(_ => _.fieldKey === "LISTING_TASK_WORKFLOW_FOR_DEMAND_LISTINGS_REVIEW_STEP_ENABLED");
+
+                                    const supplyWorkflowRequestsRequireBothSides = rWorkflowConfigs
+                                        .find(_ => _.fieldKey === "LISTING_TASK_WORKFLOW_FOR_SUPPLY_LISTINGS_REVIEW_STEP_REQUIRE_BOTH_REVIEWS");
+
+                                    const demandWorkflowRequestsRequireBothSides = rWorkflowConfigs
+                                        .find(_ => _.fieldKey === "LISTING_TASK_WORKFLOW_FOR_DEMAND_LISTINGS_REVIEW_STEP_REQUIRE_BOTH_REVIEWS");
+
+                                    if (
+                                        oppositeReview ||
+                                        (
+                                            req.user &&
+                                            review.fromUserId === req.user.id
+                                        ) ||
+                                        (
+                                            (
+                                                supplyWorkflow && String(supplyWorkflow.fieldValue) === "1"
+                                            ) ||
+                                            (
+                                                demandWorkflow && String(demandWorkflow.fieldValue) === "1"
+                                            )
+                                        )
+                                    ) {
+                                        if (oppositeReview) {
+                                            review.dataValues.hasOppositeReview = true;
+                                        }
+                                        if (req.user && review.fromUserId === req.user.id) {
+                                            review.dataValues.isOwnReview = true;
+                                        }
+
+                                        if (
+                                            (
+                                                (
+                                                    supplyWorkflowRequestsEnabled &&
+                                                    String(review.task.taskType) === "2" &&
+                                                    String(supplyWorkflowRequestsEnabled.fieldValue) === "1" &&
+                                                    String(supplyWorkflowRequestsRequireBothSides.fieldValue) === "1"
+                                                ) ||
+                                                (
+                                                    demandWorkflowRequestsEnabled &&
+                                                    String(review.task.taskType) === "1" &&
+                                                    String(demandWorkflowRequestsEnabled.fieldValue) === "1" &&
+                                                    String(demandWorkflowRequestsRequireBothSides.fieldValue) === "1"
+                                                ) 
+                                            ) &&
+                                            (
+                                                !oppositeReview
+                                            )
+                                        ) {
+                                            review.dataValues.hiddenByWorkflow = true;
+                                        }
+        
+                                        return cb();
+                                    }
+
+                                    return cb();
+        
+                                    
+                                }, cb);
                         });
                 }, () => {
                     res.send(reviews);

@@ -1,32 +1,15 @@
 const async = require("async");
 const randomstring = require("randomstring");
-const tenantDb = require("./models");
 const db = require("../app/models/models");
 const utils = require("../app/utils");
 const cryptoService = require("../app/services/cryptoService");
+const subscriptionService = require("../app/services/subscriptionService");
 const emailService = require("../app/services/emailService.js");
 const emailTemplateGenerator = require("../app/services/emailTemplateGenerator.js");
 const service = require("./service");
 const request = require("request");
 
-const rootDbName = "vq-marketplace";
-let models = null;
-
-const getModels = cb => {
-    if (models) {
-        return cb(null, models);
-    }
-
-    tenantDb.create(rootDbName, err => {
-        if (err) {
-            return cb(err);
-        }
-
-        models = tenantDb.get(rootDbName);
-
-        return cb(null, models);
-    });
-};
+const tenantModelsProvider = require("./tenantModelsProvider");
 
 const initRoutes = (app, express) => {
     app.use(express.static(__dirname + "/public"));
@@ -154,7 +137,7 @@ const initRoutes = (app, express) => {
     });
 
     app.get("/api/tenant", (req, res) => {
-        getModels((err, tenantModels) => {
+        tenantModelsProvider.getModels((err, tenantModels) => {
             if (err) {
                 return res.status(400).send(err);
             }
@@ -170,10 +153,6 @@ const initRoutes = (app, express) => {
                             return {
                                 tenantId: _.tenantId,
                                 stripePublicKey: _.stripeAccount ? _.stripeAccount.keys.publishable : undefined,
-
-                                // other payment public keys...
-                                // @bariontodo
-                                barionPublicKey: "NOT_IMPLEMENTED_YET"
                             };
                         });
 
@@ -183,7 +162,7 @@ const initRoutes = (app, express) => {
     });
 
     app.get("/api/tenant/:tenantId", (req, res) => {
-        getModels((err, tenantModels) => {
+        tenantModelsProvider.getModels((err, tenantModels) => {
             if (err) {
                 return res.status(400).send(err);
             }
@@ -217,7 +196,7 @@ const initRoutes = (app, express) => {
     app.post("/api/trial-registration/step-1", (req, res) => {
         const tenant = req.body;
 
-        getModels((err, tenantModels) => {
+        tenantModelsProvider.getModels((err, tenantModels) => {
             if (err) {
                 return res.status(400).send(err);
             }
@@ -229,8 +208,8 @@ const initRoutes = (app, express) => {
                         email: tenant.email
                     },
                     defaults: {
-                        source: tenant.source,
-                        apiKey: randomstring.generate(32)
+                        apiKey: randomstring.generate(32),
+                        source: tenant.source
                     }
                 })
                 .spread((rTenant, isNew) => {
@@ -240,7 +219,6 @@ const initRoutes = (app, express) => {
                             code: "TENANT_EMAIL_TAKEN"
                         });
                     }
-
                     rTenant.verificationKey = cryptoService
                         .encodeObj(rTenant.apiKey);
 
@@ -248,8 +226,7 @@ const initRoutes = (app, express) => {
                         "<span style=\"color: #374550;\"><b>Verification Code: </b>" + rTenant.verificationKey + "</span><br><br>" +
                         "<span style=\"color: #374550;\"><b><a href=\"" + process.env.WEB_URL + "/get-started?verificationCode=" + encodeURIComponent(rTenant.verificationKey) + "\">Click here if you are unable to paste the code</a></b></span>";
 
-                    emailTemplateGenerator
-                    .generateSingleColumnEmail(
+                    emailTemplateGenerator.generateSingleColumnEmail(
                         "Marketplace Registration",
                         "Welcome to VQ-Marketplace",
                         body,
@@ -282,7 +259,7 @@ const initRoutes = (app, express) => {
                 });
         }
 
-        getModels((err, tenantModels) => {
+        tenantModelsProvider.getModels((err, tenantModels) => {
             if (err) {
                 return res.status(400).send(err);
             }
@@ -327,7 +304,7 @@ const initRoutes = (app, express) => {
     app.post("/api/trial-registration/step-3", (req, res) => {
         const tenant = req.body;
 
-        getModels((err, tenantModels) => {
+        tenantModelsProvider.getModels((err, tenantModels) => {
             if (err) {
                 return res.status(400).send(err);
             }
@@ -372,7 +349,19 @@ const initRoutes = (app, express) => {
         const marketplaceType = tenant.marketplaceType;
         const tenantId = utils.stringToSlug(tenant.marketplaceName);
 
-        const reserveredKeywords = ["blog", rootDbName, "help"];
+        if (!tenantId) {
+            return res.status(400)
+                .send({
+                    code: "MARKETPLACE_NAME_WRONG_FORMAT"
+                });
+        }
+
+        const reserveredKeywords = [
+            "innodb",
+            "blog",
+            tenantModelsProvider.rootDbName,
+            "help"
+        ];
 
         if (reserveredKeywords.indexOf(tenantId) !== -1) {
             return res.status(400)
@@ -386,7 +375,7 @@ const initRoutes = (app, express) => {
 
         async.waterfall([
             cb => {
-                getModels((err, rTenantModels) => {
+                tenantModelsProvider.getModels((err, rTenantModels) => {
                     if (err) {
                         return cb(err);
                     }
@@ -449,14 +438,16 @@ const initRoutes = (app, express) => {
 
                     cb();
                 }),
-            cb => tenantRef
-                .update({
-                    marketplaceName: tenant.marketplaceName,
-                    martketplaceType: marketplaceType,
-                    tenantId,
-                    status: 1 // 1: deployment triggered
-                })
-                .then(() => cb(), cb),
+            cb => {
+                tenantRef.marketplaceName = tenant.marketplaceName;
+                tenantRef.marketplaceName = tenant.marketplaceType;
+                tenantRef.tenantId = tenantId;
+                tenantRef.status = 1;
+
+                tenantRef
+                .save()
+                .then(() => cb(), cb);
+            }
         ], err => {
             if (err) {
                 return res.status(err.httpCode).send(err);
@@ -465,16 +456,30 @@ const initRoutes = (app, express) => {
             const configOverwrites = {
               NAME: tenantRef.marketplaceName,
               SEO_TITLE: tenantRef.marketplaceName,
-              DOMAIN: `https://${tenantRef.tenantId}.vqmarketplace.com`,
+              DOMAIN: `https://${tenantRef.tenantId}.vqmarketplace.com`
             };
 
+            subscriptionService.ensureCustomerDataSaved(tenantRef);
+
+            res.send(tenantRef);
+
             // this can last some time, up to one minute, it should be run async
-            service.deployNewMarketplace(tenantId, apiKey, tenant.password, tenant.repeatPassword, marketplaceType, configOverwrites, () => {
+            service
+            .deployNewMarketplace(
+                tenantId,
+                apiKey,
+                tenant.password,
+                tenant.repeatPassword,
+                marketplaceType,
+                configOverwrites, () => {
                 console.log("MARKETPLACE CREATED");
 
-                const marketplaceUrl = process.env.APP_URL.replace('?tenantId', tenantId);
-                        
-                var body = `<p style="color: #374550;">
+                const marketplaceUrl =
+                    config.production ?
+                        "https://" + tenantRef.tenantId + ".vqmarketplace.com/app" :
+                        "https://" + tenantRef.tenantId + ".vqmarketplace.com/app";
+
+                const body = `<p style="color: #374550;">
                                 Your journey to run an online marketplace has just begun! You can now easily build and manage your online marketplace and at the same time go to market, get your first users and validate your idea.
                             </p>
                             <br>
@@ -512,17 +517,13 @@ const initRoutes = (app, express) => {
                     }
                 );
             });
-
-            res.send(tenantRef);
         });
     });
 
     app.post("/api/trial-registration/getTenantStatus", (req, res) => {
         const apiKey = req.body.apiKey;
 
-        console.log(apiKey)
-
-        getModels((err, tenantModels) => {
+        tenantModelsProvider.getModels((err, tenantModels) => {
             if (err) {
                 return res.status(400).send(err);
             }
@@ -539,8 +540,8 @@ const initRoutes = (app, express) => {
                     ]
                 })
                 .then(tenant => {
-                    return res.send({
-                        tenant: tenant
+                    return res.status(200).send({
+                        tenant
                     });
                 }, err => res.status(400).send(err));
         });
@@ -549,7 +550,7 @@ const initRoutes = (app, express) => {
     app.post("/api/trial-registration/resendVerificationCode", (req, res) => {
         const apiKey = req.body.apiKey;
 
-        getModels((err, tenantModels) => {
+        tenantModelsProvider.getModels((err, tenantModels) => {
             if (err) {
                 return res.status(400).send(err);
             }
@@ -602,6 +603,6 @@ const initRoutes = (app, express) => {
 
 
 module.exports = {
-    getModels,
+    getModels: tenantModelsProvider.getModels,
     initRoutes
 };
