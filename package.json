@@ -80,8 +80,5 @@
     "tslint": "^5.8.0",
     "typescript": "^2.6.1",
     "yargs": "^7.1.0"
-  },
-  "pre-commit": [
-    "lint"
-  ]
+  }
 }
