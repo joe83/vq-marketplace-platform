@@ -12,6 +12,8 @@ const express = require("express");
 const app = express();
 const tenantApp = express();
 
+const env = args.env || process.env.ENV;
+
 const initApp = app => {
     app.set("view engine", "ejs");
     app.set("json spaces", 2);
@@ -37,7 +39,6 @@ app.use((req, res, next) => {
         tenantId = subdomains[subdomains.length - 1];
         console.log(`Accessing ${tenantId}`);
 	}
-	args.env = args.env || process.env.ENV.toLowerCase;
     req.models = db.get(tenantId);
     if (!req.models) {
         return res.status(400).send({
@@ -46,7 +47,7 @@ app.use((req, res, next) => {
     }
     next();
 });
-if (args.env.toLowerCase() === 'production') {
+if (env.toLowerCase() === 'production') {
     console.log("-------------------------------------------------");
     console.log("[PRODUCTION MODE] THIS API RUNS IN PRODUCTION MODE..");
     console.log("-------------------------------------------------");
@@ -83,23 +84,18 @@ async.waterfall([
 			(tenant, cb) => {
 				console.log(`Registering tenant ${tenant.tenantId}`);
 
-				db.refreshTenantRegister(tenant.tenantId);
+				db.create(tenant.dataValues.tenantId, tenant.dataValues.marketplaceType, (err) => {
+					if (err) {
+						return cb(err);
+					}
+
+					db.refreshTenantRegister(tenant.tenantId);
   
-				workers.registerWorkers(tenant.tenantId);
+					workers.registerWorkers(tenant.tenantId);
 
-				cb();
-					/**
-					 	db.create(tenant.dataValues.tenantId, tenant.dataValues.marketplaceType, (err) => {
-							if (err) {
-								return cb(err);
-							}
-
-							workers
-							.registerWorkers(tenant.dataValues.tenantId);
-
-							cb(null, tenants);
-						})
-					*/
+					cb();
+				})
+				
       		},
 			cb
 		);
@@ -139,6 +135,6 @@ setInterval(() => {
 setInterval(() => {
 	const usedMemory = process.memoryUsage().heapUsed / 1024 / 1024;
 	if (process.env.SHOW_MEMORY_USAGE) {
-		console.log(`[VQ-MARKETPLACE-API] ${ath.round(usedMemory * 100) / 100} MB usage | ${Object.keys(db.tenantConnections).length} tenants`);
+		console.log(`[VQ-MARKETPLACE-API] ${Math.round(usedMemory * 100) / 100} MB usage | ${Object.keys(db.tenantConnections).length} tenants`);
 	}
 }, 1 * 60 * 1000);

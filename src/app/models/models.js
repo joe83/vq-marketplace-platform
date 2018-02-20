@@ -11,9 +11,9 @@ const getTenantIds = () => Object.keys(tenantConnections);
 
 const pool = mysql.createPool({
   connectionLimit: 2,
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD
+  host: process.env.VQ_DB_HOST,
+  user: process.env.VQ_DB_USER,
+  password: process.env.VQ_DB_PASSWORD
 });
 
 const createSeqConnection = (tenantId) => {

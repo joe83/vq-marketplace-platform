@@ -18,9 +18,9 @@ const create = (tenantId, cb) => {
   async.waterfall([
     cb => {
       const connection = mysql.createConnection({
-        host: process.env.DB_HOST,
-        user: process.env.DB_USER,
-        password: process.env.DB_PASSWORD
+        host: process.env.VQ_DB_HOST,
+        user: process.env.VQ_DB_USER,
+        password: process.env.VQ_DB_PASSWORD
       });
 
       connection.connect();
@@ -48,10 +48,10 @@ const create = (tenantId, cb) => {
     cb => {
       const db = {};
       const sequelize = new Sequelize(tenantId,
-        process.env.DB_USER,
-        process.env.DB_PASSWORD,
+        process.env.VQ_DB_USER,
+        process.env.VQ_DB_PASSWORD,
         {
-        host: process.env.DB_HOST,
+        host: process.env.VQ_DB_HOST,
         logging: false,
         dialect: "mysql",
         pool: {
