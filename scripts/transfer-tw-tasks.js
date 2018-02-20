@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const async = require('async');
 const db = require('../built/app/models/models.js');
 const MongoClient = require('mongodb').MongoClient
@@ -6,6 +8,7 @@ var BSON = require('bson');
 MongoClient.connect(process.env.ST_MONGODB, function(err, mongoDb) {
     const users = mongoDb.collection("users");
 
+    //need a usecase as second argument for db.create
     db.create("vq", () => {
         db.get("vq")
         .seq.query("SELECT * FROM task")

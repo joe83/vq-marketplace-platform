@@ -151,9 +151,9 @@ const create = (tenantId, marketplaceType, cb) => {
       ], (err) => {
         // we delete the object not to waste the sql connection
         tenantConnections[tenantId].seq.close();
-        
+
         delete tenantConnections[tenantId];
-        console.log(`Completed for ${tenantId}`);
+        console.log(`Completed database ${isNewDatabase ? 'creation' : 'setup'} for ${tenantId}`);
 
         cb(err);
       });

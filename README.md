@@ -37,9 +37,9 @@ sudo apt-get install nodejs // server-side javascript
 sudo apt-get install nodejs-legacy // links 'nodejs' command to 'node'
 sudo apt-get install npm // npm package manager for nodejs
 sudo apt-get install build-essential
-npm install node-gyp gulp eslint tslint -g
+npm install node-gyp -g
 ```
-Review .env file and make necessary changes first!
+
 ## Installation
 Clone the repository into your local developement envirment.
 
@@ -47,32 +47,55 @@ Clone the repository into your local developement envirment.
 git clone https://github.com/vq-labs/vq-marketplace-api.git // clones the repository from remote
 cd vq-marketplace-api // goes to the repository folder
 npm install // installs the npm packages from ./package.json
-npm install node-gyp gulp eslint tslint -g // installs global packages
+npm install node-gyp -g // installs global packages
 ```
 ### Common problems
 ```
 sudo ln -s /usr/bin/nodejs /usr/bin/node
 ```
 ## Running
-Review .env file and make necessary changes first then rename it to .env
+Review .env.example file and make necessary changes first then rename it to .env
 We have a rule in .gitignore so that you don't commit this file accidentally as it might contain sensitive information. If you want to commit this anyways, remove .env from .gitignore
+
+By default, all the TENANT_ID in all parts of the app (API, WEB-APP) are test. If you change it please make sure that all your env files has the same TENANT_ID
 
 In order to start locally the VQ Web Services, you need to run the command:
 ```
 npm start
 ```
 
-The very first time you run this command, all the data tables in the database will be created. We use Sequelize models for it.
-Ensure that you also run the init scripts at the very beginning:
+Ensure that you also run the init scripts after running with npm start in a seperate CLI tab:
 ```
-node scripts/restore-default-config.js services|rental|products|bitcoinmeetup
-// here we can specify what marketplace type we want. We have some default implementations developed: services|partner|swap. Also you can specify which language you'd like to add.
-node scripts/restore-default-labels.js services en (or one of 'rental', 'products', 'bitcoinmeetup' for marketplaceType)
-node scripts/restore-default-posts.js services (or one of 'rental', 'products', 'bitcoinmeetup')
+Please keep reading:
+
+CONFIG: this is the backbone of the app. It has varying configurations saved to the database. You can find example configurations in ./src/example-configs/[services|rental|products|bitcoinmeetup]/config.json
+LABELS: these are the translation of the app and the marketplace. You can find example labels in ./src/example-configs/i18n/[lang].json
+POSTS: these are the notification, email and custom page templates stored as HTML. You can find example labels in ./src/example-configs/i18n/[services|rental|products|bitcoinmeetup]/posts.json
+
+USECASES:
+services|rental|products|bitcoinmeetup
+TENANTID: will be the name of the database. If not specified as an argument, .env TENANT_ID will be taken into account.
+LANG: will be the two letter code according to ISO 639-1 Codes. By default we have only the English language labels so please use 'en'
+
+The very first time you run any of these commands all the necessary components (configs, labels, posts and all other required tables) will be created. If you later want to restore any of these components individually, you can use the commands below which will forcefully update the existing components you have by the example-configs.
+
+node scripts/restore-default-config.js USECASE TENANTID(optional, see note on TENANTID)
+node scripts/restore-default-labels.js USECASE LANG TENANTID(optional, see note on TENANTID)
+node scripts/restore-default-posts.js USECASE TENANTID(optional, see note on TENANTID)
 ```
 
 ## Deployment
 We deploy the application with Elastic Beanstalk.
+
+# Environments
+
+We have tested the application in these environments but a .nvmrc and package.json engines have been setup for you to take a hint on:
+(If you use NVM, you can do nvm use which will take .nvmrc file into account)
+(If you want to install Node and NPM manually you can check the engines in package.json)
+
+NodeJS 7.2.1 and NPM 3.10.9 on macOS Sierra 10.12.6,
+NodeJS 8.3.0 and NPM 5.6 on Windows 10,
+NodeJS 9.0.0 and NPM 5.5.1 on AWS Linux Ubuntu 16.04.2
 
 
 ## Contribute

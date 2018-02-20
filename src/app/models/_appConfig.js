@@ -82,11 +82,9 @@ module.exports = (sequelize, DataTypes) => {
       });
 
     async
-    .eachSeries(updateConfigs, (config, cb) =>
-      upsert(config.fieldKey, config.fieldValue, cb)
-    , (err) => {
-      cb(err);
-    });
+    .eachSeries(updateConfigs, (config, cb2) =>
+      upsert(config.fieldKey, config.fieldValue, cb2)
+    ,cb);
   };
 
   const addDefaultConfig = (usecase, cb) => {
