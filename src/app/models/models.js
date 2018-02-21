@@ -161,11 +161,11 @@ const create = (tenantId, marketplaceType, cb) => {
 };
 
 const get = tenantId => {
+  refreshTenantRegister(tenantId);
+
   if (!tenantRegister[tenantId]) {
     return undefined;
   }
-
-  refreshTenantRegister(tenantId);
 
   if (tenantConnections[tenantId]) {
     return tenantConnections[tenantId];

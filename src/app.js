@@ -91,8 +91,6 @@ async.waterfall([
 
 					db.refreshTenantRegister(tenant.tenantId);
   
-					workers.registerWorkers(tenant.tenantId);
-
 					cb();
 				})
 				
