@@ -13,6 +13,7 @@
     "build:nolint": "rm -rf ./built && node ./node_modules/gulp/bin/gulp.js build",
     "build": "npm run tslint && rm -rf ./built && node ./node_modules/gulp/bin/gulp.js build",
     "start": "npm run build && node built/app.js",
+    "create-marketplace": "node ./scripts/create-marketplace.js",
     "test": "ST_ENV=local jasmine"
   },
   "author": "vq-labs.com",
