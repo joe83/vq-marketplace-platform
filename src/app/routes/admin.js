@@ -265,7 +265,7 @@ module.exports = app => {
 				.then(outstandingRequest => {
 					if (outstandingRequest) {
 						return sendResponse(res, {
-							code: "CANNOT_BLOCK"
+							code: "CANNOT_BLOCK_USER_HAS_OUTSTANDING_REQUESTS"
 						});
 					}
 
