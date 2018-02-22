@@ -12,12 +12,26 @@ const vqAuth = require("../auth");
 module.exports = userEmitter;
     userEmitter
     .on("created", (models, user) => {
-        const VERIFICATION_LINK = cryptoService.buildVerificationUrl(models.tenantId, config.SERVER_URL, user);
+        return models
+            .appConfig
+            .findOne({
+                where: {
+                    fieldKey: "DOMAIN"
+                }
+            })
+            .then(configField => {
+                configField = configField || {};
+                
+                const domain = configField.fieldValue || "http://localhost:3000";
 
-        return emailService
-            .getEmailAndSend(models, emailService.EMAILS.WELCOME, user.emails[0], {
-                VERIFICATION_LINK
+                const VERIFICATION_LINK = cryptoService.buildVerificationUrl(models.tenantId, domain, user);
+
+                return emailService
+                    .getEmailAndSend(models, emailService.EMAILS.WELCOME, user.emails[0], {
+                        VERIFICATION_LINK
+                    });
             });
+        
     });
 
     userEmitter

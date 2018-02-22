@@ -122,13 +122,28 @@ module.exports = app => {
 						}, cb);
 				});
 			}], () => {
-				const VERIFICATION_LINK = cryptoService
-					.buildVerificationUrl(req.models.tenantId, config.SERVER_URL, { id: userId });
-				
-				emailService
-					.getEmailAndSend(req.models, emailService.EMAILS.WELCOME, emails, {
-						VERIFICATION_LINK
-					});
+			
+				req
+				.models
+				.appConfig
+				.findOne({
+					where: {
+						fieldKey: "DOMAIN"
+					}
+				})
+				.then(configField => {
+					configField = configField || {};
+					
+					const domain = configField.fieldValue || "http://localhost:3000";
+
+					const VERIFICATION_LINK = cryptoService
+					.buildVerificationUrl(req.models.tenantId, domain, { id: userId });
+						
+						emailService
+							.getEmailAndSend(req.models, emailService.EMAILS.WELCOME, emails, {
+								VERIFICATION_LINK
+							});
+				});
 
 				res.send({
 					code: "EMAIL_SENT"
