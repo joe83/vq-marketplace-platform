@@ -179,6 +179,8 @@
   "MARK_DONE": "Task completed",
   "MESSAGE": "Message",
   "MORE": "More",
+  "MY_LISTINGS": "Listings",
+  "MY_REQUESTS": "Requests",
   "NEW_LISTING_ADDRESS_DESC": "Your exact address will only be published to accepted taskers.",
   "NEW_LISTING_ADDRESS_HEADER": "Where should the task be done?",
   "NEW_LISTING_BASICS_DESC": "Describe your task as clearly as possible (location, how to enter your flat or house, tools, etc.). It helps to be exact!",
