@@ -148,8 +148,8 @@
     "code": "new-order",
     "type": "email",
     "body": "<p>Hello!</p> <p><br></p> <p>You have successfully created an order. See more information on your dashboard:</p> <p><br></p> <p>&lt;%-ACTION_URL%&gt;</p> <p><br></p> <p>Best regards,</p> <p><%- CONFIG.NAME %> team</p>",
-    "targetUserType": null,
-    "eventTrigger": null
+    "targetUserType": 1,
+    "eventTrigger": "new-order"
   },
   {
     "title": "Order has been marked as done",

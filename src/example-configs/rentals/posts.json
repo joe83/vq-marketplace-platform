@@ -140,8 +140,8 @@
     "code": "new-order",
     "type": "email",
     "body": "<p>Hello!</p>\n<p><br></p>\n<p>You have successfully confirmed your order. See more information on your dashboard:</p>\n<p><br></p>\n<p>&lt;%-ACTION_URL%&gt;</p>\n<p><br></p>\n<p>Best regards,</p>\n<p>&lt;%- CONFIG.NAME %&gt; team</p>",
-    "targetUserType": null,
-    "eventTrigger": null
+    "targetUserType": 1,
+    "eventTrigger": "new-order"
   },
   {
     "title": "Rental has been marked as done",
