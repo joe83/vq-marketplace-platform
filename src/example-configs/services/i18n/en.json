@@ -38,7 +38,7 @@
   "BOOKING_SUCCESS_HEADER": "Congratulations!",
   "CANCEL": "Cancel",
   "CANCEL_LISTING_ACTION_HEADER": null,
-  "CANCEL_LISTING_DESC": "Are you sure you wish to cancel your task?",
+  "CANCEL_LISTING_DESC": "This will only cancel your active listing. You will still see your bookings (if any) related to this listing in your dashboard",
   "CANCEL_LISTING_SUCCESS_DESC": "Your job has been cancelled. We are sorry to see it go, but look forward to the next one.",
   "CANCEL_LISTING_SUCCESS_HEADER": null,
   "CANCEL_REQUEST_ACTION_DESC": "Are you sure you wish to cancel your application? Since you haven't been chosen for the job yet, you can do so. We are sorry that you changed your mind, hope to see you soon.",

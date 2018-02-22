@@ -38,7 +38,7 @@
   "BOOKING_SUCCESS_HEADER": "Success",
   "CANCEL": "Cancel",
   "CANCEL_LISTING_ACTION_HEADER": "Cancel listing",
-  "CANCEL_LISTING_DESC": "Are you sure that you want to cancel your listing?",
+  "CANCEL_LISTING_DESC": "This will only cancel your active listing. You will still see your bookings (if any) related to this listing in your dashboard",
   "CANCEL_LISTING_SUCCESS_DESC": "Your listing has been cancelled",
   "CANCEL_LISTING_SUCCESS_HEADER": "Success",
   "CANCEL_REQUEST_ACTION_DESC": "Do you really wish to revoke the request?",

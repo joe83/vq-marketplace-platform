@@ -92,7 +92,7 @@
     "EMAIL_new-task": "New task",
     "PASSWORDS_DO_NOT_MATCH": "Passwords do not match",
     "CANCEL_LISTING_ACTION_HEADER": "Cancel listing",
-    "CANCEL_LISTING_DESC": "Are you sure that you want to cancel your listing?",
+    "CANCEL_LISTING_DESC": "This will only cancel your active listing. You will still see your bookings (if any) related to this listing in your dashboard",
     "WRONG_PASSWORD": "Wrong password",
     "EMAIL_NOT_FOUND": "Email not found",
     "EMAIL_WRONGLY_FORMATTED": "Email does not have the correct format",
