@@ -52,10 +52,11 @@ module.exports = app => {
 
 	app.get("/api/admin/user", isLoggedIn, isAdmin, hasValidSubscription, (req, res) => req.models.user
 		.findAll({
+			paranoid: false,
 			order: [[ "createdAt", "DESC" ]],
 			include: [
 				{ model: req.models.userProperty },
-				{ model: req.models.userPreference }
+				{ model: req.models.userPreference },
 			]
 		})
 		.then(data => res.send(data), err => {
@@ -69,7 +70,12 @@ module.exports = app => {
 
 		req.models
 			.user
-			.findById(userId)
+			.findOne({
+				where: {
+					id: userId
+				},
+				paranoid: false
+			})
 			.then(user => {
 				if (!user) {
 					return res.status(404).send("NOT_FOUND");
