@@ -22,7 +22,7 @@ db.create(TENANT_ID, USECASE, () => {
 
     db.get(TENANT_ID)
         .appLabel
-        .addDefaultLangLabels(TARGET_LANG, USECASE, SHOULD_FORCE, (err, data) => {
+        .addDefaultLangLabels(TARGET_LANG, USECASE, true, (err, data) => {
             if (err) {
                 console.log(err);
             }
