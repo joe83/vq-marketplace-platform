@@ -140,7 +140,16 @@ module.exports = app => {
 	app.get("/api/admin/task", isLoggedIn, isAdmin, hasValidSubscription, (req, res) => req.models.task
 		.findAll({
 			order: [[ "createdAt", "DESC" ]],
-			include: []
+			include: [
+				{
+					model: req.models.request,
+					include: [
+						{
+							model: req.models.order
+						}
+					]
+				}
+			]
 		})
 		.then(data => res.send(data)));
 
