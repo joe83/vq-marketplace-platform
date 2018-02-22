@@ -112,9 +112,6 @@ const changeRequestStatus = (models: any, requestId: number, newStatus: string, 
         }
 
         if (newStatus === models.request.REQUEST_STATUS.MARKED_DONE) {
-            requestEmitter
-                .emit("request-marked-as-done", models, requestId);
-
             orderEmitter
                 .emit("order-marked-as-done", models, order.id);
         }

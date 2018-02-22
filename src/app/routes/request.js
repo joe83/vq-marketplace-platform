@@ -256,7 +256,7 @@ module.exports = app => {
         req.models.order
             .findOne({
                 where: {
-                    requestId: req.params.requestId
+                    requestId: requestId
                 }
             })
             .then(order => {

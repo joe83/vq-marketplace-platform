@@ -22,7 +22,19 @@ const getOrderFromRequest = (models, requestId, cb) => {
 };
 
 const getRequestOwnerEmails = (models, requestId, cb) => {
-    let emails, request, order, task;
+    let demandEmails, supplyEmails, supplyUserId, demandUserId, request, order, task;
+
+	const setEmails = (user, emails) => {
+		if (user.userType === 1) {
+			demandUserId = user.id;
+			demandEmails = emails;
+		}
+
+		if (user.userType === 2) {
+			supplyUserId = user.id
+			supplyEmails = emails;
+		}
+	};
 
     return async.waterfall([
         cb => models
@@ -33,6 +45,7 @@ const getRequestOwnerEmails = (models, requestId, cb) => {
                 },
                 include: [
 					{ model: models.user, as: "fromUser" },
+					{ model: models.user, as: "toUser" },
 					{ model: models.task, as: "task" }
                 ]
             })
@@ -63,8 +76,23 @@ const getRequestOwnerEmails = (models, requestId, cb) => {
                     return cb(err);
                 }
 
-                emails = rUserEmails
+				const emails = rUserEmails
                     .map(_ => _.email);
+
+				setEmails(request.fromUser, emails);
+
+                cb();
+			}),
+		cb => vqAuth
+            .getEmailsFromUserId(models, request.toUser.vqUserId, (err, rUserEmails) => {
+                if (err) {
+                    return cb(err);
+                }
+
+                const emails = rUserEmails
+                    .map(_ => _.email);
+
+				setEmails(request.toUser, emails);
 
                 cb();
             })
@@ -73,16 +101,19 @@ const getRequestOwnerEmails = (models, requestId, cb) => {
 				request,
 				order,
 				task,
-                emails
+				supplyEmails,
+				demandEmails,
+				supplyUserId,
+				demandUserId
             });
         });
 };
 
 const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
 	return (models, requestId) => {
-		var request, order, task;
-		var emails;
-		var emailData = {};
+		let request, order, task;
+		let demandEmails, supplyEmails, supplyUserId, demandUserId;
+		let emailData = {};
 
 		async.waterfall([
 			cb => getRequestOwnerEmails(models, requestId, (err, data) => {
@@ -90,7 +121,10 @@ const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
                     return cb(err);
                 }
 
-                emails = data.emails;
+				supplyUserId = data.supplyUserId;
+				demandUserId = data.demandUserId;
+				demandEmails = data.demandEmails;
+				supplyEmails = data.supplyEmails;
                 order = data.order;
 				request = data.request;
 				task = data.task;
@@ -109,8 +143,11 @@ const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
 					
 					const domain = configField.fieldValue || "http://localhost:3000";
 
-					emailData.ACTION_URL = 
-						actionUrlFn(domain, requestId, order ? order.id : undefined);
+					const ACTION_URL = actionUrlFn(domain, requestId, order ? order.id : undefined, 1);
+            		const SUPPLY_ACTION_URL = actionUrlFn(domain, requestId, order ? order.id : undefined, 2);
+
+					emailData.ACTION_URL = ACTION_URL;
+					emailData.SUPPLY_ACTION_URL = SUPPLY_ACTION_URL;
 
 					emailData.LISTING_TITLE = task.title;
 
@@ -119,6 +156,25 @@ const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
 		], err => {
 			if (err) {
 				return console.error(err);
+			}
+
+			// its handled by other events already
+			if (emailCode === "request-marked-as-done") {
+				if (supplyEmails) {
+					emailService
+					.checkIfShouldSendEmail(models, emailCode, supplyUserId, () =>
+						emailService.sendEmailsOnEvent(models, emailCode, [], supplyEmails, emailData)
+					);
+				}
+				
+				if (demandEmails) {
+					emailService
+					.checkIfShouldSendEmail(models, emailCode, demandUserId, () =>
+						emailService.sendEmailsOnEvent(models, emailCode, demandEmails, [], emailData)
+					);
+				}
+
+				return;
 			}
 
 			// its handled by other events already
@@ -140,7 +196,7 @@ const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
 
 			emailService
 			.checkIfShouldSendEmail(models, emailCode, request.userId, () =>
-				emailService.getEmailAndSend(models, emailCode, emails, emailData)
+				emailService.getEmailAndSend(models, emailCode, supplyEmails, emailData)
 			);
 		});
 	};
@@ -229,21 +285,21 @@ requestEmitter
 
 requestEmitter
 	.on("closed",
-		requestEventHandlerFactory("request-closed", (domain, requestId, orderId) =>
+		requestEventHandlerFactory("request-closed", (domain, requestId) =>
 			`${domain}/app/request/${requestId}/review`
 		)
 	);
 
 requestEmitter
 	.on("request-declined",
-	requestEventHandlerFactory("request-declined", (domain, requestId) => 
+	requestEventHandlerFactory("request-declined", (domain) => 
 		`${domain}/app`
 	)
 );
 
 requestEmitter
 	.on("request-cancelled",
-		requestEventHandlerFactory("request-cancelled", (domain, requestId) =>
+		requestEventHandlerFactory("request-cancelled", (domain) =>
 			`${domain}/app`
 		)
 	);
