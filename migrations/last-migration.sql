@@ -4,8 +4,13 @@ delimiter ;;
 create procedure doMigration ()
 	begin
 		declare continue handler for 1060 begin end;
-		UPDATE _posts SET body='<p>Hello!</p> <p><br></p> <p>There is a new booking for your listing "<%- LISTING_TITLE %>". See more information here:</p> <p><br></p> <p>&lt;%-ACTION_URL%&gt;</p> <p><br></p> <p>Best regards,</p> <p><%- CONFIG.NAME %> team</p>' WHERE code = 'new-order-for-supply';
+		ALTER TABLE _posts MODIFY COLUMN eventTrigger ENUM('order-closed','new-order','order-completed','order-marked-as-done');
+		UPDATE _posts SET targetUserType = 1 WHERE `code` = 'order-completed';
+		UPDATE _posts SET eventTrigger = 'order-completed' WHERE `code` = 'order-completed';
+		UPDATE _posts SET targetUserType = 2 WHERE `code` = 'request-completed';
+		UPDATE _posts SET eventTrigger = 'order-completed' WHERE `code` = 'request-completed';
 
+		UPDATE _posts SET targetUserType = 1 WHERE code = 'order-marked-as-done';
+		UPDATE _posts SET eventTrigger = 'order-marked-as-done' WHERE code='order-marked-as-done';
 	end;;
-
 call doMigration();

@@ -88,8 +88,9 @@ const getOrderOwnerEmails = (models, orderId, cb) => {
 
 const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
 	return (models, orderId) => {
-		var order, task;
-		var emails, supplyEmails, supplyUserId;
+        var order, task;
+        var domain;
+		var demandEmails, supplyEmails;
 		var ACTION_URL;
 
 		async.waterfall([
@@ -99,10 +100,9 @@ const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
                 }
 
                 supplyEmails = data.supplyEmails;
-                emails = data.emails;
+                demandEmails = data.emails;
                 order = data.order;
                 task = data.task;
-                supplyUserId = data.supplyUserId;
 
                 cb();
             }),
@@ -116,10 +116,7 @@ const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
 				.then(configField => {
 					configField = configField || {};
 					
-					const domain = configField.fieldValue || "http://localhost:3000";
-
-					ACTION_URL = 
-						actionUrlFn(domain, order.requestId, order.id);
+					domain = configField.fieldValue || "http://localhost:3000";
 
 					cb();
 				}, cb)
@@ -127,9 +124,12 @@ const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
 			if (err) {
 				return console.error(err);
 			}
- 
+            
+            const ACTION_URL = actionUrlFn(domain, order.requestId, order.id, 1);
+            const SUPPLY_ACTION_URL = actionUrlFn(domain, order.requestId, order.id, 2);
             const emailData = {
                 ACTION_URL,
+                SUPPLY_ACTION_URL,
                 LISTING_TITLE: task.title,
                 ORDER_ID: order.id,
                 ORDER_CURRENCY: order.currency,
@@ -137,36 +137,37 @@ const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
                 ORDER_CREATED_AT: order.createdAt
             };
 
-            if (task.taskType === 2 && supplyEmails) {
-                emailService
-                .checkIfShouldSendEmail(models, "new-order-for-supply", supplyUserId, () =>
-                    emailService
-                    .getEmailAndSend(models, "new-order-for-supply", supplyEmails, emailData)
-                );
-			}
-
-			if (emails) {
+            // new more general email handling
+            if (
+                emailCode === "new-order" ||
+                emailCode === "order-closed" ||
+                emailCode === "order-completed" ||
+                emailCode === "order-marked-as-done"
+            ) {
+                emailService.sendEmailsOnEvent(models, emailCode, demandEmails, supplyEmails, emailData);
+            } else {
+                // old email handling
                 emailService
                 .checkIfShouldSendEmail(models, emailCode, order.userId, () =>
                     emailService
-                    .getEmailAndSend(models, emailCode, emails, emailData)
+                    .getEmailAndSend(models, emailCode, demandEmails, emailData)
                 );
-			}
+            }
 		});
     };
 };
 
 orderEmitter
     .on("closed",
-        orderEventHandlerFactory("order-closed", (domain, requestId, orderId) =>
-            `${domain}/app/order/${orderId}/review`
+        orderEventHandlerFactory("order-closed", (domain, requestId, orderId, userType) =>
+            `${domain}/app/${userType === 1 ? "order" : "request"}/${userType === 1 ? orderId : requestId}/review`
         )
     );
 
 orderEmitter
 	.on("order-completed", 
-        orderEventHandlerFactory("order-completed", (domain, requestId, orderId) =>
-            `${domain}/app/order/${orderId}/review`
+        orderEventHandlerFactory("order-completed", (domain, requestId, orderId, userType) =>
+            `${domain}/app/${userType === 1 ? "order" : "request"}/${userType === 1 ? orderId : requestId}/review`
         )
     );    
 
@@ -179,8 +180,8 @@ orderEmitter
 
 orderEmitter
 	.on("order-marked-as-done", 
-        orderEventHandlerFactory("order-marked-as-done", (domain, requestId) =>
-            `${domain}/app/chat/${requestId}`
+        orderEventHandlerFactory("order-marked-as-done", (domain, requestId, orderId, userType) =>
+            userType === 1 ? `${domain}/app/chat/${requestId}` : `${domain}/app/dashboard`
         )
     );
 

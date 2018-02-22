@@ -121,6 +121,23 @@ const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
 				return console.error(err);
 			}
 
+			// its handled by other events already
+			if (emailCode === "request-completed") {
+				return;
+			}
+
+			// supply listings, we ignore it, clean it up with the new approach!
+			if (
+				(
+					emailCode === "request-closed" ||
+					emailCode === "request-declined" ||
+					emailCode === "request-cancelled" ||
+					emailCode === "task-request-cancelled"
+				)
+				&& Number(task.taskType) === 2) {
+				return;
+			}
+
 			emailService
 			.checkIfShouldSendEmail(models, emailCode, request.userId, () =>
 				emailService.getEmailAndSend(models, emailCode, emails, emailData)
@@ -205,7 +222,7 @@ requestEmitter
 
 requestEmitter
 	.on("request-completed", 
-		requestEventHandlerFactory("request-completed", (domain, requestId, orderId) =>
+		requestEventHandlerFactory("request-completed", (domain, requestId) =>
 			`${domain}/app/request/${requestId}/review`
 		)
 	);

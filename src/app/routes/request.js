@@ -39,7 +39,9 @@ module.exports = app => {
 
                     return cb();
                 }, cb),
-            cb => req.models.request
+            cb => req
+                .models
+                .request
                 .create({
                     status: req.models.request.REQUEST_STATUS.PENDING,
                     taskId,
