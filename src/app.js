@@ -84,15 +84,23 @@ async.waterfall([
 			(tenant, cb) => {
 				console.log(`Registering tenant ${tenant.tenantId}`);
 
-				db.create(tenant.dataValues.tenantId, tenant.dataValues.marketplaceType, (err) => {
-					if (err) {
-						return cb(err);
-					}
-
-					db.refreshTenantRegister(tenant.tenantId);
+				db.refreshTenantRegister(tenant.tenantId);
   
-					cb();
-				})
+				workers.registerWorkers(tenant.tenantId);
+
+				cb();
+					/**
+					 	db.create(tenant.dataValues.tenantId, tenant.dataValues.marketplaceType, (err) => {
+							if (err) {
+								return cb(err);
+							}
+
+							workers
+							.registerWorkers(tenant.dataValues.tenantId);
+
+							cb(null, tenants);
+						})
+					*/
 				
       		},
 			cb
