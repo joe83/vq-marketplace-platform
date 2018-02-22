@@ -8,7 +8,7 @@ class DefaultEmitter extends EventEmitter {}
 var orderEmitter = new DefaultEmitter();
 
 const getOrderOwnerEmails = (models, orderId, cb) => {
-    let emails, supplyEmails, supplyUserId, order, task, request;
+    let emails, supplyEmails, supplyUserId, demandUserId, order, task, request;
 
     return async.waterfall([
         cb => models
@@ -40,6 +40,12 @@ const getOrderOwnerEmails = (models, orderId, cb) => {
                 task = rOrder.task;
                 request = rOrder.request;
 
+                supplyUserId = request.fromUser.id === order.user.id ?
+                    request.toUser.id :
+                    request.fromUser.id;
+
+                demandUserId = order.user.id;
+
                 return cb();
             }, cb),
 
@@ -58,12 +64,12 @@ const getOrderOwnerEmails = (models, orderId, cb) => {
 
         // get supplier emails
         cb => {
-            supplyUserId = request.fromUser.vqUserId === order.user.vqUserId ?
-                request.toUser.vqUserId :
-                request.fromUser.vqUserId;
+            const vqSupplyUserId = request.fromUser.vqUserId === order.user.vqUserId ?
+                    request.toUser.vqUserId :
+                    request.fromUser.vqUserId;
 
             vqAuth
-            .getEmailsFromUserId(models, supplyUserId,
+            .getEmailsFromUserId(models, vqSupplyUserId,
                 (err, rUserEmails) => {
                     if (err) {
                         return cb(err);
@@ -73,10 +79,11 @@ const getOrderOwnerEmails = (models, orderId, cb) => {
                         .map(_ => _.email);
 
                     return cb();
-            })
+            });
         }
         ], err => {
             return cb(err, {
+                demandUserId,
                 supplyUserId,
                 task,
                 order,
@@ -90,8 +97,7 @@ const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
 	return (models, orderId) => {
         var order, task;
         var domain;
-		var demandEmails, supplyEmails;
-		var ACTION_URL;
+		var demandEmails, supplyEmails, demandUserId, supplyUserId;
 
 		async.waterfall([
 			cb => getOrderOwnerEmails(models, orderId, (err, data) => {
@@ -99,6 +105,8 @@ const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
                     return cb(err);
                 }
 
+                demandUserId = data.demandUserId;
+                supplyUserId = data.supplyUserId;
                 supplyEmails = data.supplyEmails;
                 demandEmails = data.emails;
                 order = data.order;
