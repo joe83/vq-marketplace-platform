@@ -22,9 +22,14 @@ const decodeObj = encodedHash => {
     return obj;
 };
 
-const buildVerificationUrl = (tenantId, user) => {
+
+const buildVerificationUrl = (tenantId, domain, user) => {
     const verificationToken = encodeObj(user);
-    const builtServerUrl = process.env.APP_URL ? process.env.APP_URL.replace('?tenantId', tenantId) : `http://localhost:${process.env.PORT}`;
+    const builtServerUrl = domain ?
+                            domain :
+                            process.env.APP_URL ?
+                                process.env.APP_URL.replace('?tenantId', tenantId) :
+                                `http://localhost:${process.env.PORT}`;;
     const verificationUrl = `${builtServerUrl}/api/verify/email?code=${verificationToken}`;
 
     return verificationUrl;
