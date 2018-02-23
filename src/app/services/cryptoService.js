@@ -37,8 +37,6 @@ const buildVerificationUrl = (tenantId, serverUrl, user) => {
             builtServerUrl = `http://localhost:${process.env.PORT}`;
         }
     }
-    console.log(serverUrl)
-    console.log(builtServerUrl);
     
     const verificationUrl = `${builtServerUrl}/api/verify/email?code=${verificationToken}`;
 
