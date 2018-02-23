@@ -217,6 +217,7 @@
     "SENT_REQUESTS_ACCEPTED": "Jobs in progress",
     "SENT_REQUESTS_SETTLED": "Completed jobs",
     "REQUEST_ALREADY_SENT": "Already applied",
+    "USER_VERIFICATIONS_REQUIRED_FOR_REQUEST": "Verify yourself to apply",
     "REQUEST_SUBMITTED_HEADER": "Success",
     "REQUEST_SUBMITTED_DESC": "Your request has been successfully sent. You can view it in your dashboard.",
     "REQUEST_MESSAGE_HEADER": "Message",

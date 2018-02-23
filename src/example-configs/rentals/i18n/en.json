@@ -287,6 +287,7 @@
   "REQUEST_ACTION_MARK_DONE_DESC": "You marked the rental as completed. From now on, your client has 8 hours to confirm your rental as completed. If he/she does not, the system automatically confirms your rental as completed.The payment can be arranged between the two of you. ",
   "REQUEST_ACTION_MARK_DONE_SUCCESS": "Success",
   "REQUEST_ALREADY_SENT": "Already applied",
+  "USER_VERIFICATIONS_REQUIRED_FOR_REQUEST": "Verify yourself to apply",
   "REQUEST_BOOKED": "Applicant assigned",
   "REQUEST_CLOSED": "Closed",
   "REQUEST_MARKED_AS_DONE": "Marked as done",

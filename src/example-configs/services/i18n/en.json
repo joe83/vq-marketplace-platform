@@ -277,6 +277,7 @@
   "REQUEST_ACTION_MARK_DONE_DESC": "Have you finished the task? From now on, the job owner has 8 hours to confirm your task as completed. The payment can be arranged between the two of you. After 8 hours the system automatically confirms your task as done.",
   "REQUEST_ACTION_MARK_DONE_SUCCESS": "Congratulations, it seems like you are done! Please do not forget to leave a rate and review, thank you!",
   "REQUEST_ALREADY_SENT": "Already applied",
+  "USER_VERIFICATIONS_REQUIRED_FOR_REQUEST": "Verify yourself to apply",
   "REQUEST_BOOKED": "Applicant assigned",
   "REQUEST_CLOSED": "Closed",
   "REQUEST_MARKED_AS_DONE": "Marked as done",
