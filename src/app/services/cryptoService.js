@@ -25,7 +25,21 @@ const decodeObj = encodedHash => {
 
 const buildVerificationUrl = (tenantId, serverUrl, user) => {
     const verificationToken = encodeObj(user);
-    const builtServerUrl = serverUrl ? serverUrl.replace("?tenantId?", tenantId) : "http://localhost:8080";
+    let builtServerUrl;
+    if (serverUrl) {
+        builtServerUrl = serverUrl.replace("?tenantId?", tenantId);
+    } else {
+        if (process.env.ENV.toLowerCase() === 'production') {
+            builtServerUrl = "https://?tenantId.vqmarketplace.com".replace("?tenantId?", tenantId);
+        } else if (process.env.ENV.toLowerCase() === 'test') {
+            builtServerUrl = "https://?tenantId.test.vqmarketplace.com".replace("?tenantId?", tenantId);
+        } else if (process.env.ENV.toLowerCase() === 'development') {
+            builtServerUrl = `http://localhost:${process.env.PORT}`;
+        }
+    }
+    console.log(serverUrl)
+    console.log(builtServerUrl);
+    
     const verificationUrl = `${builtServerUrl}/api/verify/email?code=${verificationToken}`;
 
     return verificationUrl;

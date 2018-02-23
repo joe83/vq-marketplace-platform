@@ -22,7 +22,7 @@ module.exports = userEmitter;
             .then(configField => {
                 configField = configField || {};
                 
-                const domain = configField.fieldValue || "http://localhost:3000";
+                const domain = configField.fieldValue;
 
                 const VERIFICATION_LINK = cryptoService.buildVerificationUrl(models.tenantId, domain, user);
 

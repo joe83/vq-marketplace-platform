@@ -134,7 +134,7 @@ module.exports = app => {
 				.then(configField => {
 					configField = configField || {};
 					
-					const domain = configField.fieldValue || "http://localhost:3000";
+					const domain = configField.fieldValue;
 
 					const VERIFICATION_LINK = cryptoService
 					.buildVerificationUrl(req.models.tenantId, domain, { id: userId });
