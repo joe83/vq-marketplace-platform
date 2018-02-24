@@ -116,6 +116,7 @@ const getRequestOwnerEmails = (models, requestId, cb) => {
 
 const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
 	return (models, requestId) => {
+		const emailCode = emailCode;
 		let request, order, task;
 		let demandEmails, supplyEmails, supplyUserId, supplyUserType, demandUserId, demandUserType;
 		var supplyListingsEnabled, demandListingsEnabled;
