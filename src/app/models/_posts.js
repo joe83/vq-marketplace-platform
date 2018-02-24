@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
   });
 
 
-  posts.createOrUpdate = () => (postCode, postType, postTitle, postBody) => posts
+  posts.createOrUpdate = () => (postCode, postType, postTitle, postBody, postTargetUserType, postEventTrigger) => posts
     .findOne({ where: { code: postCode } })
     .then(obj => {
         if (!obj) {
