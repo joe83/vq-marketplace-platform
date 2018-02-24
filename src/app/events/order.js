@@ -100,8 +100,7 @@ const getOrderOwnerEmails = (models, orderId, cb) => {
 };
 
 const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
-	return (models, orderId) => {
-        const emailCode = emailCode;
+	return (models, orderId, emailCode) => {
         let order, task;
         let domain;
         let demandEmails, supplyEmails, demandUserId, demandUserType, supplyUserId, supplyUserType;
