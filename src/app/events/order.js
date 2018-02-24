@@ -183,7 +183,7 @@ const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
                         if (emailsTriggeredByEvent.length) {
                             emailsTriggeredByEvent.map(eventEmailCode => {
                                 emailService
-                                .checkIfShouldSendEmail(models, eventEmailCode, supplyUserId, () => emailService.getEmailAndSend(models, eventEmailCode, supplyEmails, emailData));
+                                .checkIfShouldSendEmail(models, eventEmailCode.code, supplyUserId, () => emailService.getEmailAndSend(models, eventEmailCode.code, supplyEmails, emailData));
                             });
                             
                         }
@@ -196,7 +196,7 @@ const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
                         if (emailsTriggeredByEvent.length) {
                             emailsTriggeredByEvent.map(eventEmailCode => {
                                 emailService
-                                .checkIfShouldSendEmail(models, eventEmailCode, demandUserId, () => emailService.getEmailAndSend(models, eventEmailCode, demandEmails, emailData));
+                                .checkIfShouldSendEmail(models, eventEmailCode.code, demandUserId, () => emailService.getEmailAndSend(models, eventEmailCode.code, demandEmails, emailData));
                             });
                             
                         }
