@@ -112,7 +112,8 @@ const getRequestOwnerEmails = (models, requestId, cb) => {
 const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
 	return (models, requestId) => {
 		let request, order, task;
-		let demandEmails, supplyEmails, supplyUserId, demandUserId;
+		let demandEmails, supplyEmails, supplyUserId, supplyUserType, demandUserId, demandUserType;
+		var supplyListingsEnabled, demandListingsEnabled;
 		let emailData = {};
 
 		async.waterfall([
@@ -122,7 +123,9 @@ const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
                 }
 
 				supplyUserId = data.supplyUserId;
+				supplyUserType = data.supplyUserType;
 				demandUserId = data.demandUserId;
+				demandUserType = data.demandUserType;
 				demandEmails = data.demandEmails;
 				supplyEmails = data.supplyEmails;
                 order = data.order;
@@ -152,13 +155,43 @@ const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
 					emailData.LISTING_TITLE = task.title;
 
 					cb();
-				}, cb)
+				}, cb),
+			cb => models
+                .appConfig
+                .findAll({
+                    where: {
+                        $or: [
+                            { fieldKey: "USER_TYPE_DEMAND_LISTING_ENABLED" },
+                            { fieldKey: "USER_TYPE_SUPPLY_LISTING_ENABLED" },
+                        ]
+                    }
+                })
+                .then((configFields) => {
+                    demandListingsEnabled = configFields[0];
+                    supplyListingsEnabled = configFields[1];
+
+                    cb();
+                }, cb)
 		], err => {
 			if (err) {
 				return console.error(err);
 			}
 
-			// its handled by other events already
+			emailService.checkEmailScenarioForUser(emailCode, supplyUserType, demandListingsEnabled, supplyListingsEnabled, () => {
+				emailService
+					.checkIfShouldSendEmail(models, emailCode, supplyUserId, () =>
+						emailService.getEmailAndSend(models, emailCode, supplyEmails, emailData)
+					);
+			});
+
+			emailService.checkEmailScenarioForUser(emailCode, demandUserType, demandListingsEnabled, supplyListingsEnabled, () => {
+				emailService
+					.checkIfShouldSendEmail(models, emailCode, demandUserId, () =>
+					emailService.getEmailAndSend(models, emailCode, demandEmails, emailData)
+					);
+			});
+
+/* 			// its handled by order-marked-as-done
 			if (emailCode === "request-marked-as-done") {
 				if (supplyEmails) {
 					emailService
@@ -175,9 +208,9 @@ const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
 				}
 
 				return;
-			}
+			} */
 
-			// its handled by other events already
+/* 			// its handled by order-completed
 			if (emailCode === "request-completed") {
 				return;
 			}
@@ -192,12 +225,12 @@ const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
 				)
 				&& Number(task.taskType) === 2) {
 				return;
-			}
+			} */
 
-			emailService
+/* 			emailService
 			.checkIfShouldSendEmail(models, emailCode, request.userId, () =>
 				emailService.getEmailAndSend(models, emailCode, supplyEmails, emailData)
-			);
+			); */
 		});
 	};
 };

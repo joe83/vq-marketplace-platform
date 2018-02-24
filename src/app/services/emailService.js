@@ -14,6 +14,124 @@ const EMAILS = {
 	NEW_LISTING: "new-task"
 };
 
+const checkEmailScenarioForUser = (emailCode, userType, demandListingsEnabled, supplyListingsEnabled, cb) => {
+			switch (userType) {
+				case (0): {
+					return
+						[
+							'new-order-for-supply',
+							'listing-cancelled',
+							'request-marked-as-done',
+							'request-completed',
+							'review-left',
+							'order-closed-for-supply',
+							'message-received',
+							'task-marked-spam',
+							'new-order',
+							'order-marked-as-done',
+							'order-completed',
+							'order-closed'
+						].indexOf(emailCode) !== -1;
+				}
+				case (1): {
+					if (
+						demandListingsEnabled === "1" &&
+						supplyListingsEnabled !== "1"
+					) {
+						return [
+							'new-request-received',
+							'listing-cancelled',
+							'task-request-cancelled',
+							'new-order',
+							'order-marked-as-done',
+							'order-completed',
+							'review-left',
+							'order-closed',
+							'message-received',
+							'task-marked-spam'
+						].indexOf(emailCode) !== -1;
+					}
+					if (
+						demandListingsEnabled !== "1" &&
+						supplyListingsEnabled === "1"
+					) {
+						return [
+							'new-order',
+							'order-marked-as-done',
+							'order-completed',
+							'review-left',
+							'order-closed',
+							'message-received'
+						].indexOf(emailCode) !== -1;
+					}
+					if (
+						demandListingsEnabled === "1" &&
+						supplyListingsEnabled === "1"
+					) {
+						return [
+							'review-left',
+							'message-received',
+							'listing-cancelled',
+							'new-order',
+							'order-marked-as-done',
+							'order-completed',
+							'order-closed',
+							'request-marked-as-done'
+						].indexOf(emailCode) !== -1;
+					}
+				}
+				case (2): {
+					if (
+						demandListingsEnabled === "1" &&
+						supplyListingsEnabled !== "1"
+					) {
+						return [
+							'new-task',
+							'new-request-sent',
+							'request-declined',
+							'request-cancelled',
+							'request-accepted',
+							'request-marked-as-done',
+							'request-completed',
+							'review-left',
+							'request-closed',
+							'message-received'
+						].indexOf(emailCode) !== -1;
+					}
+					if (
+						demandListingsEnabled !== "1" &&
+						supplyListingsEnabled === "1"
+					) {
+						return [
+							'new-order-for-supply',
+							'listing-cancelled',
+							'request-marked-as-done',
+							'request-completed',
+							'review-left',
+							'order-closed-for-supply',
+							'message-received',
+							'task-marked-spam'
+						].indexOf(emailCode) !== -1;
+					}
+					if (
+						demandListingsEnabled === "1" &&
+						supplyListingsEnabled === "1"
+					) {
+						return [
+							'review-left',
+							'message-received',
+							'listing-cancelled',
+							'new-order',
+							'order-marked-as-done',
+							'order-completed',
+							'order-closed',
+							'request-marked-as-done'
+						].indexOf(emailCode) !== -1;
+					}
+				}
+			}
+}
+
 const checkIfShouldSendEmail = (models, emailCode, userId, cb, shouldNotCb) => models
 	.userProperty
 	.findOne({
@@ -313,5 +431,6 @@ module.exports = {
 	getEmailAndSend,
 	sendEmail,
 	sendTemplateEmail,
-	sendNewTenant
+	sendNewTenant,
+	checkEmailScenarioForUser
 };

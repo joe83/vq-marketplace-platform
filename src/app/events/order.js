@@ -43,8 +43,12 @@ const getOrderOwnerEmails = (models, orderId, cb) => {
                 supplyUserId = request.fromUser.id === order.user.id ?
                     request.toUser.id :
                     request.fromUser.id;
+                supplyUserType = request.fromUser.id === order.user.id ?
+                    request.toUser.userType :
+                    request.fromUser.userType;
 
                 demandUserId = order.user.id;
+                demandUserType = order.user.userType;
 
                 return cb();
             }, cb),
@@ -84,7 +88,9 @@ const getOrderOwnerEmails = (models, orderId, cb) => {
         ], err => {
             return cb(err, {
                 demandUserId,
+                demandUserType,
                 supplyUserId,
+                supplyUserType,
                 task,
                 order,
                 emails,
@@ -97,7 +103,8 @@ const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
 	return (models, orderId) => {
         var order, task;
         var domain;
-		var demandEmails, supplyEmails, demandUserId, supplyUserId;
+        var demandEmails, supplyEmails, demandUserId, demandUserType, supplyUserId, supplyUserType;
+        var supplyListingsEnabled, demandListingsEnabled;
 
 		async.waterfall([
 			cb => getOrderOwnerEmails(models, orderId, (err, data) => {
@@ -106,7 +113,9 @@ const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
                 }
 
                 demandUserId = data.demandUserId;
+                demandUserType = data.demandUserType;
                 supplyUserId = data.supplyUserId;
+                supplyUserType = data.supplyUserType;
                 supplyEmails = data.supplyEmails;
                 demandEmails = data.emails;
                 order = data.order;
@@ -127,7 +136,23 @@ const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
 					domain = configField.fieldValue || "http://localhost:3000";
 
 					cb();
-				}, cb)
+				}, cb),
+            cb => models
+                .appConfig
+                .findAll({
+                    where: {
+                        $or: [
+                            { fieldKey: "USER_TYPE_DEMAND_LISTING_ENABLED" },
+                            { fieldKey: "USER_TYPE_SUPPLY_LISTING_ENABLED" },
+                        ]
+                    }
+                })
+                .then((configFields) => {
+                    demandListingsEnabled = configFields[0];
+                    supplyListingsEnabled = configFields[1];
+
+                    cb();
+                }, cb)
 		], err => {
 			if (err) {
 				return console.error(err);
@@ -145,7 +170,22 @@ const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
                 ORDER_CREATED_AT: order.createdAt
             };
 
-            // new more general email handling
+
+            emailService.checkEmailScenarioForUser(emailCode, supplyUserType, demandListingsEnabled, supplyListingsEnabled, () => {
+				emailService
+					.checkIfShouldSendEmail(models, emailCode, supplyUserId, () =>
+						emailService.getEmailAndSend(models, emailCode, supplyEmails, emailData)
+					);
+			});
+
+			emailService.checkEmailScenarioForUser(emailCode, demandUserType, demandListingsEnabled, supplyListingsEnabled, () => {
+				emailService
+					.checkIfShouldSendEmail(models, emailCode, demandUserId, () =>
+					emailService.getEmailAndSend(models, emailCode, demandEmails, emailData)
+					);
+			});
+
+/*             // new more general email handling
             if (
                 emailCode === "new-order" ||
                 emailCode === "order-closed" ||
@@ -163,7 +203,7 @@ const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
                     emailService
                     .getEmailAndSend(models, emailCode, demandEmails, emailData)
                 );
-            }
+            } */
 		});
     };
 };
