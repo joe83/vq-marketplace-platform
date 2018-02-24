@@ -99,18 +99,19 @@ const getOrderOwnerEmails = (models, orderId, cb) => {
         });
 };
 
-function sendEmails(models, emailCode, userId, emails, data){
+function sendEmail(models, emailCode, userId, userType, emails, demandListingsEnabled, supplyListingsEnabled, data){
 	const emailsTriggeredByEvent = [emailService.getEventEmails(models, emailCode)];
-
-	emailService
-	.checkIfShouldSendEmail(models, emailCode, userId, () => {
-		emailService.getEmailAndSend(models, emailCode, emails, data);
-		if (emailsTriggeredByEvent.length) {
-			emailsTriggeredByEvent.map(eventEmailCode => {
-				sendEmails(models, eventEmailCode, userId, emails, data);
-			});
-		}
-	});	
+	emailService.checkEmailScenarioForUser(emailCode, userType, demandListingsEnabled, supplyListingsEnabled, () => {
+		emailService
+		.checkIfShouldSendEmail(models, emailCode, userId, () => {
+			emailService.getEmailAndSend(models, emailCode, emails, data);
+		});	
+	});
+	if (emailsTriggeredByEvent.length) {
+		emailsTriggeredByEvent.map(eventEmailCode => {
+			sendEmails(models, eventEmailCode, userId, userType, emails, demandListingsEnabled, supplyListingsEnabled, data);
+		});
+	}
 }
 
 const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
@@ -185,12 +186,8 @@ const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
             };
 
 
-			emailService.checkEmailScenarioForUser(emailCode, supplyUserType, demandListingsEnabled, supplyListingsEnabled, () => {
-				sendEmails(models, emailCode, supplyUserId, supplyEmails, emailData);
-			});
-            emailService.checkEmailScenarioForUser(emailCode, demandUserType, demandListingsEnabled, supplyListingsEnabled, () => {
-				sendEmails(models, emailCode, demandUserId, demandEmails, emailData);
-			});
+			sendEmails(models, emailCode, supplyUserId, supplyUserType, supplyEmails, demandListingsEnabled, supplyListingsEnabled, emailData);
+			sendEmails(models, emailCode, demandUserId, demandUserType, demandEmails, demandListingsEnabled, supplyListingsEnabled, emailData);
 
 /*             // new more general email handling
             if (
