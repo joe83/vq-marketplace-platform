@@ -110,18 +110,23 @@ const getRequestOwnerEmails = (models, requestId, cb) => {
 };
 
 function sendEmail(models, emailCode, userId, userType, emails, demandListingsEnabled, supplyListingsEnabled, data){
-	const emailsTriggeredByEvent = [emailService.getEventEmails(models, emailCode)];
-	emailService.checkEmailScenarioForUser(emailCode, userType, demandListingsEnabled, supplyListingsEnabled, () => {
-		emailService
-		.checkIfShouldSendEmail(models, emailCode, userId, () => {
-			emailService.getEmailAndSend(models, emailCode, emails, data);
-		});	
-	});
-	if (emailsTriggeredByEvent.length) {
-		emailsTriggeredByEvent.map(eventEmailCode => {
-			sendEmail(models, eventEmailCode, userId, userType, emails, demandListingsEnabled, supplyListingsEnabled, data);
+    emailService
+    .getEventEmails(models, emailCode)
+    .then(eventEmails => {
+		emailService.checkEmailScenarioForUser(emailCode, userType, demandListingsEnabled, supplyListingsEnabled, () => {
+			emailService
+			.checkIfShouldSendEmail(models, emailCode, userId, () => {
+				emailService.getEmailAndSend(models, emailCode, emails, data);
+			});	
 		});
-	}
+		if (eventEmails.length) {
+			eventEmails.map(eventEmailCode => {
+				sendEmail(models, eventEmailCode, userId, userType, emails, demandListingsEnabled, supplyListingsEnabled, data);
+			});
+		}
+	});
+    
+	
 }
 
 
