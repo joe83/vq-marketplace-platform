@@ -186,8 +186,8 @@ const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
             };
 
 
-			sendEmails(models, emailCode, supplyUserId, supplyUserType, supplyEmails, demandListingsEnabled, supplyListingsEnabled, emailData);
-			sendEmails(models, emailCode, demandUserId, demandUserType, demandEmails, demandListingsEnabled, supplyListingsEnabled, emailData);
+			sendEmail(models, emailCode, supplyUserId, supplyUserType, supplyEmails, demandListingsEnabled, supplyListingsEnabled, emailData);
+			sendEmail(models, emailCode, demandUserId, demandUserType, demandEmails, demandListingsEnabled, supplyListingsEnabled, emailData);
 
 /*             // new more general email handling
             if (

@@ -193,8 +193,8 @@ const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
 				return console.error(err);
 			}
 			
-			sendEmails(models, emailCode, supplyUserId, supplyUserType, supplyEmails, demandListingsEnabled, supplyListingsEnabled, emailData);
-			sendEmails(models, emailCode, demandUserId, demandUserType, demandEmails, demandListingsEnabled, supplyListingsEnabled, emailData);
+			sendEmail(models, emailCode, supplyUserId, supplyUserType, supplyEmails, demandListingsEnabled, supplyListingsEnabled, emailData);
+			sendEmail(models, emailCode, demandUserId, demandUserType, demandEmails, demandListingsEnabled, supplyListingsEnabled, emailData);
             
 
 /* 			// its handled by order-marked-as-done
