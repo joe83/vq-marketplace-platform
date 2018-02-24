@@ -109,12 +109,26 @@ const getRequestOwnerEmails = (models, requestId, cb) => {
         });
 };
 
+function sendEmails(models, emailCode, userId, emails, data){
+	const emailsTriggeredByEvent = [emailService.getEventEmails(models, emailCode)];
+
+	emailService
+	.checkIfShouldSendEmail(models, emailCode, userId, () => {
+		emailService.getEmailAndSend(models, emailCode, emails, data);
+		if (emailsTriggeredByEvent.length) {
+			emailsTriggeredByEvent.map(eventEmailCode => {
+				sendEmails(models, eventEmailCode, userId, emails, data);
+			});
+		}
+	});	
+}
+
+
 const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
 	return (models, requestId) => {
 		let request, order, task;
 		let demandEmails, supplyEmails, supplyUserId, supplyUserType, demandUserId, demandUserType;
 		var supplyListingsEnabled, demandListingsEnabled;
-		const emailsTriggeredByEvent = [];
 		let emailData = {};
 
 		async.waterfall([
@@ -172,42 +186,17 @@ const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
                     supplyListingsEnabled = configFields[1];
 
                     cb();
-                }, cb),
-				cb => {
-					emailsTriggeredByEvent.push(emailService.getEventEmails(models, emailCode));
-					cb();
-				}
+                }, cb)
 		], err => {
 			if (err) {
 				return console.error(err);
 			}
-
-
+			
 			emailService.checkEmailScenarioForUser(emailCode, supplyUserType, demandListingsEnabled, supplyListingsEnabled, () => {
-				emailService
-					.checkIfShouldSendEmail(models, emailCode, supplyUserId, () => {
-                        emailService.getEmailAndSend(models, emailCode, supplyEmails, emailData);
-                        if (emailsTriggeredByEvent.length) {
-                            emailsTriggeredByEvent.map(eventEmailCode => {
-                                emailService
-                                .checkIfShouldSendEmail(models, eventEmailCode.code, supplyUserId, () => emailService.getEmailAndSend(models, eventEmailCode.code, supplyEmails, emailData));
-                            });
-                            
-                        }
-                    });
+				sendEmails(models, emailCode, supplyUserId, supplyEmails, emailData);
 			});
             emailService.checkEmailScenarioForUser(emailCode, demandUserType, demandListingsEnabled, supplyListingsEnabled, () => {
-				emailService
-					.checkIfShouldSendEmail(models, emailCode, demandUserId, () => {
-                        emailService.getEmailAndSend(models, emailCode, demandEmails, emailData);
-                        if (emailsTriggeredByEvent.length) {
-                            emailsTriggeredByEvent.map(eventEmailCode => {
-                                emailService
-                                .checkIfShouldSendEmail(models, eventEmailCode.code, demandUserId, () => emailService.getEmailAndSend(models, eventEmailCode.code, demandEmails, emailData));
-                            });
-                            
-                        }
-                    });
+				sendEmails(models, emailCode, demandUserId, demandEmails, emailData);
 			});
 
 /* 			// its handled by order-marked-as-done
