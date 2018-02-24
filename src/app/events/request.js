@@ -188,8 +188,8 @@ const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
                     }
                 })
                 .then((configFields) => {
-                    demandListingsEnabled = configFields[0];
-                    supplyListingsEnabled = configFields[1];
+                    demandListingsEnabled = configFields[0].fieldValue;
+                    supplyListingsEnabled = configFields[1].fieldValue;
 
                     cb();
                 }, cb)
