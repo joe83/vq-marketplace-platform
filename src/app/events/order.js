@@ -101,10 +101,11 @@ const getOrderOwnerEmails = (models, orderId, cb) => {
 
 const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
 	return (models, orderId) => {
-        var order, task;
-        var domain;
-        var demandEmails, supplyEmails, demandUserId, demandUserType, supplyUserId, supplyUserType;
-        var supplyListingsEnabled, demandListingsEnabled;
+        let order, task;
+        let domain;
+        let demandEmails, supplyEmails, demandUserId, demandUserType, supplyUserId, supplyUserType;
+        let supplyListingsEnabled, demandListingsEnabled;
+        const emailsTriggeredByEvent = [];
 
 		async.waterfall([
 			cb => getOrderOwnerEmails(models, orderId, (err, data) => {
@@ -152,7 +153,11 @@ const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
                     supplyListingsEnabled = configFields[1];
 
                     cb();
-                }, cb)
+                }, cb),
+                cb => {
+                    emailsTriggeredByEvent.push(emailService.getEventEmails(models, emailCode));
+                    cb();
+                }
 		], err => {
 			if (err) {
 				return console.error(err);
@@ -173,16 +178,29 @@ const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
 
             emailService.checkEmailScenarioForUser(emailCode, supplyUserType, demandListingsEnabled, supplyListingsEnabled, () => {
 				emailService
-					.checkIfShouldSendEmail(models, emailCode, supplyUserId, () =>
-						emailService.getEmailAndSend(models, emailCode, supplyEmails, emailData)
-					);
+					.checkIfShouldSendEmail(models, emailCode, supplyUserId, () => {
+                        emailService.getEmailAndSend(models, emailCode, supplyEmails, emailData);
+                        if (emailsTriggeredByEvent.length) {
+                            emailsTriggeredByEvent.map(eventEmailCode => {
+                                emailService
+                                .checkIfShouldSendEmail(models, eventEmailCode, supplyUserId, () => emailService.getEmailAndSend(models, eventEmailCode, supplyEmails, emailData));
+                            });
+                            
+                        }
+                    });
 			});
-
-			emailService.checkEmailScenarioForUser(emailCode, demandUserType, demandListingsEnabled, supplyListingsEnabled, () => {
+            emailService.checkEmailScenarioForUser(emailCode, demandUserType, demandListingsEnabled, supplyListingsEnabled, () => {
 				emailService
-					.checkIfShouldSendEmail(models, emailCode, demandUserId, () =>
-					emailService.getEmailAndSend(models, emailCode, demandEmails, emailData)
-					);
+					.checkIfShouldSendEmail(models, emailCode, demandUserId, () => {
+                        emailService.getEmailAndSend(models, emailCode, demandEmails, emailData);
+                        if (emailsTriggeredByEvent.length) {
+                            emailsTriggeredByEvent.map(eventEmailCode => {
+                                emailService
+                                .checkIfShouldSendEmail(models, eventEmailCode, demandUserId, () => emailService.getEmailAndSend(models, eventEmailCode, demandEmails, emailData));
+                            });
+                            
+                        }
+                    });
 			});
 
 /*             // new more general email handling

@@ -432,5 +432,6 @@ module.exports = {
 	sendEmail,
 	sendTemplateEmail,
 	sendNewTenant,
+	getEventEmails,
 	checkEmailScenarioForUser
 };
