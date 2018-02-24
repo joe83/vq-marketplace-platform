@@ -34,6 +34,6 @@ db.create(TENANT_ID, USECASE, () => {
             if (err) {
                 console.log(err);
             }
-            console.log('Labels restored for ' + USECASE + ' marketplace for tenant ' + TENANT_ID);
+            console.log('Posts restored for ' + USECASE + ' marketplace for tenant ' + TENANT_ID);
         });  
 });
