@@ -115,7 +115,8 @@ const getRequestOwnerEmails = (models, requestId, cb) => {
 };
 
 const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
-	return (models, requestId, emailCode) => {
+	return (models, requestId) => {
+		const emailCodeRef = emailCode;
 		let request, order, task;
 		let demandEmails, supplyEmails, supplyUserId, supplyUserType, demandUserId, demandUserType;
 		var supplyListingsEnabled, demandListingsEnabled;
@@ -183,10 +184,10 @@ const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
 			}
 
 
-			emailService.checkEmailScenarioForUser(emailCode, supplyUserType, demandListingsEnabled, supplyListingsEnabled, () => {
+			emailService.checkEmailScenarioForUser(emailCodeRef, supplyUserType, demandListingsEnabled, supplyListingsEnabled, () => {
 				emailService
-					.checkIfShouldSendEmail(models, emailCode, supplyUserId, () => {
-                        emailService.getEmailAndSend(models, emailCode, supplyEmails, emailData);
+					.checkIfShouldSendEmail(models, emailCodeRef, supplyUserId, () => {
+                        emailService.getEmailAndSend(models, emailCodeRef, supplyEmails, emailData);
                         if (emailsTriggeredByEvent.length) {
                             emailsTriggeredByEvent.map(eventEmailCode => {
                                 emailService
@@ -196,10 +197,10 @@ const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
                         }
                     });
 			});
-            emailService.checkEmailScenarioForUser(emailCode, demandUserType, demandListingsEnabled, supplyListingsEnabled, () => {
+            emailService.checkEmailScenarioForUser(emailCodeRef, demandUserType, demandListingsEnabled, supplyListingsEnabled, () => {
 				emailService
-					.checkIfShouldSendEmail(models, emailCode, demandUserId, () => {
-                        emailService.getEmailAndSend(models, emailCode, demandEmails, emailData);
+					.checkIfShouldSendEmail(models, emailCodeRef, demandUserId, () => {
+                        emailService.getEmailAndSend(models, emailCodeRef, demandEmails, emailData);
                         if (emailsTriggeredByEvent.length) {
                             emailsTriggeredByEvent.map(eventEmailCode => {
                                 emailService
