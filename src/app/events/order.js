@@ -109,7 +109,7 @@ function sendEmail(models, emailCode, userId, userType, emails, demandListingsEn
 	});
 	if (emailsTriggeredByEvent.length) {
 		emailsTriggeredByEvent.map(eventEmailCode => {
-			sendEmails(models, eventEmailCode, userId, userType, emails, demandListingsEnabled, supplyListingsEnabled, data);
+			sendEmail(models, eventEmailCode, userId, userType, emails, demandListingsEnabled, supplyListingsEnabled, data);
 		});
 	}
 }
