@@ -1,0 +1,7 @@
+ALTER TABLE _posts MODIFY COLUMN eventTrigger ENUM('order-closed','new-order');
+UPDATE _posts SET targetUserType = 2 WHERE `code` = 'order-closed-for-supply';
+UPDATE _posts SET eventTrigger = "order-closed" WHERE `code` = 'order-closed-for-supply';
+UPDATE _posts SET targetUserType = 1 WHERE `code` = 'order-closed';
+UPDATE _posts SET eventTrigger = "order-closed" WHERE `code` = 'order-closed';
+
+INSERT IGNORE INTO _posts SET body='<p>Hello!</p> <p><br></p> <p>The booking for your listing has been closed.</p> <p><br></p> <p>You can leave review here:</p> <p>&lt;%-ACTION_URL%&gt;</p> <p><br></p> <p>Best regards,</p> <p><%- CONFIG.NAME %> team</p>', code='order-closed-for-supply', `type`='email', targetUserType=2, title='Booking for your listing has been closed.', eventTrigger='order-closed';

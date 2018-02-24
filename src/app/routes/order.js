@@ -450,7 +450,9 @@ module.exports = app => {
             const orderId = req.params.orderId;
             const userId = req.user.id;
 
-            req.models.order
+            req
+            .models
+            .order
             .findOne({
                 where: {
                     $and: [
@@ -461,7 +463,7 @@ module.exports = app => {
                         }, {
                             $or: [
                                 {
-                                status: req.models.order.ORDER_STATUS.MARKED_DONE
+                                    status: req.models.order.ORDER_STATUS.MARKED_DONE
                                 }, {
                                     status: req.models.order.ORDER_STATUS.PENDING
                                 }
@@ -494,7 +496,7 @@ module.exports = app => {
                         .update({
                             status: req.models.order.ORDER_STATUS.CLOSED
                         })
-                        .then(_ => {
+                        .then(() => {
                             orderEmitter.emit("closed", req.models, order.id);
 
                             sendResponse(res, null, {

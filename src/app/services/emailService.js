@@ -2,6 +2,7 @@ const ejs = require("ejs");
 const mandrill = require("mandrill-api/mandrill");
 const custProvider = require("../config/custProvider.js");
 const unescape = require("unescape");
+const _ = require("underscore");
 
 const mandrill_client = new mandrill.Mandrill(process.env.MANDRILL);
 
@@ -51,6 +52,77 @@ const getEmailBody = (models, code) => models.post
 				}
 			]
 	}});
+
+const getEventEmails = (models, eventTrigger) => models.post
+	.findAll({ 
+		where: {
+			$and: [
+				{
+					type: "email",
+				}, {
+					eventTrigger
+				}
+			]
+	}});
+
+const sendEmailsOnEvent = (models, eventTrigger, demandUserEmails, supplyUserEmails, emailData) =>
+	custProvider
+	.getConfig(models)
+	.then(config => {
+		if (typeof emailData === "string") {
+			emailData = {
+				ACTION_URL: emailData,
+				LISTING_TITLE: "<LISTING_TITLE NOT SPECIFIED>",
+				SENDER_FIRST_NAME: "<SENDER_FIRST_NAME NOT SPECIFIED>",
+				SENDER_LAST_NAME: "<SENDER_LAST_NAME NOT SPECIFIED>",
+				MESSAGE_BODY: "<MESSAGE_BODY NOT SPECIFIED>",
+				EMAIL_SETTINGS_URL: `${config.DOMAIN}/app/account/notifications`
+			};
+		} else {
+			emailData.ACTION_URL = emailData.ACTION_URL || "<ACTION_URL NOT SPECIFIED>";
+			emailData.SUPPLY_ACTION_URL = emailData.SUPPLY_ACTION_URL || "<SUPPLY_ACTION_URL NOT SPECIFIED>";
+			emailData.LISTING_TITLE = emailData.LISTING_TITLE || "<LISTING_TITLE NOT SPECIFIED>";
+			emailData.SENDER_FIRST_NAME = emailData.SENDER_FIRST_NAME || "<SENDER_FIRST_NAME NOT SPECIFIED>";
+			emailData.SENDER_LAST_NAME = emailData.SENDER_LAST_NAME || "<SENDER_LAST_NAME NOT SPECIFIED>";
+			emailData.MESSAGE_BODY = emailData.MESSAGE_BODY || "<MESSAGE_BODY NOT SPECIFIED>";
+			emailData.EMAIL_SETTINGS_URL = emailData.EMAIL_SETTINGS_URL = `${config.DOMAIN}/app/account/notifications`;
+		}
+
+		emailData.CONFIG = config;
+
+		getEventEmails(models, eventTrigger)
+		.then(emails => {
+			emails
+			.filter(email => email.targetUserType && email.eventTrigger)
+			.forEach(email => {
+				const params = {};
+				let compiledEmail;
+
+
+
+				const specialEmailData = email.targetUserType === 2 ?
+					_.extend({}, emailData, {
+						ACTION_URL: emailData.SUPPLY_ACTION_URL
+					}) : emailData;
+
+				try {
+					compiledEmail = ejs.compile(unescape(email.body))(specialEmailData);
+				} catch (err) {
+					return console.error(err);
+				}
+	
+				params.subject = email.title;
+				
+				console.log(`Sending email ${email.code} (event: ${eventTrigger}) to ${email.targetUserType === 1 ? demandUserEmails.length : supplyUserEmails.length} users.`);
+				
+				return sendEmail(models, compiledEmail, email.targetUserType === 1 ? demandUserEmails : supplyUserEmails, params, err => {
+					if (err) {
+						console.error(err);
+					}
+				});
+			});
+		});
+	});
 
 const getEmailAndSend = (models, emailCode, email, emailData) =>
 	custProvider
@@ -237,6 +309,7 @@ function sendEmail (models, html, tEmails, params, callback) {
 module.exports = {
 	EMAILS,
 	checkIfShouldSendEmail,
+	sendEmailsOnEvent,
 	getEmailAndSend,
 	sendEmail,
 	sendTemplateEmail,

@@ -39,7 +39,9 @@ module.exports = app => {
 
                     return cb();
                 }, cb),
-            cb => req.models.request
+            cb => req
+                .models
+                .request
                 .create({
                     status: req.models.request.REQUEST_STATUS.PENDING,
                     taskId,
@@ -254,7 +256,7 @@ module.exports = app => {
         req.models.order
             .findOne({
                 where: {
-                    requestId: req.params.requestId
+                    requestId: requestId
                 }
             })
             .then(order => {

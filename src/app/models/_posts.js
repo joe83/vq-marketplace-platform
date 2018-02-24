@@ -6,7 +6,10 @@ module.exports = (sequelize, DataTypes) => {
       title: { type: DataTypes.STRING, required: true },
       code: { type: DataTypes.STRING, required: true, unique: true },
       type: { type: DataTypes.STRING, required: true },
-      body: { type: DataTypes.TEXT }
+      body: { type: DataTypes.TEXT },
+      // 180221, added for emails
+      targetUserType: { type: DataTypes.INTEGER },
+      eventTrigger: { type: DataTypes.ENUM("new-order") },
   }, {
       tableName,
       createdAt: false,
