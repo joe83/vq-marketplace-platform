@@ -23,7 +23,6 @@ const getOrderFromRequest = (models, requestId, cb) => {
 
 const getRequestOwnerEmails = (models, requestId, cb) => {
 	let demandEmails, supplyEmails, supplyUserId, demandUserId, request, order, task;
-	const emailsTriggeredByEvent = [];
 
 	const setEmails = (user, emails) => {
 		if (user.userType === 1) {
@@ -115,6 +114,7 @@ const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
 		let request, order, task;
 		let demandEmails, supplyEmails, supplyUserId, supplyUserType, demandUserId, demandUserType;
 		var supplyListingsEnabled, demandListingsEnabled;
+		const emailsTriggeredByEvent = [];
 		let emailData = {};
 
 		async.waterfall([
