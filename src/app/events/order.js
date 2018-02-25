@@ -43,12 +43,8 @@ const getOrderOwnerEmails = (models, orderId, cb) => {
                 supplyUserId = request.fromUser.id === order.user.id ?
                     request.toUser.id :
                     request.fromUser.id;
-                supplyUserType = request.fromUser.id === order.user.id ?
-                    request.toUser.userType :
-                    request.fromUser.userType;
 
                 demandUserId = order.user.id;
-                demandUserType = order.user.userType;
 
                 return cb();
             }, cb),
@@ -88,9 +84,7 @@ const getOrderOwnerEmails = (models, orderId, cb) => {
         ], err => {
             return cb(err, {
                 demandUserId,
-                demandUserType,
                 supplyUserId,
-                supplyUserType,
                 task,
                 order,
                 emails,
@@ -99,32 +93,11 @@ const getOrderOwnerEmails = (models, orderId, cb) => {
         });
 };
 
-function sendEmail(models, emailCode, userId, userType, emails, demandListingsEnabled, supplyListingsEnabled, data){
-    emailService
-    .getEventEmails(models, emailCode)
-    .then(eventEmails => {
-		emailService.checkEmailScenarioForUser(emailCode, userType, demandListingsEnabled, supplyListingsEnabled, () => {
-			emailService
-			.checkIfShouldSendEmail(models, emailCode, userId, () => {
-				emailService.getEmailAndSend(models, emailCode, emails, data);
-			});	
-		});
-		if (eventEmails.length) {
-			eventEmails.map(eventEmailCode => {
-				sendEmail(models, eventEmailCode, userId, userType, emails, demandListingsEnabled, supplyListingsEnabled, data);
-			});
-		}
-	});
-    
-	
-}
-
 const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
 	return (models, orderId) => {
-        let order, task;
-        let domain;
-        let demandEmails, supplyEmails, demandUserId, demandUserType, supplyUserId, supplyUserType;
-        let supplyListingsEnabled, demandListingsEnabled;
+        var order, task;
+        var domain;
+		var demandEmails, supplyEmails, demandUserId, supplyUserId;
 
 		async.waterfall([
 			cb => getOrderOwnerEmails(models, orderId, (err, data) => {
@@ -133,9 +106,7 @@ const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
                 }
 
                 demandUserId = data.demandUserId;
-                demandUserType = data.demandUserType;
                 supplyUserId = data.supplyUserId;
-                supplyUserType = data.supplyUserType;
                 supplyEmails = data.supplyEmails;
                 demandEmails = data.emails;
                 order = data.order;
@@ -156,23 +127,7 @@ const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
 					domain = configField.fieldValue || "http://localhost:3000";
 
 					cb();
-				}, cb),
-            cb => models
-                .appConfig
-                .findAll({
-                    where: {
-                        $or: [
-                            { fieldKey: "USER_TYPE_DEMAND_LISTING_ENABLED" },
-                            { fieldKey: "USER_TYPE_SUPPLY_LISTING_ENABLED" },
-                        ]
-                    }
-                })
-                .then((configFields) => {
-                    demandListingsEnabled = configFields[0].fieldValue;
-                    supplyListingsEnabled = configFields[1].fieldValue;
-
-                    cb();
-                }, cb)
+				}, cb)
 		], err => {
 			if (err) {
 				return console.error(err);
@@ -190,11 +145,7 @@ const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
                 ORDER_CREATED_AT: order.createdAt
             };
 
-
-			sendEmail(models, emailCode, supplyUserId, supplyUserType, supplyEmails, demandListingsEnabled, supplyListingsEnabled, emailData);
-			sendEmail(models, emailCode, demandUserId, demandUserType, demandEmails, demandListingsEnabled, supplyListingsEnabled, emailData);
-
-/*             // new more general email handling
+            // new more general email handling
             if (
                 emailCode === "new-order" ||
                 emailCode === "order-closed" ||
@@ -212,7 +163,7 @@ const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
                     emailService
                     .getEmailAndSend(models, emailCode, demandEmails, emailData)
                 );
-            } */
+            }
 		});
     };
 };

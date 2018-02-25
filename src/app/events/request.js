@@ -22,7 +22,7 @@ const getOrderFromRequest = (models, requestId, cb) => {
 };
 
 const getRequestOwnerEmails = (models, requestId, cb) => {
-	let demandEmails, supplyEmails, supplyUserId, demandUserId, request, order, task;
+    let demandEmails, supplyEmails, supplyUserId, demandUserId, request, order, task;
 
 	const setEmails = (user, emails) => {
 		if (user.userType === 1) {
@@ -109,32 +109,10 @@ const getRequestOwnerEmails = (models, requestId, cb) => {
         });
 };
 
-function sendEmail(models, emailCode, userId, userType, emails, demandListingsEnabled, supplyListingsEnabled, data){
-    emailService
-    .getEventEmails(models, emailCode)
-    .then(eventEmails => {
-		emailService.checkEmailScenarioForUser(emailCode, userType, demandListingsEnabled, supplyListingsEnabled, () => {
-			emailService
-			.checkIfShouldSendEmail(models, emailCode, userId, () => {
-				emailService.getEmailAndSend(models, emailCode, emails, data);
-			});	
-		});
-		if (eventEmails.length) {
-			eventEmails.map(eventEmailCode => {
-				sendEmail(models, eventEmailCode, userId, userType, emails, demandListingsEnabled, supplyListingsEnabled, data);
-			});
-		}
-	});
-    
-	
-}
-
-
 const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
 	return (models, requestId) => {
 		let request, order, task;
-		let demandEmails, supplyEmails, supplyUserId, supplyUserType, demandUserId, demandUserType;
-		var supplyListingsEnabled, demandListingsEnabled;
+		let demandEmails, supplyEmails, supplyUserId, demandUserId;
 		let emailData = {};
 
 		async.waterfall([
@@ -144,9 +122,7 @@ const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
                 }
 
 				supplyUserId = data.supplyUserId;
-				supplyUserType = data.supplyUserType;
 				demandUserId = data.demandUserId;
-				demandUserType = data.demandUserType;
 				demandEmails = data.demandEmails;
 				supplyEmails = data.supplyEmails;
                 order = data.order;
@@ -176,33 +152,13 @@ const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
 					emailData.LISTING_TITLE = task.title;
 
 					cb();
-				}, cb),
-			cb => models
-                .appConfig
-                .findAll({
-                    where: {
-                        $or: [
-                            { fieldKey: "USER_TYPE_DEMAND_LISTING_ENABLED" },
-                            { fieldKey: "USER_TYPE_SUPPLY_LISTING_ENABLED" },
-                        ]
-                    }
-                })
-                .then((configFields) => {
-                    demandListingsEnabled = configFields[0].fieldValue;
-                    supplyListingsEnabled = configFields[1].fieldValue;
-
-                    cb();
-                }, cb)
+				}, cb)
 		], err => {
 			if (err) {
 				return console.error(err);
 			}
-			
-			sendEmail(models, emailCode, supplyUserId, supplyUserType, supplyEmails, demandListingsEnabled, supplyListingsEnabled, emailData);
-			sendEmail(models, emailCode, demandUserId, demandUserType, demandEmails, demandListingsEnabled, supplyListingsEnabled, emailData);
-            
 
-/* 			// its handled by order-marked-as-done
+			// its handled by other events already
 			if (emailCode === "request-marked-as-done") {
 				if (supplyEmails) {
 					emailService
@@ -219,9 +175,9 @@ const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
 				}
 
 				return;
-			} */
+			}
 
-/* 			// its handled by order-completed
+			// its handled by other events already
 			if (emailCode === "request-completed") {
 				return;
 			}
@@ -236,12 +192,12 @@ const requestEventHandlerFactory = (emailCode, actionUrlFn) => {
 				)
 				&& Number(task.taskType) === 2) {
 				return;
-			} */
+			}
 
-/* 			emailService
+			emailService
 			.checkIfShouldSendEmail(models, emailCode, request.userId, () =>
 				emailService.getEmailAndSend(models, emailCode, supplyEmails, emailData)
-			); */
+			);
 		});
 	};
 };
