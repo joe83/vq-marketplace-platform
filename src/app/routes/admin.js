@@ -140,7 +140,16 @@ module.exports = app => {
 	app.get("/api/admin/task", isLoggedIn, isAdmin, hasValidSubscription, (req, res) => req.models.task
 		.findAll({
 			order: [[ "createdAt", "DESC" ]],
-			include: []
+			include: [
+				{
+					model: req.models.request,
+					include: [
+						{
+							model: req.models.order
+						}
+					]
+				}
+			]
 		})
 		.then(data => res.send(data)));
 
@@ -265,7 +274,7 @@ module.exports = app => {
 				.then(outstandingRequest => {
 					if (outstandingRequest) {
 						return sendResponse(res, {
-							code: "CANNOT_BLOCK"
+							code: "CANNOT_BLOCK_USER_HAS_OUTSTANDING_REQUESTS"
 						});
 					}
 
