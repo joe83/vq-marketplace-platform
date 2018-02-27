@@ -12,8 +12,6 @@ const express = require("express");
 const app = express();
 const tenantApp = express();
 
-const env = args.env || process.env.ENV;
-
 const initApp = app => {
     app.set("view engine", "ejs");
     app.set("json spaces", 2);
@@ -31,8 +29,8 @@ app.use((req, res, next) => {
         token: req.headers["x-auth-token"]
     };
     let tenantId;
-    if (args.marketplace || process.env.TENANT_ID) {
-        tenantId = args.marketplace || process.env.TENANT_ID;
+    if (args.TENANT_ID || process.env.TENANT_ID) {
+        tenantId = args.TENANT_ID || process.env.TENANT_ID;
     }
     else {
         const subdomains = req.subdomains;
@@ -47,11 +45,7 @@ app.use((req, res, next) => {
     }
     next();
 });
-if (env.toLowerCase() === 'production') {
-    console.log("-------------------------------------------------");
-    console.log("[PRODUCTION MODE] THIS API RUNS IN PRODUCTION MODE..");
-    console.log("-------------------------------------------------");
-}
+
 require("./app/routes.js")(app);
 tenantService.initRoutes(tenantApp, express);
 async.waterfall([

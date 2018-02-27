@@ -50,23 +50,50 @@ npm install // installs the npm packages from ./package.json
 npm install node-gyp -g // installs global packages
 ```
 ### Common problems
+
 ```
 sudo ln -s /usr/bin/nodejs /usr/bin/node
 ```
+
 ## Running
 Review .env.example file and make necessary changes first then rename it to .env
 We have a rule in .gitignore so that you don't commit this file accidentally as it might contain sensitive information. If you want to commit this anyways, remove .env from .gitignore
+
+```
+PORT=8080 //this is the default port set on web-app to make requests to
+TENANT_PORT=8081 //this is the default port for multi-tenancy management API
+TENANT_ID=test //this is the TENANT_ID, in other terms the name of the marketplace that you want to setup. can be anything
+APP_URL=http://localhost:3000 //this is the URL that is used in the welcome e-mail that users click to verify themselves. this should be the location of your web-app
+WEB_URL=http://localhost:4100 //you can create tenants through the tenant management API. the example for this can be found at https://vqmarketplace.com/get-started/ this URL is used when sending the e-mail verification link on marketplace creation form steps.
+SHOW_MEMORY_USAGE=false //this is to show how much memory is used with how many tenant marketplaces are running. disabled by default
+SECRET=test //secret for jwt authentication
+VQ_DB_USER=root //your mysql db user
+VQ_DB_PASSWORD= //your mysql db password
+VQ_DB_HOST=localhost //mysql host
+STRIPE_SECRET= //stripe secret for payments
+AWS_S3_BUCKET= 
+AWS_S3_REGION=eu-central-1
+AWS_S3_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+MANDRILL= //mandrill key to use when sending e-mails
+CHARGEBEE_SITE=
+CHARGEBEE_API_KEY=
+```
 
 By default, all the TENANT_ID in all parts of the app (API, WEB-APP) are test. If you change it please make sure that all your env files has the same TENANT_ID
 
 In order to start locally the VQ Web Services, you need to run the command:
 ```
-npm start
+npm start //this starts the app in DEBUG mode
+```
+
+If you need to restart the server everytime you change the code you can run:
+```
+npm run dev //this runs nodemon which restarts the server on change
 ```
 
 Ensure that you also run the init scripts after running with npm start in a seperate CLI tab:
 ```
-Please keep reading:
 
 CONFIG: this is the backbone of the app. It has varying configurations saved to the database. You can find example configurations in ./src/example-configs/[services|rental|products|bitcoinmeetup]/config.json
 LABELS: these are the translation of the app and the marketplace. You can find example labels in ./src/example-configs/i18n/[lang].json
