@@ -10,6 +10,12 @@ const express = require("express");
 const app = express();
 const tenantApp = express();
 
+let TENANT_ID;
+
+const setTenantIdForTesting = (tenantId) => {
+    TENANT_ID = tenantId;
+};
+
 const startServer = cb => {
     async.parallel([
         cb => {
@@ -137,16 +143,14 @@ const setupApp = cb => {
 			token: req.headers["x-auth-token"]
 		};
 
-		let tenantId;
+		let tenantId = TENANT_ID || process.env.TENANT_ID || config.TENANT_ID;
 
-		if (process.env.TENANT_ID || config.TENANT_ID) {
-			tenantId = process.env.TENANT_ID || config.TENANT_ID;
-		} else {
-			const subdomains = req.subdomains;
+		if (!tenantId) {
+            const subdomains = req.subdomains;
 
-			tenantId = subdomains[subdomains.length - 1];
+            tenantId = subdomains[subdomains.length - 1];
 
-			console.log(`Accessing ${tenantId}`);
+            console.log(`Accessing ${tenantId}`);
 		}
 
 		req.models = db.get(tenantId);
@@ -190,5 +194,6 @@ const setupApp = cb => {
 module.exports = {
     initTenants,
     setupApp,
+    setTenantIdForTesting,
     startServerDeamons
 };

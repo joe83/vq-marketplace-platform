@@ -15,6 +15,7 @@ const getConfig = () => {
 		// null is replaced by env variables
 		return {
 			"production": true,
+			"PRODUCTION": true,
 			"port": null,
 			"TENANT_APP_PORT": null,
 			"VQ_DB_USER": null,
@@ -37,6 +38,7 @@ const getConfig = () => {
 
 	return {
 		"production": false,
+		"PRODUCTION": false,
 		"port": 8080,
 		"TENANT_APP_PORT": 8081,
 		"VQ_DB_USER": "root",
