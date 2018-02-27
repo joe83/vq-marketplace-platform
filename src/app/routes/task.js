@@ -2,7 +2,7 @@ const async = require("async");
 const sendResponse = require("../controllers/responseController.js").sendResponse;
 const identifyUser = require("../controllers/responseController.js").identifyUser;
 const isLoggedIn = require("../controllers/responseController.js").isLoggedIn;
-const requestCtrl = require("../controllers/requestCtrl.js");
+const requestCtrl = require("../controllers/requestCtrl.ts");
 const isLoggedInAndVerified = require("../controllers/responseController.js").isLoggedInAndVerified;
 const taskEmitter = require("../events/task");
 

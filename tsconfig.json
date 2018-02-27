@@ -4,13 +4,14 @@
         "allowJs": true,
         "module": "commonjs",
         "noImplicitAny": true,
+        "sourceMap": true,
         "moduleResolution": "node",
-        "outDir": "./build"
+        "outDir": "build"
     },
     "include": [
-        "./src/**/*"
+        "src/**/*.ts"
     ],
     "exclude": [
-        "./node_modules"
+        "node_modules"
     ]
 }
