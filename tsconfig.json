@@ -5,7 +5,7 @@
         "module": "commonjs",
         "noImplicitAny": true,
         "moduleResolution": "node",
-        "outDir": "./built"
+        "outDir": "./build"
     },
     "include": [
         "./src/**/*"

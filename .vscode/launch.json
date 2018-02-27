@@ -37,7 +37,7 @@
             "type": "node",
             "request": "launch",
             "name": "debug:dev-tenant",
-            "program": "${workspaceRoot}/built/app.js",
+            "program": "${workspaceRoot}/build/app.js",
             "cwd": "${workspaceRoot}",
             "env": {
                 "TENANT_ID": "heyo"
@@ -62,7 +62,7 @@
             "type": "node",
             "request": "launch",
             "name": "debug:local",
-            "program": "${workspaceRoot}/built/app.js",
+            "program": "${workspaceRoot}/build/app.js",
             "cwd": "${workspaceRoot}",
             "env": {
                 "TENANT_ID": "testmarketplace",

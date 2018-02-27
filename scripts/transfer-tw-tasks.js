@@ -1,7 +1,7 @@
 require('dotenv').config();
 
 const async = require('async');
-const db = require('../built/app/models/models.js');
+const db = require('../src/app/models/models.js');
 const MongoClient = require('mongodb').MongoClient
 var BSON = require('bson');
 

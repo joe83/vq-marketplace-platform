@@ -10,9 +10,9 @@
   "scripts": {
     "lint": "node ./node_modules/.bin/eslint src",
     "tslint": "node ./node_modules/tslint/bin/tslint -c tslint.json -p tsconfig.json",
-    "build:nolint": "rm -rf ./built && node ./node_modules/gulp/bin/gulp.js build",
-    "build": "npm run tslint && rm -rf ./built && node ./node_modules/gulp/bin/gulp.js build",
-    "start": "npm run build && node built/app.js",
+    "build:nolint": "rm -rf ./build && node ./node_modules/gulp/bin/gulp.js build",
+    "build": "npm run tslint && rm -rf ./build && node ./node_modules/gulp/bin/gulp.js build",
+    "start": "npm run build && node build/app.js",
     "create-marketplace": "node ./scripts/create-marketplace.js",
     "test": "ST_ENV=local jasmine"
   },
@@ -76,8 +76,10 @@
     "gulp": "^3.9.1",
     "gulp-typescript": "^3.2.3",
     "mongodb": "^2.2.33",
+    "nodemon": "^1.15.1",
     "pre-commit": "^1.2.2",
     "request-json": "^0.6.2",
+    "ts-node": "^5.0.0",
     "tslint": "^5.8.0",
     "typescript": "^2.6.1",
     "yargs": "^7.1.0"

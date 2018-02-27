@@ -1,6 +1,6 @@
 require('dotenv').config();
 
-const db = require('../built/app/models/models.js');
+const db = require('../src/app/models/models.js');
 
 const TENANT_ID = process.argv[3] || process.env.TENANT_ID;
 const USECASE = process.argv[2];
