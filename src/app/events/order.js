@@ -152,10 +152,7 @@ const orderEventHandlerFactory = (emailCode, actionUrlFn) => {
                 emailCode === "order-completed" ||
                 emailCode === "order-marked-as-done"
             ) {
-                emailService
-                .checkIfShouldSendEmail(models, emailCode, order.userId, () =>
-                    emailService.sendEmailsOnEvent(models, emailCode, demandEmails, supplyEmails, emailData)
-                );
+                emailService.sendEmailsOnEvent(models, emailCode, demandEmails, supplyEmails, emailData);
             } else {
                 // old email handling
                 emailService
