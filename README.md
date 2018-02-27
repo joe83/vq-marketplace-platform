@@ -76,6 +76,15 @@ node scripts/restore-default-posts.js services (or one of 'rental', 'products', 
 ## Deployment
 We deploy the application with Elastic Beanstalk.
 
+## Tests
+You need to run a mysql server on your local machine. If you use MacOSX, you need to install gawk:
+```
+ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" < /dev/null 2> /dev/null
+
+brew install gawk
+```
+
+https://semaphoreci.com/community/tutorials/getting-started-with-node-js-and-jasmine
 
 ## Contribute
 We follow the following branching model:

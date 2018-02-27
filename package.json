@@ -2,7 +2,7 @@
   "name": "vq-marketplace-api",
   "version": "3.0.1",
   "description": "VQ Web Services",
-  "main": "app.js",
+  "main": "built/app.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/vq-labs/vq-marketplace-api"
@@ -17,7 +17,7 @@
     "start": "npm run build && node built/app.js",
     "start:local": "npm run build && node built/app.js",
     "start:dev": "npm run build && node built/app --config /../../test-config.json",
-    "test": "ST_ENV=local jasmine"
+    "test": "jasmine"
   },
   "author": "vq-labs.com",
   "license": "MIT",
@@ -37,7 +37,6 @@
     "https": "~1.0.0",
     "iban": "0.0.7",
     "install": "^0.8.2",
-    "jasmine-node": "^1.14.5",
     "jsonfile": "~2.4.0",
     "jsonwebtoken": "~7.2.1",
     "lodash": "^4.17.2",
@@ -76,6 +75,7 @@
     "eslint": "^4.9.0",
     "gulp": "^3.9.1",
     "gulp-typescript": "^3.2.3",
+    "jasmine-node": "^1.14.5",
     "mongodb": "^2.2.33",
     "pre-commit": "^1.2.2",
     "request-json": "^0.6.2",
