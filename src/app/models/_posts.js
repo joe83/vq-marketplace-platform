@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
       updatedAt: false
   });
 
-  posts.createOrUpdate = () => (postCode, postType, postTitle, postBody) => posts
+  posts.createOrUpdate = () => (postCode, postType, postTitle, postBody, postTargetUserType, postEventTrigger) => posts
     .findOne({ where: { code: postCode } })
     .then(obj => {
         if (!obj) {
@@ -24,14 +24,18 @@ module.exports = (sequelize, DataTypes) => {
                 code: postCode,
                 title: postTitle,
                 type: postType,
-                body: postBody
+                body: postBody,
+                targetUserType: postTargetUserType,
+                eventTrigger: postEventTrigger
             });
         }
 
         return obj.update({ 
             title: postTitle,
             type: postType,
-            body: postBody
+            body: postBody,
+            targetUserType: postTargetUserType,
+            eventTrigger: postEventTrigger
         });
     });
 
@@ -46,12 +50,14 @@ module.exports = (sequelize, DataTypes) => {
               `'${post.code}'`,
               `'${post.type}'`,
               `'${post.title}'`,
-                post.body ? `'${post.body.replace(/'/g,"''")}'` : ""
+              post.body ? `'${post.body.replace(/'/g,"''")}'` : "",
+              `'${post.targetUserType}'`,
+              `'${post.eventTrigger}'`,
             ].join(",") + ")";
           })
           .join(",");
     
-        let sql = `INSERT INTO ${tableName} (code, type, title, body) VALUES ${values}`;
+        let sql = `INSERT INTO ${tableName} (code, type, title, body, targetUserType, eventTrigger) VALUES ${values}`;
         
         console.time("postSeedInsert");
         sequelize.query(sql, { type: sequelize.QueryTypes.INSERT })
@@ -66,7 +72,7 @@ module.exports = (sequelize, DataTypes) => {
         const updateOrCreate = posts.createOrUpdate();
 
         async.eachLimit(defaultPosts, 2, (post, cb) => {
-            updateOrCreate(post.code, post.type, post.title, post.body)
+            updateOrCreate(post.code, post.type, post.title, post.body, post.targetUserType, post.eventTrigger)
             .then(() => {
                 cb();
             }, cb);
