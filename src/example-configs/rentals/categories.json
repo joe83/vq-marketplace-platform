@@ -1,47 +1,47 @@
 [
   {
     "code": "entire-kitchen",
-    "status": "0",
+    "status": "103",
     "bigImageUrl": null,
     "imageUrl": "https://egamix.s3.eu-central-1.amazonaws.com/rental-kitchen/m5wacnbuajjxsinzn3g0gt2jy64niw4j.jpeg",
-    "label": "Entire Kitchen",
-    "minPriceHour": 50,
-    "desc": "Commercial Kitchen - Entire Kitchen",
+    "label": "",
+    "minPriceHour": 0,
+    "desc": "",
     "minQuantity": null,
     "maxQuantity": null,
     "quantityStep": null,
     "unitOfMeasure": null,
     "createdAt": "2018-01-06T10:05:48.000Z",
-    "updatedAt": "2018-02-13T21:24:20.000Z"
-  },
-  {
-    "code": "private-kitchen",
-    "status": "0",
-    "bigImageUrl": null,
-    "imageUrl": "https://vqassets-dev.s3.eu-central-1.amazonaws.com/rental-kitchen/nba7tnbjd37d1xjuh1j6hdu73gjzjvlb.jpeg",
-    "label": "Private Kitchen",
-    "minPriceHour": 50,
-    "desc": "Private Kitchen",
-    "minQuantity": null,
-    "maxQuantity": null,
-    "quantityStep": null,
-    "unitOfMeasure": null,
-    "createdAt": "2018-01-07T11:10:21.000Z",
-    "updatedAt": "2018-02-13T21:24:20.000Z"
+    "updatedAt": "2018-02-26T13:10:52.000Z"
   },
   {
     "code": "shared-kitchen",
     "status": "0",
     "bigImageUrl": null,
-    "imageUrl": "https://vqassets-dev.s3.eu-central-1.amazonaws.com/rental-kitchen/oqx5c4tirpschn3rf79f50zrm2c5aw57.jpeg",
-    "label": "Shared Kitchen",
-    "minPriceHour": 50,
-    "desc": "Commercial Kitchen - Shared Kitchen",
+    "imageUrl": "https://vqassets-dev.s3.eu-central-1.amazonaws.com/airbnb/a9p2c4q4plzhya775dwe09d60140lmvk.jpeg",
+    "label": "Entire flat",
+    "minPriceHour": 25,
+    "desc": "",
     "minQuantity": null,
     "maxQuantity": null,
     "quantityStep": null,
     "unitOfMeasure": null,
     "createdAt": "2018-01-07T11:07:39.000Z",
-    "updatedAt": "2018-02-13T21:24:20.000Z"
+    "updatedAt": "2018-02-25T19:35:39.000Z"
+  },
+  {
+    "code": "private-kitchen",
+    "status": "0",
+    "bigImageUrl": null,
+    "imageUrl": "https://vqassets-dev.s3.eu-central-1.amazonaws.com/airbnb/t7ku1juhd7tf65k0kxji3yy0c7nd9ond.jpeg",
+    "label": "Private room",
+    "minPriceHour": 15,
+    "desc": "",
+    "minQuantity": null,
+    "maxQuantity": null,
+    "quantityStep": null,
+    "unitOfMeasure": null,
+    "createdAt": "2018-01-07T11:10:21.000Z",
+    "updatedAt": "2018-02-25T19:34:21.000Z"
   }
 ]
