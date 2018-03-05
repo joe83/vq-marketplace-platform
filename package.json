@@ -15,7 +15,7 @@
     "start": "node --inspect=5858 ./node_modules/ts-node/dist/bin.js src/app.js",
     "dev": "node ./node_modules/nodemon/bin/nodemon.js",
     "create-marketplace": "node ./scripts/create-marketplace.js",
-    "test": "ST_ENV=local jasmine"
+    "test": "jasmine"
   },
   "author": "vq-labs.com",
   "license": "MIT",
@@ -37,7 +37,6 @@
     "https": "~1.0.0",
     "iban": "0.0.7",
     "install": "^0.8.2",
-    "jasmine-node": "^1.14.5",
     "jsonfile": "~2.4.0",
     "jsonwebtoken": "~7.2.1",
     "lodash": "^4.17.2",
@@ -76,6 +75,7 @@
     "eslint": "^4.9.0",
     "gulp": "^3.9.1",
     "gulp-typescript": "^3.2.3",
+    "jasmine-node": "^1.14.5",
     "mongodb": "^2.2.33",
     "nodemon": "^1.15.1",
     "pre-commit": "^1.2.2",

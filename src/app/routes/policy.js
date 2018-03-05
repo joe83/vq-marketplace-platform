@@ -146,7 +146,10 @@ module.exports = app => {
 			user = cryptoService.decodeObj(encryptedToken);
 		} catch(err) {
 			res.set("Content-Type", "text/html");
+			res.status(400);
 			res.send(new Buffer("<p>Could not verify</p>"));
+
+			return;
 		}
 		
 		async.waterfall([
@@ -214,6 +217,12 @@ module.exports = app => {
 				res.set("Content-Type", "text/html");
 				
 				return res.send(new Buffer("<p>Missing configuration. Configure DOMAIN.</p>"));
+			}
+
+			if (config.PRODUCTION === false) {
+				return res.send({
+					ok: true
+				});
 			}
 
 			if (userRef.userType === 1) {

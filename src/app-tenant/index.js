@@ -440,7 +440,7 @@ const initRoutes = (app, express) => {
                 }),
             cb => {
                 tenantRef.marketplaceName = tenant.marketplaceName;
-                tenantRef.marketplaceName = tenant.marketplaceType;
+                tenantRef.marketplaceType = tenant.marketplaceType;
                 tenantRef.tenantId = tenantId;
                 tenantRef.status = 1;
 
@@ -459,9 +459,11 @@ const initRoutes = (app, express) => {
               DOMAIN: `https://${tenantRef.tenantId}.vqmarketplace.com`
             };
 
-            subscriptionService.ensureCustomerDataSaved(tenantRef);
+            if (config.PRODUCTION) {
+                subscriptionService.ensureCustomerDataSaved(tenantRef);
+            }
 
-            res.send(tenantRef);
+            
 
             // this can last some time, up to one minute, it should be run async
             service
@@ -473,6 +475,8 @@ const initRoutes = (app, express) => {
                 marketplaceType,
                 configOverwrites, () => {
                 console.log("MARKETPLACE CREATED");
+                
+                res.send(tenantRef);
 
                 const marketplaceUrl =
                     config.production ?

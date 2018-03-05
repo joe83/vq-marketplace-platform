@@ -308,7 +308,8 @@ module.exports = app => {
             req.models.task
                 .create({
                     status: req.models.task.TASK_STATUS.CREATION_IN_PROGRESS,
-                    taskType: 1,
+                    // supply listings are the defaults ones
+                    taskType: req.user.userType === 1 ? 1 : 2,
                     userId: req.user.id
                 })
                 .then(task => sendResponse(res, null, task))
