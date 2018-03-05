@@ -5,6 +5,8 @@ node_modules/
 .env
 apidoc/
 build
+built
+builtgit
 deployments
 # our credentials
 .credentials
