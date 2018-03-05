@@ -15,6 +15,7 @@ const getConfig = () => {
 		// null is replaced by env variables
 		return {
 			"production": true,
+			"PRODUCTION": true,
 			"port": null,
 			"TENANT_APP_PORT": null,
 			"VQ_DB_USER": null,
@@ -37,6 +38,7 @@ const getConfig = () => {
 
 	return {
 		"production": false,
+		"PRODUCTION": false,
 		"port": 8080,
 		"TENANT_APP_PORT": 8081,
 		"VQ_DB_USER": "root",
@@ -52,8 +54,8 @@ const getConfig = () => {
 		"mandrill": null,
 		"STRIPE_ID": null,
 		"STRIPE_SECRET": null,
-		"CHARGEBEE_SITE": null,
-		"CHARGEBEE_API_KEY": null
+		"CHARGEBEE_SITE": "vq-labs-test" || null,
+		"CHARGEBEE_API_KEY": "test_zxNxwZ7lg1fJhisIkVU3laFf6Sb8p8zcd" || null
 	};
 };
 
