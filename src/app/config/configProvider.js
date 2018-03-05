@@ -54,8 +54,8 @@ const getConfig = () => {
 		"mandrill": null,
 		"STRIPE_ID": null,
 		"STRIPE_SECRET": null,
-		"CHARGEBEE_SITE": null,
-		"CHARGEBEE_API_KEY": null
+		"CHARGEBEE_SITE": "vq-labs-test" || null,
+		"CHARGEBEE_API_KEY": "test_zxNxwZ7lg1fJhisIkVU3laFf6Sb8p8zcd" || null
 	};
 };
 
