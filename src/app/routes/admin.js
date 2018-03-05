@@ -37,6 +37,10 @@ module.exports = app => {
 			.then(tenantRef => {
 				subscriptionService
 				.chargebeeCustomerPortalSignIn(tenantRef, (err, result) => {
+					if (err) {
+						return res.status(400).send(result);
+					}
+
 					res.send(result);
 				});
 			})
