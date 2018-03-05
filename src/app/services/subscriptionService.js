@@ -8,8 +8,6 @@ chargebee.configure({
     api_key: config.CHARGEBEE_API_KEY 
 });
 
-
-
 const createCustomer = (tenantRef, cb) => {
   chargebee
   .customer
@@ -25,22 +23,20 @@ const createCustomer = (tenantRef, cb) => {
       country: tenantRef.country
     }
   })
-  .request((error, result) => {
-    if(error){
+  .request((err, result) => {
+    if (err) {
       //handle error
-      console.log(error);
+      console.log(err);
 
-      return;
+      return cb(err);
     }
-
-    console.log(result);
 
     tenantRef.chargebeeCustomerId = result.customer.id;
 
     tenantRef
     .save()
     .then(() => cb && cb(undefined, tenantRef))
-    .catch(() => cb && cb(undefined, tenantRef));
+    .catch(err => cb && cb(err, tenantRef));
   });
 };
 
