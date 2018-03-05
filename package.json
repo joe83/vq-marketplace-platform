@@ -15,7 +15,7 @@
     "start": "node --inspect=5858 ./node_modules/ts-node/dist/bin.js src/app.js",
     "dev": "node ./node_modules/nodemon/bin/nodemon.js",
     "create-marketplace": "node ./scripts/create-marketplace.js",
-    "test": "jasmine"
+    "test": "node ./node_modules/jasmine-ts/lib/index.js \"spec/**/*[sS]pec.js\""
   },
   "author": "vq-labs.com",
   "license": "MIT",
@@ -76,6 +76,7 @@
     "gulp": "^3.9.1",
     "gulp-typescript": "^3.2.3",
     "jasmine-node": "^1.14.5",
+    "jasmine-ts": "^0.2.1",
     "mongodb": "^2.2.33",
     "nodemon": "^1.15.1",
     "pre-commit": "^1.2.2",

@@ -1,13 +1,15 @@
+require('dotenv').config();
+
 const async = require("async");
 const request = require("request");
-const server = require("../built/server");
+const server = require("../src/server");
 const deleteLocalDb = require("../scripts/delete-local-db");
 
-const baseUrl = "http://localhost:8081";
-const tenantUrl = "http://localhost:8080";
+const baseUrl = `http://localhost:${process.env.TENANT_PORT}`;
+const tenantUrl = `http://localhost:${process.env.PORT}`;
 
 // services
-const cryptoService = require("../built/app/services/cryptoService");
+const cryptoService = require("../src/app/services/cryptoService");
 
 const TEST_DATA = {
     FIRST_NAME: "firstNameTest",

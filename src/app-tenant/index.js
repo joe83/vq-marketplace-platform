@@ -452,18 +452,18 @@ const initRoutes = (app, express) => {
             if (err) {
                 return res.status(err.httpCode).send(err);
             }
+            
+            const marketplaceUrl = process.env.APP_URL.replace("?tenantId?", tenantRef.tenantId);
 
             const configOverwrites = {
               NAME: tenantRef.marketplaceName,
               SEO_TITLE: tenantRef.marketplaceName,
-              DOMAIN: `https://${tenantRef.tenantId}.vqmarketplace.com`
+              DOMAIN: marketplaceUrl
             };
 
-            if (config.PRODUCTION) {
+            if (process.env.ENV.toLowerCase() === 'production') {
                 subscriptionService.ensureCustomerDataSaved(tenantRef);
-            }
-
-            
+            }            
 
             // this can last some time, up to one minute, it should be run async
             service
@@ -478,20 +478,15 @@ const initRoutes = (app, express) => {
                 
                 res.send(tenantRef);
 
-                const marketplaceUrl =
-                    config.production ?
-                        "https://" + tenantRef.tenantId + ".vqmarketplace.com/app" :
-                        "https://" + tenantRef.tenantId + ".vqmarketplace.com/app";
-
                 const body = `<p style="color: #374550;">
                                 Your journey to run an online marketplace has just begun! You can now easily build and manage your online marketplace and at the same time go to market, get your first users and validate your idea.
                             </p>
                             <br>
                             <p style="color: #374550;"><b>Here is your marketplace information</b></p>
                             <p style="color: #374550;"><b>- Your account's email address:</b> ${tenantRef.email}</p>
-                            <p style="color: #374550; margin-bottom: 0;"><b>- Your marketplace address:</b> <a href="${marketplaceUrl}">${marketplaceUrl}</a></p>
+                            <p style="color: #374550; margin-bottom: 0;"><b>- Your marketplace address:</b> <a href="${marketplaceUrl}/app">${marketplaceUrl}/app</a></p>
                             <p style="color: #374550; margin:0;">This is the public address of your marketplace, the one you should share with your visitors. </p>
-                            <p style="color: #374550; margin-bottom: 0;"><b>- Your marketplace admin panel:</b> <a href="${marketplaceUrl}/admin">${marketplaceUrl}/admin</a></p>
+                            <p style="color: #374550; margin-bottom: 0;"><b>- Your marketplace admin panel:</b> <a href="${marketplaceUrl}/app/admin">${marketplaceUrl}/app/admin</a></p>
                             <p style="color: #374550; margin:0;">This is where you, as the owner, can make changes to your marketplace.</p>
                             <br>
                             

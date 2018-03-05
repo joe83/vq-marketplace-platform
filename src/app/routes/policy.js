@@ -219,7 +219,7 @@ module.exports = app => {
 				return res.send(new Buffer("<p>Missing configuration. Configure DOMAIN.</p>"));
 			}
 
-			if (config.PRODUCTION === false) {
+			if (process.env.ENV.toLowerCase() !== 'production') {
 				return res.send({
 					ok: true
 				});
