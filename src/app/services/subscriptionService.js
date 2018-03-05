@@ -75,12 +75,12 @@ const chargebeeCustomerPortalSignIn = (tenantRef, cb) => {
           id: tenantRef.chargebeeCustomerId
         }
       })
-      .request((error, result) => {
-        if (error) {
+      .request((err, result) => {
+        if (err) {
           //handle error
-          console.log(error);
+          console.log(err);
 
-          return;
+          return cb(err);
         }
 
         console.log(result);
