@@ -12,6 +12,7 @@ const tenantModelsProvider = require("../../app-tenant/tenantModelsProvider");
 const subscriptionService = require("../services/subscriptionService");
 
 module.exports = app => {
+<<<<<<< Updated upstream
 	/**
 		app.post("/api/admin/tenant/subscription", isLoggedIn, isAdmin, (req, res) => {
 			subscriptionService
@@ -48,6 +49,13 @@ module.exports = app => {
 				res.status(500).send(err);
 			});
 		});
+=======
+	app.post("/api/admin/tenant/subscription", isLoggedIn, isAdmin, (req, res) => {
+		subscriptionService
+		.createSubscription((err, result) => {
+			res.send(result);
+		}); 
+>>>>>>> Stashed changes
 	});
 
 	app.get("/api/admin/tenant", isLoggedIn, isAdmin, (req, res) => {
