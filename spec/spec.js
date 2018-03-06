@@ -49,6 +49,9 @@ describe("Starts a new marketplace", () => {
         });
     });
 
+
+
+
     it("POST /api/trial-registration/step-1 with new email", done => {
         trialRegistrationStep1((error, response, body) => {
             expect(response.statusCode).toBe(200);
@@ -86,8 +89,6 @@ describe("Starts a new marketplace", () => {
 
             expect(body.tenant.emailVerified).toBe(true);
             expect(body.tenant.status).toBe(0);
-
-            console.log(body);
 
             done();
         });

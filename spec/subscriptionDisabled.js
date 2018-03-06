@@ -195,6 +195,21 @@ describe("Starts a new marketplace", () => {
             done();
         });
     });
+    
+    it("GET (tenant) /api/subscription/plans", done => {
+        const url = `${baseUrl}/api/subscription/plans`;
+
+        request({
+            url,
+            method: "GET",
+        }, (error, response, body) => {
+            expect(response.statusCode).toBe(200);
+
+            console.log(body);
+        
+            done();
+        });
+    });
 
     it("POST (tenant) /api/login", done => {
         const url = `${tenantUrl}/api/login`;
@@ -212,6 +227,27 @@ describe("Starts a new marketplace", () => {
 
             adminAuthToken = body.token;
         
+            done();
+        });
+    });
+
+    it("POST (tenant) /api/admin/new-subscription/starter - Init sub checkout", done => {
+        const url = `${tenantUrl}/api/admin/new-subscription/starter`;
+
+        request({
+            url,
+            method: "POST",
+            headers: {
+                "x-auth-token": adminAuthToken
+            },
+            json: {
+
+            }
+        }, (error, response, body) => {
+            expect(response.statusCode).toBe(200);
+
+            console.log(body);
+
             done();
         });
     });

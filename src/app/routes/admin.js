@@ -12,14 +12,44 @@ const tenantModelsProvider = require("../../app-tenant/tenantModelsProvider");
 const subscriptionService = require("../services/subscriptionService");
 
 module.exports = app => {
-	/**
-		app.post("/api/admin/tenant/subscription", isLoggedIn, isAdmin, (req, res) => {
-			subscriptionService
-			.createSubscription(req.tenant, (err, result) => {
-				res.send(result);
+	app.get("/api/subscription/plans", (req, res) => {
+        subscriptionService.listPlans((err, plans) => {
+            if (err) {
+                return res.status(500).send(err);
+            }
+
+            return res.status(200).send(plans);
+        });
+    });
+
+	app.post("/api/admin/new-subscription/:subId", isLoggedIn, isAdmin, (req, res) => {
+		tenantModelsProvider.getModels((err, tenantModels) => {
+			if (err) {
+				return res.status(500).send(err);
+			}
+
+			tenantModels
+			.tenant
+			.findOne({
+				where: {
+					tenantId: req.models.tenantId
+				}
+			})
+			.then(tenantRef => {
+				subscriptionService
+				.chargebeeNewSubCheckout(req.params.subId, tenantRef, (err, result) => {
+					if (err) {
+						return res.status(400).send(result);
+					}
+
+					res.send(result);
+				});
+			})
+			.catch(err => {
+				res.status(500).send(err);
 			});
 		});
-	*/
+	});
 
 	app.post("/api/admin/subscription-portal", isLoggedIn, isAdmin, (req, res) => {
 		tenantModelsProvider.getModels((err, tenantModels) => {

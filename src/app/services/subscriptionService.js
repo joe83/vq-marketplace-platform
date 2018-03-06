@@ -40,6 +40,57 @@ const createCustomer = (tenantRef, cb) => {
   });
 };
 
+const listPlans = cb => {
+  const plans = [];
+
+  chargebee.plan.list({
+    "limit": 5, 
+    "status": "active"
+  }).request((error,result) => {
+    if(error){
+      //handle error
+      console.log(error);
+
+      cb(error);
+    } else {
+      for (var i = 0; i < result.list.length;i++) {
+        
+        var entry=result.list[i];
+
+        plans.push(entry.plan);
+      }
+
+      cb(undefined, plans);
+    }
+  });
+};
+
+const chargebeeNewSubCheckout = (subId, tenantRef, cb) => {
+  chargebee.hosted_page.checkout_new({
+      subscription : {
+        plan_id: subId
+      }, 
+      customer : {
+        email : tenantRef.email, 
+        first_name : tenantRef.firstName, 
+        last_name : tenantRef.lastName,
+        locale : "en"
+      }
+    })
+    .request(function(error,result){
+      if(error){
+        //handle error
+        console.log(error);
+
+        cb(error);
+      }else{
+        console.log(result);
+        var hosted_page = result.hosted_page;
+
+        cb(undefined, hosted_page);
+      }
+    });
+};
 
 const chargebeeCustomerPortalSignIn = (tenantRef, cb) => {
   async.waterfall([
@@ -133,71 +184,73 @@ const chargebeeCustomerPortalSignIn = (tenantRef, cb) => {
 const ensureCustomerDataSaved = (tenantRef, cb) => {
   console.log("Creating Chargebee Customer");
 
-  chargebee.customer.create({
-    first_name : tenantRef.firstName, 
-    last_name : tenantRef.lastName, 
-    email : tenantRef.email, 
-    locale : "en-GB",
-    meta_data: {
-      tenantId: tenantRef.tenantId,
-      marketplaceUrl: `https://${tenantRef.tenantId}.vqmarketplace.com`,
-      marketplaceType: tenantRef.marketplaceType,
-      country: tenantRef.country
-    }
-  })
-  .request((error, result) => {
-    if(error){
-      //handle error
-      console.log(error);
-
-      return;
-    }
-
-    console.log(result);
-
-    tenantRef.chargebeeCustomerId = result.customer.id;
-
-    tenantRef
-    .save()
-    .then(() => cb && cb(undefined, tenantRef))
-    .catch(() => cb && cb(undefined, tenantRef));
-  });
-
-  /**
-    chargebee.subscription.create({
-        plan_id : "full-ps4-vr", 
-        customer : {
-          email : "john@user.com", 
-          first_name : "John", 
-          last_name : "Doe", 
-          locale : "en-GB", 
-          phone : "+1-949-999-9999"
-        }, 
-        billing_address : {
-          first_name : "John", 
-          last_name : "Doe", 
-          line1 : "PO Box 9999", 
-          city : "Walnut", 
-          state : "California", 
-          zip : "91789", 
-          country : "US"
+  async.waterfall([
+    cb => {
+      chargebee.customer.create({
+        first_name : tenantRef.firstName, 
+        last_name : tenantRef.lastName, 
+        email : tenantRef.email, 
+        locale : "en-GB",
+        meta_data: {
+          tenantId: tenantRef.tenantId,
+          marketplaceUrl: `https://${tenantRef.tenantId}.vqmarketplace.com`,
+          marketplaceType: tenantRef.marketplaceType,
+          country: tenantRef.country
         }
-      }).request(function(error,result){
-        if(error){
-          //handle error
-          console.log(error);
-        }else{
-          console.log(result);
-          var subscription = result.subscription;
-          var customer = result.customer;
-          var card = result.card;
-          var invoice = result.invoice;
-          var unbilled_charge = result.unbilled_charge;
+      })
+      .request((err, result) => {
+        if (err) {
+          cb(err);
+    
+          return;
         }
 
-        cb(error, result);
+        tenantRef.chargebeeCustomerId = result.customer.id;
+
+        cb();
+
+        return;
       });
-      */
+    },
+    cb => {
+      tenantRef
+      .save()
+      .then(() => cb())
+      .catch(cb);
+    },
+    cb => {
+      chargebee
+        .subscription
+        .create_for_customer(tenantRef.chargebeeCustomerId, {
+          plan_id : "starter"
+        })
+        .request((err,result) => {
+          if (err) {
+            console.log(err);
+
+            cb(err);
+
+            return;
+          }
+
+          tenantRef.chargebeeActiveSubscriptionId = result.subscription.id;
+
+          cb();
+
+          return;
+        });
+    },
+    cb => {
+      tenantRef
+      .save()
+      .then(() => cb())
+      .catch(cb);
+    }
+  ], err => {
+    if (cb) {
+      cb(err, tenantRef);
+    }
+  });
 };
 
 const createSubscription = (data, cb) => {
@@ -300,8 +353,10 @@ const getSubscription = () => {
 };
 
 module.exports = {
+  listPlans,
   chargebeeCustomerPortalSignIn,
   ensureCustomerDataSaved,
   createSubscription,
-  getSubscription
+  getSubscription,
+  chargebeeNewSubCheckout
 };

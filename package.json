@@ -15,6 +15,7 @@
     "start:rentkitchen": "npm run build && TENANT_ID=rentkitchen node ./built/app --config /../../test-config.json",
     "start:click4work": "npm run build && TENANT_ID=click4work node ./built/app --config /../../test-config.json",
     "start:airhome": "npm run build && TENANT_ID=airhome node ./built/app --config /../../test-config.json",
+    "start:taskbee": "npm run build && TENANT_ID=taskbee node ./built/app --config /../../test-config.json",
     "start": "npm run build && node built/app.js",
     "start:local": "npm run build && node built/app.js",
     "start:dev": "npm run build && node built/app --config /../../test-config.json",
