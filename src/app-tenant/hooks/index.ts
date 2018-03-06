@@ -1,4 +1,4 @@
-const tenantModelsProvider = require("./tenantModelsProvider");
+const tenantModelsProvider = require("../tenantModelsProvider");
 
 interface ChargebeeCustomer {
     id: string;
