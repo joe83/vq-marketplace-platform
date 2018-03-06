@@ -20,7 +20,7 @@ const setTenantIdForTesting = (tenantId) => {
 const startServer = cb => {
     async.parallel([
         cb => {
-            const appServer = app.listen(process.env.port, () => {
+            const appServer = app.listen(process.env.PORT, () => {
                 const port = appServer.address().port;
         
                 console.log(`VQ-Marketplace API listening at port ${port}. Supporting ${db.getTenantIds().length} tenants.`);
