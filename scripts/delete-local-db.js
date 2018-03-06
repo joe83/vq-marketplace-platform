@@ -10,7 +10,7 @@ const LOCAL_VQ_USER_NAME = process.env.VQ_DB_USER;
 const LOCAL_VQ_DB_PASSWORD = process.env.VQ_DB_PASSWORD;
 
 // deletes the vq-marketplace and  database
-const cmdLineMain = `mysql --user=${LOCAL_VQ_USER_NAME} --password=${LOCAL_VQ_DB_PASSWORD} < ${__dirname}/delete-local-db.sql`;
+const cmdLineMain = `mysql --host=${process.env.VQ_DB_HOST} --user=${LOCAL_VQ_USER_NAME} --password=${LOCAL_VQ_DB_PASSWORD} < ${__dirname}/delete-local-db.sql`;
 
 const run = cb => {
 
