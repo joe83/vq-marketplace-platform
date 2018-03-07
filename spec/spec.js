@@ -141,11 +141,11 @@ describe("Starts a new marketplace", () => {
 
             done();
         });
-    });
+    }, 20000);
 
     it("POST /api/trial-registration/getTenantStatus", done => {
-        // timeout because the previous task is asynchronous
-        setTimeout(() => {
+        // interval because the previous task is asynchronous
+        setInterval(() => {
             request({
                 url: `${baseUrl}/api/trial-registration/getTenantStatus`,
                 method: "POST",
@@ -153,16 +153,17 @@ describe("Starts a new marketplace", () => {
                     apiKey: tenantData.apiKey
                 }
             }, (error, response, body) => {
-                expect(response.statusCode).toBe(200);
-                expect(body.tenant.tenantId).toBe("mytestmarketplace");
-                expect(body.tenant.status).toBe(3);
+                if (response.statusCode === 200) {
+                    expect(body.tenant.tenantId).toBe("mytestmarketplace");
+                    expect(body.tenant.status).toBe(3);
 
-                server.setTenantIdForTesting(body.tenant.tenantId);
+                    server.setTenantIdForTesting(body.tenant.tenantId);
 
-                done();
+                    done();
+                }
             });
-        }, 1000);
-    });
+        }, 2000);
+    }, 20000);
 
     it("GET (tenant) /api/app_config", done => {
         request({
