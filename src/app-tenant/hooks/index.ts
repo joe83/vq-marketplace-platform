@@ -196,7 +196,8 @@ const init = (app: any) => {
                 const chargebeeEvent: ChargebeeEvent = req.body;
                 const chargebeeCustomerId = chargebeeEvent.content.subscription.customer_id;
 
-                tenantModels
+                return tenantModels
+                    .tenant
                     .findOne({
                         where: {
                             chargebeeCustomerId
@@ -208,34 +209,59 @@ const init = (app: any) => {
                         }
 
                         req.tenantRef = tenantRef;
+
+                        return next();
                     }, (err: any) => {
                         res.status(400).send(err);
+
+                        return;
                     });
-
-
-                return next();
             });
     };
       
     app.post("/api/hooks/tenant/subscription/created", getTenantForChargebeeEvent, (req: any, res: any) => {
         const chargebeeEvent: ChargebeeEvent = req.body;
-        console.log(chargebeeEvent);
+        const tenantRef = req.tenantRef;
 
-        res.send({ ok: true });
+        tenantRef.chargebeeSubscriptionId = chargebeeEvent.content.subscription.id;
+
+        if (chargebeeEvent.content.subscription.status === "active") {
+            tenantRef.activePlan = chargebeeEvent.content.subscription.plan_id;
+        }
+
+        return tenantRef
+            .save()
+            .then(() => res.send({ ok: true }))
+            .catch((err: any)=> res.send(err));
     });
 
     app.post("/api/hooks/tenant/subscription/cancelled", getTenantForChargebeeEvent, (req: any, res: any) => {
         const chargebeeEvent: ChargebeeEvent = req.body;
-        console.log(chargebeeEvent);
+        const tenantRef = req.tenantRef;
 
-        res.send({ ok: true });
+        tenantRef.chargebeeSubscriptionId = undefined;
+        tenantRef.activePlan = "starter";
+
+        return tenantRef
+            .save()
+            .then(() => res.send({ ok: true }))
+            .catch((err: any)=> res.send(err));
     });
 
     app.post("/api/hooks/tenant/subscription/changed", getTenantForChargebeeEvent, (req: any, res: any) => {
         const chargebeeEvent: ChargebeeEvent = req.body;
-        console.log(chargebeeEvent);
+        const tenantRef = req.tenantRef;
 
-        res.send({ ok: true });
+        tenantRef.chargebeeSubscriptionId = chargebeeEvent.content.subscription.id;
+
+        if (chargebeeEvent.content.subscription.status === "active") {
+            tenantRef.activePlan = chargebeeEvent.content.subscription.plan_id;
+        }
+
+        return tenantRef
+            .save()
+            .then(() => res.send({ ok: true }))
+            .catch((err: any)=> res.send(err));
     });
 };
 
