@@ -204,8 +204,11 @@ const init = (app: any) => {
                         }
                     })
                     .then((tenantRef: any) => {
-                        if (tenantRef) {
-                            return res.status(400).send({ desc: "Tenant not found for the customer_id."})
+                        if (!tenantRef) {
+                            return res.status(400)
+                            .send({
+                                desc: "Tenant not found for the customer_id."
+                            });
                         }
 
                         req.tenantRef = tenantRef;
