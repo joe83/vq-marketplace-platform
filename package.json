@@ -94,7 +94,7 @@
   "husky": {
     "hooks": {
       "pre-commit": "npm run test",
-      "post-receive": "echo 'api'>>api.txt && npm install && npm run build:nolint"
+      "post-receive": "npm install && npm run build:nolint"
     }
   }
 }
