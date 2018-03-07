@@ -58,7 +58,7 @@ module.exports = (sequelize, DataTypes) => {
           })
           .join(",");
     
-        let sql = `INSERT INTO ${tableName} (code, type, title, body) VALUES ${values}`;
+        let sql = `INSERT INTO ${tableName} (code, type, title, body, targetUserType, eventTrigger) VALUES ${values}`;
         
         console.time("postSeedInsert");
         sequelize.query(sql, { type: sequelize.QueryTypes.INSERT })
