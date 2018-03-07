@@ -31,7 +31,7 @@ const getTenant = ({ tenantId, email }, cb) => getModels((err, tenantModels) => 
         whereObj.tenantId = tenantId;
     }
 
-    if (tenantId) {
+    if (email) {
         whereObj.email = email;
     }
 
