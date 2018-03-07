@@ -231,7 +231,7 @@ const init = (app: any) => {
             "subscription_created",
             "subscription_cancelled",
             "subscription_changed"
-        ].indexOf(chargebeeEvent.event_type) !== -1) {
+        ].indexOf(chargebeeEvent.event_type) === -1) {
             return res.send({ ok: true, desc: "This webhook has not been implemented." })
         }
 
