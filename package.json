@@ -94,7 +94,7 @@
   "husky": {
     "hooks": {
       "pre-commit": "npm run test",
-      "pre-push": "npm install && npm run build:nolint"
+      "post-receive": "npm install && npm run build:nolint"
     }
   }
 }
