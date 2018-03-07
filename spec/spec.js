@@ -331,7 +331,7 @@ describe("Starts a new marketplace", () => {
             demandUserAuthToken = body.token;
 
                 
-    
+            console.log('test');
                             
         
             done();
