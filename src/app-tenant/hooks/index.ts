@@ -21,6 +21,7 @@ interface ChargebeeEventContent {
 
 interface ChargebeeEvent {
     content: ChargebeeEventContent;
+    event_type: string;
 }
 
 const init = (app: any) => {
@@ -221,50 +222,57 @@ const init = (app: any) => {
                     });
             });
     };
-      
-    app.post("/api/hooks/tenant/subscription/created", getTenantForChargebeeEvent, (req: any, res: any) => {
+
+    app.post("/api/hooks/tenant/subscription", getTenantForChargebeeEvent, (req: any, res: any) => {
         const chargebeeEvent: ChargebeeEvent = req.body;
         const tenantRef = req.tenantRef;
 
-        tenantRef.chargebeeSubscriptionId = chargebeeEvent.content.subscription.id;
-
-        if (chargebeeEvent.content.subscription.status === "active") {
-            tenantRef.activePlan = chargebeeEvent.content.subscription.plan_id;
+        if ([
+            "subscription_created",
+            "subscription_cancelled",
+            "subscription_changed"
+        ].indexOf(chargebeeEvent.event_type) !== -1) {
+            return res.send({ ok: true, desc: "This webhook has not been implemented." })
         }
 
-        return tenantRef
-            .save()
-            .then(() => res.send({ ok: true }))
-            .catch((err: any)=> res.send(err));
-    });
+        /**
+         * Subscription created - we update tenant plan giving him new rights for use of the software
+         */
+        if (chargebeeEvent.event_type === "subscription_created") {
+            tenantRef.chargebeeSubscriptionId = chargebeeEvent.content.subscription.id;
 
-    app.post("/api/hooks/tenant/subscription/cancelled", getTenantForChargebeeEvent, (req: any, res: any) => {
-        const chargebeeEvent: ChargebeeEvent = req.body;
-        const tenantRef = req.tenantRef;
-
-        tenantRef.chargebeeSubscriptionId = undefined;
-        tenantRef.activePlan = "starter";
-
-        return tenantRef
-            .save()
-            .then(() => res.send({ ok: true }))
-            .catch((err: any)=> res.send(err));
-    });
-
-    app.post("/api/hooks/tenant/subscription/changed", getTenantForChargebeeEvent, (req: any, res: any) => {
-        const chargebeeEvent: ChargebeeEvent = req.body;
-        const tenantRef = req.tenantRef;
-
-        tenantRef.chargebeeSubscriptionId = chargebeeEvent.content.subscription.id;
-
-        if (chargebeeEvent.content.subscription.status === "active") {
-            tenantRef.activePlan = chargebeeEvent.content.subscription.plan_id;
+            if (chargebeeEvent.content.subscription.status === "active") {
+                tenantRef.activePlan = chargebeeEvent.content.subscription.plan_id;
+            }
         }
 
+        /**
+         * Subscription cancelled - we update tenant plan stripping him from rights for use of the software or degrading him to the lowest sub. level.
+         */
+        if (chargebeeEvent.event_type === "subscription_cancelled") {
+            tenantRef.chargebeeSubscriptionId = undefined;
+
+            tenantRef.activePlan = "starter";
+        }
+
+         /**
+         * Subscription changed - we update tenant plan.
+         */
+        if (chargebeeEvent.event_type === "subscription_changed") {
+            tenantRef.chargebeeSubscriptionId = chargebeeEvent.content.subscription.id;
+
+            if (chargebeeEvent.content.subscription.status === "active") {
+                tenantRef.activePlan = chargebeeEvent.content.subscription.plan_id;
+            }
+        }
+
+
         return tenantRef
-            .save()
-            .then(() => res.send({ ok: true }))
-            .catch((err: any)=> res.send(err));
+                .save()
+                .then(() => res.send({
+                    ok: true
+                }))
+                .catch((err: any)=> res.send(err));
     });
 };
 
