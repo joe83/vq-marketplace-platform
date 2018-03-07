@@ -89,8 +89,6 @@ describe("Starts a new marketplace", () => {
             expect(body.tenant.emailVerified).toBe(true);
             expect(body.tenant.status).toBe(0);
 
-            console.log(body);
-
             done();
         });
     });
@@ -331,6 +329,8 @@ describe("Starts a new marketplace", () => {
             expect(body.token).toBeDefined();
 
             demandUserAuthToken = body.token;
+
+            
         
             done();
         });
