@@ -15,91 +15,55 @@ module.exports = app => {
 	app.get("/api/subscription/plans", (req, res) => {
         subscriptionService.listPlans((err, plans) => {
             if (err) {
-                return res.status(500).send(err);
+                return res.status(400).send(err);
             }
 
             return res.status(200).send(plans);
         });
-    });
+	});
 
 	app.post("/api/admin/new-subscription/:subId", isLoggedIn, isAdmin, (req, res) => {
-		tenantModelsProvider.getModels((err, tenantModels) => {
+		tenantModelsProvider.getTenant({ tenantId: req.models.tenantId }, (err, tenantRef) => {
 			if (err) {
-				return res.status(500).send(err);
+				return res.status(400).send(err);
 			}
 
-			tenantModels
-			.tenant
-			.findOne({
-				where: {
-					tenantId: req.models.tenantId
+			subscriptionService
+			.chargebeeNewSubCheckout(req.params.subId, tenantRef, (err, result) => {
+				if (err) {
+					return res.status(400).send(result);
 				}
-			})
-			.then(tenantRef => {
-				subscriptionService
-				.chargebeeNewSubCheckout(req.params.subId, tenantRef, (err, result) => {
-					if (err) {
-						return res.status(400).send(result);
-					}
 
-					res.send(result);
-				});
-			})
-			.catch(err => {
-				res.status(500).send(err);
+				res.send(result);
 			});
 		});
 	});
 
 	app.post("/api/admin/subscription-portal", isLoggedIn, isAdmin, (req, res) => {
-		tenantModelsProvider.getModels((err, tenantModels) => {
+		tenantModelsProvider.getTenant({ tenantId: req.models.tenantId }, (err, tenantRef) => {
 			if (err) {
-				return res.status(500).send(err);
+				return res.status(400).send(err);
 			}
 
-			tenantModels
-			.tenant
-			.findOne({
-				where: {
-					tenantId: req.models.tenantId
+			subscriptionService
+			.chargebeeCustomerPortalSignIn(tenantRef, (err, result) => {
+				if (err) {
+					return res.status(400).send(result);
 				}
-			})
-			.then(tenantRef => {
-				subscriptionService
-				.chargebeeCustomerPortalSignIn(tenantRef, (err, result) => {
-					if (err) {
-						return res.status(400).send(result);
-					}
 
-					res.send(result);
-				});
-			})
-			.catch(err => {
-				res.status(500).send(err);
+				res.send(result);
 			});
 		});
 	});
 
 	app.get("/api/admin/tenant", isLoggedIn, isAdmin, (req, res) => {
-		tenantModelsProvider.getModels((err, tenantModels) => {
+		tenantModelsProvider.getTenant({ tenantId: req.models.tenantId }, (err, tenant) => {
 			if (err) {
-				return res.status(500).send(err);
+				return res.status(400).send(err);
 			}
 
-			tenantModels
-			.tenant
-			.findOne({
-				where: {
-					tenantId: req.models.tenantId
-				}
-			})
-			.then(tenant => {
-				res.send({
-					tenant
-				});
-			})
-			.catch(err => {
-				res.status(500).send(err);
+			return res.send({
+				tenant
 			});
 		});
 	});

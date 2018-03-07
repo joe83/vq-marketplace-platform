@@ -2,6 +2,7 @@ const tenantModelsProvider = require("../tenantModelsProvider");
 
 interface ChargebeeCustomer {
     id: string;
+    email: string;
 }
 
 interface ChargebeeSubscription {
@@ -186,40 +187,21 @@ const init = (app: any) => {
      */
     
     const getTenantForChargebeeEvent = (req: any, res: any, next: any) => {
+        const chargebeeEvent: ChargebeeEvent = req.body;
+        const tenantEmail = chargebeeEvent.content.customer.email;
+
         tenantModelsProvider
-            .getModels((err: any, tenantModels: any) => {
+        .getTenant({
+            email: tenantEmail
+        }, (err: any, tenantRef: any, tenantModels: any) => {
                 if (err) {
                     return res.status(400).send(err);
                 }
 
                 req.tenantModels = tenantModels;
-                
-                const chargebeeEvent: ChargebeeEvent = req.body;
-                const chargebeeCustomerId = chargebeeEvent.content.subscription.customer_id;
+                req.tenantRef = tenantRef;
 
-                return tenantModels
-                    .tenant
-                    .findOne({
-                        where: {
-                            chargebeeCustomerId
-                        }
-                    })
-                    .then((tenantRef: any) => {
-                        if (!tenantRef) {
-                            return res.status(400)
-                            .send({
-                                desc: "Tenant not found for the customer_id."
-                            });
-                        }
-
-                        req.tenantRef = tenantRef;
-
-                        return next();
-                    }, (err: any) => {
-                        res.status(400).send(err);
-
-                        return;
-                    });
+                return next();
             });
     };
 
@@ -234,6 +216,9 @@ const init = (app: any) => {
         ].indexOf(chargebeeEvent.event_type) === -1) {
             return res.send({ ok: true, desc: "This webhook has not been implemented." })
         }
+
+        // chargebee customer ID update (in case not present)
+        tenantRef.chargebeeCustomerId = chargebeeEvent.content.subscription.customer_id;
 
         /**
          * Subscription created - we update tenant plan giving him new rights for use of the software
