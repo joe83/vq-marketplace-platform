@@ -330,7 +330,7 @@ describe("Starts a new marketplace", () => {
 
             demandUserAuthToken = body.token;
 
-              
+                
         
             done();
         });
