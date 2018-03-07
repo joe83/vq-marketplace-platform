@@ -335,6 +335,7 @@ describe("Starts a new marketplace", () => {
             console.log('test');
             console.log('test');
             console.log('test');
+            console.log('test');
                             
         
             done();
