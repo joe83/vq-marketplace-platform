@@ -328,15 +328,7 @@ describe("Starts a new marketplace", () => {
             expect(response.statusCode).toBe(200);
             expect(body.token).toBeDefined();
 
-            demandUserAuthToken = body.token;
-
-                
-            console.log('test');
-            console.log('test');
-            console.log('test');
-            console.log('test');
-            console.log('test');
-                            
+            demandUserAuthToken = body.token;                            
         
             done();
         });
