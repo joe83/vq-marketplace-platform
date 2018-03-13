@@ -156,7 +156,7 @@ const setupApp = cb => {
             console.log(`Accessing ${tenantId}`);
 		}
 
-		req.models = db.get(tenantId);
+        req.models = db.get(tenantId);
 
 		if (!req.models) {
 			return res.status(400).send({

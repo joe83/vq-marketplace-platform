@@ -12,33 +12,58 @@ const tenantModelsProvider = require("../../app-tenant/tenantModelsProvider");
 const subscriptionService = require("../services/subscriptionService");
 
 module.exports = app => {
-	app.post("/api/admin/tenant/subscription", isLoggedIn, isAdmin, (req, res) => {
-		subscriptionService
-		.createSubscription((err, result) => {
-			res.send(result);
+	app.get("/api/subscription/plans", (req, res) => {
+        subscriptionService.listPlans((err, plans) => {
+            if (err) {
+                return res.status(400).send(err);
+            }
+
+            return res.status(200).send(plans);
+        });
+	});
+
+	app.post("/api/admin/new-subscription/:subId", isLoggedIn, isAdmin, (req, res) => {
+		tenantModelsProvider.getTenant({ tenantId: req.models.tenantId }, (err, tenantRef) => {
+			if (err) {
+				return res.status(400).send(err);
+			}
+
+			subscriptionService
+			.chargebeeNewSubCheckout(req.params.subId, tenantRef, (err, result) => {
+				if (err) {
+					return res.status(400).send(result);
+				}
+
+				res.send(result);
+			});
+		});
+	});
+
+	app.post("/api/admin/subscription-portal", isLoggedIn, isAdmin, (req, res) => {
+		tenantModelsProvider.getTenant({ tenantId: req.models.tenantId }, (err, tenantRef) => {
+			if (err) {
+				return res.status(400).send(err);
+			}
+
+			subscriptionService
+			.chargebeeCustomerPortalSignIn(tenantRef, (err, result) => {
+				if (err) {
+					return res.status(400).send(result);
+				}
+
+				res.send(result);
+			});
 		});
 	});
 
 	app.get("/api/admin/tenant", isLoggedIn, isAdmin, (req, res) => {
-		tenantModelsProvider.getModels((err, tenantModels) => {
+		tenantModelsProvider.getTenant({ tenantId: req.models.tenantId }, (err, tenant) => {
 			if (err) {
-				return res.status(500).send(err);
+				return res.status(400).send(err);
 			}
 
-			tenantModels
-			.tenant
-			.findOne({
-				where: {
-					tenantId: req.models.tenantId
-				}
-			})
-			.then(tenant => {
-				res.send({
-					tenant
-				});
-			})
-			.catch(err => {
-				res.status(500).send(err);
+			return res.send({
+				tenant
 			});
 		});
 	});
@@ -140,7 +165,16 @@ module.exports = app => {
 	app.get("/api/admin/task", isLoggedIn, isAdmin, hasValidSubscription, (req, res) => req.models.task
 		.findAll({
 			order: [[ "createdAt", "DESC" ]],
-			include: []
+			include: [
+				{
+					model: req.models.request,
+					include: [
+						{
+							model: req.models.order
+						}
+					]
+				}
+			]
 		})
 		.then(data => res.send(data)));
 
@@ -265,7 +299,7 @@ module.exports = app => {
 				.then(outstandingRequest => {
 					if (outstandingRequest) {
 						return sendResponse(res, {
-							code: "CANNOT_BLOCK"
+							code: "CANNOT_BLOCK_USER_HAS_OUTSTANDING_REQUESTS"
 						});
 					}
 

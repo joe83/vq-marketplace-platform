@@ -14,6 +14,10 @@ module.exports = (sequelize, DataTypes) => {
         stripeAccountId: { type: DataTypes.STRING, required: false },
         stripeAccount: { type: DataTypes.JSON, required: false },
         chargebeeCustomerId: { type: DataTypes.STRING, required: false },
+        activePlan: {
+          type: DataTypes.ENUM("starter", "traction", "growth"),
+          defaultValue: "starter"
+        },
         chargebeeActiveSubscriptionId: { type: DataTypes.STRING, required: false }
   }, {
     tableName: "tenant"

@@ -1,6 +1,13 @@
 const async = require("async");
 const tableName = "_posts";
 
+const EVENT_TRIGGERS = {
+    NEW_ORDER: "new-order",
+    ORDER_CLOSED: "order-closed",
+    ORDER_COMPLETED: "order-completed",
+    ORDER_MARKED_AS_DONE: "order-marked-as-done"
+}
+
 module.exports = (sequelize, DataTypes) => {
   const posts = sequelize.define("post", {
       title: { type: DataTypes.STRING, required: true },
@@ -9,13 +16,20 @@ module.exports = (sequelize, DataTypes) => {
       body: { type: DataTypes.TEXT },
       // 180221, added for emails
       targetUserType: { type: DataTypes.INTEGER },
-      eventTrigger: { type: DataTypes.ENUM("new-order") },
+      eventTrigger: {
+        type: DataTypes.ENUM(
+            EVENT_TRIGGERS.NEW_ORDER,
+            EVENT_TRIGGERS.ORDER_CLOSED,
+            EVENT_TRIGGERS.ORDER_COMPLETED,
+            EVENT_TRIGGERS.ORDER_MARKED_AS_DONE,
+            
+        ),
+       },
   }, {
       tableName,
       createdAt: false,
       updatedAt: false
   });
-
 
   posts.createOrUpdate = () => (postCode, postType, postTitle, postBody, postTargetUserType, postEventTrigger) => posts
     .findOne({ where: { code: postCode } })

@@ -51,6 +51,9 @@ describe("Starts a new marketplace", () => {
         });
     });
 
+
+
+
     it("POST /api/trial-registration/step-1 with new email", done => {
         trialRegistrationStep1((error, response, body) => {
             expect(response.statusCode).toBe(200);

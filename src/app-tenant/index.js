@@ -7,12 +7,14 @@ const subscriptionService = require("../app/services/subscriptionService");
 const emailService = require("../app/services/emailService.js");
 const emailTemplateGenerator = require("../app/services/emailTemplateGenerator.js");
 const service = require("./service");
+const hooks = require("./hooks");
 const request = require("request");
-
 const tenantModelsProvider = require("./tenantModelsProvider");
 
 const initRoutes = (app, express) => {
     app.use(express.static(__dirname + "/public"));
+
+    hooks.init(app, express);
 
     app.get("/cb/stripe", (req, res) => {
         const stripeAuthCode = req.query.code;
@@ -461,9 +463,9 @@ const initRoutes = (app, express) => {
               DOMAIN: marketplaceUrl
             };
 
-            if (process.env.ENV.toLowerCase() === 'production') {
+            if (process.env.CHARGEBEE_SITE && process.env.CHARGEBEE_API_KEY) {
                 subscriptionService.ensureCustomerDataSaved(tenantRef);
-            }            
+            }
 
             // this can last some time, up to one minute, it should be run async
             service

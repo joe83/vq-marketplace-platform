@@ -4,9 +4,9 @@ const fs = require("fs");
 
 const standardTemplates = {
     "bitcoinmeetup": "bitcoinmeetup",
-    "rentals": "rentkitchen",
+    "rentals": "airhome",
     "products": "b2btemplate",
-    "services": "taskrabbit"
+    "services": "taskbee"
 };
 
 async.each(Object.keys(standardTemplates), (marketplaceType, cb) => {
