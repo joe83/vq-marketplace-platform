@@ -7,7 +7,6 @@ const authCtrl = require("../controllers/authCtrl.js");
 const sendResponse = responseController.sendResponse;
 const vqAuth = require("../auth");
 const userEmitter = require("../events/user");
-const config = require("../config/configProvider.js")();
 
 module.exports = app => {
 	var isLoggedIn = responseController.isLoggedIn;
@@ -122,8 +121,9 @@ module.exports = app => {
 						}, cb);
 				});
 			}], () => {
+
 				const VERIFICATION_LINK = cryptoService
-					.buildVerificationUrl(req.models.tenantId, config.SERVER_URL, { id: userId });
+					.buildVerificationUrl(req.models.tenantId, { id: userId });
 				
 				emailService
 					.getEmailAndSend(req.models, emailService.EMAILS.WELCOME, emails, {
@@ -219,7 +219,7 @@ module.exports = app => {
 				return res.send(new Buffer("<p>Missing configuration. Configure DOMAIN.</p>"));
 			}
 
-			if (config.PRODUCTION === false) {
+			if (process.env.ENV.toLowerCase() !== 'production') {
 				return res.send({
 					ok: true
 				});

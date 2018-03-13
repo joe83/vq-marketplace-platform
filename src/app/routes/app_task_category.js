@@ -1,7 +1,7 @@
 const async = require("async");
 const responseController = require("../controllers/responseController.js");
 const isAdmin = responseController.isAdmin;
-const taskCtrl = require("../controllers/taskCtrl.js");
+const taskCtrl = require("../controllers/taskCtrl.ts");
 
 module.exports = app => {
     app.get("/api/app_task_categories", (req, res) =>

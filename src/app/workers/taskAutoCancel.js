@@ -1,5 +1,5 @@
 const async = require("async");
-const requestCtrl = require("../controllers/requestCtrl.js");
+const requestCtrl = require("../controllers/requestCtrl.ts");
 const db = require("../models/models.js");
 const taskEmitter = require("../events/task");
 

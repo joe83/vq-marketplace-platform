@@ -6,91 +6,11 @@
     "configurations": [
         {
             "type": "node",
-            "request": "launch",
-            "name": "Launch Program",
-            "program": "${workspaceFolder}/app.js"
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "debug:dev",
-            "program": "${workspaceRoot}/app.js",
-            "cwd": "${workspaceRoot}",
-            "args": [
-                "--config=/../test-config.json"
-            ]
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "debug:prod-talentwand",
-            "program": "${workspaceRoot}/app.js",
-            "cwd": "${workspaceRoot}",
-            "env": {
-                "TENANT_ID": "vq"
-            },
-            "args": [
-                "--config=/../production-config.json"
-            ]
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "debug:dev-tenant",
-            "program": "${workspaceRoot}/built/app.js",
-            "cwd": "${workspaceRoot}",
-            "env": {
-                "TENANT_ID": "heyo"
-            },
-            "args": [
-                "--config=/../../test-config.json"
-            ]
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "debug:local-tenant",
-            "program": "${workspaceRoot}/app.js",
-            "cwd": "${workspaceRoot}",
-            "env": {
-                "TENANT_ID": "testmarketplace"
-            },
-            "args": [
-            ]
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "debug:local",
-            "program": "${workspaceRoot}/built/app.js",
-            "cwd": "${workspaceRoot}",
-            "env": {
-                "TENANT_ID": "testmarketplace",
-                "ST_ENV": "local"
-            }
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "debug:production",
-            "program": "${workspaceRoot}/app.js",
-            "cwd": "${workspaceRoot}",
-            "env": {
-                "ST_ENV": "production"
-            }
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Task created Event",
-            "program": "${workspaceRoot}/app/events/taskCreated.js",
-            "cwd": "${workspaceRoot}"
-        },
-        {
-            "type": "node",
             "request": "attach",
-            "name": "An den Prozess anfügen",
-            "port": 8080
+            "name": "Attach to Process",
+            "port": 5858,
+            "restart": true,
+            "protocol": "inspector"
         }
     ]
-}
+ }
