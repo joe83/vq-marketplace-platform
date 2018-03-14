@@ -37,7 +37,7 @@ const createAccount = (stripePrivateKey: string, type: string, country: string, 
        cb(null, rAccount);
    }, (err: any) => {
        console.log(err);
-
+       
        cb(err);
    });
 };

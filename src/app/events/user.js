@@ -6,13 +6,12 @@ const emailService = require("../services/emailService");
 const cryptoService = require("../services/cryptoService");
 class DefaultEmitter extends EventEmitter {}
 const userEmitter = new DefaultEmitter();
-const config = require("../config/configProvider.js")();
 const vqAuth = require("../auth");
 
 module.exports = userEmitter;
     userEmitter
     .on("created", (models, user) => {
-        const VERIFICATION_LINK = cryptoService.buildVerificationUrl(models.tenantId, config.SERVER_URL, user);
+        const VERIFICATION_LINK = cryptoService.buildVerificationUrl(models.tenantId, user);
 
         return emailService
             .getEmailAndSend(models, emailService.EMAILS.WELCOME, user.emails[0], {

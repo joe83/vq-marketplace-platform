@@ -18,6 +18,22 @@ db.create(TENANT_ID, USECASE, () => {
                 console.log(err);
             }
             console.log('Configs restored for ' + USECASE + ' marketplace for tenant ' + TENANT_ID);
-            process.exit();
         });
+
+    db.get(TENANT_ID)
+        .appLabel
+        .addDefaultLangLabels(TARGET_LANG, USECASE, true, (err, data) => {
+            if (err) {
+                console.log(err);
+            }
+            console.log('Labels restored for ' + USECASE + ' marketplace for tenant ' + TENANT_ID);
+        });
+    db.get(TENANT_ID)
+        .post
+        .addDefaultPosts(USECASE, true, (err, data) => {
+            if (err) {
+                console.log(err);
+            }
+            console.log('Posts restored for ' + USECASE + ' marketplace for tenant ' + TENANT_ID);
+        });  
 });

@@ -1,11 +1,10 @@
 const ejs = require("ejs");
 const mandrill = require("mandrill-api/mandrill");
-const config = require("../config/configProvider.js")();
 const custProvider = require("../config/custProvider.js");
 const unescape = require("unescape");
 const _ = require("underscore");
 
-const mandrill_client = new mandrill.Mandrill(config.mandrill);
+const mandrill_client = new mandrill.Mandrill(process.env.MANDRILL);
 
 const EMAILS = {
 	WELCOME: "welcome",

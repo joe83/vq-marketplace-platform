@@ -1,10 +1,11 @@
+require('dotenv').config();
+
 const async = require("async");
 const db = require("./app/models/models");
 const tenantService = require("./app-tenant");
 const workers = require("./app/workers");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const config = require("./app/config/configProvider.js")();
 const morgan = require("morgan");
 const express = require("express");
 const app = express();
@@ -19,7 +20,7 @@ const setTenantIdForTesting = (tenantId) => {
 const startServer = cb => {
     async.parallel([
         cb => {
-            const appServer = app.listen(config.port, () => {
+            const appServer = app.listen(process.env.PORT, () => {
                 const port = appServer.address().port;
         
                 console.log(`VQ-Marketplace API listening at port ${port}. Supporting ${db.getTenantIds().length} tenants.`);
@@ -28,7 +29,7 @@ const startServer = cb => {
             });
         },
         cb => {
-            const tenantServer = tenantApp.listen(config.TENANT_APP_PORT, () => {
+            const tenantServer = tenantApp.listen(process.env.TENANT_PORT, () => {
                 const port = tenantServer.address().port;
         
                 console.log(`Tenant management API listening at port ${port}.`);
@@ -59,11 +60,13 @@ const startServerDeamons = () => {
         });
     }, 1 * 5000);
     
-    setInterval(() => {
-        const usedMemory = process.memoryUsage().heapUsed / 1024 / 1024;
-    
-        console.log(`[VQ-MARKETPLACE-API] ${Math.round(usedMemory * 100) / 100} MB usage | ${Object.keys(db.tenantConnections).length} tenants`);
-    }, 1 * 60 * 1000);
+    if (process.env.SHOW_MEMORY_USAGE) {
+        setInterval(() => {
+            const usedMemory = process.memoryUsage().heapUsed / 1024 / 1024;
+        
+            console.log(`[VQ-MARKETPLACE-API] ${Math.round(usedMemory * 100) / 100} MB usage | ${Object.keys(db.tenantConnections).length} tenants`);
+        }, 1 * 60 * 1000);
+    }
 };
 
 const initTenants = cb => {
@@ -125,7 +128,7 @@ const setupApp = cb => {
 	const initApp = app => {
 		app.set("view engine", "ejs");
 		app.set("json spaces", 2);
-		app.set("superSecret", config.secret);
+		app.set("superSecret", process.env.secret);
 		app.use(cors());
 		app.use(bodyParser.urlencoded({ extended: false }));
 		app.use(bodyParser.json());
@@ -143,7 +146,7 @@ const setupApp = cb => {
 			token: req.headers["x-auth-token"]
 		};
 
-		let tenantId = TENANT_ID || process.env.TENANT_ID || config.TENANT_ID;
+		let tenantId = TENANT_ID || process.env.TENANT_ID;
 
 		if (!tenantId) {
             const subdomains = req.subdomains;
@@ -164,11 +167,10 @@ const setupApp = cb => {
 		next();
 	});
 
-	if (config.production === true) {
-		console.log("-------------------------------------------------");
-		console.log("[PRODUCTION MODE] THIS API RUNS IN PRODUCTION MODE..");
-		console.log("-------------------------------------------------");
-	}
+    console.log("-------------------------------------------------");
+    const upperCaseENV = process.env.ENV.toUpperCase();
+    console.log(`[${upperCaseENV} MODE] THIS API RUNS IN ${upperCaseENV} MODE..`);
+    console.log("-------------------------------------------------");
 
 	require("./app/routes.js")(app);
 
