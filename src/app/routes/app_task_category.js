@@ -1,7 +1,17 @@
 const async = require("async");
 const responseController = require("../controllers/responseController.js");
 const isAdmin = responseController.isAdmin;
-const taskCtrl = require("../controllers/taskCtrl.ts");
+
+//polyfill for using .ts for development and js after build
+let taskCtrl;
+try {
+    requestCtrl = require("../controllers/taskCtrl.ts");
+} catch (e) {
+    if (e.code !== 'MODULE_NOT_FOUND') {
+        throw e;
+    }
+    taskCtrl = require("../controllers/taskCtrl.js");
+}
 
 module.exports = app => {
     app.get("/api/app_task_categories", (req, res) =>

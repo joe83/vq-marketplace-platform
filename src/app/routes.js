@@ -24,7 +24,18 @@ module.exports = app => {
 	// end-user
 	require("./routes/message.js")(app);
 	require("./routes/policy.js")(app);
-	require("./routes/payment.ts")(app);
+	
+	//polyfill for using .ts for development and js after build
+	try {
+	    require("./routes/payment.ts")(app);
+	} catch (e) {
+	    if (e.code !== 'MODULE_NOT_FOUND') {
+	        throw e;
+	    }
+	    require("./routes/payment.js")(app);
+	}
+
+	
 	require("./routes/user.js")(app);
 	require("./routes/user-preference.js")(app);
 	require("./routes/user-property.js")(app);

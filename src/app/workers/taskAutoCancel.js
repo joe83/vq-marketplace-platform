@@ -1,7 +1,17 @@
 const async = require("async");
-const requestCtrl = require("../controllers/requestCtrl.ts");
 const db = require("../models/models.js");
 const taskEmitter = require("../events/task");
+
+//polyfill for using .ts for development and js after build
+let requestCtrl;
+try {
+    requestCtrl = require("../controllers/requestCtrl.ts");
+} catch (e) {
+    if (e.code !== 'MODULE_NOT_FOUND') {
+        throw e;
+    }
+    requestCtrl = require("../controllers/requestCtrl.js");
+}
 
 const taskAutoCancel = (tenantId) => {
     const models = db.get(tenantId);
