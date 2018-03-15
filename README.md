@@ -60,11 +60,12 @@ PORT=8080 //this is the default port set on web-app to make requests to
 TENANT_PORT=8081 //this is the default port for multi-tenancy management API
 TENANT_ID=test  //this is the TENANT_ID, in other terms the name of the marketplace that you want to setup.
                 //can be anything. only accepts slug-style
-APP_URL=http://localhost:3000   //this is the URL that is used in the welcome e-mail that users click to verify themselves.
-                                //this should be the location of your web-app
+APP_URL=http://localhost:3000   //this is the URL that is used in the welcome e-mail that 
+                                //users click to verify themselves. this should be the location of your web-app
 WEB_URL=http://localhost:4100   //you can create tenants through the tenant management API.
-                                //the example for this can be found at https://vqmarketplace.com/get-started/ this URL is used
-                                //when sending the e-mail verification link on marketplace creation form step 1.
+                                //the example for this can be found at https://vqmarketplace.com/get-started/ 
+                                //this URL is used when sending the e-mail verification link
+                                // on marketplace creation form step 1.
 SHOW_MEMORY_USAGE=false //this is to show how much memory is used with how many tenant marketplaces are running.
 SECRET=test //secret for jwt authentication
 VQ_DB_USER=root //your mysql db user
@@ -120,15 +121,19 @@ The configuration packages will be saved under "src/example-configs". Then do:
 
 ```
 CONFIG:     This is the backbone of the app. It has varying configurations saved to the database.
-            You can find example configurations in ./src/example-configs/[services|rental|products|bitcoinmeetup]/config.json
+            You can find example configurations in
+            ./src/example-configs/[services|rental|products|bitcoinmeetup]/config.json
 LABELS:     these are the translation of the app and the marketplace.
-            You can find example labels in ./src/example-configs/i18n/[lang].json
+            You can find example labels in
+            ./src/example-configs/i18n/[lang].json
 POSTS:      these are the notifications, email and custom page templates stored as HTML.
-            You can find example labels in ./src/example-configs/i18n/[services|rental|products|bitcoinmeetup]/posts.json
+            You can find example labels in
+            ./src/example-configs/i18n/[services|rental|products|bitcoinmeetup]/posts.json
 
 USECASES:   services|rental|products|bitcoinmeetup
 
-TENANTID:   will be the name of the database. If not specified as an argument, .env TENANT_ID will be taken into account.
+TENANTID:   will be the name of the database. If not specified as an argument,
+            TENANT_ID specified in .env file will be taken into account.
 
 LANG:       will be the two letter code according to ISO 639-1 Codes.
             By default we have only the English language labels so please use 'en'
