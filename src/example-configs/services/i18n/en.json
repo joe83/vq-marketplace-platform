@@ -153,7 +153,7 @@
   "LISTINGS_PROMO_HEADER": "VQ LABS: Marketplace showcase",
   "LISTING_COMMENTS_DESC": "Public chat where the task owner can communicate and answer the possible questions of the interested taskers. ",
   "LISTING_COMMENTS_HEADER": "Listing Comments",
-  "LISTING_COMMENTS_SUBMIT": "Elküldöm",
+  "LISTING_COMMENTS_SUBMIT": "Send",
   "LISTING_DATE": "Task date",
   "LISTING_DESCRIPTION": "Description",
   "LISTING_DESCRIPTION_TOO_SHORT": "Description is too short. Min 50 chars.",

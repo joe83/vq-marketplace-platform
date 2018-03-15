@@ -1,11 +1,9 @@
 const chargebee = require("chargebee");
 const async = require("async");
 
-const config = require("../config/configProvider")();
-
 chargebee.configure({
-    site: config.CHARGEBEE_SITE,
-    api_key: config.CHARGEBEE_API_KEY 
+    site: process.env.CHARGEBEE_SITE,
+    api_key: process.env.CHARGEBEE_API_KEY 
 });
 
 const createCustomer = (tenantRef, cb) => {

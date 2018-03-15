@@ -1,13 +1,15 @@
+require('dotenv').config();
+
 const async = require("async");
 const request = require("request");
-const server = require("../built/server");
+const server = require("../src/server");
 const deleteLocalDb = require("../scripts/delete-local-db");
 
-const baseUrl = "http://localhost:8081";
-const tenantUrl = "http://localhost:8080";
+const baseUrl = `http://localhost:${process.env.TENANT_PORT}`;
+const tenantUrl = `http://localhost:${process.env.PORT}`;
 
 // services
-const cryptoService = require("../built/app/services/cryptoService");
+const cryptoService = require("../src/app/services/cryptoService");
 
 const TEST_DATA = {
     FIRST_NAME: "firstNameTest",
@@ -140,11 +142,11 @@ describe("Starts a new marketplace", () => {
 
             done();
         });
-    });
+    }, 20000);
 
     it("POST /api/trial-registration/getTenantStatus", done => {
-        // timeout because the previous task is asynchronous
-        setTimeout(() => {
+        // interval because the previous task is asynchronous
+        setInterval(() => {
             request({
                 url: `${baseUrl}/api/trial-registration/getTenantStatus`,
                 method: "POST",
@@ -152,16 +154,17 @@ describe("Starts a new marketplace", () => {
                     apiKey: tenantData.apiKey
                 }
             }, (error, response, body) => {
-                expect(response.statusCode).toBe(200);
-                expect(body.tenant.tenantId).toBe("mytestmarketplace");
-                expect(body.tenant.status).toBe(3);
+                if (response.statusCode === 200) {
+                    expect(body.tenant.tenantId).toBe("mytestmarketplace");
+                    expect(body.tenant.status).toBe(3);
 
-                server.setTenantIdForTesting(body.tenant.tenantId);
+                    server.setTenantIdForTesting(body.tenant.tenantId);
 
-                done();
+                    done();
+                }
             });
-        }, 1000);
-    });
+        }, 2000);
+    }, 20000);
 
     it("GET (tenant) /api/app_config", done => {
         request({
@@ -328,7 +331,7 @@ describe("Starts a new marketplace", () => {
             expect(response.statusCode).toBe(200);
             expect(body.token).toBeDefined();
 
-            demandUserAuthToken = body.token;
+            demandUserAuthToken = body.token;                            
         
             done();
         });
