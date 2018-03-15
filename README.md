@@ -114,8 +114,13 @@ npm run dev //this runs nodemon which restarts the server on change
 
 
 Ensure that you also run the init scripts after running with npm start in a seperate CLI tab:
+First fetch the latest configs, labels and posts:
 ```
+node scripts/download-marketplace-template.js
+```
+The configuration packages will be saved under "src/example-configs". Then do:
 
+```
 CONFIG: this is the backbone of the app. It has varying configurations saved to the database. You can find example configurations in ./src/example-configs/[services|rental|products|bitcoinmeetup]/config.json
 LABELS: these are the translation of the app and the marketplace. You can find example labels in ./src/example-configs/i18n/[lang].json
 POSTS: these are the notification, email and custom page templates stored as HTML. You can find example labels in ./src/example-configs/i18n/[services|rental|products|bitcoinmeetup]/posts.json
