@@ -1,10 +1,12 @@
 .elasticbeanstalk
 scripts/transport-tw-users-to-vq.js
-built/
+build/
 node_modules/
+.env
 apidoc/
-built
 build
+built
+builtgit
 deployments
 # our credentials
 .credentials

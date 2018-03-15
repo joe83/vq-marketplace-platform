@@ -1,12 +1,14 @@
 const jwt = require("jsonwebtoken");
 const cust = require("../config/customizing");
-const superSecret = require("../config/configProvider")().secret;
+const randomstring = require("randomstring");
+const models = require("../models/models");
 const vqAuth = require("../auth");
 
 function isAuth(req) {
 	if (req.headers["x-auth-token"]) {
 		try {
-			var decoded = jwt.verify(req.headers["x-auth-token"], superSecret);
+		  var secret = process.env.SECRET || randomstring.generate(64);
+			var decoded = jwt.verify(req.headers["x-auth-token"], secret);
 
 			return decoded;
 		} catch (err) {

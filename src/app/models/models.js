@@ -3,7 +3,6 @@ const fs = require("fs");
 const path = require("path");
 const mysql = require("mysql2");
 const Sequelize = require("sequelize");
-const config = require("../config/configProvider.js")();
 
 const tenantRegister = {};
 const tenantConnections = {};
@@ -12,15 +11,15 @@ const getTenantIds = () => Object.keys(tenantConnections);
 
 const pool = mysql.createPool({
   connectionLimit: 2,
-  host: config.VQ_DB_HOST,
-  user: config.VQ_DB_USER,
-  password: config.VQ_DB_PASSWORD
+  host: process.env.VQ_DB_HOST,
+  user: process.env.VQ_DB_USER,
+  password: process.env.VQ_DB_PASSWORD
 });
 
 const createSeqConnection = (tenantId) => {
   const db = {};
-      const sequelize = new Sequelize(tenantId, config.VQ_DB_USER, config.VQ_DB_PASSWORD, {
-        host: config.VQ_DB_HOST,
+      const sequelize = new Sequelize(tenantId, process.env.VQ_DB_USER, process.env.VQ_DB_PASSWORD, {
+        host: process.env.VQ_DB_HOST,
         logging: false,
         dialect: "mysql",
         pool: {

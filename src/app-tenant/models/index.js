@@ -3,7 +3,6 @@ const fs = require("fs");
 const path = require("path");
 const mysql = require("mysql2");
 const Sequelize = require("sequelize");
-const config = require("../../app/config/configProvider.js")();
 
 const tenantConnections = {};
 
@@ -19,9 +18,9 @@ const create = (tenantId, cb) => {
   async.waterfall([
     cb => {
       const connection = mysql.createConnection({
-        host: config.VQ_DB_HOST,
-        user: config.VQ_DB_USER,
-        password: config.VQ_DB_PASSWORD
+        host: process.env.VQ_DB_HOST,
+        user: process.env.VQ_DB_USER,
+        password: process.env.VQ_DB_PASSWORD
       });
 
       connection.connect();
@@ -48,8 +47,11 @@ const create = (tenantId, cb) => {
     },
     cb => {
       const db = {};
-      const sequelize = new Sequelize(tenantId, config.VQ_DB_USER, config.VQ_DB_PASSWORD, {
-        host: config.VQ_DB_HOST,
+      const sequelize = new Sequelize(tenantId,
+        process.env.VQ_DB_USER,
+        process.env.VQ_DB_PASSWORD,
+        {
+        host: process.env.VQ_DB_HOST,
         logging: false,
         dialect: "mysql",
         pool: {
