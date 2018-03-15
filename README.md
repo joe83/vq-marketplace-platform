@@ -156,14 +156,7 @@ NodeJS 8.3.0 and NPM 5.6 on Windows 10,
 NodeJS 9.0.0 and NPM 5.5.1 on AWS Linux Ubuntu 16.04.2
 
 ## Tests
-You need to run a mysql server on your local machine. If you use MacOSX, you need to install gawk:
-```
-ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" < /dev/null 2> /dev/null
-
-brew install gawk
-```
-
-https://semaphoreci.com/community/tutorials/getting-started-with-node-js-and-jasmine
+You need to run a mysql server on your local machine. We are still expanding our test cases but you can run npm run test to test the existing ones. To implement your own tests, refer to [https://semaphoreci.com/community/tutorials/getting-started-with-node-js-and-jasmine](https://semaphoreci.com/community/tutorials/getting-started-with-node-js-and-jasmine)
 
 ## Contribute
 We follow the following branching model:
