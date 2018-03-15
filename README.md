@@ -17,8 +17,8 @@ You can use the web services with the official VQ Marketplace Storefront:
 ## Marketplace templates
 You can view the live demos here:
 * [Product Marketplace - Copy of Tindie](https://b2btemplate.vqmarketplace.com)
-* [Rental Marketplace - Copy of AirBnB](https://rental-kitchen.vqmarketplace.com)
-* [Product Marketplace - Copy of Airtasker](https://vqtemplate-airtasker.vqmarketplace.com)
+* [Rental Marketplace - Copy of AirBnB](https://airhome.vqmarketplace.com)
+* [Product Marketplace - Copy of TaskRabbit](https://taskbee.vqmarketplace.com)
 * [Exchange Marketplace - Cryptocurrency OTC Exchange](https://bitcoinmeetup.vqmarketplace.com)
 
 In order to download current configuration templates run:
@@ -50,6 +50,8 @@ npm install // installs the npm packages from ./package.json
 npm install node-gyp -g // installs global packages
 ```
 ### Common problems
+You might be running an outdated version of node which used to run on command nodejs.
+To link the new command 'node' to 'nodejs' you need to run the below command.
 
 ```
 sudo ln -s /usr/bin/nodejs /usr/bin/node
@@ -62,35 +64,54 @@ We have a rule in .gitignore so that you don't commit this file accidentally as 
 ```
 PORT=8080 //this is the default port set on web-app to make requests to
 TENANT_PORT=8081 //this is the default port for multi-tenancy management API
-TENANT_ID=test //this is the TENANT_ID, in other terms the name of the marketplace that you want to setup. can be anything
-APP_URL=http://localhost:3000 //this is the URL that is used in the welcome e-mail that users click to verify themselves. this should be the location of your web-app
-WEB_URL=http://localhost:4100 //you can create tenants through the tenant management API. the example for this can be found at https://vqmarketplace.com/get-started/ this URL is used when sending the e-mail verification link on marketplace creation form steps.
+TENANT_ID=test //this is the TENANT_ID, in other terms the name of the marketplace that you want to setup. can be anything. only accepts slug-style
+APP_URL=http://localhost:3000 //this is the URL that is used in the welcome e-mail that users click to verify themselves. this should be the location of your web-app (our vq-marketplace-web-app has the same port so it works out of the box)
+WEB_URL=http://localhost:4100 //you can create tenants through the tenant management API. the example for this can be found at https://vqmarketplace.com/get-started/ this URL is used when sending the e-mail verification link on marketplace creation form step 1.
 SHOW_MEMORY_USAGE=false //this is to show how much memory is used with how many tenant marketplaces are running. disabled by default
 SECRET=test //secret for jwt authentication
 VQ_DB_USER=root //your mysql db user
 VQ_DB_PASSWORD= //your mysql db password
 VQ_DB_HOST=localhost //mysql host
+STRIPE_ID= //stripe id for payments
 STRIPE_SECRET= //stripe secret for payments
-AWS_S3_BUCKET= 
-AWS_S3_REGION=eu-central-1
-AWS_S3_ACCESS_KEY_ID=
-AWS_SECRET_ACCESS_KEY=
+AWS_S3_BUCKET= //this AWS bucket will be the bucket for your uploaded files
+AWS_S3_REGION=eu-central-1 //the zone of the bucket
 MANDRILL= //mandrill key to use when sending e-mails
-CHARGEBEE_SITE=
-CHARGEBEE_API_KEY=
 ```
 
-By default, all the TENANT_ID in all parts of the app (API, WEB-APP) are test. If you change it please make sure that all your env files has the same TENANT_ID
+By default, all the TENANT_ID in all parts of the app (API, WEB-APP) are test. If you change it please make sure that all your env files on every repository related to this project has the same TENANT_ID
 
 In order to start locally the VQ Web Services, you need to run the command:
 ```
-npm start //this starts the app in DEBUG mode
+npm start //this starts the app in DEBUG mode. Check below to attach to the debugger
+```
+
+Note that this is for VSCode but you can always use the same port to attach to for other editors.
+The complete configuration setting is below. If you have more than one configuration just grab the object inside configurations array and append it to your local configurations array.
+```
+{
+    // Use IntelliSense to learn about possible Node.js debug attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "attach",
+            "name": "Attach to Process",
+            "port": 5858,
+            "restart": true,
+            "protocol": "inspector"
+        }
+    ]
+ }
 ```
 
 If you need to restart the server everytime you change the code you can run:
 ```
 npm run dev //this runs nodemon which restarts the server on change
 ```
+
 
 Ensure that you also run the init scripts after running with npm start in a seperate CLI tab:
 ```
@@ -112,7 +133,12 @@ node scripts/restore-default-posts.js USECASE TENANTID(optional, see note on TEN
 ```
 
 ## Deployment
-We deploy the application with Elastic Beanstalk.
+We deploy the application with Elastic Beanstalk and manage running servers with PM2.
+In the root folder of the project you can find a deploy script named deploy.sh which pulls from git, does npm install then restarts itself through PM2.
+
+We also have an experimental deploy server that runs deploy.sh in each repository whenever you push to a designated branch of a repository. The vq-deploy-server manages the running processes through PM2 and if desired it can be easily coupled with Slack to report the status of deployments as well as a /servers command which you can use in Slack to get the status of the servers via PM2.
+
+WIP - [https://github.com/vq-labs/vq-deploy-server.git](https://github.com/vq-labs/vq-deploy-server.git)
 
 # Environments
 
