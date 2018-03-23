@@ -156,6 +156,14 @@ We also have an experimental deploy server that runs deploy.sh in each repositor
 
 WIP - [https://github.com/vq-labs/vq-deploy-server.git](https://github.com/vq-labs/vq-deploy-server.git)
 
+## Payments
+Here is an example how a VQ marketplace works with cryptocurrency payments from buyer’s perspective:
+1. I place a request for a listing in the marketplace
+2. I create an booking if the request is accepted and trasfer the funds into an escrow account.
+3. A) I confirm the service / task / rental as completed and the funds are released to the supplier from smart contract
+3. B) The supplier confirms the service / task / rental as completed and the funds are scheduled to be released in an arbitrary time. I can revoke the auto-settlement. In that case, the smart contract owner will need to resolve the dispute.
+4. The request and order are marked as settled if the transaction is successfuly. It is marked as closed if the funds are returned.
+
 ## Environments
 
 We have tested the application in these environments but a .nvmrc and package.json engines have been setup for you to take a hint on:
