@@ -1,22 +1,19 @@
-require('dotenv').config();
-
-const async = require("async");
 const request = require("request");
-const server = require("../src/server");
+const server = require("../build/server");
 const deleteLocalDb = require("../scripts/delete-local-db");
 
 const baseUrl = `http://localhost:${process.env.TENANT_PORT}`;
 const tenantUrl = `http://localhost:${process.env.PORT}`;
 
 // services
-const cryptoService = require("../src/app/services/cryptoService");
+const cryptoService = require("../build/app/services/cryptoService");
 
 const TEST_DATA = {
     FIRST_NAME: "firstNameTest",
     LAST_NAME: "lastNameTest",
     EMAIL: "info@vq-labs.com",
     COUNTRY: "de",
-    MARKETPLACE_TYPE: "rentals"
+    MARKETPLACE_TYPE: "services"
 };
 
 const trialRegistrationStep1 = (cb) => {
@@ -44,15 +41,14 @@ describe("Starts a new marketplace", () => {
     });
 
     it("GET /api/tenants returns status 200", done => {
-        request.get(`${baseUrl}/api/tenant`, (error, response) => {
+        request.get(`${baseUrl}/api/tenant`, (error, response, body) => {
+            // returns an empty array
+            expect(JSON.parse(body).length).toBe(0);
             expect(response.statusCode).toBe(200);
 
             done();
         });
     });
-
-
-
 
     it("POST /api/trial-registration/step-1 with new email", done => {
         trialRegistrationStep1((error, response, body) => {
@@ -62,15 +58,14 @@ describe("Starts a new marketplace", () => {
             expect(body.tenant.status).toBe(0);
 
             tenantData = body.tenant;
-            
-            // console.log(body);
 
             done();
         });
     });
- 
+
+
     it("POST /api/trial-registration/step-1 with existing email", done => {
-        trialRegistrationStep1(function(error, response, body) {
+        trialRegistrationStep1((error, response, body) => {
             expect(response.statusCode).toBe(400);
             expect(body.code).toBe("TENANT_EMAIL_TAKEN");
             expect(body.httpCode).toBe(400);
@@ -87,6 +82,7 @@ describe("Starts a new marketplace", () => {
                 verificationCode: cryptoService.encodeObj(tenantData.apiKey)
             }
         }, (error, response, body) => {
+            console.log(body)
             expect(response.statusCode).toBe(200);
 
             expect(body.tenant.emailVerified).toBe(true);
@@ -96,10 +92,8 @@ describe("Starts a new marketplace", () => {
         });
     });
 
-    /**
-     * Why does it return { tenant: [ 1 ] }
-     * @todo Review it
-     */
+
+    //  @todo Review it Why does it return { tenant: [ 1 ] }
     it("POST /api/trial-registration/step-3", done => {
         request({
             url: `${baseUrl}/api/trial-registration/step-3`,
@@ -111,7 +105,7 @@ describe("Starts a new marketplace", () => {
                 country: TEST_DATA.COUNTRY,
             }
         }, (error, response, body) => {
-            // console.log(body);
+            console.log(body);
             expect(response.statusCode).toBe(200);
 
             // expect(body.tenant.emailVerified).toBe(true);
@@ -121,17 +115,14 @@ describe("Starts a new marketplace", () => {
         });
     });
 
-    /**
-     * Why does it return { tenant: [ 1 ] }
-     * @todo Review it
-     */
+    //  @todo Review it Why does it return { tenant: [ 1 ] }
     it("POST /api/trial-registration/step-4", done => {
         request({
             url: `${baseUrl}/api/trial-registration/step-4`,
             method: "POST",
             json: {
                 apiKey: tenantData.apiKey,
-                marketplaceType: "rentals",
+                marketplaceType: TEST_DATA.MARKETPLACE_TYPE,
                 marketplaceName: "myTestMarketplace",
                 password: "test",
                 repeatPassword: "test"
@@ -176,6 +167,12 @@ describe("Starts a new marketplace", () => {
             expect(response.statusCode).toBe(200);
             expect(parsedBody[0].fieldKey).toBeDefined();
 
+            expect(
+                parsedBody
+                .find(_ => _.fieldKey === "LISTING_TASK_WORKFLOW_FOR_DEMAND_LISTINGS_REQUEST_STEP_MULTIPLE_REQUESTS_ENABLED")
+                .fieldValue === "0"
+            ).toBeTruthy();
+
             done();
         });
     });
@@ -194,9 +191,6 @@ describe("Starts a new marketplace", () => {
         });
     });
 
-    /**
-     * Create a new supply user
-     */
     it("GET (tenant) /api/signup/email", done => {
         request({
             url: `${tenantUrl}/api/signup/email`,
@@ -226,9 +220,6 @@ describe("Starts a new marketplace", () => {
         });
     });
 
-    /**
-     * Create a new demand user
-     */
     it("GET (tenant) /api/signup/email", done => {
         request({
             url: `${tenantUrl}/api/signup/email`,
@@ -452,6 +443,28 @@ describe("Starts a new marketplace", () => {
         });
     });
 
+    it("POST (tenant) /api/request - double requests are not possible", done => {
+        const url = `${tenantUrl}/api/request`;
+  
+        request({
+            url,
+            method: "POST",
+            headers: {
+                "x-auth-token": demandUserAuthToken
+            },
+            json: {
+                taskId: supplyTaskId,
+                // now the message is required! shoule we leave it like that?
+                message: "hello!"
+            }
+        }, (error, response, body) => {
+            expect(response.statusCode).toBe(400);
+            expect(body.code).toBe('REQUEST_ALREADY_CREATED');
+            
+            done();
+        });
+    });
+
     /**
      * this fails now, because it is possible to send requests for own listings! It should not be!
     it("POST (tenant) /api/request - send request for my own listings", done => {
@@ -480,6 +493,7 @@ describe("Starts a new marketplace", () => {
      * @todos
      */
 
+    /**
     it("Create an order for a request", done => {
         done();
     });
@@ -499,8 +513,8 @@ describe("Starts a new marketplace", () => {
     it("Leave review (demand side)", done => {
         done();
     });
-
-
+    */
+    
     /**
      * Here will go tests for fractural allocation of assets!
      */

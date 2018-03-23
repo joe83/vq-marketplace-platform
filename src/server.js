@@ -124,6 +124,8 @@ const initTenants = cb => {
     ], cb);
 };
 
+const tenantConfigs = {};
+
 const setupApp = cb => {
 	const initApp = app => {
 		app.set("view engine", "ejs");
@@ -164,7 +166,44 @@ const setupApp = cb => {
 			});
 		}
 
-		next();
+        if (tenantConfigs[tenantId]) {
+            const timeDiff =  Date.now() - tenantConfigs[tenantId].refreshed;
+
+            // everything less than 2 minutes
+            if ( timeDiff < 120 * 1000) {
+                req.tenantConfig = tenantConfigs[tenantId].data;
+
+                return next();
+            }
+        }
+
+        req
+        .models
+        .appConfig
+        .findAll()
+        .then(configArr => {
+            const configObj = {};
+
+            configArr.forEach(configItem => {
+                configObj[configItem.fieldKey] = configItem.fieldValue;
+            });
+
+            tenantConfigs[tenantId] = {
+                refreshed: Date.now(),
+                data: configObj
+            };
+
+            req.tenantConfig = configObj;
+
+            console.log(req.tenantConfig);
+
+            return next();
+        }, err => {
+            res.status(500).send({
+                code: "DB_ERROR",
+                err
+            });
+        });
 	});
 
     console.log("-------------------------------------------------");

@@ -1,11 +1,4 @@
-const responseController = require("./controllers/responseController.js");
-
 module.exports = app => {
-	function pong (req, res, next) {
-		responseController.sendResponse(res);
-		next();
-	}
-
 	app.get("/", (req, res) =>
 		res
 		.send("VQ is up and running")
@@ -22,28 +15,17 @@ module.exports = app => {
 	require("./routes/app_user_property")(app);
 
 	// end-user
-	require("./routes/message.js")(app);
-	require("./routes/policy.js")(app);
-	
-	//polyfill for using .ts for development and js after build
-	try {
-	    require("./routes/payment.ts")(app);
-	} catch (e) {
-	    if (e.code !== 'MODULE_NOT_FOUND') {
-	        throw e;
-	    }
-	    require("./routes/payment.js")(app);
-	}
-
-	
-	require("./routes/user.js")(app);
-	require("./routes/user-preference.js")(app);
-	require("./routes/user-property.js")(app);
-	require("./routes/upload.js")(app);
-	require("./routes/task.js")(app);
-	require("./routes/request.js")(app);
-	require("./routes/billing_address.js")(app);
-	require("./routes/order.js")(app);
-	require("./routes/review.js")(app);
-	require("./routes/vq-services.js")(app);
+	require("./routes/message")(app);
+	require("./routes/policy")(app);
+	require("./routes/payment")(app);
+	require("./routes/user")(app);
+	require("./routes/user-preference")(app);
+	require("./routes/user-property")(app);
+	require("./routes/upload")(app);
+	require("./routes/task")(app);
+	require("./routes/request")(app);
+	require("./routes/billing_address")(app);
+	require("./routes/order")(app);
+	require("./routes/review")(app);
+	require("./routes/vq-services")(app);
 };

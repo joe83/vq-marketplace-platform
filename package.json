@@ -10,8 +10,8 @@
   "scripts": {
     "lint": "node ./node_modules/.bin/eslint src",
     "tslint": "node ./node_modules/tslint/bin/tslint -c tslint.json -p tsconfig.json",
-    "build:nolint": "node ./node_modules/gulp/bin/gulp.js build",
-    "build": "npm run tslint && node ./node_modules/gulp/bin/gulp.js build",
+    "build:nolint": "rm -rf ./build && node ./node_modules/gulp/bin/gulp.js build",
+    "build": "rm -rf ./build && npm run tslint && node ./node_modules/gulp/bin/gulp.js build",
     "start": "node --inspect=5858 ./node_modules/ts-node/dist/bin.js src/app.js",
     "dev": "node ./node_modules/nodemon/bin/nodemon.js",
     "create-marketplace": "node ./scripts/create-marketplace.js",

@@ -42,6 +42,49 @@ module.exports = app => {
             cb => req
                 .models
                 .request
+                .findOne({
+                    where: {
+                        $and: [
+                            {
+                                taskId,
+                            }, {
+                                fromUserId
+                            }
+                        ]
+                    }
+                })
+                .then(rRequest => {
+                    /**
+                    if (
+                        req.tenantConfig.LISTING_TASK_WORKFLOW_FOR_DEMAND_LISTINGS_REQUEST_STEP_MULTIPLE_REQUESTS_ENABLED !== "1" &&
+                        rRequest
+                    ) {
+                        return cb({
+                            code: "REQUEST_ALREADY_CREATED",
+                            desc: "You cannot send multiple requests for this listing."                            
+                        });
+                    }
+                    */
+
+                    if (
+                        req.tenantConfig[
+                            task.taskType === 1 ?
+                                "LISTING_TASK_WORKFLOW_FOR_DEMAND_LISTINGS_REQUEST_STEP_MULTIPLE_REQUESTS_ENABLED" :
+                                "LISTING_TASK_WORKFLOW_FOR_SUPPLY_LISTINGS_REQUEST_STEP_MULTIPLE_REQUESTS_ENABLED"
+                        ] !== "1" &&
+                        rRequest
+                    ) {
+                        return cb({
+                            code: "REQUEST_ALREADY_CREATED",
+                            desc: "You cannot send multiple requests for this listing."                            
+                        });
+                    }
+
+                    cb();
+                }, cb),
+            cb => req
+                .models
+                .request
                 .create({
                     status: req.models.request.REQUEST_STATUS.PENDING,
                     taskId,

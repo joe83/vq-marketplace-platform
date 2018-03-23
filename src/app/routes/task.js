@@ -1,20 +1,10 @@
 const async = require("async");
-const sendResponse = require("../controllers/responseController.js").sendResponse;
-const identifyUser = require("../controllers/responseController.js").identifyUser;
-const isLoggedIn = require("../controllers/responseController.js").isLoggedIn;
-const isLoggedInAndVerified = require("../controllers/responseController.js").isLoggedInAndVerified;
+const sendResponse = require("../controllers/responseController").sendResponse;
+const identifyUser = require("../controllers/responseController").identifyUser;
+const isLoggedIn = require("../controllers/responseController").isLoggedIn;
+const isLoggedInAndVerified = require("../controllers/responseController").isLoggedInAndVerified;
 const taskEmitter = require("../events/task");
-
-//polyfill for using .ts for development and js after build
-let requestCtrl;
-try {
-    requestCtrl = require("../controllers/requestCtrl.ts");
-} catch (e) {
-    if (e.code !== 'MODULE_NOT_FOUND') {
-        throw e;
-    }
-    requestCtrl = require("../controllers/requestCtrl.js");
-}
+const requestCtrl = require("../controllers/requestCtrl");
 
 const isMyTask = (models, taskId, myUserId) => {
     return models
