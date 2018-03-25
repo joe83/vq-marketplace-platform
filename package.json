@@ -12,7 +12,8 @@
     "tslint": "node ./node_modules/tslint/bin/tslint -c tslint.json -p tsconfig.json",
     "build:nolint": "rm -rf ./build && node ./node_modules/gulp/bin/gulp.js build",
     "build": "rm -rf ./build && npm run tslint && node ./node_modules/gulp/bin/gulp.js build",
-    "start": "node --inspect=5858 ./node_modules/ts-node/dist/bin.js src/app.js",
+    "start:debug": "node --inspect=5858 ./node_modules/ts-node/dist/bin.js src/app.js",
+    "start": "node build/app.js",
     "dev": "node ./node_modules/nodemon/bin/nodemon.js",
     "create-marketplace": "node ./scripts/create-marketplace.js",
     "test": "node ./node_modules/jasmine-ts/lib/index.js \"spec/**/*[sS]pec.js\""

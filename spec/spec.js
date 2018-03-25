@@ -29,7 +29,7 @@ const trialRegistrationStep1 = (cb) => {
 describe("Starts a new marketplace", () => {
     let tenantData;
     let supplyUserId, demandUserId;
-    let supplyUserAuthToken, demandUserAuthToken;
+    let supplyUserAuthToken, demandUserAuthToken, adminUserAuthToken;
     let supplyTaskId;
 
     beforeAll(done => {
@@ -288,6 +288,28 @@ describe("Starts a new marketplace", () => {
         });
     });
 
+
+
+    it("POST (tenant) /api/login", done => {
+        const url = `${tenantUrl}/api/login`;
+
+        request({
+            url,
+            method: "POST",
+            json: {
+                email: TEST_DATA.EMAIL,
+                password: "test",
+            }
+        }, (error, response, body) => {
+            expect(response.statusCode).toBe(200);
+            expect(body.token).toBeDefined();
+
+            adminUserAuthToken = body.token;
+        
+            done();
+        });
+    });
+
     it("POST (tenant) /api/login", done => {
         const url = `${tenantUrl}/api/login`;
 
@@ -324,6 +346,71 @@ describe("Starts a new marketplace", () => {
 
             demandUserAuthToken = body.token;                            
         
+            done();
+        });
+    });
+
+
+    it("POST (tenant) /api/admin/user - get users for admin", done => {
+        const url = `${tenantUrl}/api/admin/user`;
+
+        request({
+            url,
+            method: "GET",
+            headers: {
+                "x-auth-token": adminUserAuthToken
+            },
+        }, (error, response, body) => {
+            expect(response.statusCode).toBe(200);
+            
+            const parsedBody = JSON.parse(body);
+
+            expect(parsedBody.length).toBe(3);
+
+            done();
+        });
+    });
+
+    /**
+     * We put 1 offset, so there should be 2 users returned as we only have 3
+     */
+    it("POST (tenant) /api/admin/user - get users for admin", done => {
+        const url = `${tenantUrl}/api/admin/user?offset=1`;
+
+        request({
+            url,
+            method: "GET",
+            headers: {
+                "x-auth-token": adminUserAuthToken
+            },
+        }, (error, response, body) => {
+            expect(response.statusCode).toBe(200);
+            
+            const parsedBody = JSON.parse(body);
+
+            expect(parsedBody.length).toBe(2);
+
+            done();
+        });
+    });
+
+
+    it("POST (tenant) /api/admin/user - get users for admin", done => {
+        const url = `${tenantUrl}/api/admin/user?limit=1`;
+
+        request({
+            url,
+            method: "GET",
+            headers: {
+                "x-auth-token": adminUserAuthToken
+            },
+        }, (error, response, body) => {
+            expect(response.statusCode).toBe(200);
+            
+            const parsedBody = JSON.parse(body);
+
+            expect(parsedBody.length).toBe(1);
+
             done();
         });
     });

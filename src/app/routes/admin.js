@@ -79,6 +79,8 @@ module.exports = app => {
 		.findAll({
 			paranoid: false,
 			order: [[ "createdAt", "DESC" ]],
+			limit: Number(req.query.limit) || 20,
+			offset: Number(req.query.offset) || 0,
 			include: [
 				{ model: req.models.userProperty },
 				{ model: req.models.userPreference },

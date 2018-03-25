@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
       type: { type: DataTypes.STRING, required: true },
       body: { type: DataTypes.TEXT },
       // 180221, added for emails
-      targetUserType: { type: DataTypes.INTEGER },
+      targetUserType: { type: DataTypes.INTEGER, defaultValue: 0 },
       eventTrigger: {
         type: DataTypes.ENUM(
             EVENT_TRIGGERS.NEW_ORDER,
