@@ -74,16 +74,26 @@ module.exports = app => {
    * Deactivates user account
    */
   app.delete("/api/user/:userId", isLoggedIn, (req, res) => {
-      req.models.user.destroy({
-            where: {
-                id: req.user.id
-            }
+      req
+      .models
+      .user
+      .update({
+        status: "15"
+      }, {
+        where: {
+          id: req.user.id
+        }
       })
       .then(
-        () => {
-          return sendResponse(res, null, {});
-        }, 
-        err => sendResponse(res, err)
+        () => req.models.user.destroy({
+          where: {
+              id: req.user.id
+          }
+        })
+      ).then(() => {
+        return sendResponse(res, null, {});
+      }, 
+      err => sendResponse(res, err)
       );
   });
 };

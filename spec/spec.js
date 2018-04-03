@@ -552,6 +552,24 @@ describe("Starts a new marketplace", () => {
         });
     });
 
+
+
+    it("DELETE (tenant) /api/user/:userId", done => {
+        const url = `${tenantUrl}/api/user/3`;
+  
+        request({
+            url,
+            method: "DELETE",
+            headers: {
+                "x-auth-token": demandUserAuthToken
+            },
+        }, (error, response) => {
+            expect(response.statusCode).toBe(200);
+            
+            done();
+        });
+    });
+
     /**
      * this fails now, because it is possible to send requests for own listings! It should not be!
     it("POST (tenant) /api/request - send request for my own listings", done => {
