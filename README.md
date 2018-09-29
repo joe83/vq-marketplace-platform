@@ -14,13 +14,6 @@ You can use the web services with the official VQ Marketplace Storefront:
 ## Sharing economy marketplace model
 * [Sharing economy marketplace model](https://medium.com/@adrianbarwicki/sharing-economy-marketplace-model-c6732f3e0644)
 
-## Marketplace templates
-You can view the live demos here:
-* [Product Marketplace - Copy of Tindie](https://b2btemplate.vqmarketplace.com)
-* [Rental Marketplace - Copy of AirBnB](https://airhome.vqmarketplace.com)
-* [Product Marketplace - Copy of TaskRabbit](https://taskbee.vqmarketplace.com)
-* [Exchange Marketplace - Cryptocurrency OTC Exchange](https://bitcoinmeetup.vqmarketplace.com)
-
 ## System setup
 
 ### Ubuntu
@@ -147,6 +140,13 @@ the existing components you have by the example-configs.
 node scripts/restore-default-config.js USECASE TENANTID(optional, see note on TENANTID)
 node scripts/restore-default-labels.js USECASE LANG TENANTID(optional, see note on TENANTID)
 node scripts/restore-default-posts.js USECASE TENANTID(optional, see note on TENANTID)
+```
+
+## Create new marketplace (tenant)
+```bash
+# node ./scripts/create-marketplace.js <marketplaceType> <marketplaceName> <languageCode>
+# Example: 
+node ./scripts/create-marketplace.js services newAmazingTaskrabbit en
 ```
 
 ## Deployment
