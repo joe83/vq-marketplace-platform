@@ -1,15 +1,15 @@
 const async = require("async");
-const randomstring = require("randomstring");
 const db = require("../app/models/models");
 const utils = require("../app/utils");
 const cryptoService = require("../app/services/cryptoService");
 const subscriptionService = require("../app/services/subscriptionService");
 const emailService = require("../app/services/emailService.js");
 const emailTemplateGenerator = require("../app/services/emailTemplateGenerator.js");
-const service = require("./service");
 const hooks = require("./hooks");
 const request = require("request");
 const tenantModelsProvider = require("./tenantModelsProvider");
+
+import * as service from "./service";
 
 const initRoutes = (app, express) => {
     app.use(express.static(__dirname + "/public"));
@@ -197,50 +197,34 @@ const initRoutes = (app, express) => {
     /* Trial Form User Registration Steps */
     app.post("/api/trial-registration/step-1", (req, res) => {
         const tenant = req.body;
-
-        tenantModelsProvider.getModels((err, tenantModels) => {
+        
+        service.createNewTenant({
+            email: tenant.email,
+            source: tenant.source
+        }, (err, rTenant) => {
             if (err) {
                 return res.status(400).send(err);
             }
 
-            tenantModels
-                .tenant
-                .findOrCreate({
-                    where: {
-                        email: tenant.email
-                    },
-                    defaults: {
-                        apiKey: randomstring.generate(32),
-                        source: tenant.source
-                    }
-                })
-                .spread((rTenant, isNew) => {
-                    if (!isNew) {
-                        return res.status(400).send({
-                            httpCode: 400,
-                            code: "TENANT_EMAIL_TAKEN"
-                        });
-                    }
-                    rTenant.verificationKey = cryptoService
-                        .encodeObj(rTenant.apiKey);
+            rTenant.verificationKey = cryptoService
+                .encodeObj(rTenant.apiKey);
 
-                    var body = "<p style=\"color: #374550;\">You can copy and paste the verification code below or click the link to continue with the registration process:</p><br><br>" +
-                        "<span style=\"color: #374550;\"><b>Verification Code: </b>" + rTenant.verificationKey + "</span><br><br>" +
-                        "<span style=\"color: #374550;\"><b><a href=\"" + process.env.WEB_URL + "/get-started?verificationCode=" + encodeURIComponent(rTenant.verificationKey) + "\">Click here if you are unable to paste the code</a></b></span>";
+            var body = "<p style=\"color: #374550;\">You can copy and paste the verification code below or click the link to continue with the registration process:</p><br><br>" +
+                "<span style=\"color: #374550;\"><b>Verification Code: </b>" + rTenant.verificationKey + "</span><br><br>" +
+                "<span style=\"color: #374550;\"><b><a href=\"" + process.env.WEB_URL + "/get-started?verificationCode=" + encodeURIComponent(rTenant.verificationKey) + "\">Click here if you are unable to paste the code</a></b></span>";
 
-                    emailTemplateGenerator.generateSingleColumnEmail(
-                        "Marketplace Registration",
-                        "Welcome to VQ-Marketplace",
-                        body,
-                        function (html) {
-                            emailService.sendTemplateEmail(rTenant.email, "Welcome to VQ-Marketplace", html);
-                            // we should not send here the API KEY
-                            return res.send({
-                                tenant: rTenant
-                            });
-                        }
-                    );
-                });
+            emailTemplateGenerator.generateSingleColumnEmail(
+                "Marketplace Registration",
+                "Welcome to VQ-Marketplace",
+                body,
+                function (html) {
+                    emailService.sendTemplateEmail(rTenant.email, "Welcome to VQ-Marketplace", html);
+                    // we should not send here the API KEY
+                    return res.send({
+                        tenant: rTenant
+                    });
+                }
+            );
         });
     });
 

@@ -1,6 +1,6 @@
 const request = require("request");
 const server = require("../build/server");
-const deleteLocalDb = require("../scripts/delete-local-db");
+const deleteLocalDb = require("../build/cli/delete-local-db");
 
 const baseUrl = `http://localhost:${process.env.TENANT_PORT}`;
 const tenantUrl = `http://localhost:${process.env.PORT}`;

@@ -2,6 +2,7 @@ require('dotenv').config();
 
 const db = require('../src/app/models/models.js');
 const async = require('async');
+const tenantServices = require("../build/app-tenant/service");
 
 const USECASE = process.argv[2];
 const TENANT_ID = process.argv[3] || process.env.TENANT_ID;
@@ -24,6 +25,7 @@ db.create(TENANT_ID, USECASE, () => {
 
                     return cb(err);
                 }
+
                 console.log('Configs restored for ' + USECASE + ' marketplace for tenant ' + TENANT_ID);
 
                 cb();

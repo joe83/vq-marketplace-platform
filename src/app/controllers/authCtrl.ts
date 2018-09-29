@@ -8,7 +8,18 @@ const validateEmail = email => {
 	return re.test(email);
 };
 
-const createNewAccount = (models, data, cb) => {
+
+interface AccountData {
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    props: {
+        [propKey: string]: string;
+    }
+}
+
+const createNewAccount = (models, data: AccountData, cb) => {
     const email = data.email;
     const password = data.password;
     const userData = {};

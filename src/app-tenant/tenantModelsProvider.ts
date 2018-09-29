@@ -2,9 +2,9 @@ const tenantDb = require("./models");
 
 const rootDbName = "vq-marketplace";
 
-let models;
+let models: any;
 
-const getModels = cb => {
+export const getModels = (cb: (err: any, models: any) => void) => {
     if (models) {
         return cb(null, models);
     }

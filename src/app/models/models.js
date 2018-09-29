@@ -4,17 +4,12 @@ const path = require("path");
 const mysql = require("mysql2");
 const Sequelize = require("sequelize");
 
+require('dotenv').config();
+
 const tenantRegister = {};
 const tenantConnections = {};
 
 const getTenantIds = () => Object.keys(tenantConnections);
-
-const pool = mysql.createPool({
-  connectionLimit: 2,
-  host: process.env.VQ_DB_HOST,
-  user: process.env.VQ_DB_USER,
-  password: process.env.VQ_DB_PASSWORD
-});
 
 const createSeqConnection = (tenantId) => {
   const db = {};
@@ -70,23 +65,35 @@ const create = (tenantId, marketplaceType, cb) => {
   var isNewDatabase = false;
 
   async.waterfall([
-    cb => pool.query(
-      "CREATE DATABASE ?? CHARACTER SET utf8 COLLATE utf8_general_ci;",
-      [ tenantId ],
-      (err) => {
-        if (err) {
-          if (err.code === "ER_DB_CREATE_EXISTS") {
-            return cb();
+      cb => {
+        const connection = mysql.createConnection({
+          host: process.env.VQ_DB_HOST,
+          user: process.env.VQ_DB_USER,
+          password: process.env.VQ_DB_PASSWORD
+        });
+
+        connection.connect();
+
+        connection.query(
+          "CREATE DATABASE ?? CHARACTER SET utf8 COLLATE utf8_general_ci;",
+          [ tenantId ],
+          (err) => {
+            if (err) {
+              if (err.code === "ER_DB_CREATE_EXISTS") {
+                return cb();
+              }
+
+              return cb(err);
+            }
+
+            isNewDatabase = true;
+
+            cb();
           }
-
-          return cb(err);
-        }
-
-        isNewDatabase = true;
-
-        cb();
-      }
-    ),
+        );
+      
+        connection.end();
+    },
     cb => {
       tenantConnections[tenantId] = createSeqConnection(tenantId);
 

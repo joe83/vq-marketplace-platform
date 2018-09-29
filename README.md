@@ -143,10 +143,20 @@ node scripts/restore-default-posts.js USECASE TENANTID(optional, see note on TEN
 ```
 
 ## Create new marketplace (tenant)
+Create new tenant:
 ```bash
 # node ./scripts/create-marketplace.js <marketplaceType> <marketplaceName> <languageCode>
-# Example: 
+# Example (service marketplace):
 node ./scripts/create-marketplace.js services newAmazingTaskrabbit en
+# or (blank marketplace):
+node ./scripts/create-marketplace.js blank vqbackend en
+```
+
+Start it:
+```bash
+# TENANT_ID=<marketplaceName> npm run start
+# Example:
+TENANT_ID=newAmazingTaskrabbit npm run start
 ```
 
 ## Deployment

@@ -11,6 +11,16 @@ const userEmitter = require("../events/user");
 module.exports = app => {
 	var isLoggedIn = responseController.isLoggedIn;
 	
+	/**
+	 * @api {get} /api/signup/email Create new account with e-mail
+	 * @apiName Signup
+	 * @apiGroup User
+	 *
+	 * @apiParam {String} email Users unique email.
+	 *
+	 * @apiSuccess {String} firstname Firstname of the User.
+	 * @apiSuccess {String} lastname  Lastname of the User.
+	 */
 	app.post("/api/signup/email", (req, res) => authCtrl
 		.createNewAccount(req.models, req.body, (err, responseData) =>
 			responseController.sendResponse(res, err, responseData)
@@ -121,7 +131,6 @@ module.exports = app => {
 						}, cb);
 				});
 			}], () => {
-
 				const VERIFICATION_LINK = cryptoService
 					.buildVerificationUrl(req.models.tenantId, { id: userId });
 				
