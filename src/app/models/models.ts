@@ -2,7 +2,8 @@ const async = require("async");
 const fs = require("fs");
 const path = require("path");
 const mysql = require("mysql2");
-const Sequelize = require("sequelize");
+
+import * as Sequelize from "sequelize";
 
 require('dotenv').config();
 

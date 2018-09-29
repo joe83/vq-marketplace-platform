@@ -1,4 +1,6 @@
-module.exports = (sequelize, DataTypes) => {
+import { Sequelize, DataTypes } from "sequelize";
+
+module.exports = (sequelize: Sequelize, dataTypes: DataTypes) => {
   const USER_TYPES = {
     ANY: 0,
     DEMAND: 1,
@@ -15,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define("user", {
     status: {
       defaultValue: USER_STATUS.UNVERIFIED,
-      type: DataTypes.ENUM(
+      type: dataTypes.ENUM(
         USER_STATUS.UNVERIFIED,
         USER_STATUS.VERIFIED,
         USER_STATUS.DISABLED,
@@ -23,44 +25,45 @@ module.exports = (sequelize, DataTypes) => {
       )
     },
     accountType: {
-      type: DataTypes.STRING,
-      required: true
+      type: dataTypes.STRING,
+      allowNull: false
     },
+  
     // here it is specified if the user is buyer or seller
     userType: {
-      type: DataTypes.INTEGER,
+      type: dataTypes.INTEGER,
       defaultValue: 0,
-      required: true
     },
     firstName: {
-      type: DataTypes.STRING,
-      required: true
+      type: dataTypes.STRING,
+      allowNull: true
+    },
+    lastName: {
+      type: dataTypes.STRING,
+      allowNull: true
     },
     isAdmin: {
-      type: DataTypes.BOOLEAN,
-      required: false,
+      type: dataTypes.BOOLEAN,
       defaultValue: false
     },
     country: {
-      type: DataTypes.STRING(2),
-      required: false,
-      defaultValue: false
-    },
-    lastName: {
-      type: DataTypes.STRING,
-      required: true
+      type: dataTypes.STRING(2),
+      allowNull: true
     },
     website: {
-      type: DataTypes.STRING
+      type: dataTypes.STRING,
+      allowNull: true
     },
     bio: {
-      type: DataTypes.STRING(1024)
+      type: dataTypes.STRING(1024),
+      allowNull: true
     },
     imageUrl: {
-      type: DataTypes.STRING
+      type: dataTypes.STRING,
+      allowNull: true
     },
     avgReviewRate: {
-      type: DataTypes.FLOAT,
+      type: dataTypes.FLOAT,
       defaultValue: 3
     }
   }, {
@@ -81,7 +84,7 @@ module.exports = (sequelize, DataTypes) => {
     });
   };
 
-  User.USER_STATUS = USER_STATUS;
+  (User as any).USER_STATUS = USER_STATUS;
 
   return User;
 };

@@ -4,3 +4,12 @@ export interface VQExpressRequest extends Express.Request {
     user: any;
     body: any;
 }
+export namespace VQ {
+    export interface APIError {
+        code: string;
+        httpCode: 400 | 500;
+        desc?: string;
+    }
+
+    export type StandardCallback = (err?: VQ.APIError, result?: any) => void;
+}

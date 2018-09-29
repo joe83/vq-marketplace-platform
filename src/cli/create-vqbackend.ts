@@ -2,7 +2,7 @@ import * as tenantServices from "../app-tenant/service";
 
 require('dotenv').config();
 
-const TENANT_ID = "vq-backend";
+const TENANT_ID = "vqbackend";
 
 export const createMarketplace = (tenantId: string, cb: (err: any) => void) => {
     tenantServices.createNewTenant({

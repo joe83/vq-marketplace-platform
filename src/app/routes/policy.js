@@ -17,9 +17,16 @@ module.exports = app => {
 	 * @apiGroup User
 	 *
 	 * @apiParam {String} email Users unique email.
+	 * @apiParam {String} password User password
+	 * @apiParam {String} repeatPassword Repeated user password for verification
+	 * @apiParam {String} firstName First name of the User.
+	 * @apiParam {String} firstName Last name of the User.
+	 * @apiParam {String="0", "1", "2"} userType User type (any, customer, supplier).
+	 * @apiParam {Object} props User properties, fully extensible, [key: string]: string
 	 *
-	 * @apiSuccess {String} firstname Firstname of the User.
-	 * @apiSuccess {String} lastname  Lastname of the User.
+	 * @apiSuccess {number} id Account ID (is not the same as the ID of the user!)
+	 * @apiSuccess {String} token Authentification token can be saved for next requests
+	 * @apiSuccess {User} user User object
 	 */
 	app.post("/api/signup/email", (req, res) => authCtrl
 		.createNewAccount(req.models, req.body, (err, responseData) =>

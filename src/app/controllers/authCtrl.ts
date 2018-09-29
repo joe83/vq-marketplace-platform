@@ -2,28 +2,31 @@ const async = require("async");
 const vqAuth = require("../auth");
 const userEmitter = require("../events/user");
 
-const validateEmail = email => { 
+import { VQ } from "../../core/interfaces";
+
+const validateEmail = (email: string): boolean => { 
     const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     
 	return re.test(email);
 };
-
 
 interface AccountData {
     email: string;
     password: string;
     firstName: string;
     lastName: string;
+    userType: 0 | 1 | 2,
     props: {
         [propKey: string]: string;
     }
 }
 
-const createNewAccount = (models, data: AccountData, cb) => {
+const createNewAccount = (models: any, data: AccountData, cb: VQ.StandardCallback) => {
     const email = data.email;
     const password = data.password;
-    const userData = {};
-    
+
+    data.props = data.props || {};
+
     if (!validateEmail(email)) {
         return cb({
             httpCode: 400,
@@ -32,26 +35,14 @@ const createNewAccount = (models, data: AccountData, cb) => {
         });
     }
 
-    const propertiesToBeExcluded = [
-        "email",
-        "password",
-        "repeatPassword"
-    ];
-
-    Object.keys(data)
-        .filter(prop => propertiesToBeExcluded.indexOf(prop) === -1)
-        .forEach(prop => {
-            userData[prop] = data[prop];
-        });
-    
-    var vqUserId, vqAuthUser, user;
+    var vqUserId: number, vqAuthUser: object, user: object;
     var shouldBeAdmin = false;
 
     async
         .waterfall([
-            cb => {
+            (cb: VQ.StandardCallback) => {
                 return vqAuth
-                    .localSignup(models, email, password, (err, rUser) => {
+                    .localSignup(models, email, password, (err: VQ.APIError, rUser: object) => {
                         if (err) {
                             return cb(err);
                         }
@@ -62,14 +53,14 @@ const createNewAccount = (models, data: AccountData, cb) => {
                         return cb();
                     });
             },
-            cb => models.user
-            .count({})
-            .then(count => {
-                shouldBeAdmin = !count;
-                
-                return cb();
-            }, cb),
-            cb => {
+            (cb: VQ.StandardCallback) => models.user
+                .count({})
+                .then((count: number) => {
+                    shouldBeAdmin = !count;
+                    
+                    return cb();
+                }, cb),
+            (cb: VQ.StandardCallback) => {
                 models
                 .user
                 .create({
@@ -77,33 +68,47 @@ const createNewAccount = (models, data: AccountData, cb) => {
                     vqUserId,
                     status: shouldBeAdmin ? models.user.USER_STATUS.VERIFIED : models.user.USER_STATUS.UNVERIFIED,
                     isAdmin: shouldBeAdmin,
-                    firstName: userData.firstName,
-                    lastName: userData.lastName,
-                    userType: userData.userType || 0
+                    firstName: data.firstName,
+                    lastName: data.lastName,
+                    userType: data.userType || 0
                 })
-                .then(rUser => {
+                .then((rUser: any) => {
                     user = rUser;
 
-                    console.log("Admin user created.");
+                    if (shouldBeAdmin) {
+                        console.log(`Admin user created for ${data.email}`);
+                    }
 
                     return cb();
                 }, cb);
             },
-            cb => async
-            .eachSeries(
-            Object.keys(userData),
-            (propKey, cb) =>
-                models.userProperty
-                .create({
-                    propKey,
-                    propValue: userData[propKey],
-                    userId: user.id
+            (cb: VQ.StandardCallback) => async
+                .eachSeries(
+                Object.keys(data.props),
+                (propKey: string, cb: VQ.StandardCallback) =>
+                    models.userProperty
+                    .create({
+                        propKey,
+                        propValue: data.props[propKey],
+                        userId: user.id
+                    })
+                    .then(() => cb(), cb),
+            cb),
+            (cb: VQ.StandardCallback) => {
+                models
+                .user
+                .findById(user.id, {
+                    include: [{ all: true }]
                 })
-                .then(rUser => cb(), cb),
-            cb)
-        ], err => {
+                .then((rUser: any) => {
+                    user = rUser;
+
+                    return cb();
+                }, cb);
+            }
+        ], (err: VQ.APIError) => {
             if (err) {
-                console.log("Error creating first user");
+                console.log("Error creating user");
 
                 return cb(err);
             }

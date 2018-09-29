@@ -30,7 +30,7 @@ describe("Authentification", () => {
         });
     });
 
-    it("GET (tenant) /api/signup/email", done => {
+    it("POST /api/signup/email", done => {
         request({
             url: `${tenantUrl}/api/signup/email`,
             method: "POST",
@@ -39,11 +39,13 @@ describe("Authentification", () => {
                 password: "test",
                 firstName: "userSupplyFirstName",
                 lastName: "userSupplyLstName",
-                userType: 2 // supply
-
+                userType: 2, // supply
+                props: {
+                    propOne: "one",
+                    propTwo: "two"
+                }
             }
         }, (error, response, body) => {
-            
             expect(response.statusCode).toBe(200);
 
             if (response.statusCode !== 200) {
@@ -57,6 +59,8 @@ describe("Authentification", () => {
             expect(body.user.userType).toBe(2);
             expect(body.user.firstName).toBe("userSupplyFirstName");
             expect(body.user.isAdmin).toBe(false);
+            expect(body.user.userProperties).toBeDefined();
+            expect(body.user.userProperties.find(_ => _.propKey === "propOne").propValue).toBe("one");
 
             supplyUserId = body.user.id;
 
@@ -81,7 +85,7 @@ describe("Authentification", () => {
 
             expect(body.token).toBeDefined();
             expect(body.userId).toBeDefined();
-
+            
             expect(body.user).toBeDefined();
             expect(body.user.firstName).toBe("userDemandFirstName");
             expect(body.user.userType).toBe(1);
