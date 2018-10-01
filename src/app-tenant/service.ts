@@ -2,10 +2,11 @@ const async = require("async");
 const tenantDb = require("./models");
 const db = require("../app/models/models");
 const workers = require("../app/workers");
-const authCtrl = require("../app/controllers/authCtrl");
 
 import * as randomstring from "randomstring";
+import * as authCtrl from "../app/controllers/authCtrl";
 import * as tenantModelsProvider from "./tenantModelsProvider";
+import { VQ } from "../core/interfaces";
 
 interface Tenant {
   email: string;
@@ -70,7 +71,7 @@ export const deployNewMarketplace = (tenantId: string, apiKey: string, password:
         });
 
         async.waterfall([
-            cb => {
+          (cb: VQ.StandardCallback) => {
               tenantModels
                 .tenant
                 .findOne({
@@ -94,7 +95,7 @@ export const deployNewMarketplace = (tenantId: string, apiKey: string, password:
                   return cb();
                 }, cb);
             },
-            cb => {
+          (cb: VQ.StandardCallback) => {
               db.create(tenantId, marketplaceType, err => {
                 if (err) {
                   return cb(err);
@@ -109,7 +110,7 @@ export const deployNewMarketplace = (tenantId: string, apiKey: string, password:
                   .then(() => cb(), cb);
               });
             },
-            cb => {
+            (cb: VQ.StandardCallback) => {
               marketplaceModels = db.get(tenantId);
 
               marketplaceModels
@@ -131,7 +132,7 @@ export const deployNewMarketplace = (tenantId: string, apiKey: string, password:
                     cb();
                   });
             },
-            cb => {
+            (cb: VQ.StandardCallback) => {
               marketplaceModels = db.get(tenantId);
 
               marketplaceModels
@@ -146,22 +147,19 @@ export const deployNewMarketplace = (tenantId: string, apiKey: string, password:
                     cb();
                   });
             },
-            cb => {
-              const userData = {
+            (cb: VQ.StandardCallback) => {
+              const userData: VQ.AccountData = {
                 email: tenantRef.email,
                 firstName: tenantRef.firstName,
                 lastName: tenantRef.lastName,
                 userType: 0,
-                isAdmin: true,
-                accountType: "PRIVATE",
                 password: password,
-                repeatPassword: repeatPassword,
+                props: {}
               };
 
-              authCtrl
-                .createNewAccount(marketplaceModels, userData, (err: any) => cb(err));
+              authCtrl.createNewAccount(marketplaceModels, userData, (err: any) => cb(err));
             },
-            cb => {
+            (cb: VQ.StandardCallback) => {
               tenantRef
                 .update({
                   status: 3

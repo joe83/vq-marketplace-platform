@@ -1,17 +1,20 @@
 const async = require("async");
 const randomToken = require("random-token");
 const AuthService = require("./services/AuthService");
-const SignupCtrl = require("./controllers/SignupCtrl");
-const AuthCtrl = require("./controllers/AuthCtrl");
+
 const LoginCtrl = require("./controllers/LoginCtrl");
 
-const localSignup = (models, email, password, cb) => {
+
+import * as SignupCtrl from "./controllers/SignupCtrl";
+import * as AuthCtrl from "./controllers/authCtrl";
+
+export const localSignup = (models, email: string, password: string, cb) => {
     SignupCtrl.createLocalAccount(models, email, password, (err, authUser) => {
         return cb(err, authUser);
     });
 };
 
-const requestPasswordReset = (models, email, cb) => {
+export const requestPasswordReset = (models, email, cb) => {
     var userEmail, userId;
 
     async.waterfall([
@@ -47,7 +50,7 @@ const requestPasswordReset = (models, email, cb) => {
     ], (err, resetCode) => cb(err, resetCode));
 };
 
-const resetPassword = (models, resetCode, newPassword, cb) => {
+export const resetPassword = (models, resetCode, newPassword, cb) => {
     const code = resetCode;
     let userId;
 
@@ -101,34 +104,34 @@ const resetPassword = (models, resetCode, newPassword, cb) => {
     });
 };
 
-const getEmailsFromUserId = (models, userId, cb) => {
+export const getEmailsFromUserId = (models, userId, cb) => {
     return AuthService
         .getEmailsFromUserId(models, userId, (err, vqUser) => {
             return cb(err, vqUser);	
         });
 };
 
-const getAuthUserIdFromEmail = (models, email, cb) => {
+export const getAuthUserIdFromEmail = (models, email, cb) => {
     return AuthService
         .getUserIdFromEmail(models, email, (err, vqUser) => {
             return cb(err, vqUser);	
         });
 };
 
-const localLogin = (models, email, password, cb) => {
+export const localLogin = (models, email, password, cb) => {
     LoginCtrl
     .loginWithPassword(models, email, password, (err, rUser) => {
         return cb(err, rUser);
     });
 };
 
-const checkToken = (models, authToken, cb) => {
+export const checkToken = (models, authToken, cb) => {
     AuthCtrl.checkToken(models, authToken, (err, rAuthUser) => {
         return cb(err, rAuthUser);
     });
 };
 
-const changePassword = (models, userId, currentPassword, newPassword, cb) => {
+export const changePassword = (models, userId, currentPassword, newPassword, cb) => {
     AuthService
     .checkPassword(models, userId, currentPassword, (err, isCorrect) => {
         if (err) {
@@ -146,15 +149,4 @@ const changePassword = (models, userId, currentPassword, newPassword, cb) => {
             code: "WRONG_PASSWORD"
         });
     });
-};
-
-module.exports = {
-    checkToken,
-    localLogin,
-    changePassword,
-    getAuthUserIdFromEmail,
-    getEmailsFromUserId,
-    localSignup,
-    requestPasswordReset,
-    resetPassword
 };

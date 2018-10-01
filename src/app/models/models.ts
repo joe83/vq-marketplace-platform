@@ -12,39 +12,39 @@ const tenantConnections = {};
 
 const getTenantIds = () => Object.keys(tenantConnections);
 
-const createSeqConnection = (tenantId) => {
-  const db = {};
-      const sequelize = new Sequelize(tenantId, process.env.VQ_DB_USER, process.env.VQ_DB_PASSWORD, {
-        host: process.env.VQ_DB_HOST,
-        logging: false,
-        dialect: "mysql",
-        pool: {
-          max: 1,
-          min: 0,
-          idle: 10000
-        }
+const createSeqConnection = (tenantId: string) => {
+  const db: any = {};
+  const sequelize = new Sequelize(tenantId, process.env.VQ_DB_USER, process.env.VQ_DB_PASSWORD, {
+    host: process.env.VQ_DB_HOST,
+    logging: false,
+    dialect: "mysql",
+    pool: {
+      max: 1,
+      min: 0,
+      idle: 10000
+    }
+  });
+
+  fs.readdirSync(__dirname)
+      .filter((file: string) => {
+          return (file.indexOf(".") !== 0) && (file !== "models.js");
+      })
+      .forEach((file: string) => {
+          var model = sequelize.import(path.join(__dirname, file));
+          db[model.name] = model;
       });
+  
+  Object.keys(db).forEach(modelName => {
+    if ("associate" in db[modelName]) {
+      db[modelName].associate(db);
+    }
+  });
 
-      fs.readdirSync(__dirname)
-          .filter(file => {
-              return (file.indexOf(".") !== 0) && (file !== "models.js");
-          })
-          .forEach(file => {
-              var model = sequelize.import(path.join(__dirname, file));
-              db[model.name] = model;
-          });
-      
-      Object.keys(db).forEach(modelName => {
-        if ("associate" in db[modelName]) {
-          db[modelName].associate(db);
-        }
-      });
+  db.tenantId = tenantId;
+  db.seq = sequelize;
+  db.Sequelize = Sequelize;
 
-      db.tenantId = tenantId;
-      db.seq = sequelize;
-      db.Sequelize = Sequelize;
-
-      return db;
+  return db;
 };
 
 const refreshTenantRegister = tenantId => {

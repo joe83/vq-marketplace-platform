@@ -3,10 +3,11 @@ const cust = require("../config/customizing.js");
 const emailService = require("../services/emailService.js");
 const cryptoService = require("../services/cryptoService");
 const responseController = require("../controllers/responseController.js");
-const authCtrl = require("../controllers/authCtrl.js");
 const sendResponse = responseController.sendResponse;
 const vqAuth = require("../auth");
 const userEmitter = require("../events/user");
+
+import * as authCtrl from "../controllers/authCtrl";
 
 module.exports = app => {
 	var isLoggedIn = responseController.isLoggedIn;
@@ -28,8 +29,7 @@ module.exports = app => {
 	 * @apiSuccess {String} token Authentification token can be saved for next requests
 	 * @apiSuccess {User} user User object
 	 */
-	app.post("/api/signup/email", (req, res) => authCtrl
-		.createNewAccount(req.models, req.body, (err, responseData) =>
+	app.post("/api/signup/email", (req, res) => authCtrl.createNewAccount(req.models, req.body, (err, responseData) =>
 			responseController.sendResponse(res, err, responseData)
 		));
 

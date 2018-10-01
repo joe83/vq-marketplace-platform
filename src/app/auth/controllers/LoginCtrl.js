@@ -13,7 +13,7 @@ const loginWithPassword = (models, email, password, callback) => {
 	if (password) {
 		User.password = AuthService.generateHashSync(password);
 	}
-	
+
   async.waterfall([
     callback => {
         AuthService.getUserIdFromEmail(models, email, (err, rUser) => {
