@@ -180,11 +180,4 @@ taskEmitter
 taskEmitter
     .on("cancelled", handlerFactory("listing-cancelled"));
 
-if (module.parent) {
-    module.exports = taskEmitter;
-} else {
-    //console.log(process.argv[2]);
-    //console.log(process.argv[3]);
-    
-    taskEmitter.emit(process.argv[2], process.argv[3]);
-}
+module.exports = taskEmitter;

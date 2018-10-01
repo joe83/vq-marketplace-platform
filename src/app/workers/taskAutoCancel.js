@@ -1,5 +1,5 @@
 const async = require("async");
-const db = require("../models/models.js");
+const db = require("../models/models");
 const taskEmitter = require("../events/task");
 const requestCtrl = require("../controllers/requestCtrl");
 
@@ -75,15 +75,7 @@ const taskAutoCancel = (tenantId) => {
         if (err) {
             return console.error(err);
         }
-
-        if (!module.parent) {
-            return process.exit();
-        }
     });
 };
 
-if (module.parent) {
-    module.exports = taskAutoCancel;
-} else {
-    taskAutoCancel();
-}
+module.exports = taskAutoCancel;

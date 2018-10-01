@@ -1,7 +1,7 @@
 const async = require("async");
 const tenantDb = require("./models");
 const db = require("../app/models/models");
-const workers = require("../app/workers");
+// const workers = require("../app/workers");
 
 import * as randomstring from "randomstring";
 import * as authCtrl from "../app/controllers/authCtrl";
@@ -101,7 +101,8 @@ export const deployNewMarketplace = (tenantId: string, apiKey: string, password:
                   return cb(err);
                 }
 
-                workers.registerWorkers(tenantId);
+                // disabled
+                // workers.registerWorkers(tenantId);
 
                 tenantRef
                   .update({

@@ -1,5 +1,5 @@
 const async = require("async");
-const db = require("../models/models.js");
+const db = require("../models/models");
 const orderCtrl = require("../controllers/orderCtrl");
 const utils = require("../utils");
 
@@ -60,10 +60,6 @@ const taskAutoSettlement = (tenantId) => {
 
     if (err) {
       return console.error(err);
-    }
-
-    if (!module.parent) {
-      return process.exit();
     }
   });
 };

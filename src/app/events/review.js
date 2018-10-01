@@ -144,11 +144,4 @@ reviewEmitter
 		reviewEventHandlerFactory("review-left", (domain, userId) => `${domain}/app/profile/${userId}`)
 	);
 
-if (module.parent) {
-	module.exports = reviewEmitter;
-} else {
-	//console.log(process.argv[2]);
-	//console.log(process.argv[3]);
-	
-	reviewEmitter.emit(process.argv[2], process.argv[3]);
-}
+module.exports = reviewEmitter;

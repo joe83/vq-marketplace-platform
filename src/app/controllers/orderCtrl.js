@@ -195,17 +195,7 @@ const settleOrder = (models, orderId, userId, cb) => {
     });
 };
 
-if (module.parent) {
-    module.exports = {
-        settleOrder,
-        tryGetPaymentConfigs
-    };
-} else {
-    settleOrder(process.argv[2], process.argv[3], err => {
-        if (err) {
-            return console.error(err);
-        }
-        
-        console.log("SUCCESS");
-    });
-}
+module.exports = {
+    settleOrder,
+    tryGetPaymentConfigs
+};

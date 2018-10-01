@@ -3,7 +3,7 @@ require('dotenv').config();
 const async = require("async");
 const db = require("./app/models/models");
 const tenantService = require("./app-tenant");
-const workers = require("./app/workers");
+// const workers = require("./app/workers");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const morgan = require("morgan");
@@ -102,7 +102,7 @@ const initTenants = cb => {
     
                     db.refreshTenantRegister(tenant.tenantId);
       
-                    workers.registerWorkers(tenant.tenantId);
+                    // workers.registerWorkers(tenant.tenantId);
     
                     cb();
                         /**
