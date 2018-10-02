@@ -12,7 +12,7 @@ const cryptoService = require("../built/app/services/cryptoService");
 const TEST_DATA = {
     FIRST_NAME: "firstNameTest",
     LAST_NAME: "lastNameTest",
-    EMAIL: "info@vq-labs.com",
+    EMAIL: "infotest@vq-labs.com",
     COUNTRY: "de",
     MARKETPLACE_TYPE: "rentals"
 };

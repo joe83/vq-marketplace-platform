@@ -13,7 +13,7 @@ const TEST_DATA = {
     MARKETPLACE_TYPE: "blank"
 };
 
-const TENANT_ID = "mytestmarketplace";
+const TENANT_ID = "test-signup";
 
 let demandUserAuthToken;
 
@@ -218,6 +218,25 @@ describe("Authentification", () => {
         }, (error, response, body) => {
             expect(response.statusCode).toBe(200);
             expect(body.userProperties.find(_ => _.propKey === "testProp").propValue).toBe("testPropValue");
+
+            done();
+        });
+    });
+
+
+
+
+    it("DELETE (tenant) /api/user/:userId", done => {
+        const url = `${tenantUrl}/api/user/` + demandUserId;
+  
+        request({
+            url,
+            method: "DELETE",
+            headers: {
+                "x-auth-token": demandUserAuthToken
+            },
+        }, (error, response) => {
+            expect(response.statusCode).toBe(200);
 
             done();
         });
