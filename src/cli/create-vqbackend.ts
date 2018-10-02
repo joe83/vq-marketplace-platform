@@ -9,7 +9,7 @@ export const createMarketplace = (tenantId: string, cb: (err: any) => void) => {
         status: 3,
         tenantId,
         emailVerified: true,
-        email: "info@vq-labs.com",
+        email: "info+vqbackend@vq-labs.com",
         source: "native"
     }, (err, tenant) => {
         if (err) {

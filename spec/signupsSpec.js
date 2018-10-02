@@ -15,7 +15,7 @@ const TEST_DATA = {
 
 const TENANT_ID = "test-signup";
 
-let demandUserAuthToken;
+let demandUserAuthToken, supplyUserAuthToken;
 
 describe("Authentification", () => {
     let supplyUserId, demandUserId;
@@ -222,9 +222,6 @@ describe("Authentification", () => {
             done();
         });
     });
-
-
-
 
     it("DELETE (tenant) /api/user/:userId", done => {
         const url = `${tenantUrl}/api/user/` + demandUserId;

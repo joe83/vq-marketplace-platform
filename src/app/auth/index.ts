@@ -4,9 +4,8 @@ const AuthService = require("./services/AuthService");
 
 const LoginCtrl = require("./controllers/LoginCtrl");
 
-
 import * as SignupCtrl from "./controllers/SignupCtrl";
-import * as AuthCtrl from "./controllers/authCtrl";
+import * as AuthCtrl from "./controllers/AuthCtrl";
 
 export const localSignup = (models, email: string, password: string, cb) => {
     SignupCtrl.createLocalAccount(models, email, password, (err, authUser) => {
