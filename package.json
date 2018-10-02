@@ -8,6 +8,7 @@
     "url": "git+https://github.com/vq-labs/vq-marketplace-api"
   },
   "scripts": {
+    "start:forever": "./node_modules/forever/bin/forever start build/app.js",
     "start": "node build/app.js",
     "create:vqbackend": "node ./build/cli/create-vqbackend.js blank vqbackend en",
     "start:vqbackend": "TENANT_ID=vqbackend npm run start",
@@ -86,6 +87,7 @@
     "babel-preset-env": "^1.7.0",
     "bson": "^1.0.4",
     "eslint": "^4.9.0",
+    "forever": "^0.15.3",
     "gulp": "^3.9.1",
     "gulp-apidoc": "^0.2.8",
     "gulp-typescript": "^3.2.3",
