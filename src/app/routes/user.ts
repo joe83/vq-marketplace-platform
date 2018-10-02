@@ -1,19 +1,19 @@
 const responseController = require("../controllers/responseController.js");
 
 import * as async from "async";
-import { Request, Response } from "express";
+import { Application } from "express";
 import { VQ } from "../../core/interfaces";
 import * as userCtrl from "../controllers/userCtrl";
 
 const isLoggedIn = responseController.isLoggedIn;
 const sendResponse = responseController.sendResponse;
 
-module.exports = app => {
+module.exports = (app: Application) => {
   app.get("/api/me", isLoggedIn, (req, res) => {
       return sendResponse(res, null, req.user);
   });
 
-  app.get("/api/user/:userId", (req: VQ.Request, res: Response) => {
+  app.get("/api/user/:userId", (req, res) => {
     req.models.user.findOne({
       where:
         { 
@@ -54,7 +54,7 @@ module.exports = app => {
      *
      * @apiSuccess {id} id user ID (is not the same as the account ID of the user)
      */
-  app.put("/api/user/:userId", isLoggedIn, (req: VQ.Request, res: Response) => {
+  app.put("/api/user/:userId", isLoggedIn, (req, res) => {
     const mutableFields = [
       "firstName",
       "lastName",
@@ -137,7 +137,7 @@ module.exports = app => {
   /**
    * Deactivates user account
    */
-  app.delete("/api/user/:userId", isLoggedIn, (req: VQ.Request, res: Response) => {
+  app.delete("/api/user/:userId", isLoggedIn, (req, res) => {
       req
       .models
       .user
