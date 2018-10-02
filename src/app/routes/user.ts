@@ -104,7 +104,13 @@ module.exports = (app: Application) => {
        * Update properties.
        */
       (cb: VQ.StandardCallback) => {
-        async.eachLimit(Object.keys(req.body.props), 5, (propKey: string, cb: VQ.StandardCallback) => {
+        const propKeys = Object.keys(props);
+
+        if (!propKeys.length) {
+          return cb();
+        }
+
+        async.eachLimit(propKeys, 5, (propKey: string, cb: VQ.StandardCallback) => {
           userCtrl.updateProperty(
             req.models,
             req.user.id,

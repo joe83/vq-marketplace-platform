@@ -223,6 +223,23 @@ describe("Authentification", () => {
         });
     });
 
+    it("PUT (tenant) /api/user/:userId without props", done => {
+        const url = `${tenantUrl}/api/user/` + demandUserId;
+
+        request({
+            url,
+            method: "PUT",
+            json: {},
+            headers: {
+                "x-auth-token": demandUserAuthToken
+            },
+        }, (error, response, body) => {
+            expect(response.statusCode).toBe(200);
+
+            done();
+        });
+    });
+
     it("DELETE (tenant) /api/user/:userId", done => {
         const url = `${tenantUrl}/api/user/` + demandUserId;
   
