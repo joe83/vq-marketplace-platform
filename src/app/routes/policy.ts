@@ -13,8 +13,7 @@ module.exports = app => {
 	var isLoggedIn = responseController.isLoggedIn;
 	
 	/**
-	 * @api {get} /api/signup/email Create new account with e-mail
-	 * @apiName Signup
+	 * @api {get} /api/signup/email Creates new account with e-mail
 	 * @apiGroup User
 	 *
 	 * @apiParam {String} email Users unique email.

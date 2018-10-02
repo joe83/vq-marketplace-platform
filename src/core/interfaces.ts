@@ -1,9 +1,4 @@
-export interface VQExpressRequest extends Express.Request {
-    models: any;
-    params: any;
-    user: any;
-    body: any;
-}
+
 export namespace VQ {
     export interface APIError {
         code: string;
@@ -22,5 +17,10 @@ export namespace VQ {
         props: {
             [propKey: string]: string;
         }
+    }
+    export interface Request extends Express.Request {
+        body: any;
+        models: any;
+        user: any;
     }
 }

@@ -15,6 +15,8 @@ const TEST_DATA = {
 
 const TENANT_ID = "mytestmarketplace";
 
+let demandUserAuthToken;
+
 describe("Authentification", () => {
     let supplyUserId, demandUserId;
 
@@ -193,6 +195,30 @@ describe("Authentification", () => {
 
             demandUserAuthToken = body.token;                            
         
+            done();
+        });
+    });
+
+    it("PUT (tenant) /api/user/:userId", done => {
+        const url = `${tenantUrl}/api/user/` + demandUserId;
+
+        request({
+            url,
+            method: "PUT",
+            json: {
+                props: {
+                    "testProp": "testPropValue",
+                    "testProp2": "testPropValue2",
+                    "testProp3": undefined
+                }
+            },
+            headers: {
+                "x-auth-token": demandUserAuthToken
+            },
+        }, (error, response, body) => {
+            expect(response.statusCode).toBe(200);
+            expect(body.userProperties.find(_ => _.propKey === "testProp").propValue).toBe("testPropValue");
+
             done();
         });
     });
