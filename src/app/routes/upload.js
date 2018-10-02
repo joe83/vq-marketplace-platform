@@ -1,9 +1,14 @@
 const multer = require("multer");
 const async = require("async");
-const UploadService = require("../services/UploadService");
+
+// const UploadService = require("../services/UploadService");
 const responseController = require("../controllers/responseController");
 const isLoggedIn = responseController.isLoggedIn;
-const uploader = UploadService(process.env.AWS_S3_BUCKET);
+
+// const uploader = UploadService(process.env.AWS_S3_BUCKET);
+
+// @todo
+const uploader = {};
 
 module.exports = app => {
     app.post("/api/upload/image",
