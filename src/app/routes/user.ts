@@ -8,7 +8,7 @@ import * as userCtrl from "../controllers/userCtrl";
 const isLoggedIn = responseController.isLoggedIn;
 const sendResponse = responseController.sendResponse;
 
-module.exports = (app: Application) => {
+export default (app: Application) => {
   app.get("/api/me", isLoggedIn, (req, res) => {
       return sendResponse(res, null, req.user);
   });
@@ -55,91 +55,91 @@ module.exports = (app: Application) => {
      * @apiSuccess {id} id user ID (is not the same as the account ID of the user)
      */
   app.put("/api/user/:userId", isLoggedIn, (req, res) => {
-    const mutableFields = [
-      "firstName",
-      "lastName",
-      "bio",
-      "website",
-      "imageUrl"
-    ];
+      const mutableFields = [
+        "firstName",
+        "lastName",
+        "bio",
+        "website",
+        "imageUrl"
+      ];
 
-    const props = req.body.props || {};
-    const updateObj: { [key: string]: string } = {};
+      const props = req.body.props || {};
+      const updateObj: { [key: string]: string } = {};
 
-    try {
-      Object
-      .keys(req.body)
-      .filter(_ => mutableFields.indexOf(_) !== -1)
-      .forEach(fieldKey => {
-        updateObj[fieldKey] = req.body[fieldKey];
-      });
-    } catch(err) {
-      return sendResponse(res, err);
-    }
-
-    let data: any;
-
-    async.parallel([
-      /**
-       * Update main attributes.
-       */
-      (cb: VQ.StandardCallback) => {
-        req.models
-        .user
-        .update(updateObj, {
-            where: {
-                id: req.user.id
-            }
-        })
-        .then(
-          (_data: any) => {
-            data = _data;
-
-            return cb();
-          }, 
-          cb
-        );
-      },
-      /**
-       * Update properties.
-       */
-      (cb: VQ.StandardCallback) => {
-        const propKeys = Object.keys(props);
-
-        if (!propKeys.length) {
-          return cb();
-        }
-
-        async.eachLimit(propKeys, 5, (propKey: string, cb: VQ.StandardCallback) => {
-          userCtrl.updateProperty(
-            req.models,
-            req.user.id,
-            propKey,
-            props[propKey],
-            (err) => cb(err)
-          );
-        }, cb);
-      }
-    ], (err: any) => {
-      if (err) {
+      try {
+        Object
+        .keys(req.body)
+        .filter(_ => mutableFields.indexOf(_) !== -1)
+        .forEach(fieldKey => {
+          updateObj[fieldKey] = req.body[fieldKey];
+        });
+      } catch(err) {
         return sendResponse(res, err);
       }
 
-      return req.models.user.findOne({
-        where:
-          { 
-            id: req.user.id
-          },
-          include: [
-            { model: req.models.userProperty },
-            { model: req.models.userPreference }
-          ]
-      })
-      .then(
-        (user: any) => sendResponse(res, err, user)
-      );
-  });
+      let data: any;
 
+      async.parallel([
+        /**
+         * Update main attributes.
+         */
+        (cb: VQ.StandardCallback) => {
+          req.models
+          .user
+          .update(updateObj, {
+              where: {
+                  id: req.user.id
+              }
+          })
+          .then(
+            (_data: any) => {
+              data = _data;
+
+              return cb();
+            }, 
+            cb
+          );
+        },
+        /**
+         * Update properties.
+         */
+        (cb: VQ.StandardCallback) => {
+          const propKeys = Object.keys(props);
+
+          if (!propKeys.length) {
+            return cb();
+          }
+
+          async.eachLimit(propKeys, 5, (propKey: string, cb: VQ.StandardCallback) => {
+            userCtrl.updateProperty(
+              req.models,
+              req.user.id,
+              propKey,
+              props[propKey],
+              (err) => cb(err)
+            );
+          }, cb);
+        }
+      ], (err: any) => {
+        if (err) {
+          return sendResponse(res, err);
+        }
+
+        return req.models.user.findOne({
+          where:
+            { 
+              id: req.user.id
+            },
+            include: [
+              { model: req.models.userProperty },
+              { model: req.models.userPreference }
+            ]
+        })
+        .then(
+          (user: any) => sendResponse(res, err, user)
+        );
+    });
+  });
   /**
    * Deactivates user account
    */

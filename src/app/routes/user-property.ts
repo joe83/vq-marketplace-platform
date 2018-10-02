@@ -3,10 +3,11 @@ const responseController = require("../controllers/responseController.js");
 const isLoggedIn = responseController.isLoggedIn;
 const identifyUser = responseController.identifyUser;
 
+import { Application } from "express";
 import { VQ } from "../../core/interfaces";
 import * as userCtrl from "../controllers/userCtrl";
 
-module.exports = (app) => {
+export default (app: Application) => {
   app.get("/api/user/:userId/property", identifyUser, (req, res) => {
     const userId = req.params.userId;
 

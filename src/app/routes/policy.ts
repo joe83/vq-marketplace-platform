@@ -5,12 +5,12 @@ const cryptoService = require("../services/cryptoService");
 const responseController = require("../controllers/responseController.js");
 const sendResponse = responseController.sendResponse;
 const vqAuth = require("../auth");
-const userEmitter = require("../events/user");
 
+import { Application } from "express";
 import * as authCtrl from "../controllers/authCtrl";
 
-module.exports = app => {
-	var isLoggedIn = responseController.isLoggedIn;
+export default (app: Application) => {
+	let isLoggedIn = responseController.isLoggedIn;
 	
 	/**
 	 * @api {get} /api/signup/email Creates new account with e-mail
