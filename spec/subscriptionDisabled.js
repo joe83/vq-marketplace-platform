@@ -33,7 +33,7 @@ describe("Starts a new marketplace", () => {
     let adminAuthToken;
 
     beforeAll(done => {
-        deleteLocalDb.run(() => {
+        deleteLocalDb.run(undefined, () => {
             server.setupApp(() => {
                 done();
             });

@@ -5,7 +5,6 @@ const deleteLocalDb = require("../build/cli/delete-local-db");
 const tenantUrl = `http://localhost:${process.env.PORT}`;
 const cryptoService = require("../build/app/services/cryptoService");
 
-
 describe("Authentification", () => {
     const TENANT_ID = "test-signup";
 
@@ -24,7 +23,7 @@ describe("Authentification", () => {
     let demandUserAuthToken;
 
     beforeAll(done => {
-        deleteLocalDb.run(() => {
+        deleteLocalDb.run(undefined, () => {
             createVqbackend.createMarketplace(TENANT_ID, (err) => {
                 server.setupApp(() => {
                     server.setTenantIdForTesting(TENANT_ID);
@@ -32,6 +31,14 @@ describe("Authentification", () => {
                     done(err);
                 });
             });
+        });
+    });
+
+    afterAll(done => {
+        deleteLocalDb.run(undefined, () => {
+            console.log("Database deleted!");
+
+            done();
         });
     });
 
