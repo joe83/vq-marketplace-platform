@@ -131,9 +131,9 @@ const setupApp = cb => {
 		app.set("view engine", "ejs");
 		app.set("json spaces", 2);
 		app.set("superSecret", process.env.secret);
-		app.use(cors());
+        app.use(cors());
 		app.use(bodyParser.urlencoded({ extended: false }));
-		app.use(bodyParser.json());
+		app.use(bodyParser.json({ limit: "50mb" }));
 	};
 
 

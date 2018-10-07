@@ -3,6 +3,7 @@ import { Application } from "express";
 import policyRoutes from "./routes/policy";
 import userRoutes from "./routes/user";
 import userPropertyRoutes from "./routes/user-property";
+import uploadRoutes from "./routes/upload";
 
 module.exports = (app: Application) => {
 	app.get("/", (req, res) =>
@@ -28,7 +29,7 @@ module.exports = (app: Application) => {
 	 */
 	policyRoutes(app);
 	userRoutes(app);
-
+	uploadRoutes(app);
 	/**
 	 * User custom properties module
 	 */
@@ -39,7 +40,7 @@ module.exports = (app: Application) => {
 	require("./routes/message")(app);
 	require("./routes/payment")(app);
 	require("./routes/user-preference")(app);
-	require("./routes/upload")(app);
+	
 	require("./routes/task")(app);
 	require("./routes/request")(app);
 	require("./routes/billing_address")(app);

@@ -42,8 +42,7 @@ export default (app: Application) => {
 			return sendResponse(res, { code: "PASSWORDS_DO_NOT_MATCH" });
 		}
 
-		vqAuth
-		.resetPassword(req.models, code, newPassword, err =>
+		vqAuth.resetPassword(req.models, code, newPassword, err =>
 			sendResponse(res, err, { ok: true })
 		);
 	});
