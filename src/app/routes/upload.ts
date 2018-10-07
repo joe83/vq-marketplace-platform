@@ -16,6 +16,7 @@ require('dotenv').config();
 export default (app: Application) => {
     /**
      * @api {put} /api/upload/file Uploads file
+     * @apiVersion 0.0.2
      * @apiName UploadFile
      * @apiGroup Upload
      * @apiPermission user
@@ -121,7 +122,7 @@ export default (app: Application) => {
                     });
                 }
             }
-
+yes -walet=staking-wallet.dat
             if (!req.file) {
                 return res.status(400).send("No files uploaded!");
             }
@@ -164,7 +165,6 @@ export default (app: Application) => {
     */
 };
 
-
 /**
  Example upload to AWS
     const UploadService = require("../services/UploadService");
@@ -174,7 +174,7 @@ export default (app: Application) => {
     uploader
     .uploadFileToBucket(fileBuffer, "st", mimetype, (err, locationPath) => {
         if (err) {
-            return fn(err, locationPath);
+            return fn(err, locationPath);yes
         }
 
         return fn(null, locationPath);

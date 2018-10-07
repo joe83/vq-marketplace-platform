@@ -12,11 +12,13 @@ import * as authCtrl from "../controllers/authCtrl";
 
 export default (app: Application) => {
 	let isLoggedIn = responseController.isLoggedIn;
-	
+
 	/**
-	 * @api {get} /api/signup/email Creates new account with e-mail
+	 * @api {get} /api/signup/email Signup
+	 * @apiVersion 0.0.2
 	 * @apiGroup User
-	 *
+	 * @apiDescription
+     * API endpoint for signup of new users with e-mail. It supports JWT authentification. In the response you will get a token, that you can then include in subsequent requests in the "x-auth-token".
 	 * @apiParam {String} email Users unique email.
 	 * @apiParam {String} password User password
 	 * @apiParam {String} repeatPassword Repeated user password for verification
@@ -24,10 +26,65 @@ export default (app: Application) => {
 	 * @apiParam {String} firstName Last name of the User.
 	 * @apiParam {String="0", "1", "2"} userType User type (any, customer, supplier).
 	 * @apiParam {Object} props User properties, fully extensible, [key: string]: string
-	 *
+	 * @apiExample {js} Example request
+	fetch('/api/signup/email', {
+		method: 'POST',
+		body: {
+			email: "info@vq-labs.com",
+			password: "test",
+			firstName: "Max",
+			lastName: "Mustermann",
+			userType: 1, // 1 stands for demand users, 2 for supply users
+			props: { // any property can be added to user
+				propOne: "one",
+				propTwo: "two"
+			}
+		}
+	})
+	.then(response => response.json())
+	.then(response => console.log('Success:', JSON.stringify(response)))
+	.catch(error => console.error('Error:', error));
 	 * @apiSuccess {number} id Account ID (is not the same as the ID of the user!)
 	 * @apiSuccess {String} token Authentification token can be saved for next requests
 	 * @apiSuccess {User} user User object
+	 * @apiSuccessExample {json} Success-Response
+     * {
+	 // Save this token and include it in the header "x-auth-token" in the subsequent requests.
+	 token: "X-AUTH_TOKEN",
+	 user: {
+		id: 16
+		userType: 2,
+		status: "0",
+		accountType: "PRIVATE"
+		avgReviewRate: 3
+		billingAddresses: []
+		bio: null
+		country: null
+		createdAt: "2018-10-07T18:41:05.000Z"
+		deletedAt: null
+		firstName: "Max"
+		lastName: "Mustermann"
+		imageUrl: null
+		isAdmin: false
+		reviews: []
+		updatedAt: "2018-10-07T18:41:05.000Z"
+		userPreferences: []
+		userProperties: [
+			{ id: 69, propKey: "companyName", propValue: "VQ", createdAt: "2018-10-07T18:41:05.000Z", updatedAt: "2018-10-07T18:41:05.000Z" }
+			{ id: 71, propKey: "phoneNo", propValue: "123123", createdAt: "2018-10-07T18:41:05.000Z", updatedAt: "2018-10-07T18:41:05.000Z" }
+			{ id: 73, propKey: "termsOfSeriviceAccepted", propValue: "1", createdAt: "2018-10-07T18:41:05.000Z", updatedAt: "2018-10-07T18:41:05.000Z" }
+			{ id: 75, propKey: "privacyPolicyAccepted", propValue: "1", createdAt: "2018-10-07T18:41:05.000Z", updatedAt: "2018-10-07T18:41:05.000Z" }
+		],
+		vqUserId: 33,
+		// authentification object:
+		vqUser: {
+			createdAt: "2018-10-07T18:41:04.000Z"
+			id: 33
+			status: 0
+			updatedAt: "2018-10-07T18:41:04.000Z"
+		}
+		website: null
+	}
 	 */
 	app.post("/api/signup/email", (req, res) => authCtrl.createNewAccount(req.models, req.body, (err, responseData) =>
 			responseController.sendResponse(res, err, responseData)

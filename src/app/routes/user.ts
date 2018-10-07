@@ -44,6 +44,7 @@ export default (app: Application) => {
 
    /**
      * @api {put} /api/user/:userId Updates user data
+     * @apiVersion 0.0.2
      * @apiGroup User
      *
      * @apiParam {String} email Users unique email.
