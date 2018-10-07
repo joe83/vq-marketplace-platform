@@ -5,7 +5,8 @@ const checkToken = (models, token, callback) => {
 	if (!token) {
 		return callback({
       status: 400,
-      code: "INITIAL_PARAMS"
+      code: "NO_TOKEN",
+      message: "Token is missing."
     });
 	}
   

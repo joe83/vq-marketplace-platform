@@ -1,10 +1,14 @@
 var async = require("async");
 var AuthService = require("../services/AuthService.js");
 
-const loginWithPassword = (models, email, password, callback) => {
+import { VQ } from "../../../core/interfaces";
+
+const loginWithPassword = (models: any, email: string, password: string, callback: VQ.StandardCallback) => {
 	if (!email || !password) {
 		return callback({
-      code: "INITIAL_PARAMS"
+      httpCode: 400,
+      code: "INITIAL_PARAMS",
+      message: `${!email ? "No email provided. " : ""}${!password ? "No password provided.": ""}`
     });
 	}
 

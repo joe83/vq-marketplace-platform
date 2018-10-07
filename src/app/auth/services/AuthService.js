@@ -204,7 +204,8 @@ const addUserProp = (models, userId, propKey, propValue, callback) => {
 	if (!userId || !propKey) {
 		return callback({
 			status: 400,
-			code: "INITIAL_PARAMS"
+			code: "INITIAL_PARAMS",
+			message: `userId: ${userId}, propKey: ${propKey}`
 		});
 	}
 

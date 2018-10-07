@@ -7,11 +7,7 @@ const LoginCtrl = require("./controllers/LoginCtrl");
 import * as SignupCtrl from "./controllers/SignupCtrl";
 import * as AuthCtrl from "./controllers/AuthCtrl";
 
-export const localSignup = (models, email: string, password: string, cb) => {
-    SignupCtrl.createLocalAccount(models, email, password, (err, authUser) => {
-        return cb(err, authUser);
-    });
-};
+export const localSignup = SignupCtrl.createLocalAccount;
 
 export const requestPasswordReset = (models, email, cb) => {
     var userEmail, userId;
@@ -117,12 +113,7 @@ export const getAuthUserIdFromEmail = (models, email, cb) => {
         });
 };
 
-export const localLogin = (models, email, password, cb) => {
-    LoginCtrl
-    .loginWithPassword(models, email, password, (err, rUser) => {
-        return cb(err, rUser);
-    });
-};
+export const localLogin = LoginCtrl.loginWithPassword;
 
 export const checkToken = (models, authToken, cb) => {
     AuthCtrl.checkToken(models, authToken, (err, rAuthUser) => {

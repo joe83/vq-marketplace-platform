@@ -4,9 +4,10 @@ const emailService = require("../services/emailService.js");
 const cryptoService = require("../services/cryptoService");
 const responseController = require("../controllers/responseController.js");
 const sendResponse = responseController.sendResponse;
-const vqAuth = require("../auth");
+
 
 import { Application } from "express";
+import * as vqAuth from "../auth";
 import * as authCtrl from "../controllers/authCtrl";
 
 export default (app: Application) => {
@@ -249,10 +250,12 @@ export default (app: Application) => {
 	});
 	
 	app.post("/api/login", (req, res) => {
-		var User;
-		var email = req.body.email;
-		var password = req.body.password;
+		let User;
+		let email = req.body.email;
+		let password = req.body.password;
 
+		console.log(email, password);
+	
 		async.waterfall([
 			cb => {
 				vqAuth
