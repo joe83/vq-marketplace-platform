@@ -1,28 +1,19 @@
 import * as multer from "multer";
 import * as async from "async";
-
-const responseController = require("../controllers/responseController");
-const isLoggedIn = responseController.isLoggedIn;
-
-const randomToken = require("random-token");
-
 import { Application } from "express";
 import { VQ } from "../../core/interfaces";
 import { writeFile } from 'fs';
 
+const responseController = require("../controllers/responseController");
+const isLoggedIn = responseController.isLoggedIn;
+const randomToken = require("random-token");
+
+/**
+ * Requires configuration for FILE_UPLOAD_DIRECTORY
+ */
+require('dotenv').config();
+
 export default (app: Application) => {
-    /**
-     * Upload of PDFs, PNGs and JPEGS
-     * Limited to 5 MB
-     * Example call:
-        const formData = new FormData();
-
-        // file is from multipart form
-        formData.append("file", file);
-
-        http.post(`/api/upload/file`, formData);
-     */
-
     /**
      * @api {put} /api/upload/file Uploads file
      * @apiName UploadFile
