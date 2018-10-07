@@ -22,6 +22,35 @@ export default (app: Application) => {
 
         http.post(`/api/upload/file`, formData);
      */
+
+    /**
+     * @api {put} /api/upload/file Uploads file
+     * @apiName UploadFile
+     * @apiGroup Upload
+     * @apiPermission user
+     * @apiDescription
+     * API endpoint for uploading documents. Documents can be in the following formats: pdf, png and jpeg. Upload is limited to 5MB.
+     * @apiExample {js} JS
+        const formData = new FormData();
+
+        const inputField = document.querySelector("input[type='file']");
+
+        formData.append("file", inputField.file);
+
+        fetch('/api/upload/file', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                "x-auth-token": "YOUR_TOKEN"
+            }
+        })
+        .then(response => response.json())
+        .then(response => console.log('Success:', JSON.stringify(response)))
+        .catch(error => console.error('Error:', error));
+     * @apiSuccess {string} url Name of the file
+     * @apiSuccessExample {json} Success-Response
+     * {  url: "b28xxuf91eduelo4gnb3hsdb61ufza4z.pdf" }
+     */
     app.post("/api/upload/file",
         isLoggedIn,
         (req, res) => {
@@ -54,8 +83,8 @@ export default (app: Application) => {
         
                 async.waterfall([
                     (fn: VQ.StandardCallback) => {
-                        const name = randomToken(32);
-                        const fileStoragePath = process.env.FILE_UPLOAD_DIRECTORY + "/" + name + "." + mimetype;
+                        const name = randomToken(32) + "." + mimetype;
+                        const fileStoragePath = process.env.FILE_UPLOAD_DIRECTORY + "/" + name;
 
                         writeFile(fileStoragePath, req.file.buffer, (err) => {
                             if (err) {
