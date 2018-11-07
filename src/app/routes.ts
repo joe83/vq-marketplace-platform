@@ -1,9 +1,10 @@
 import { Application } from "express";
 
+import adminRoutes from "./routes/admin";
 import policyRoutes from "./routes/policy";
+import uploadRoutes from "./routes/upload";
 import userRoutes from "./routes/user";
 import userPropertyRoutes from "./routes/user-property";
-import uploadRoutes from "./routes/upload";
 
 module.exports = (app: Application) => {
 	app.get("/", (req, res) =>
@@ -27,6 +28,8 @@ module.exports = (app: Application) => {
 	/**
 	 * Authentification module
 	 */
+	
+	adminRoutes(app);
 	policyRoutes(app);
 	userRoutes(app);
 	uploadRoutes(app);

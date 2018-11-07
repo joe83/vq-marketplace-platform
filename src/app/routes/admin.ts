@@ -1,5 +1,8 @@
-const resCtrl = require("../controllers/responseController.js");
+
 const async = require("async");
+const basicAuth = require('express-basic-auth');
+const resCtrl = require("../controllers/responseController.js");
+
 const vqAuth = require("../auth");
 const isLoggedIn = resCtrl.isLoggedIn;
 const isAdmin = resCtrl.isAdmin;
@@ -11,7 +14,13 @@ const taskEmitter = require("../events/task");
 const tenantModelsProvider = require("../../app-tenant/tenantModelsProvider");
 const subscriptionService = require("../services/subscriptionService");
 
-module.exports = app => {
+require('dotenv').config();
+
+const superadmins: { [superadminName: string]: string } = {};
+
+superadmins[process.env.SUPERADMIN_USERNAME] = process.env.SUPERADMIN_PASSWORD;
+
+export default (app: Application) => {
 	app.get("/api/subscription/plans", (req, res) => {
         subscriptionService.listPlans((err, plans) => {
             if (err) {
@@ -75,7 +84,8 @@ module.exports = app => {
 		})
 		.then(data => res.send(data)));
 
-	app.get("/api/admin/user", isLoggedIn, isAdmin, hasValidSubscription, (req, res) => req.models.user
+
+    const getUsersForAdmin = (req, res) => req.models.user
 		.findAll({
 			paranoid: false,
 			order: [[ "createdAt", "DESC" ]],
@@ -90,7 +100,16 @@ module.exports = app => {
 			console.error(err);
 
 			res.status(400).send(err);
-		}));
+		});
+
+	
+	if (process.env.SUPERADMIN_ENABLE) {
+		app.get("/api/superadmin/user", basicAuth({
+			challenge: true,
+			users: superadmins
+		}), getUsersForAdmin);
+	}
+	app.get("/api/admin/user", isLoggedIn, isAdmin, hasValidSubscription, getUsersForAdmin);
 
 	app.get("/api/admin/user/:userId/emails", isLoggedIn, isAdmin, hasValidSubscription, (req, res) => {
 		const userId = req.params.userId;
