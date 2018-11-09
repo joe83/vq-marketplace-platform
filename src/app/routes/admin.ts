@@ -16,19 +16,22 @@ const subscriptionService = require("../services/subscriptionService");
 
 require('dotenv').config();
 
+import { Application } from "express";
+import deleteUser from "./admin/user/deleteUser";
+
 const superadmins: { [superadminName: string]: string } = {};
 
 superadmins[process.env.SUPERADMIN_USERNAME] = process.env.SUPERADMIN_PASSWORD;
 
 export default (app: Application) => {
-	app.get("/api/subscription/plans", (req, res) => {
-        subscriptionService.listPlans((err, plans) => {
-            if (err) {
-                return res.status(400).send(err);
-            }
+ 	app.get("/api/subscription/plans", (req, res) => {
+		subscriptionService.listPlans((err, plans) => {
+			if (err) {
+				return res.status(400).send(err);
+			}
 
-            return res.status(200).send(plans);
-        });
+			return res.status(200).send(plans);
+		});
 	});
 
 	app.post("/api/admin/new-subscription/:subId", isLoggedIn, isAdmin, (req, res) => {
@@ -241,6 +244,8 @@ export default (app: Application) => {
 			);
 		});
 
+    app.delete("/api/admin/user/:userId/delete", isLoggedIn, isAdmin, hasValidSubscription, deleteUser);
+
 	app.delete("/api/admin/user/:userId/verifications", 
 		isLoggedIn,
 		isAdmin,
@@ -428,6 +433,9 @@ export default (app: Application) => {
 					});
 			}, err => sendResponse(res, err));
 		});
+
+
+	
 	
 	app.put("/api/admin/user/:userId/unblock", 
 		isLoggedIn,

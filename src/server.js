@@ -1,9 +1,11 @@
 require('dotenv').config();
 
+import routes from "./app/routes";
+
 const async = require("async");
 const db = require("./app/models/models");
 const tenantService = require("./app-tenant");
-// const workers = require("./app/workers");
+const workers = require("./app/workers");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const morgan = require("morgan");
@@ -102,7 +104,7 @@ const initTenants = cb => {
     
                     db.refreshTenantRegister(tenant.tenantId);
       
-                    // workers.registerWorkers(tenant.tenantId);
+                    workers.registerWorkers(tenant.tenantId);
     
                     cb();
                         /**
@@ -211,7 +213,7 @@ const setupApp = cb => {
     console.log(`[${upperCaseENV} MODE] THIS API RUNS IN ${upperCaseENV} MODE..`);
     console.log("-------------------------------------------------");
 
-	require("./app/routes.js")(app);
+    routes(app);
 
 	tenantService.initRoutes(tenantApp, express);
 

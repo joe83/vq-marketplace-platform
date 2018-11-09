@@ -1,26 +1,28 @@
-const async = require("async");
-const models  = require("../models/models");
+import { Application } from "express";
+import { IVQRequest } from "../interfaces";
+
 const responseController = require("../controllers/responseController.js");
 const isAdmin = responseController.isAdmin;
 
-module.exports = app => {
-    app.get("/api/app_label", (req, res) => {
+export default (app: Application) => {
+    app.get("/api/app_label", (req: IVQRequest, res) => {
         const lang = req.query.lang;
 
         if (lang) {
             return req.models.appLabel
                 .findAll({
+                    order: [ "labelKey" ],
                     where: {
                         lang
-                    }, order: [ "labelKey" ]
+                    }
                 })
                 .then(labels => res.send(labels), err => res.status(400).send(err));
         }
-  
+
         res.status(400).send("Specify language");
     });
 
-    app.post("/api/app_label", isAdmin, (req, res) => {
+    app.post("/api/app_label", isAdmin, (req: IVQRequest, res) => {
         const labels = req.body || [];
 
         const forceUpdate = true;

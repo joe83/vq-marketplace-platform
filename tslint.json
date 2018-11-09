@@ -288,7 +288,7 @@
         },
         "trailing-comma": {
           "options": {
-            "multiline": "always",
+            "multiline": "never",
             "singleline": "never"
           }
         },

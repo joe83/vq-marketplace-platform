@@ -48,7 +48,7 @@ export default (app: Application) => {
         (req, res) => {
             multer({
                 limits: {
-                    fileSize: 5 * 1024 * 1024 // 5MB is the limit
+                    fileSize: Number(process.env.FILE_UPLOAD_LIMIT || 5) * 1024 * 1024 // 5MB is the limit by default
                 }
             })
             .single("file")(req, res, (err: any) => {

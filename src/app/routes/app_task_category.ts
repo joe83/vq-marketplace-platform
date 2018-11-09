@@ -1,11 +1,15 @@
-const async = require("async");
+
 const responseController = require("../controllers/responseController");
 const taskCtrl = require("../controllers/taskCtrl");
 
 const isAdmin = responseController.isAdmin;
 
-module.exports = app => {
-    app.get("/api/app_task_categories", (req, res) =>
+import * as async from "async";
+import { Application } from "express";
+import { IVQRequest } from "../interfaces";
+
+export default (app: Application) => {
+    app.get("/api/app_task_categories", (req: IVQRequest, res) =>
         req.models.appTaskCategory
         .findAll({
             order: [
@@ -16,26 +20,26 @@ module.exports = app => {
         .catch(err => res.status(400).send(err))
     );
 
-    app.post("/api/app_task_categories", isAdmin, (req, res) => {
+    app.post("/api/app_task_categories", isAdmin, (req: IVQRequest, res) => {
         const category = {
-            code: req.body.code,
-            label: req.body.label,
-            desc: req.body.desc || undefined,
-            minPriceHour: req.body.minPriceHour || 0,
             bigImageUrl: req.body.bigImageUrl || undefined,
+            code: req.body.code,
+            desc: req.body.desc || undefined,
             imageUrl: req.body.imageUrl || undefined,
-            unitOfMeasure: req.body.unitOfMeasure || undefined,
-            minQuantity: req.body.minQuantity || undefined,
+            label: req.body.label,
             maxQuantity: req.body.maxQuantity || undefined,
-            quantityStep: req.body.quantityStep || undefined
+            minPriceHour: req.body.minPriceHour || 0,
+            minQuantity: req.body.minQuantity || undefined,
+            quantityStep: req.body.quantityStep || undefined,
+            unitOfMeasure: req.body.unitOfMeasure || undefined
         };
-        
+
         req.models.appTaskCategory.create(category)
         .then(data => res.status(200).send(data))
         .catch(err => res.status(400).send(err));
     });
 
-    app.put("/api/app_task_categories/:id", isAdmin, (req, res) => {
+    app.put("/api/app_task_categories/:id", isAdmin, (req: IVQRequest, res) => {
         const id = req.params.id;
         const category = {
             code: req.body.code,
@@ -48,31 +52,33 @@ module.exports = app => {
         };
 
         if (category.status && category.status === req.models.appTaskCategory.TASK_CATEGORY_STATUS.INACTIVE) {
-            let appTaskCategory;
-            const tasksOfCategory = [];
-    
+            let appTaskCategory: { code: string };
+
             return async.waterfall([
-                cb => {
-                    req.models.appTaskCategory
-                    .findOne({
-                        where: {
-                            id
-                        }
-                    })
-                    .then(rAppTaskCategory => {
-                        appTaskCategory = rAppTaskCategory;
-    
-                        cb();
-                    }, cb)
+                async (cb) => {
+                    try {
+                        appTaskCategory = await req.models.appTaskCategory
+                        .findOne({
+                            where: {
+                                id
+                            }
+                        });
+                    } catch (err) {
+                       return cb(err);
+                    }
+
+                    return cb();
                 },
                 cb => {
                     taskCtrl.cancelAllUnbookedTasks(req.models, appTaskCategory.code, err => {
                         if (err) {
                             console.error(err);
-                            cb(err);
+
+                            return cb(err);
                         }
-    
-                        console.log(`[SUCCESS] All tasks for category '${appTaskCategory.code}' have been cancelled along with their requests!`)
+
+                        console.log(`[SUCCESS] All tasksfor category '${appTaskCategory.code}' have been cancelled!`);
+
                         cb();
                     });
                 },
@@ -84,11 +90,11 @@ module.exports = app => {
                 }
             ], (err, result) => {
                 if (err) {
-                    return res.status(400).send(err)
+                    return res.status(400).send(err);
                 }
     
-                return res.status(200).send(result);        
-            });   
+                return res.status(200).send(result);
+            });
         }
 
         return req.models.appTaskCategory.update(category, {
@@ -99,13 +105,13 @@ module.exports = app => {
 
     });
 
-    app.delete("/api/app_task_categories/:id", isAdmin, (req, res) => {
-        res.status(200).send({});
-
-        req.models.appTaskCategory.destroy({ 
+    app.delete("/api/app_task_categories/:id", isAdmin, async (req: IVQRequest, res) => {
+        await req.models.appTaskCategory.destroy({
             where: {
                 id: req.params.id
             }
         });
+
+        res.status(200).send({});
     });
 };

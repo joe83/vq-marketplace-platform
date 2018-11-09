@@ -1,27 +1,31 @@
-const async = require("async");
+import * as async from "async";
+import * as Sequelize from "sequelize";
+
 const fs = require("fs");
 const path = require("path");
 const mysql = require("mysql2");
 
-import * as Sequelize from "sequelize";
-
 require('dotenv').config();
 
-const tenantRegister = {};
-const tenantConnections = {};
+interface IVQTenant {}
 
-const getTenantIds = () => Object.keys(tenantConnections);
+export const tenantRegister: { [tenantId: string]: IVQTenant } = {};
+
+export const tenantConnections: { [tenantId: string]: any } = {};
+
+export const getTenantIds = () => Object.keys(tenantConnections);
 
 const createSeqConnection = (tenantId: string) => {
-  const db: any = {};
+  const db: { [tenantId: string]: any } = {};
+
   const sequelize = new Sequelize(tenantId, process.env.VQ_DB_USER, process.env.VQ_DB_PASSWORD, {
+    dialect: "mysql",
     host: process.env.VQ_DB_HOST,
     logging: false,
-    dialect: "mysql",
     pool: {
+      idle: 10000,
       max: 1,
-      min: 0,
-      idle: 10000
+      min: 0
     }
   });
 
@@ -30,11 +34,13 @@ const createSeqConnection = (tenantId: string) => {
           return (file.indexOf(".") !== 0) && (file !== "models.js");
       })
       .forEach((file: string) => {
-          var model = sequelize.import(path.join(__dirname, file));
+          const model = sequelize.import(path.join(__dirname, file));
+
           db[model.name] = model;
       });
-  
-  Object.keys(db).forEach(modelName => {
+
+  Object.keys(db)
+  .forEach((modelName: string) => {
     if ("associate" in db[modelName]) {
       db[modelName].associate(db);
     }
@@ -47,30 +53,30 @@ const createSeqConnection = (tenantId: string) => {
   return db;
 };
 
-const refreshTenantRegister = tenantId => {
+export const refreshTenantRegister = tenantId => {
   tenantRegister[tenantId] = {
     established: Date.now() / 1000
   };
 };
 
-const create = (tenantId, marketplaceType, cb) => {
+export const create = (tenantId: string, marketplaceType: "services" | "blank", cb) => {
   console.log(`[models] Creating tenant model: ${tenantId}`);
 
   if (tenantConnections[tenantId]) {
     return cb({
-      httpCode: 400,
-      code: "TENANT_ALREADY_DEPLOYED"
+      code: "TENANT_ALREADY_DEPLOYED",
+      httpCode: 400
     });
   }
 
-  var isNewDatabase = false;
+  let isNewDatabase = false;
 
   async.waterfall([
       cb => {
         const connection = mysql.createConnection({
           host: process.env.VQ_DB_HOST,
-          user: process.env.VQ_DB_USER,
-          password: process.env.VQ_DB_PASSWORD
+          password: process.env.VQ_DB_PASSWORD,
+          user: process.env.VQ_DB_USER
         });
 
         connection.connect();
@@ -78,7 +84,7 @@ const create = (tenantId, marketplaceType, cb) => {
         connection.query(
           "CREATE DATABASE ?? CHARACTER SET utf8 COLLATE utf8_general_ci;",
           [ tenantId ],
-          (err) => {
+          (err: { code: string }) => {
             if (err) {
               if (err.code === "ER_DB_CREATE_EXISTS") {
                 return cb();
@@ -92,7 +98,7 @@ const create = (tenantId, marketplaceType, cb) => {
             cb();
           }
         );
-      
+
         connection.end();
     },
     cb => {
@@ -102,7 +108,6 @@ const create = (tenantId, marketplaceType, cb) => {
 
       cb();
     },
-
     cb => {
       const models = tenantConnections[tenantId];
 
@@ -168,7 +173,7 @@ const create = (tenantId, marketplaceType, cb) => {
     }], cb);
 };
 
-const get = tenantId => {
+export const get = (tenantId: string) => {
   if (!tenantRegister[tenantId]) {
     return undefined;
   }
@@ -182,13 +187,4 @@ const get = tenantId => {
   tenantConnections[tenantId] = createSeqConnection(tenantId);
 
   return tenantConnections[tenantId];
-};
-
-module.exports = {
-  tenantRegister,
-  tenantConnections,
-  refreshTenantRegister,
-  create,
-  get,
-  getTenantIds
 };

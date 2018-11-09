@@ -2,7 +2,7 @@
   "name": "vq-marketplace-api",
   "version": "3.0.1",
   "description": "VQ Web Services",
-  "main": "app.js",
+  "main": "build/app.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/vq-labs/vq-marketplace-api"
@@ -11,8 +11,6 @@
     "start:forever": "./node_modules/forever/bin/forever start build/app.js",
     "start": "node build/app.js",
     "create:vqbackend": "node ./build/cli/create-vqbackend.js blank vqbackend en",
-    "start:vqbackend": "TENANT_ID=vqbackend npm run start",
-    "start:mytestmarketplace": "TENANT_ID=mytestmarketplace npm run start",
     "lint": "node ./node_modules/.bin/eslint src",
     "tslint": "node ./node_modules/tslint/bin/tslint -c tslint.json -p tsconfig.json",
     "build:nolint": "rm -rf ./build && node ./node_modules/gulp/bin/gulp.js build",
