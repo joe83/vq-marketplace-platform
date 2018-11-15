@@ -85,12 +85,8 @@ npm install node-gyp -g // installs global packages
 ```
 
 ## Create new marketplace (tenant)
-Create new tenant:
+Create new (blank) tenant:
 ```bash
-# node ./scripts/create-marketplace.js <marketplaceType> <marketplaceName> <languageCode>
-# Example (service marketplace):
-node ./scripts/create-marketplace.js services newAmazingTaskrabbit en
-# or (blank marketplace):
 node ./scripts/create-marketplace.js blank vqbackend en
 ```
 
@@ -98,22 +94,16 @@ Start it:
 ```bash
 # TENANT_ID=<marketplaceName> npm run start
 # Example:
-TENANT_ID=newAmazingTaskrabbit npm run start
+TENANT_ID=vqbackend npm run start
 ```
 
-### Common problems
+## Common problems
 You might be running an outdated version of node which used to run on command nodejs.
 To link the new command 'node' to 'nodejs' you need to run the below command.
 
 ```
 sudo ln -s /usr/bin/nodejs /usr/bin/node
 ```
-
-
-# Contribute
-We follow the following branching model:
-[http://nvie.com/posts/a-successful-git-branching-model/](http://nvie.com/posts/a-successful-git-branching-model/)
-
 
 # Licence
 MIT
