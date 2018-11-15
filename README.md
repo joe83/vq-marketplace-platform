@@ -55,11 +55,17 @@ docker run -p 8080:8080 -v /Users/<path>:/<container path> --env-file ./.env -d 
 # or if you db is hosted locally:
 docker run --network="host" -v /Users/<path>:/<container path> --env-file ./.env -d alphateamhackers/vqmarketplaceplatform
 
-#check if the container started and write down container ID
+# check if the container started and write down container ID
 docker ps 
 
-#check docker logs
+# check docker logs
 docker logs <containerID>
+
+# in order to create a tenant for the first time:
+docker exec -it CONTAINER_ID /bin/bash
+
+# in container:
+node ./build/cli/create-vqbackend.js blank vqbackend en
 ```
 
 
