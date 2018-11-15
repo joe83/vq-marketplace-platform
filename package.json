@@ -8,8 +8,8 @@
     "url": "git+https://github.com/vq-labs/vq-marketplace-api"
   },
   "scripts": {
-    "start:forever": "./node_modules/forever/bin/forever start build/app.js",
     "start": "node build/app.js",
+    "start:forever": "./node_modules/forever/bin/forever start build/app.js",
     "create:vqbackend": "node ./build/cli/create-vqbackend.js blank vqbackend en",
     "lint": "node ./node_modules/.bin/eslint src",
     "tslint": "node ./node_modules/tslint/bin/tslint -c tslint.json -p tsconfig.json",

@@ -13,4 +13,5 @@ COPY . .
 EXPOSE 8080
 
 CMD [ "npm", "run" , "build:nolint" ]
+#CMD [ "npm", "create:vqbackend" ]
 CMD [ "npm", "start" ]

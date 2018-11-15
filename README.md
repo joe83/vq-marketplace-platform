@@ -27,6 +27,48 @@ sudo apt-get install build-essential
 npm install node-gyp -g
 ```
 
+### Docker
+#### Pull
+```json
+{
+    "repository": {
+        "registryId": "481877795925",
+        "repositoryName": "vqmarketplaceplatform",
+        "repositoryArn": "arn:aws:ecr:us-east-1:481877795925:repository/vqmarketplaceplatform",
+        "createdAt": 1542283856.0,
+        "repositoryUri": "481877795925.dkr.ecr.us-east-1.amazonaws.com/vqmarketplaceplatform"
+    }
+}
+```
+
+```
+docker tag f25019d17551 481877795925.dkr.ecr.us-east-1.amazonaws.com/vqmarketplaceplatform
+
+docker tag vqmarketplaceplatform:latest 481877795925.dkr.ecr.us-east-1.amazonaws.com/vqmarketplaceplatform:latest
+
+docker push 481877795925.dkr.ecr.us-east-1.amazonaws.com/vqmarketplaceplatform:latest
+```
+
+
+#### Build
+docker build -t alphateamhackers/vqmarketplaceplatform .
+
+# This will start the docker container and the server. The server will listen at port 8080 in the docker container. This port will be mapped on the port 8081.
+
+```
+docker run -p 8081:8080 --env-file ./.env -d alphateamhackers/vqmarketplaceplatform
+```
+or if you db is hosted locally:
+```
+docker run --network="host" --env-file ./.env -d alphateamhackers/vqmarketplaceplatform
+```
+
+# check if the container started and write down container ID
+docker ps
+
+# to check docker logs
+docker logs containerID
+
 ## Installation
 Clone the repository into your local developement envirment.
 
