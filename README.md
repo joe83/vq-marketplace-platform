@@ -1,45 +1,14 @@
 # VQ Marketplace Platform
 The VQ Marketplace Platform is used for building and running sharing economy and on-demand marketplaces. It supports multi-tenancy. The supported resources include users, listings, listing requests, orders (transactions), reviews and reporting. The Platform follows RESTful standards of data exchange to allow easy and fast integration with third-party providers.
 
-MySQL is the database of choice for VQ Marketplace Platform. Files, images and similar assets are persisted in AWS S3 buckets.
+MySQL is the database of choice for VQ Marketplace Platform. Files, images and similar assets are persisted in AWS S3 buckets or locally.
 
-The platform integrates with Stripe - a global payment provider for fiat currency and Mandrill - a Mailchimp Service for E-Mail sending automation.
-
-VQ Marketplace Platform is a priopiatary technology of [VQ LABS](https://vq-labs.com). You can start your marketplace running on the VQ Marketplace Platform on [vqmarketplace.com](https://vqmarketplace.com).
-
-You can use the web services with the official VQ Marketplace Storefront:
-
-* [vq-marketplace-web-app](https://github.com/vq-labs/vq-marketplace-web-app) - ReactJS Marketplace Front-End
-
-## Sharing economy marketplace model
-* [Sharing economy marketplace model](https://medium.com/@adrianbarwicki/sharing-economy-marketplace-model-c6732f3e0644)
-
-### Docker
-```bash
-# this will display the command that needs to be run in order to authenticate
-aws ecr get-login --no-include-email
-
-## run the command that is displayed by get-login and then:
-docker pull 481877795925.dkr.ecr.us-east-1.amazonaws.com/vqmarketplaceplatform:latest
-
-# This will start the docker container and the server. The server will listen at port 8080 in the docker container.
-# -v /Users/<path>:/<container path> enables to maps the folders for uploaded files
-docker run -p 8080:8080 -v /Users/<path>:/<container path> --env-file ./.env -d alphateamhackers/vqmarketplaceplatform
-# or if you db is hosted locally:
-docker run --network="host" -v /Users/<path>:/<container path> --env-file ./.env -d alphateamhackers/vqmarketplaceplatform
-
-#check if the container started and write down container ID
-docker ps 
-
-#check docker logs
-docker logs <containerID>
-```
-
-## Running
+## Easy setup
+## Configuration
 Review .env.example file and make necessary changes first then rename it to .env
 
-
-```ENV=production
+```
+ENV=production
 PORT=8080
 TENANT_PORT=8081
 TENANT_ID=test
@@ -72,7 +41,29 @@ STRIPE_TEST_ID=
 STRIPE_TEST_SECRET=
 ```
 
-## System setup (advanced)
+## Docker
+```bash
+# this will display the command that needs to be run in order to authenticate
+aws ecr get-login --no-include-email
+
+## run the command that is displayed by get-login and then:
+docker pull 481877795925.dkr.ecr.us-east-1.amazonaws.com/vqmarketplaceplatform:latest
+
+# This will start the docker container and the server. The server will listen at port 8080 in the docker container.
+# -v /Users/<path>:/<container path> enables to maps the folders for uploaded files
+docker run -p 8080:8080 -v /Users/<path>:/<container path> --env-file ./.env -d alphateamhackers/vqmarketplaceplatform
+# or if you db is hosted locally:
+docker run --network="host" -v /Users/<path>:/<container path> --env-file ./.env -d alphateamhackers/vqmarketplaceplatform
+
+#check if the container started and write down container ID
+docker ps 
+
+#check docker logs
+docker logs <containerID>
+```
+
+
+## Advanced setup
 ### Ubuntu
 Install the required packages with apt-get package manager. If you do not know what it is, read about it here [https://wiki.ubuntuusers.de/apt/apt-get/](https://wiki.ubuntuusers.de/apt/apt-get/).
 ```
