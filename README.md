@@ -24,9 +24,9 @@ docker pull 481877795925.dkr.ecr.us-east-1.amazonaws.com/vqmarketplaceplatform:l
 
 # This will start the docker container and the server. The server will listen at port 8080 in the docker container.
 # -v /Users/<path>:/<container path> enables to maps the folders for uploaded files
-docker run -p 8080:8080 docker run -v /Users/<path>:/<container path> --env-file ./.env -d alphateamhackers/vqmarketplaceplatform
+docker run -p 8080:8080 -v /Users/<path>:/<container path> --env-file ./.env -d alphateamhackers/vqmarketplaceplatform
 # or if you db is hosted locally:
-docker run --network="host" --env-file ./.env -d alphateamhackers/vqmarketplaceplatform
+docker run --network="host" -v /Users/<path>:/<container path> --env-file ./.env -d alphateamhackers/vqmarketplaceplatform
 
 #check if the container started and write down container ID
 docker ps 
