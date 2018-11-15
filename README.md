@@ -4,7 +4,7 @@ The VQ Marketplace Platform is used for building and running sharing economy and
 MySQL is the database of choice for VQ Marketplace Platform. Files, images and similar assets are persisted in AWS S3 buckets or locally.
 
 ## Easy setup
-## Configuration
+### Configuration
 Review .env.example file and make necessary changes first then rename it to .env
 
 ```
@@ -41,7 +41,7 @@ STRIPE_TEST_ID=
 STRIPE_TEST_SECRET=
 ```
 
-## Docker
+### Docker
 ```bash
 # this will display the command that needs to be run in order to authenticate
 aws ecr get-login --no-include-email
@@ -64,7 +64,7 @@ docker logs <containerID>
 
 
 ## Advanced setup
-### Ubuntu
+### Ubuntu and nodeJS
 Install the required packages with apt-get package manager. If you do not know what it is, read about it here [https://wiki.ubuntuusers.de/apt/apt-get/](https://wiki.ubuntuusers.de/apt/apt-get/).
 ```
 sudo apt-get install git // git version management
@@ -77,7 +77,6 @@ npm install node-gyp -g
 
 ## Manual installation
 Clone the repository into your local developement envirment.
-
 ```
 git clone https://github.com/vq-labs/vq-marketplace-platform.git // clones the repository from remote
 cd vq-marketplace-platform // goes to the repository folder
