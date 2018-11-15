@@ -37,100 +37,39 @@ docker logs <containerID>
 
 ## Running
 Review .env.example file and make necessary changes first then rename it to .env
-We have a rule in .gitignore so that you don't commit this file accidentally as it might contain sensitive information. If you want to commit this anyways, remove .env from .gitignore
-
-```
-PORT=8080 //this is the default port set on web-app to make requests to
-TENANT_PORT=8081 //this is the default port for multi-tenancy management API
-TENANT_ID=test  //this is the TENANT_ID, in other terms the name of the marketplace that you want to setup.
-                //can be anything. only accepts slug-style
-APP_URL=http://localhost:3000   //this is the URL that is used in the welcome e-mail that 
-                                //users click to verify themselves. this should be the location of your web-app
-WEB_URL=http://localhost:4100   //you can create tenants through the tenant management API.
-                                //the example for this can be found at https://vqmarketplace.com/get-started/ 
-                                //this URL is used when sending the e-mail verification link
-                                // on marketplace creation form step 1.
-SHOW_MEMORY_USAGE=false //this is to show how much memory is used with how many tenant marketplaces are running.
-SECRET=test //secret for jwt authentication
-VQ_DB_USER=root //your mysql db user
-VQ_DB_PASSWORD= //your mysql db password
-VQ_DB_HOST=localhost //mysql host
-STRIPE_ID=  //stripe id for payments
-STRIPE_SECRET=  //stripe secret for payments
-AWS_S3_BUCKET=  //this AWS bucket will be the bucket for your uploaded files
-AWS_S3_REGION=eu-central-1  //the zone of the bucket
-MANDRILL=   //mandrill key to use when sending e-mails
-```
-
-By default, all the TENANT_ID in all parts of the app (API, WEB-APP) are test. If you change it please make sure that all your env files on every repository related to this project has the same TENANT_ID
-
-In order to start locally the VQ Web Services, you need to run the command:
-```
-npm start //this starts the app in DEBUG mode. Check below to attach to the debugger
-```
-
-Note that this is for VSCode but you can always use the same port to attach to for other editors.
-The complete configuration setting is below. If you have more than one configuration just grab the object inside configurations array and append it to your local configurations array.
-```
-{
-    // Use IntelliSense to learn about possible Node.js debug attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "type": "node",
-            "request": "attach",
-            "name": "Attach to Process",
-            "port": 5858,
-            "restart": true,
-            "protocol": "inspector"
-        }
-    ]
- }
-```
-
-If you need to restart the server everytime you change the code you can run:
-```
-npm run dev //this runs nodemon which restarts the server on change
-```
 
 
-Ensure that you also run the init scripts after running with npm start in a seperate CLI tab:
-First fetch the latest configs, labels and posts of our 4 demo marketplaces:
-```
-node scripts/download-marketplace-template.js
-```
-The configuration packages will be saved under "src/example-configs". Then do:
+```ENV=production
+PORT=8080
+TENANT_PORT=8081
+TENANT_ID=test
 
-```
-CONFIG:     This is the backbone of the app. It has varying configurations saved to the database.
-            You can find example configurations in
-            ./src/example-configs/[services|rental|products|bitcoinmeetup]/config.json
-LABELS:     these are the translation of the app and the marketplace.
-            You can find example labels in
-            ./src/example-configs/i18n/[lang].json
-POSTS:      these are the notifications, email and custom page templates stored as HTML.
-            You can find example labels in
-            ./src/example-configs/i18n/[services|rental|products|bitcoinmeetup]/posts.json
+VQ_DB_USER=root
+VQ_DB_PASSWORD=
+VQ_DB_HOST=localhost
 
-USECASES:   services|rental|products|bitcoinmeetup
+FILE_UPLOAD=local
+FILE_UPLOAD_DIRECTORY=/home/ubuntu/.vq
+FILE_UPLOAD_LIMIT=10
+SUPERADMIN_ENABLE=1
+SUPERADMIN_USERNAME=test
+SUPERADMIN_PASSWORD=test
 
-TENANTID:   will be the name of the database. If not specified as an argument,
-            TENANT_ID specified in .env file will be taken into account.
-
-LANG:       will be the two letter code according to ISO 639-1 Codes.
-            By default we have only the English language labels so please use 'en'
-
-The very first time you run any of these commands all the necessary components
-like configs, labels, posts and all other required tables will be created.
-If you later want to restore any of these components individually,
-you can use the commands below which will forcefully update
-the existing components you have by the example-configs.
-
-node scripts/restore-default-config.js USECASE TENANTID(optional, see note on TENANTID)
-node scripts/restore-default-labels.js USECASE LANG TENANTID(optional, see note on TENANTID)
-node scripts/restore-default-posts.js USECASE TENANTID(optional, see note on TENANTID)
+APP_URL=
+WEB_URL=
+SHOW_MEMORY_USAGE=0
+SECRET=test
+AWS_S3_BUCKET=
+AWS_S3_REGION=eu-central-1
+MANDRILL=
+CHARGEBEE_SITE=
+CHARGEBEE_API_KEY=
+CHARGEBEE_TEST_SITE=
+CHARGEBEE_TEST_API_KEY=
+STRIPE_ID=
+STRIPE_SECRET=
+STRIPE_TEST_ID=
+STRIPE_TEST_SECRET=
 ```
 
 ## System setup (advanced)
