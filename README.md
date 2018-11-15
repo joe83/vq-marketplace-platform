@@ -103,6 +103,14 @@ Start it:
 TENANT_ID=vqbackend npm run start
 ```
 
+## Docker registry
+```bash
+aws ecr create-repository --repository-name vqmarketplaceplatform
+docker build -t alphateamhackers/vqmarketplaceplatform .
+docker tag vqmarketplaceplatform:latest 481877795925.dkr.ecr.us-east-1.amazonaws.com/vqmarketplaceplatform:latest
+docker push 481877795925.dkr.ecr.us-east-1.amazonaws.com/vqmarketplaceplatform:latest
+```
+
 ## Common problems
 You might be running an outdated version of node which used to run on command nodejs.
 To link the new command 'node' to 'nodejs' you need to run the below command.
