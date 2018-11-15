@@ -3,6 +3,9 @@ FROM node:8
 # Create app directory
 WORKDIR /usr/src/app
 
+# Uploads
+RUN mkdir -p /usr/uploads
+
 # Install app dependencies
 COPY package.json /usr/src/app/
 RUN npm install

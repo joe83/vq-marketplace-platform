@@ -18,7 +18,7 @@ VQ_DB_PASSWORD=
 VQ_DB_HOST=localhost
 
 FILE_UPLOAD=local
-FILE_UPLOAD_DIRECTORY=/home/ubuntu/.vq
+FILE_UPLOAD_DIRECTORY=/usr/uploads
 FILE_UPLOAD_LIMIT=10
 SUPERADMIN_ENABLE=1
 SUPERADMIN_USERNAME=test
@@ -51,9 +51,9 @@ docker pull 481877795925.dkr.ecr.us-east-1.amazonaws.com/vqmarketplaceplatform:l
 
 # This will start the docker container and the server. The server will listen at port 8080 in the docker container.
 # -v /Users/<path>:/<container path> enables to maps the folders for uploaded files
-docker run -p 8080:8080 -v /Users/<path>:/<container path> --env-file ./.env -d alphateamhackers/vqmarketplaceplatform
+docker run -p 8080:8080 -v /<host-path-for-uploads>:/usr/uploads --env-file ./.env -d alphateamhackers/vqmarketplaceplatform
 # or if you db is hosted locally:
-docker run --network="host" -v /Users/<path>:/<container path> --env-file ./.env -d alphateamhackers/vqmarketplaceplatform
+docker run --network="host" -v /<host-path-for-uploads>:/usr/uploads --env-file ./.env -d alphateamhackers/vqmarketplaceplatform
 
 # check if the container started and write down container ID
 docker ps 
