@@ -14,76 +14,25 @@ You can use the web services with the official VQ Marketplace Storefront:
 ## Sharing economy marketplace model
 * [Sharing economy marketplace model](https://medium.com/@adrianbarwicki/sharing-economy-marketplace-model-c6732f3e0644)
 
-## System setup
-
-### Ubuntu
-Install the required packages with apt-get package manager. If you do not know what it is, read about it here [https://wiki.ubuntuusers.de/apt/apt-get/](https://wiki.ubuntuusers.de/apt/apt-get/).
-```
-sudo apt-get install git // git version management
-sudo apt-get install nodejs // server-side javascript
-sudo apt-get install nodejs-legacy // links 'nodejs' command to 'node'
-sudo apt-get install npm // npm package manager for nodejs
-sudo apt-get install build-essential
-npm install node-gyp -g
-```
-
 ### Docker
-#### Pull
-```json
-{
-    "repository": {
-        "registryId": "481877795925",
-        "repositoryName": "vqmarketplaceplatform",
-        "repositoryArn": "arn:aws:ecr:us-east-1:481877795925:repository/vqmarketplaceplatform",
-        "createdAt": 1542283856.0,
-        "repositoryUri": "481877795925.dkr.ecr.us-east-1.amazonaws.com/vqmarketplaceplatform"
-    }
-}
-```
+```bash
+# this will display the command that needs to be run in order to authenticate
+aws ecr get-login --no-include-email
 
-```
-docker tag f25019d17551 481877795925.dkr.ecr.us-east-1.amazonaws.com/vqmarketplaceplatform
+## run the command that is displayed by get-login and then:
+docker pull 481877795925.dkr.ecr.us-east-1.amazonaws.com/vqmarketplaceplatform:latest
 
-docker tag vqmarketplaceplatform:latest 481877795925.dkr.ecr.us-east-1.amazonaws.com/vqmarketplaceplatform:latest
-
-docker push 481877795925.dkr.ecr.us-east-1.amazonaws.com/vqmarketplaceplatform:latest
-```
-
-
-#### Build
-docker build -t alphateamhackers/vqmarketplaceplatform .
-
-# This will start the docker container and the server. The server will listen at port 8080 in the docker container. This port will be mapped on the port 8081.
-
-```
-docker run -p 8081:8080 --env-file ./.env -d alphateamhackers/vqmarketplaceplatform
-```
-or if you db is hosted locally:
-```
+# This will start the docker container and the server. The server will listen at port 8080 in the docker container.
+# -v /Users/<path>:/<container path> enables to maps the folders for uploaded files
+docker run -p 8080:8080 docker run -v /Users/<path>:/<container path> --env-file ./.env -d alphateamhackers/vqmarketplaceplatform
+# or if you db is hosted locally:
 docker run --network="host" --env-file ./.env -d alphateamhackers/vqmarketplaceplatform
-```
 
-# check if the container started and write down container ID
-docker ps
+#check if the container started and write down container ID
+docker ps 
 
-# to check docker logs
-docker logs containerID
-
-## Installation
-Clone the repository into your local developement envirment.
-
-```
-git clone https://github.com/vq-labs/vq-marketplace-api.git // clones the repository from remote
-cd vq-marketplace-api // goes to the repository folder
-npm install // installs the npm packages from ./package.json
-npm install node-gyp -g // installs global packages
-```
-### Common problems
-You might be running an outdated version of node which used to run on command nodejs.
-To link the new command 'node' to 'nodejs' you need to run the below command.
-
-```
-sudo ln -s /usr/bin/nodejs /usr/bin/node
+#check docker logs
+docker logs <containerID>
 ```
 
 ## Running
@@ -184,6 +133,28 @@ node scripts/restore-default-labels.js USECASE LANG TENANTID(optional, see note 
 node scripts/restore-default-posts.js USECASE TENANTID(optional, see note on TENANTID)
 ```
 
+## System setup (advanced)
+### Ubuntu
+Install the required packages with apt-get package manager. If you do not know what it is, read about it here [https://wiki.ubuntuusers.de/apt/apt-get/](https://wiki.ubuntuusers.de/apt/apt-get/).
+```
+sudo apt-get install git // git version management
+sudo apt-get install nodejs // server-side javascript
+sudo apt-get install nodejs-legacy // links 'nodejs' command to 'node'
+sudo apt-get install npm // npm package manager for nodejs
+sudo apt-get install build-essential
+npm install node-gyp -g
+```
+
+## Manual installation
+Clone the repository into your local developement envirment.
+
+```
+git clone https://github.com/vq-labs/vq-marketplace-platform.git // clones the repository from remote
+cd vq-marketplace-platform // goes to the repository folder
+npm install // installs the npm packages from ./package.json
+npm install node-gyp -g // installs global packages
+```
+
 ## Create new marketplace (tenant)
 Create new tenant:
 ```bash
@@ -201,37 +172,19 @@ Start it:
 TENANT_ID=newAmazingTaskrabbit npm run start
 ```
 
-## Deployment
-In the root folder of the project you can find a deploy script named deploy.sh which pulls from git, does npm install then restarts itself through PM2.
+### Common problems
+You might be running an outdated version of node which used to run on command nodejs.
+To link the new command 'node' to 'nodejs' you need to run the below command.
 
-We also have an experimental deploy server that runs deploy.sh in each repository whenever you push to a designated branch of a repository. The vq-deploy-server manages the running processes through PM2 and if desired it can be easily coupled with Slack to report the status of deployments as well as a /servers command which you can use in Slack to get the status of the servers via PM2.
+```
+sudo ln -s /usr/bin/nodejs /usr/bin/node
+```
 
-WIP - [https://github.com/vq-labs/vq-deploy-server.git](https://github.com/vq-labs/vq-deploy-server.git)
-
-## Payments
-Here is an example how a VQ marketplace works with cryptocurrency payments from buyer’s perspective:
-1. I place a request for a listing in the marketplace
-2. I create an booking if the request is accepted and trasfer the funds into an escrow account.
-3. A) I confirm the service / task / rental as completed and the funds are released to the supplier from smart contract
-3. B) The supplier confirms the service / task / rental as completed and the funds are scheduled to be released in an arbitrary time. I can revoke the auto-settlement. In that case, the smart contract owner will need to resolve the dispute.
-4. The request and order are marked as settled if the transaction is successfuly. It is marked as closed if the funds are returned.
-
-## Environments
-
-We have tested the application in these environments but a .nvmrc and package.json engines have been setup for you to take a hint on:
-(If you use NVM, you can do nvm use which will take .nvmrc file into account)
-(If you want to install Node and NPM manually you can check the engines in package.json)
-
-NodeJS 7.2.1 and NPM 3.10.9 on macOS Sierra 10.12.6,
-NodeJS 8.3.0 and NPM 5.6 on Windows 10,
-NodeJS 9.0.0 and NPM 5.5.1 on AWS Linux Ubuntu 16.04.2
-
-## Tests
-You need to run a mysql server on your local machine. We are still expanding our test cases but you can run npm run test to test the existing ones. To implement your own tests, refer to [https://semaphoreci.com/community/tutorials/getting-started-with-node-js-and-jasmine](https://semaphoreci.com/community/tutorials/getting-started-with-node-js-and-jasmine)
 
 # Contribute
 We follow the following branching model:
 [http://nvie.com/posts/a-successful-git-branching-model/](http://nvie.com/posts/a-successful-git-branching-model/)
+
 
 # Licence
 MIT
