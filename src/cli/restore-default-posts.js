@@ -1,9 +1,10 @@
 require('dotenv').config();
 
-const db = require('../src/app/models/models.js');
+const db = require('../app/models/models.js');
 
-const TENANT_ID = process.argv[3] || process.env.TENANT_ID;
+
 const USECASE = process.argv[2];
+const TENANT_ID = process.argv[3] || process.env.TENANT_ID;
 
 if (!TENANT_ID) {
     throw new Error("Specify TENANT_ID");

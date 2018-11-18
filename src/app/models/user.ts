@@ -28,12 +28,6 @@ module.exports = (sequelize: Sequelize, dataTypes: DataTypes) => {
       type: dataTypes.STRING,
       allowNull: false
     },
-  
-    // here it is specified if the user is buyer or seller
-    userType: {
-      type: dataTypes.INTEGER,
-      defaultValue: 0,
-    },
     firstName: {
       type: dataTypes.STRING,
       allowNull: true
@@ -59,12 +53,21 @@ module.exports = (sequelize: Sequelize, dataTypes: DataTypes) => {
       allowNull: true
     },
     imageUrl: {
-      type: dataTypes.STRING,
-      allowNull: true
+      allowNull: true,
+      type: dataTypes.STRING
     },
     avgReviewRate: {
       type: dataTypes.FLOAT,
       defaultValue: 3
+    },
+    // here it is specified if the user is buyer or seller
+    userType: {
+      type: dataTypes.INTEGER,
+      defaultValue: 0,
+    },
+    username: {
+      allowNull: true,
+      type: dataTypes.STRING
     }
   }, {
     paranoid: true,

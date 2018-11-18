@@ -157,7 +157,7 @@ const setupApp = cb => {
 
             tenantId = subdomains[subdomains.length - 1];
 
-            console.log(`Accessing ${tenantId}`);
+            console.log(`Accessing ${subdomains}: ${tenantId}`);
 		}
 
         req.models = db.get(tenantId);

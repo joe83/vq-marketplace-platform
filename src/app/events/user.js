@@ -1,7 +1,6 @@
 "use strict";
 
 const EventEmitter = require("events");
-const randtoken = require("rand-token");
 const emailService = require("../services/emailService");
 const cryptoService = require("../services/cryptoService");
 class DefaultEmitter extends EventEmitter {}

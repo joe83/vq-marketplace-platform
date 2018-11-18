@@ -1,1 +1,13 @@
-[]
+[
+    {
+        "code": "welcome",
+        "title": "Welcome email",
+        "body": "<p>Hello!</p> <p><br></p> <p>To complete your sign-up please open the following link:</p> <p><br></p> <p>&lt;%-VERIFICATION_LINK%&gt;</p> <p><br></p> <p>Best regards,</p> <p><%- CONFIG.NAME %> team</p>",
+        "type": "email"
+    }, {
+        "code": "password-reset",
+        "title": "Password reset",
+        "body": "<p>Hello!</p> <p><br></p> <p>With the following link you can reset your password:</p> <p><br></p> <p>&lt;%-ACTION_URL%&gt;</p> <p><br></p> <p>Best regards,</p> <p><%- CONFIG.NAME %> team</p>",
+        "type": "email"
+    }
+]

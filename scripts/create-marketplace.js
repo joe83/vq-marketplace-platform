@@ -46,6 +46,7 @@ db.create(TENANT_ID, USECASE, () => {
             });
         },
         (cb) => {
+    
             db.get(TENANT_ID)
             .post
             .addDefaultPosts(USECASE, true, (err) => {

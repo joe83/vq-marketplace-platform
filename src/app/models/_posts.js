@@ -22,7 +22,6 @@ module.exports = (sequelize, DataTypes) => {
             EVENT_TRIGGERS.ORDER_CLOSED,
             EVENT_TRIGGERS.ORDER_COMPLETED,
             EVENT_TRIGGERS.ORDER_MARKED_AS_DONE,
-            
         ),
        },
   }, {
@@ -40,17 +39,13 @@ module.exports = (sequelize, DataTypes) => {
                 title: postTitle,
                 type: postType,
                 body: postBody,
-                targetUserType: postTargetUserType,
-                eventTrigger: postEventTrigger
             });
         }
 
         return obj.update({ 
             title: postTitle,
             type: postType,
-            body: postBody,
-            targetUserType: postTargetUserType,
-            eventTrigger: postEventTrigger
+            body: postBody
         });
     });
 

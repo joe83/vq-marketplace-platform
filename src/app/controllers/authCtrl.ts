@@ -48,27 +48,31 @@ export const createNewAccount = (models: any, data: VQ.AccountData, cb: VQ.Stand
                 
                 return cb();
             }, cb),
-        (cb: VQ.StandardCallback) => {
-            models
-            .user
-            .create({
+        async (cb: VQ.StandardCallback) => {
+            const username = data.username || `${data.firstName}${data.lastName}`;
+
+            const userData = {
                 accountType: "PRIVATE",
-                vqUserId,
-                status: shouldBeAdmin ? models.user.USER_STATUS.VERIFIED : models.user.USER_STATUS.UNVERIFIED,
-                isAdmin: shouldBeAdmin,
                 firstName: data.firstName,
+                isAdmin: shouldBeAdmin,
                 lastName: data.lastName,
-                userType: data.userType || 0
-            })
-            .then((rUser: any) => {
-                user = rUser;
+                status: shouldBeAdmin ? models.user.USER_STATUS.VERIFIED : models.user.USER_STATUS.UNVERIFIED,
+                userType: data.userType || 0,
+                username,
+                vqUserId
+            };
 
-                if (shouldBeAdmin) {
-                    console.log(`Admin user created for ${data.email}`);
-                }
+            try {
+                user = await models.user.create(userData);
+            } catch (err) {
+                return cb(err);
+            }
 
-                return cb();
-            }, cb);
+            if (shouldBeAdmin) {
+                console.log(`Admin user created for ${data.email}`);
+            }
+
+            return cb();
         },
         (cb: VQ.StandardCallback) => async
             .eachSeries(
