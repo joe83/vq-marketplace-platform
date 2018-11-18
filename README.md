@@ -65,7 +65,7 @@ docker logs <containerID>
 docker exec -it CONTAINER_ID /bin/bash
 
 # in container:
-node ./build/cli/create-vqbackend.js blank vqbackend en
+node ./build/cli/create-vqbackend.js blank vqbackend en info@vq-labs.com
 ```
 
 
