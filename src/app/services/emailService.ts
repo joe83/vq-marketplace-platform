@@ -14,6 +14,8 @@ const EMAILS = {
 	NEW_LISTING: "new-task"
 };
 
+type TEmailCode = "WELCOME";
+
 const checkIfShouldSendEmail = (models, emailCode, userId, cb, shouldNotCb) => models
 	.userProperty
 	.findOne({
@@ -98,8 +100,6 @@ const sendEmailsOnEvent = (models, eventTrigger, demandUserEmails, supplyUserEma
 				const params = {};
 				let compiledEmail;
 
-
-
 				const specialEmailData = email.targetUserType === 2 ?
 					_.extend({}, emailData, {
 						ACTION_URL: emailData.SUPPLY_ACTION_URL
@@ -110,11 +110,11 @@ const sendEmailsOnEvent = (models, eventTrigger, demandUserEmails, supplyUserEma
 				} catch (err) {
 					return console.error(err);
 				}
-	
+
 				params.subject = email.title;
-				
+
 				console.log(`Sending email ${email.code} (event: ${eventTrigger}) to ${email.targetUserType === 1 ? demandUserEmails.length : supplyUserEmails.length} users.`);
-				
+
 				return sendEmail(models, compiledEmail, email.targetUserType === 1 ? demandUserEmails : supplyUserEmails, params, err => {
 					if (err) {
 						console.error(err);
@@ -124,61 +124,59 @@ const sendEmailsOnEvent = (models, eventTrigger, demandUserEmails, supplyUserEma
 		});
 	});
 
-const getEmailAndSend = (models, emailCode, email, emailData) =>
-	custProvider
-	.getConfig(models)
-	.then(config => {
-		// in case emails are disabled... only the welcome email can be sent.
-		if (emailCode !== EMAILS.WELCOME && config.EMAILS_ENABLED !== "1") {
-			return;
+const getEmailAndSend = async (models, emailCode: TEmailCode, email: string, emailData: object) => {
+	const config = await custProvider.getConfig(models);
+
+	// in case emails are disabled... only the welcome email can be sent.
+	if (emailCode !== EMAILS.WELCOME && config.EMAILS_ENABLED !== "1") {
+		return;
+	}
+
+	const emailBody = await getEmailBody(models, emailCode);
+
+	const params = {};
+	var compiledEmail;
+
+	if (!emailBody) {
+		return console.error(`Email template "${emailCode}" has not been found`);
+	}
+
+	if (typeof emailData === "string") {
+		emailData = {
+			ACTION_URL: emailData,
+			LISTING_TITLE: "<LISTING_TITLE NOT SPECIFIED>",
+			SENDER_FIRST_NAME: "<SENDER_FIRST_NAME NOT SPECIFIED>",
+			SENDER_LAST_NAME: "<SENDER_LAST_NAME NOT SPECIFIED>",
+			MESSAGE_BODY: "<MESSAGE_BODY NOT SPECIFIED>",
+			EMAIL_SETTINGS_URL: `${config.DOMAIN}/app/account/notifications`
+		};
+	} else {
+		emailData.ACTION_URL = emailData.ACTION_URL || "<ACTION_URL NOT SPECIFIED>";
+		emailData.LISTING_TITLE = emailData.LISTING_TITLE || "<LISTING_TITLE NOT SPECIFIED>";
+		emailData.SENDER_FIRST_NAME = emailData.SENDER_FIRST_NAME || "<SENDER_FIRST_NAME NOT SPECIFIED>";
+		emailData.SENDER_LAST_NAME = emailData.SENDER_LAST_NAME || "<SENDER_LAST_NAME NOT SPECIFIED>";
+		emailData.MESSAGE_BODY = emailData.MESSAGE_BODY || "<MESSAGE_BODY NOT SPECIFIED>";
+		emailData.EMAIL_SETTINGS_URL = emailData.EMAIL_SETTINGS_URL = `${config.DOMAIN}/app/account/notifications`;
+	}
+
+	emailData.CONFIG = config;
+
+	try {
+		compiledEmail = ejs.compile(unescape(emailBody.body))(emailData);
+	} catch (err) {
+		return console.error(err);
+	}
+
+	params.subject = emailBody.title;
+
+	sendEmail(models, compiledEmail, typeof email === "string" ? [
+		email
+	] : email, params, err => {
+		if (err) {
+			console.error(err);
 		}
-
-		getEmailBody(models, emailCode)
-		.then(emailBody => {
-			const params = {};
-			var compiledEmail;
-			
-			if (!emailBody) {
-				return console.error(`Email template "${emailCode}" has not been found`);
-			}
-
-			if (typeof emailData === "string") {
-				emailData = {
-					ACTION_URL: emailData,
-					LISTING_TITLE: "<LISTING_TITLE NOT SPECIFIED>",
-					SENDER_FIRST_NAME: "<SENDER_FIRST_NAME NOT SPECIFIED>",
-					SENDER_LAST_NAME: "<SENDER_LAST_NAME NOT SPECIFIED>",
-					MESSAGE_BODY: "<MESSAGE_BODY NOT SPECIFIED>",
-					EMAIL_SETTINGS_URL: `${config.DOMAIN}/app/account/notifications`
-				};
-			} else {
-				emailData.ACTION_URL = emailData.ACTION_URL || "<ACTION_URL NOT SPECIFIED>";
-				emailData.LISTING_TITLE = emailData.LISTING_TITLE || "<LISTING_TITLE NOT SPECIFIED>";
-				emailData.SENDER_FIRST_NAME = emailData.SENDER_FIRST_NAME || "<SENDER_FIRST_NAME NOT SPECIFIED>";
-				emailData.SENDER_LAST_NAME = emailData.SENDER_LAST_NAME || "<SENDER_LAST_NAME NOT SPECIFIED>";
-				emailData.MESSAGE_BODY = emailData.MESSAGE_BODY || "<MESSAGE_BODY NOT SPECIFIED>";
-				emailData.EMAIL_SETTINGS_URL = emailData.EMAIL_SETTINGS_URL = `${config.DOMAIN}/app/account/notifications`;
-			}
-
-			emailData.CONFIG = config;
-
-			try {
-				compiledEmail = ejs.compile(unescape(emailBody.body))(emailData);
-			} catch (err) {
-				return console.error(err);
-			}
-
-			params.subject = emailBody.title;
-
-			return sendEmail(models, compiledEmail, typeof email === "string" ? [
-				email
-			] : email, params, err => {
-				if (err) {
-					console.error(err);
-				}
-			});
-		});
 	});
+};
 
 const sendNewTenant = (email, VERIFICATION_LINK) => {
 	const emailBody = `

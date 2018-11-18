@@ -5,7 +5,6 @@ const cryptoService = require("../services/cryptoService");
 const responseController = require("../controllers/responseController.js");
 const sendResponse = responseController.sendResponse;
 
-
 import { Application } from "express";
 import * as vqAuth from "../auth";
 import * as authCtrl from "../controllers/authCtrl";
@@ -125,16 +124,16 @@ export default (app: Application) => {
 			})
 			.then(configField => {
 				configField = configField || {};
-				
+
 				const urlBase = configField.fieldValue || "http://localhost:3000";
-				
+
 				const ACTION_URL = 
 				`${urlBase}/app/change-password?code=${resetCode}`;
-	
+
 				emailService
 				.getEmailAndSend(req.models, emailService.EMAILS.PASSWORD_RESET, [ email ], ACTION_URL);
 			}, err => console.error(err));
-			
+
 			sendResponse(res, err, {});
 		});
 	});
@@ -155,7 +154,7 @@ export default (app: Application) => {
 						.then(rUser => {
 							user = rUser;
 							vqUserId = user.vqUserId;
-						
+
 							cb();
 						}, cb);
 				}
@@ -165,7 +164,7 @@ export default (app: Application) => {
 					if (err) {
 						return cb(err);
 					}
-		
+
 					vqUserId = rUserEmail.userId;
 				});
 			}, 
@@ -182,7 +181,7 @@ export default (app: Application) => {
 
 					vqUserId = rUserEmails[0].userId;
 					emails = rUserEmails.map(_ => _.email);
-				
+
 					req.models.user
 						.findOne({
 							vqUserId: vqUserId
@@ -196,7 +195,7 @@ export default (app: Application) => {
 			}], () => {
 				const VERIFICATION_LINK = cryptoService
 					.buildVerificationUrl(req.models.tenantId, { id: userId });
-				
+
 				emailService
 					.getEmailAndSend(req.models, emailService.EMAILS.WELCOME, emails, {
 						VERIFICATION_LINK
@@ -214,7 +213,7 @@ export default (app: Application) => {
 
 		try {
 			encryptedToken = encryptedToken.split(" ").join("+");
-			
+
 			user = cryptoService.decodeObj(encryptedToken);
 		} catch(err) {
 			res.set("Content-Type", "text/html");
@@ -223,7 +222,7 @@ export default (app: Application) => {
 
 			return;
 		}
-		
+
 		async.waterfall([
 			cb => {
 				req.models
@@ -282,12 +281,14 @@ export default (app: Application) => {
 			if (err) {
 				res.set("Content-Type", "text/html");
 
-				return res.send(new Buffer(`<p>This verification link is no longer valid.<span style="display:none;">${err.code}</span></p>`));
+				return res.send(new Buffer(
+					`<p>This verification link is no longer valid.<span style="display:none;">${err.code}</span></p>`
+				));
 			}
-			
+
 			if (!configField) {
 				res.set("Content-Type", "text/html");
-				
+
 				return res.send(new Buffer("<p>Missing configuration. Configure DOMAIN.</p>"));
 			}
 
@@ -297,21 +298,15 @@ export default (app: Application) => {
 				});
 			}
 
-			if (userRef.userType === 1) {
-				return res.redirect(configField.fieldValue + "/app/new-listing");
-			}
-
-			return res.redirect(configField.fieldValue + "/app/dashboard");
+			return res.redirect(configField.fieldValue + "/thank-you");
 		});
 	});
-	
+
 	app.post("/api/login", (req, res) => {
 		let User;
 		let email = req.body.email;
 		let password = req.body.password;
 
-		console.log(email, password);
-	
 		async.waterfall([
 			cb => {
 				vqAuth

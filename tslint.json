@@ -168,11 +168,7 @@
         "eofline": true,
         "forin": true,
         "import-spacing": true,
-        "indent": {
-          "options": [
-            "spaces"
-          ]
-        },
+        "indent": {},
         "interface-name": {
           "options": [
             "always-prefix"
