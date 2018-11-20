@@ -10,6 +10,7 @@ export namespace VQ {
     export type StandardCallback = (err?: VQ.APIError, result?: any) => void;
 
     export interface AccountData {
+        username: string;
         email: string;
         password: string;
         firstName: string;
