@@ -1,17 +1,20 @@
 const async = require("async");
 const cust = require("../config/customizing.js");
-const emailService = require("../services/emailService.js");
+
 const cryptoService = require("../services/cryptoService");
-const responseController = require("../controllers/responseController.js");
-const sendResponse = responseController.sendResponse;
 
 import { Application } from "express";
-import * as vqAuth from "../auth";
+import { IVQRequest } from "../interfaces";
+
 import * as authCtrl from "../controllers/authCtrl";
 
-export default (app: Application) => {
-	let isLoggedIn = responseController.isLoggedIn;
+import * as emailService from "../services/emailService.js";
 
+import * as vqAuth from "../auth";
+
+import { isLoggedIn, sendResponse } from "../controllers/responseController.js";
+
+export default (app: Application) => {
 	/**
 	 * @api {get} /api/signup/email Signup
 	 * @apiVersion 0.0.2
@@ -85,57 +88,54 @@ export default (app: Application) => {
 		website: null
 	}
 	 */
-	app.post("/api/signup/email", (req, res) => authCtrl.createNewAccount(req.models, req.body, (err, responseData) =>
-			responseController.sendResponse(res, err, responseData)
+
+	app.post("/api/signup/email", (req: IVQRequest, res) =>
+		authCtrl.createNewAccount(req.models, req.body, (err, responseData) =>
+			sendResponse(res, err, responseData)
 		));
 
-	app.post("/api/auth/reset-password", (req, res) => {
+	app.post("/api/auth/reset-password", (req: IVQRequest, res) => {
 		const code = req.body.code;
 		const newPassword = req.body.newPassword;
 		const repeatNewPassword = req.body.repeatNewPassword;
 
 		if (newPassword !== repeatNewPassword) {
-			return sendResponse(res, { code: "PASSWORDS_DO_NOT_MATCH" });
+			return sendResponse(res, { code: "PASSWORDS_DO_NOT_MATCH" }, undefined);
 		}
 
-		vqAuth.resetPassword(req.models, code, newPassword, err =>
+		vqAuth.resetPassword(req.models, code, newPassword, (err: any) =>
 			sendResponse(res, err, { ok: true })
 		);
 	});
 
-	app.post("/api/auth/request-password-reset", (req, res) => {
+	app.post("/api/auth/request-password-reset", async (req: IVQRequest, res) => {
 		const email = req.body.email;
+		let rUserResetCode: any;
 
-		vqAuth
-		.requestPasswordReset(req.models, email, (err, rUserResetCode) => {
-			if (err) {
-				console.error(err);
+		try {
+			rUserResetCode = await vqAuth.requestPasswordReset(req.models, email);
+		} catch (err) {
+			return res.status(400).send(err);
+		}
 
-				return sendResponse(res, err);
-			}
+		const resetCode = rUserResetCode.code;
 
-			const resetCode = rUserResetCode.code;
-
-			req.models.appConfig
+		let configField = await req.models.appConfig
 			.findOne({
 				where: {
 					fieldKey: "DOMAIN"
 				}
-			})
-			.then(configField => {
-				configField = configField || {};
+			});
 
-				const urlBase = configField.fieldValue || "http://localhost:3000";
+		configField = configField || {};
 
-				const ACTION_URL = 
-				`${urlBase}/app/change-password?code=${resetCode}`;
+		const urlBase = configField.fieldValue || "http://localhost:3000";
 
-				emailService
-				.getEmailAndSend(req.models, emailService.EMAILS.PASSWORD_RESET, [ email ], ACTION_URL);
-			}, err => console.error(err));
+		const ACTION_URL = `${urlBase}/login?code=${resetCode}`;
 
-			sendResponse(res, err, {});
-		});
+		emailService.getEmailAndSend(req.models, emailService.EMAILS.PASSWORD_RESET, [ email ], { ACTION_URL });
+
+		sendResponse(res, undefined, {});
 	});
 
 	app.post("/api/verify/resend-email", isLoggedIn, (req, res) => {
@@ -355,8 +355,7 @@ export default (app: Application) => {
 				return cb();
 			}, cb)
 		], err => 
-			responseController
-				.sendResponse(res, err, User));
+			sendResponse(res, err, User));
 	});
 
 	app.post("/api/auth/password", isLoggedIn, (req, res) => {
@@ -365,7 +364,7 @@ export default (app: Application) => {
 
 		vqAuth
 		.changePassword(req.models, req.user.vqUserId, currentPassword, newPassword, err => {
-			return responseController.sendResponse(res, err, { ok: true });
+			return sendResponse(res, err, { ok: true });
 		});
 	});
 

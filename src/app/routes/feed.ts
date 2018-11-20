@@ -78,10 +78,15 @@ export default (app: Application) => {
         const query = req.query as {
             hashtag: string;
             userId: string;
+            page: string;
         };
 
         const hashtagWhereConstraints = query.hashtag ? { hashtag: String(query.hashtag) } : undefined;
         const userWhereConstraints = query.userId ? { id: Number(query.userId) } : undefined;
+
+        const limit = 20;
+        const page = Number(query.page) || 1;
+        const offset = limit * (page - 1);
 
         const userPosts = await req.models.userPost.findAll({
             include: [
@@ -92,6 +97,8 @@ export default (app: Application) => {
                 },
                 { model: req.models.user, where: userWhereConstraints }
             ],
+            limit,
+            offset,
             order: [[ "createdAt", "DESC" ]],
             where: {
                 $and: [

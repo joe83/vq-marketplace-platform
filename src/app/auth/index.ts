@@ -4,50 +4,40 @@ const AuthService = require("./services/AuthService");
 
 const LoginCtrl = require("./controllers/LoginCtrl");
 
-import * as SignupCtrl from "./controllers/SignupCtrl";
+import { IVQModels } from "../interfaces";
 import * as AuthCtrl from "./controllers/AuthCtrl";
+import * as SignupCtrl from "./controllers/SignupCtrl";
+
+const timeout = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const localSignup = SignupCtrl.createLocalAccount;
 
-export const requestPasswordReset = (models, email, cb) => {
-    var userEmail, userId;
+export const requestPasswordReset = async (models: IVQModels, email: string) => {
+    const userEmail = await models.userEmail.findOne({
+        where: {
+            $and: [
+                { email }
+            ]
+        }
+    });
 
-    async.waterfall([
-        cb => models
-            .userEmail
-            .findOne({
-                where: {
-                    $and: [
-                        { email }
-                    ]
-                }
-            })
-            .then(rUserEmail => {
-                if (!rUserEmail) {
-                    return setTimeout(() => {
-                        return cb("EMAIL_NOT_FOUND");
-                    }, 100);
-                }
+    if (!userEmail) {
+        await timeout(1000);
 
-                userEmail = rUserEmail;
-                userId = userEmail.userId;
+        return Promise.reject({ code: "EMAIL_NOT_FOUND" });
+    }
 
-                return cb();
-            }, cb),
-        cb => models.userResetCode
-            .create({
-                userId: userEmail.userId,
-                code: randomToken(64)
-            })
-            .then(rCode => {
-                cb(null, rCode);
-            }, cb)
-    ], (err, resetCode) => cb(err, resetCode));
+    const resetCode = await models.userResetCode.create({
+            code: randomToken(64),
+            userId: userEmail.userId
+    });
+
+    return resetCode;
 };
 
-export const resetPassword = (models, resetCode, newPassword, cb) => {
+export const resetPassword = (models: IVQModels, resetCode: string, newPassword: String, cb) => {
     const code = resetCode;
-    let userId;
+    let userId: number;
 
     async.waterfall([
         cb => models
@@ -59,7 +49,7 @@ export const resetPassword = (models, resetCode, newPassword, cb) => {
                     ]
                 }
             })
-            .then(rUserResetCode => {
+            .then((rUserResetCode: any) => {
                 if (!rUserResetCode) {
                     return setTimeout(() =>
                         cb("WRONG_RESET_CODE"),

@@ -14,6 +14,9 @@ export interface IVQModels {
     userResetCode: any;
     userAuth: any;
     userPostHashtag: any;
+
+    // App
+    appConfig: any;
 }
 
 export interface IVQRequest extends Request {
