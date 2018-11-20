@@ -22,7 +22,7 @@ export default (app: Application) => {
         .findById(req.params.postId)
         .then(data => data ? res.send(data) : res.status(404).send({ code: "NOT_FOUND" })));
 
-    app.post("/api/post", isLoggedIn, isAdmin, (req, res) => req.models.post
+    app.post("/api/app_post", isLoggedIn, isAdmin, (req, res) => req.models.post
         .create(req.body)
         .then(data => res.send(data)));
 

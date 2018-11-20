@@ -1,50 +1,52 @@
 import { DataTypes, Sequelize } from "sequelize";
 
 export default (sequelize: Sequelize, dataTypes: DataTypes) => {
-  const UserProperty = sequelize.define("userPost", {
+  const UserPost = sequelize.define("userPost", {
     alias: {
-      allowNull: false,
-      type: dataTypes.STRING
-    },
-    body: {
-        allowNull: false,
+        allowNull: true,
         type: dataTypes.STRING
     },
+    body: {
+        allowNull: true,
+        type: dataTypes.TEXT
+    },
     description: {
-        allowNull: false,
+        allowNull: true,
         type: dataTypes.STRING
     },
     imageUrl: {
-        allowNull: false,
+        allowNull: true,
         type: dataTypes.STRING
     },
     languageCode: {
-        allowNull: false,
+        allowNull: true,
         type: dataTypes.STRING
     },
     postTypeId: {
-        allowNull: false,
-        type: dataTypes.STRING
+        type:   dataTypes.ENUM,
+        values: [ "article" ]
     },
     readTime: {
-        allowNull: false,
+        allowNull: true,
         type: dataTypes.STRING
     },
     status: {
-        allowNull: false,
-        type: dataTypes.STRING
+        defaultValue: "draft",
+        type:   dataTypes.ENUM,
+        values: [ "published", "draft", "spam" ]
     },
     title: {
-        allowNull: false,
+        allowNull: true,
         type: dataTypes.STRING
     }
   }, {
-    tableName: "userPost",
+    tableName: "userPost"
   });
 
-  UserProperty.associate = (models) => {
-    UserProperty.belongsTo(models.user);
+  UserPost.associate = (models) => {
+    UserPost.hasMany(models.userPostHashtag);
+    UserPost.belongsTo(models.user);
   };
 
-  return UserProperty;
+  return UserPost;
 };

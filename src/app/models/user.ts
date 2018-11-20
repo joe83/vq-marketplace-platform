@@ -57,15 +57,19 @@ module.exports = (sequelize: Sequelize, dataTypes: DataTypes) => {
       type: dataTypes.STRING
     },
     avgReviewRate: {
+      defaultValue: 3,
       type: dataTypes.FLOAT,
-      defaultValue: 3
     },
     // here it is specified if the user is buyer or seller
     userType: {
-      type: dataTypes.INTEGER,
       defaultValue: 0,
+      type: dataTypes.INTEGER
     },
     username: {
+      allowNull: true,
+      type: dataTypes.STRING
+    },
+    addressBCH: {
       allowNull: true,
       type: dataTypes.STRING
     }

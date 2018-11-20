@@ -50,6 +50,7 @@ export default (app: Application) => {
      * @apiParam {String} email Users unique email.
      * @apiParam {String} firstName First name of the User.
      * @apiParam {String} lastName Last name of the User.
+     * @apiParam {String} username Username.
      * @apiParam {String="0", "1", "2"} userType User type (any, customer, supplier).
      * @apiParam {Object} props User properties, fully extensible, [key: string]: string
      *
@@ -61,7 +62,9 @@ export default (app: Application) => {
         "lastName",
         "bio",
         "website",
-        "imageUrl"
+        "imageUrl",
+        "username",
+        "addressBCH"
       ];
 
       const props = req.body.props || {};

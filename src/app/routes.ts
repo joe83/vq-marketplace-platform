@@ -4,6 +4,7 @@ import appConfigRoutes from "./routes/app_config";
 import appLabelRoutes from "./routes/app_label";
 import appPostsRoutes from "./routes/app_post";
 import appTaskCategoryRoutes from "./routes/app_task_category";
+import feedRoutes from "./routes/feed";
 import policyRoutes from "./routes/policy";
 import uploadRoutes from "./routes/upload";
 import userRoutes from "./routes/user";
@@ -17,6 +18,7 @@ export default (app: Application) => {
 	appLabelRoutes(app);
 	appPostsRoutes(app);
 	appTaskCategoryRoutes(app);
+	feedRoutes(app);
 	policyRoutes(app);
 	userRoutes(app);
 	uploadRoutes(app);

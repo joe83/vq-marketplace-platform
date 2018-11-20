@@ -1,7 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
   const Model = sequelize.define("userToken", {
-        token: { type: DataTypes.STRING, required: true },
-        deleted: { type: DataTypes.BOOLEAN, defaultValue: 0 }
+        token: { type: DataTypes.STRING, required: true }
   }, {
     tableName: "auth_userToken"
   });

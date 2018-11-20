@@ -369,8 +369,15 @@ export default (app: Application) => {
 		});
 	});
 
-	app.post("/api/logout", (req, res) => {
-		// @todo destroy token!
+	app.post("/api/logout", isLoggedIn, (req, res) => {
+		req.models.userToken.destroy({
+			where: {
+				$and: [
+					{ token: req.auth.token }
+				]
+			}
+		});
+
 		res.status(200).send();
 	});
 };

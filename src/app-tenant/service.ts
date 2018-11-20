@@ -47,7 +47,7 @@ export const createNewTenant = (tenant: Tenant, cb: (err: APIError, tenant?: any
     });
 };
 
-export const deployNewMarketplace = (tenantId: string, apiKey: string, password: string, repeatPassword: string, marketplaceType: "blank" | string, configOverwrites: { [key: string]: string }, cb: (err: any) => void) => {
+export const deployNewMarketplace = (tenantId: string, apiKey: string, password: string, repeatPassword: string, marketplaceType: "blank" | String, configOverwrites: { [key: string]: string }, cb: (err: any) => void) => {
   /**
    * Intialize the tentant db first!
    */

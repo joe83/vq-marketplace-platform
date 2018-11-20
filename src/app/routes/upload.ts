@@ -63,16 +63,16 @@ export default (app: Application) => {
                 if (!req.file) {
                     return res.status(400).send("No files uploaded!");
                 }
-        
+
                 const mimetype = req.file.mimetype.split("/")[1];
-        
+
                 if (mimetype !== "pdf" && mimetype !== "jpeg" && mimetype !== "png") {
                     return res.status(400).send({
                         code: "UNSUPPORTED_FILE_FORMAT",
                         message: `Type "${mimetype}" is not supported. Only supported: pdf, jpeg, png`
                     });
                 }
-        
+
                 async.waterfall([
                     (fn: VQ.StandardCallback) => {
                         const name = randomToken(32) + "." + mimetype;
@@ -91,15 +91,15 @@ export default (app: Application) => {
 
                             return fn(null, name);
                         });
-                }
+                    }
                 ], (err: VQ.APIError, locationPath: string) => {
                     if (err) {
                         console.error(err);
                         return res.status(500).send(err);
                     }
-        
+
                     res.status(200).send({
-                        url: locationPath 
+                        url: locationPath
                     });
                 });
             });

@@ -1,9 +1,10 @@
 import { Application, Request } from "express";
 
-interface IVQModels {
+export interface IVQModels {
     user: any;
     userProperty: any;
     userPreference: any;
+    userPost: any;
     // auth
     userEmail: any;
     userNetwork: any;
@@ -12,8 +13,12 @@ interface IVQModels {
     userToken: any;
     userResetCode: any;
     userAuth: any;
+    userPostHashtag: any;
 }
 
 export interface IVQRequest extends Request {
     models: IVQModels;
+    user: {
+        id: number
+    };
 }

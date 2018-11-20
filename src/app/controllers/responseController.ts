@@ -4,24 +4,24 @@ const randomstring = require("randomstring");
 const models = require("../models/models");
 const vqAuth = require("../auth");
 
-function isAuth(req) {
+export const isAuth = (req) => {
 	if (req.headers["x-auth-token"]) {
 		try {
-		  var secret = process.env.SECRET || randomstring.generate(64);
-			var decoded = jwt.verify(req.headers["x-auth-token"], secret);
+			let secret = process.env.SECRET || randomstring.generate(64);
+			let decoded = jwt.verify(req.headers["x-auth-token"], secret);
 
 			return decoded;
 		} catch (err) {
 			console.log(err);
-			
+
 			return false;
 		}
 	} else {
 		return false;
 	}
-}
+};
 
-function parseUserFactory (loginRequired, adminRequired, requiredStatus) {
+function parseUserFactory (loginRequired: boolean, adminRequired: boolean, requiredStatus: "10") {
 	return (req, res, next) => {
 			const authToken = req.headers["x-auth-token"];
 
@@ -33,7 +33,7 @@ function parseUserFactory (loginRequired, adminRequired, requiredStatus) {
 							.send(cust.errorCodes.NOT_AUTHENTIFICATIED);
 					}
 
-					return next();	
+					return next();
 				}
 
 				if (rAuthUser) {
@@ -82,86 +82,70 @@ function parseUserFactory (loginRequired, adminRequired, requiredStatus) {
 						return res.status(cust.errorCodes.NOT_AUTHENTIFICATIED.httpCode)
 							.send(cust.errorCodes.NOT_AUTHENTIFICATIED);
 					}
-					
+
 					return next();
 				}
 			});
 		};
 }
 
-const isLoggedIn = parseUserFactory(true, false);
-const isLoggedInAndVerified = parseUserFactory(true, false, "10");
-const isAdmin = parseUserFactory(true, true);
-const identifyUser = parseUserFactory(false, false);
+export const isLoggedIn = parseUserFactory(true, false);
+export const isLoggedInAndVerified = parseUserFactory(true, false, "10");
+export const isAdmin = parseUserFactory(true, true);
+export const identifyUser = parseUserFactory(false, false);
 
-const subscriptions = {};
-
-const hasValidSubscription = (req, res, next) => {
+export const hasValidSubscription = (req, res, next) => {
 	return next();
-	/**
-		if (!subscriptions[req.tenantId]) {
-			return res.status(400).send({
-				code: "INVALID_SUBSCRIPTION"
-			});
-		}
-
-		return next();
-	*/
 };
 
-module.exports = {
-	hasValidSubscription,
-	isAdmin,
-	isLoggedIn,
-	isLoggedInAndVerified,
-	identifyUser,
-	sendResponse: (res, err, data) => {
-		if (err) {
-			console.error(err);
-			
-			if (typeof err === "string") {
-				return res.status(400).send(err);
-			}
+export const sendResponse = (res, err, data) => {
+	if (err) {
+		console.error(err);
 
-			if (err.httpCode) {
-				return res.status(err.httpCode).send(err);
-			}
-
-			if (err.code) {
-				return res.status(400).send(err);
-			}
-			
-			if (err.status) {
-				err.data = data;
-				
-				return res.status(err.status).send(err);
-			}
-				
-			return res.status(500).send(err);
+		if (typeof err === "string") {
+			return res.status(400).send(err);
 		}
-		
-		return res.status(200).send(data);
-	},
-	sendError: (res, errCode, error) => {
-		var err = cust.errorCodes[errCode];
 
-		if (err) {
-			err.data = error;
+		if (err.httpCode) {
 			return res.status(err.httpCode).send(err);
 		}
 
-		console.log("[UNKNOWN ERROR CODE]", errCode);
-		return res.status(500).send(cust.errorCodes.UNKNOWN_ERROR);
-	},
-	generateError : (errCode, data) => {
-		var errorObj = cust.errorCodes[errCode];
-		if (errorObj) {
-			return {status:errorObj.httpCode, code: errorObj.code, message:errorObj.desc, data:data };
+		if (err.code) {
+			return res.status(400).send(err);
 		}
 
-		errorObj = cust.errorCodes.UNKNOWN_ERROR;
+		if (err.status) {
+			err.data = data;
 
-		return { status:errorObj.httpCode, code: errorObj.code, message:errorObj.desc, data:data };
-	},
-	isAuth : isAuth
+			return res.status(err.status).send(err);
+		}
+
+		return res.status(500).send(err);
+	}
+
+	return res.status(200).send(data);
+};
+
+export const sendError = (res, errCode, error) => {
+	var err = cust.errorCodes[errCode];
+
+	if (err) {
+		err.data = error;
+		return res.status(err.httpCode).send(err);
+	}
+
+	console.log("[UNKNOWN ERROR CODE]", errCode);
+	return res.status(500).send(cust.errorCodes.UNKNOWN_ERROR);
+};
+
+export const generateError = (errCode, data) => {
+	let errorObj = cust.errorCodes[errCode];
+
+	if (errorObj) {
+		return {status:errorObj.httpCode, code: errorObj.code, message:errorObj.desc, data:data };
+	}
+
+	errorObj = cust.errorCodes.UNKNOWN_ERROR;
+
+	return { status:errorObj.httpCode, code: errorObj.code, message:errorObj.desc, data:data };
 };

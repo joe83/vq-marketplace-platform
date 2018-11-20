@@ -47,7 +47,7 @@ async.each(Object.keys(standardTemplates), (marketplaceType, cb) => {
             });
         },
         cb => {
-            client.get("/api/post", (err, res, body) => {
+            client.get("/api/app_post", (err, res, body) => {
                 const obj = body.map(row => {
                     delete row.id;
 

@@ -68,7 +68,6 @@ docker exec -it CONTAINER_ID /bin/bash
 node ./build/cli/create-vqbackend.js blank vqbackend en info@vq-labs.com
 ```
 
-
 ## Advanced setup
 ### Ubuntu and nodeJS
 Install the required packages with apt-get package manager. If you do not know what it is, read about it here [https://wiki.ubuntuusers.de/apt/apt-get/](https://wiki.ubuntuusers.de/apt/apt-get/).
