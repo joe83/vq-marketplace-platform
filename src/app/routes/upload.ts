@@ -2,11 +2,13 @@ import * as multer from "multer";
 import * as async from "async";
 import { Application } from "express";
 import { VQ } from "../../core/interfaces";
+import { IVQRequest } from "../interfaces";
 import { writeFile } from 'fs';
 
 const responseController = require("../controllers/responseController");
 const isLoggedIn = responseController.isLoggedIn;
 const randomToken = require("random-token");
+const UploadService = require("../services/UploadService");
 
 /**
  * Requires configuration for FILE_UPLOAD_DIRECTORY
@@ -105,7 +107,7 @@ export default (app: Application) => {
             });
         });
 
-    /**
+
     app.post("/api/upload/image",
     isLoggedIn,
     (req, res) => {
@@ -126,43 +128,54 @@ export default (app: Application) => {
             if (!req.file) {
                 return res.status(400).send("No files uploaded!");
             }
-            const UploadService = require("../services/UploadService");
+
+            const query = req.query as {
+                isProfileAvatar: boolean
+            };
+
             const uploader = UploadService(process.env.AWS_S3_BUCKET);
 
             const imageBuffer = new Buffer(req.file.buffer);
-            const width = Number(req.query.width);
-            const height = Number(req.query.height);
-    
+            const width = 150 || Number(req.query.width);
+            const height = 150 ||  Number(req.query.height);
+
             const mimetype = req.file.mimetype.split("/")[1];
-    
+
             if (mimetype !== "jpeg" && mimetype !== "png") {
                 return res.status(400).send({
                     code: "UNSUPPORTED_IMAGE_FORMAT"
                 });
             }
-    
+
             async.waterfall([
                 fn => uploader
                 .uploadToBucket(imageBuffer, req.models.tenantId, mimetype, width, height, (err, locationPath) => {
                     if (err) {
                         return fn(err, locationPath);
                     }
-    
+
                     return fn(null, locationPath);
                 })
-            ], (err, locationPath) => {
+            ], async (err, locationPath) => {
                 if (err) {
                     console.error(err);
                     return res.status(500).send(err);
                 }
-    
-                res.status(200).send(req.query.json ? {
-                    url: locationPath 
-                } : locationPath);
+
+                if (query.isProfileAvatar) {
+                    const user = await req.models.user.findById(req.user.id);
+
+                    user.imageUrl = locationPath;
+
+                    await user.save();
+                }
+
+                res.status(200).send({
+                    url: locationPath
+                };
             });
         });
     });
-    */
 };
 
 /**

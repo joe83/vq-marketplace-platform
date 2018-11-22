@@ -344,11 +344,23 @@ export default (app: Application) => {
 					return cb(cust.errorCodes.USER_BLOCKED);
 				}
 
-				if (rUser.status !== req.models.user.USER_STATUS.VERIFIED) {
+				if (rUser.status !== "11") {
+					let  message = "The access the the platform is currently limited.";
+
+					message += "You have not been activated. Contact support@honest.cash for personal invitation.";
+
 					return cb({
-						token: User.token,
-						user: User.user,
-						err: cust.errorCodes.USER_NOT_VERIFIED
+						code: "NOT_ACTIVATED",
+						desc: message,
+						httpCode: 400
+					});
+				}
+
+				if (rUser.status !== req.models.user.USER_STATUS.VERIFIED && rUser.status !== "11") {
+					return cb({
+						code: "USER_NOT_VERIFIED",
+						esc: "Your e-mail has not been confirmed.",
+						httpCode: 400
 					});
 				}
 

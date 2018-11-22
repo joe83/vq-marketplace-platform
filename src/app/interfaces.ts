@@ -1,6 +1,10 @@
 import { Application, Request } from "express";
 
 export interface IVQModels {
+    // meta
+    tenantId: string;
+
+    //
     user: any;
     userProperty: any;
     userPreference: any;

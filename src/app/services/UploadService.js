@@ -8,10 +8,7 @@ module.exports = bucket => {
         
         if (width && height) {
             return sharp(buffer)
-                .resize(width, height, {
-                    kernel: sharp.kernel.lanczos2,
-                    interpolator: sharp.interpolator.nohalo
-                })
+                .resize(width, height)
                 .crop(sharp.strategy.entropy)
                 // .background('white')
                 // .embed()
