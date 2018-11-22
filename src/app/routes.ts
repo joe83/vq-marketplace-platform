@@ -8,6 +8,7 @@ import feedRoutes from "./routes/feed";
 import policyRoutes from "./routes/policy";
 import uploadRoutes from "./routes/upload";
 import userRoutes from "./routes/user";
+import userPostRoutes from "./routes/user-post";
 import userPropertyRoutes from "./routes/user-property";
 
 export default (app: Application) => {
@@ -20,6 +21,7 @@ export default (app: Application) => {
 	appTaskCategoryRoutes(app);
 	feedRoutes(app);
 	policyRoutes(app);
+	userPostRoutes(app);
 	userRoutes(app);
 	uploadRoutes(app);
 	userPropertyRoutes(app);

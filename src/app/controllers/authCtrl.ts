@@ -28,7 +28,7 @@ const checkPassword = (password: string): boolean => {
     return true; //good user input
 };
 
-export const createNewAccount = (models: any, data: VQ.AccountData, cb: VQ.StandardCallback) => {
+export const createNewAccount = async (models: any, data: VQ.AccountData, cb: VQ.StandardCallback) => {
     const email = data.email;
     // if no password is generated, we generate a random one. User will have to restart it in order to log-in.
     const password = data.password || randomstring.generate(10);
@@ -53,7 +53,21 @@ export const createNewAccount = (models: any, data: VQ.AccountData, cb: VQ.Stand
         return cb({
             code: "USER_WRONG_FORMAT",
             desc: "User has unallowed format.",
-            httpCode: 400,
+            httpCode: 400
+        });
+    }
+
+    const userWithUsername = await models.user.findOne({
+        where: {
+            username: data.username
+        }
+    });
+
+    if (userWithUsername) {
+        return cb({
+            code: "USERNAME_EXISTS",
+            desc: "Username already exists.",
+            httpCode: 400
         });
     }
 

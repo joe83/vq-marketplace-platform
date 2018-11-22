@@ -122,7 +122,7 @@ export default (app: Application) => {
                     });
                 }
             }
-yes -walet=staking-wallet.dat
+
             if (!req.file) {
                 return res.status(400).send("No files uploaded!");
             }
