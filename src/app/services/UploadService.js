@@ -22,14 +22,8 @@ module.exports = bucket => {
                     return resolve(imgBuffer);
                 });
         }
-        
+
         return sharp(buffer)
-            /**
-                .resize(width, height, {
-                    kernel: sharp.kernel.lanczos2,
-                    interpolator: sharp.interpolator.nohalo
-                })
-            */
             .toBuffer((err, imgBuffer) => {
                 if (err) {
                     console.error(err);
