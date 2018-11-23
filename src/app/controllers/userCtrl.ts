@@ -18,7 +18,6 @@ export const updateProperty = (models: any, userId: number, propKey: string, pro
                     { userId },
                     { propKey: property.propKey }
                 ]
-                
             }
         })
         .then((prop: any) => cb(null, prop), cb),
@@ -30,7 +29,7 @@ export const updateProperty = (models: any, userId: number, propKey: string, pro
                     })
                     .then(() => {
                         commitedProperty = prop;
-                        
+
                         return cb();
                     }, cb);
             }

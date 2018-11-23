@@ -46,8 +46,7 @@ module.exports = bucket => {
                         ContentType: "image/jpeg"
                     };
 
-                    s3
-                    .upload(params, (err, pres) => {
+                    s3.upload(params, (err, pres) => {
                         if (err) {
                             return callback(err);
                         }
@@ -67,8 +66,7 @@ module.exports = bucket => {
             ContentType: "application/pdf"
         };
 
-        s3
-        .upload(params, (err, pres) => {
+        s3.upload(params, (err, pres) => {
             if (err) {
                 return callback(err);
             }

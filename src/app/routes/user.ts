@@ -1,8 +1,11 @@
 const responseController = require("../controllers/responseController.js");
 
 import * as async from "async";
+
 import { Application } from "express";
 import { VQ } from "../../core/interfaces";
+import { checkUserName } from "../utils";
+
 import * as userCtrl from "../controllers/userCtrl";
 
 const isLoggedIn = responseController.isLoggedIn;
@@ -31,7 +34,7 @@ export default (app: Application) => {
         if (req.user && !req.user.isAdmin && req.query.adminView) {
           user.userProperties.forEach(_ => {
               const prop = _;
-    
+
               prop.propValue = Boolean(prop.propValue);
           });
         }
@@ -41,6 +44,10 @@ export default (app: Application) => {
       err => sendResponse(res, err)
     );
   });
+
+  const prepareUsername = (username: string) => {
+    return username;
+  };
 
    /**
      * @api {put} /api/user/:userId Updates user data
@@ -77,11 +84,19 @@ export default (app: Application) => {
         .forEach(fieldKey => {
           updateObj[fieldKey] = req.body[fieldKey];
         });
-      } catch(err) {
+      } catch (err) {
         return sendResponse(res, err);
       }
 
       let data: any;
+
+      if (updateObj.username) {
+        const wrongUserNameErr = checkUserName(updateObj.username);
+
+        if (wrongUserNameErr) {
+          return sendResponse(res, wrongUserNameErr);
+        }
+      }
 
       async.parallel([
         /**

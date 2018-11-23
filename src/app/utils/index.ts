@@ -1,4 +1,5 @@
 const slug = require("slug");
+import { IAPIError } from "../interfaces";
 
 export const cleanHashtag = (hashtag: string): string => {
     let cleanedHashtag = hashtag.split("#").join("");
@@ -79,3 +80,41 @@ export const getUtcUnixTimeNow = () => {
 
     return nowUtcUnix;
 };
+
+export const checkUserName = (username: string): IAPIError | undefined => {
+    const pattern = new RegExp(/[~`!#@$%\^&*+=. \-\[\]\\';,/{}|\\":<>\?]/); // unacceptable chars
+
+    if (!username) {
+        return {
+            code: "WRONG_USERNAME",
+            desc: "Username is required.",
+            httpCode: 400
+        };
+    }
+
+    if (pattern.test(username)) {
+      return {
+        code: "WRONG_USERNAME",
+        desc: "Username: please only use standard alphanumerics",
+        httpCode: 400
+      };
+    }
+
+    if (username.length < 3) {
+      return {
+        code: "WRONG_USERNAME",
+        desc: "Username should be at least 3 characters.",
+        httpCode: 400
+      };
+    }
+
+    if (username.length > 16) {
+      return {
+        code: "WRONG_USERNAME",
+        desc: "Username cannot have more than 16 characters",
+        httpCode: 400
+      };
+    }
+
+    return;
+  };

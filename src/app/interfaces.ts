@@ -29,3 +29,23 @@ export interface IVQRequest extends Request {
         id: number
     };
 }
+export interface IAPIError {
+    code: string;
+    httpCode: 400 | 500;
+    desc?: string;
+    message?: string;
+}
+
+export type TStandardCallback = (err?: IAPIError, result?: any) => void;
+
+export interface IAccountData {
+    username: string;
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    userType: 0 | 1 | 2,
+    props: {
+        [propKey: string]: string;
+    }
+}
