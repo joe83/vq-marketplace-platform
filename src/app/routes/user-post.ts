@@ -2,6 +2,7 @@
 import { Application } from "express";
 import { isLoggedIn } from "../controllers/responseController";
 import { IVQModels, IVQRequest } from "../interfaces";
+import { prepareHashtags } from "../utils";
 
 const slug = require("slug");
 const striptags = require("striptags");
@@ -36,35 +37,6 @@ const getDraft = async (models: IVQModels, userId: number) => {
     }
 
     return draft;
-};
-
-const prepareHashtags = (hashtags: string[] | string): string[] => {
-    // tslint:disable-next-line:align
-    if (typeof hashtags === "string") {
-        try {
-            hashtags = hashtags.split(",");
-        } catch (err) {
-            hashtags = [];
-        }
-    }
-
-    // tslint:disable-next-line:align
-	if (typeof hashtags === "object") {
-        hashtags = hashtags.filter((item) => item.length > 2);
-    }
-
-    // get the first 6 elements
-    hashtags = hashtags.slice(0, 6);
-
-    hashtags = hashtags.map((hashtag) => {
-        let cleanHashtag = hashtag.split("#").join("");
-
-        cleanHashtag = slug(cleanHashtag);
-
-        return cleanHashtag;
-    });
-
-    return hashtags;
 };
 
 const addHashtagsToPost = async (models: IVQModels, userPostId: number, hashtags: string[] | string) => {

@@ -1,6 +1,5 @@
 const async = require("async");
 const db = require("../app/models/models");
-const utils = require("../app/utils");
 const cryptoService = require("../app/services/cryptoService");
 const subscriptionService = require("../app/services/subscriptionService");
 const emailService = require("../app/services/emailService.js");
@@ -10,6 +9,7 @@ const request = require("request");
 const tenantModelsProvider = require("./tenantModelsProvider");
 
 import * as service from "./service";
+import * as utils from "../app/utils"
 
 const initRoutes = (app, express) => {
     app.use(express.static(__dirname + "/public"));
@@ -24,15 +24,15 @@ const initRoutes = (app, express) => {
 
         try {
             const splitted = req.query.state.split("@");
-            
+
             tenantId = splitted[0];
             userId = splitted[1];
         } catch (err) {
             return res.status(400).send("Missing state param");
         }
-        
+
         const models = db.get(tenantId);
-        
+
         if (!models) {
             res
             .status(400)

@@ -244,7 +244,9 @@ export default (app: Application) => {
 			);
 		});
 
-    app.delete("/api/admin/user/:userId/delete", isLoggedIn, isAdmin, hasValidSubscription, deleteUser);
+	app.delete("/api/admin/user/:userId/delete", isLoggedIn, isAdmin, hasValidSubscription, deleteUser);
+
+	// app.put("/api/admin/user/:userId/activate", isLoggedIn, isAdmin, hasValidSubscription, activateUser);
 
 	app.delete("/api/admin/user/:userId/verifications", 
 		isLoggedIn,

@@ -21,7 +21,8 @@ const runReporting = tenantId => {
     });
 
     analyzeEntityNo("user", "# Users");
-    analyzeEntityNo("userPost", "# User pots");
+    analyzeEntityNo("userPost", "# Published posts", { status: "published" });
+    analyzeEntityNo("userPost", "# draft posts", { status: "draft" });
 };
 
 module.exports = runReporting;

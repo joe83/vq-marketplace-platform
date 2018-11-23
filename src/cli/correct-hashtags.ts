@@ -2,6 +2,7 @@ require('dotenv').config();
 
 const async = require("async");
 const db = require('../app/models/models.js');
+import { cleanHashtag } from "../app/utils";
 
 const USECASE = "honestcash";
 const TENANT_ID = "honestcash";
@@ -18,9 +19,11 @@ db.create(TENANT_ID, USECASE, async () => {
 
     const models = db.get(TENANT_ID);
 
-    const userEmail = await models.userEmail.findAll();
-    
-    for (user of userEmails)
+    const userPostHashtags = await models.userPostHashtag.findAll();
 
-    userEmail.forEach(_ => console.log(_.email))
+    for (let userPostHashtag of userPostHashtags) {
+        userPostHashtag.hashtag = cleanHashtag(userPostHashtag.hashtag);
+
+        await userPostHashtag.save();
+    }
 });
