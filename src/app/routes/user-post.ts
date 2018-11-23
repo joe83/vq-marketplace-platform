@@ -54,7 +54,17 @@ const prepareHashtags = (hashtags: string[] | string): string[] => {
     }
 
     // get the first 6 elements
-    return hashtags.slice(0, 6);
+    hashtags = hashtags.slice(0, 6);
+
+    hashtags = hashtags.map((hashtag) => {
+        let cleanHashtag = hashtag.split("#").join("");
+
+        cleanHashtag = slug(cleanHashtag);
+
+        return cleanHashtag;
+    });
+
+    return hashtags;
 };
 
 const addHashtagsToPost = async (models: IVQModels, userPostId: number, hashtags: string[] | string) => {
