@@ -21,12 +21,7 @@ const runReporting = tenantId => {
     });
 
     analyzeEntityNo("user", "# Users");
-    analyzeEntityNo("user", "# Demand Users", { userType: 1 });
-    analyzeEntityNo("user", "# Supply Users", { userType: 2 });
-    analyzeEntityNo("user", "# Active Users", { status: "10" });
-    analyzeEntityNo("task", "# Listings");
-    analyzeEntityNo("request", "# Requests");
-    analyzeEntityNo("request", "# Transactions");
+    analyzeEntityNo("userPost", "# User pots");
 };
 
 module.exports = runReporting;
