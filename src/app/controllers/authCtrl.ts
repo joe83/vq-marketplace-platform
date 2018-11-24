@@ -43,8 +43,8 @@ export const createNewAccount = async (models: any, data: VQ.AccountData, cb: VQ
 
     if (!checkPassword(password)) {
         return cb({
-            code: "USER_WRONG_FORMAT",
-            desc: "User has unallowed format.",
+            code: "PASSWORD_WRONG_FORMAT",
+            desc: "Passord has unallowed format.",
             httpCode: 400
         });
     }
@@ -169,6 +169,6 @@ export const createNewAccount = async (models: any, data: VQ.AccountData, cb: VQ
             userEmitter.emit("created", models, emittedUser);
         }
 
-        return cb(err, vqAuthUser);
+        return cb(err, /** vqAuthUser  */);
     });
 };

@@ -164,7 +164,7 @@ export const create = (tenantId: string, marketplaceType: "services" | "blank", 
       ], (err) => {
         // we delete the object not to waste the sql connection
         tenantConnections[tenantId].seq.close();
-        
+
         delete tenantConnections[tenantId];
         console.log(`Completed for ${tenantId}`);
 

@@ -7,20 +7,24 @@ import { prepareHashtags } from "../utils";
 const slug = require("slug");
 const striptags = require("striptags");
 
-const getDraft = async (models: IVQModels, userId: number) => {
+const getDraft = async (models: IVQModels, userId: number, parentPostId: number) => {
+    const whereAndConditions: any[] = [
+        { userId },
+        { status: "draft" },
+        { postTypeId: "article" },
+        { parentPostId }
+    ];
+
     let draft = await models.userPost.findOne({
         include: [{ all: true }],
         where: {
-            $and: [
-               { userId },
-               { status: "draft" },
-               { postTypeId: "article" }
-            ]
+            $and: whereAndConditions
         }
     });
 
     if (!draft) {
         draft = await models.userPost.create({
+            parentPostId,
             postTypeId: "article",
             status: "draft",
             userId
@@ -60,8 +64,18 @@ export default (app: Application) => {
     app.get("/api/post/:idOrAlias", async (req: IVQRequest, res) => {
         const idOrAlias = req.params.idOrAlias.toLowerCase();
 
-        const post = await req.models.userPost.findOne({
-            include: [{ all: true }],
+        const postObj = await req.models.userPost.findOne({
+            include: [
+                {
+                    include: [ { model: req.models.user } ],
+                    model: req.models.userPost,
+                    required: false,
+                    where: { status: "published" }
+                },
+                { model: req.models.userPostHashtag },
+                { model: req.models.user }
+            ],
+            plain: true,
             where: {
                 $or: [
                     { id: idOrAlias },
@@ -70,16 +84,49 @@ export default (app: Application) => {
             }
         });
 
+        const post = postObj.dataValues;
+
+        if (post.parentPostId) {
+            const parentPostObj = await req.models.userPost.findOne({
+                include: [
+                    { model: req.models.user }
+                ],
+                where: {
+                    $or: [
+                        { id: post.parentPostId }
+                    ]
+                }
+            });
+
+            post.parentPost = parentPostObj.dataValues;
+        }
+
         res.status(200).send(post);
     });
 
     app.get("/api/draft", isLoggedIn, async (req: IVQRequest, res) => {
-        let draft;
+        let draftObj;
 
         try {
-            draft = await getDraft(req.models, req.user.id);
+            draftObj = await getDraft(req.models, req.user.id, req.query.parentPostId);
         } catch (err) {
             return res.status(400).send(err);
+        }
+
+        const draft = draftObj.dataValues;
+
+        if (draft.parentPostId) {
+            draft.parentPost = await req.models.userPost.findOne({
+                include: [
+                    { model: req.models.user }
+                ],
+                plain: true,
+                where: {
+                    $or: [
+                        { id: draft.parentPostId }
+                    ]
+                }
+            });
         }
 
         res.status(200).send(draft);
@@ -133,6 +180,7 @@ export default (app: Application) => {
 
     app.put("/api/draft/:postId/publish", isLoggedIn, async (req: IVQRequest, res) => {
         const post = await req.models.userPost.findOne({
+            include: [{ model: req.models.user }],
             where: {
                 $and: [
                    { userId: req.user.id },

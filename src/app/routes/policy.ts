@@ -345,9 +345,9 @@ export default (app: Application) => {
 				}
 
 				if (rUser.status !== "11") {
-					let  message = "The access the the platform is currently limited.";
+					let  message = "The access the the platform is currently limited. ";
 
-					message += "You have not been activated. Contact support@honest.cash for personal invitation.";
+					message += "Your account has not been activated. Tweet us at @HonestCash for a personal invitation.";
 
 					return cb({
 						code: "NOT_ACTIVATED",

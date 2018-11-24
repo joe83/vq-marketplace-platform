@@ -23,7 +23,11 @@ export const createMarketplace = (tenantId: string, cb: (err: any) => void) => {
             return cb(err);
         }
 
-        tenantServices.deployNewMarketplace(tenant.tenantId, tenant.apiKey, "test", "test", TYPE, {}, (err: any) => {
+        tenantServices.deployNewMarketplace(
+            tenant.tenantId,
+            tenant.apiKey,
+            "testtest123",
+            "testtest123", TYPE, {}, (err: any) => {
             if (err) {
                 console.error(err);
 

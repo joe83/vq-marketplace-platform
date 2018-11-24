@@ -91,6 +91,7 @@ function parseUserFactory (loginRequired: boolean, adminRequired: boolean, requi
 
 export const isLoggedIn = parseUserFactory(true, false);
 export const isLoggedInAndVerified = parseUserFactory(true, false, "10");
+export const isLoggedInAndActivated = parseUserFactory(true, false, "10");
 export const isAdmin = parseUserFactory(true, true);
 export const identifyUser = parseUserFactory(false, false);
 
