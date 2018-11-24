@@ -5,6 +5,7 @@ export namespace VQ {
         httpCode: 400 | 500;
         desc?: string;
         message?: string;
+        data?: any
     }
 
     export type StandardCallback = (err?: VQ.APIError, result?: any) => void;

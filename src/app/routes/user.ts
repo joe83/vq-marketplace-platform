@@ -5,8 +5,10 @@ import * as async from "async";
 import { Application } from "express";
 import { VQ } from "../../core/interfaces";
 import { checkUserName } from "../utils";
-
 import * as userCtrl from "../controllers/userCtrl";
+
+const BITBOXSDK = require("bitbox-sdk/lib/bitbox-sdk").default;
+const BITBOX = new BITBOXSDK();
 
 const isLoggedIn = responseController.isLoggedIn;
 const sendResponse = responseController.sendResponse;
@@ -63,7 +65,7 @@ export default (app: Application) => {
      *
      * @apiSuccess {id} id user ID (is not the same as the account ID of the user)
      */
-  app.put("/api/user/:userId", isLoggedIn, (req, res) => {
+  app.put("/api/user/:userId", isLoggedIn, async (req, res) => {
       const mutableFields = [
         "firstName",
         "lastName",
@@ -95,6 +97,21 @@ export default (app: Application) => {
 
         if (wrongUserNameErr) {
           return sendResponse(res, wrongUserNameErr);
+        }
+      }
+
+      if (updateObj.addressBCH) {
+        let validatedAddress: { isvalid: boolean };
+
+        validatedAddress = await BITBOX.Util.validateAddress(updateObj.addressBCH);
+
+        if (!validatedAddress.isvalid) {
+          return sendResponse(res, {
+            code: "WRONG_BCH_ADDRESS",
+            data: validatedAddress,
+            desc: "The Bitcoin Cash address is not valid.",
+            httpCode: 400
+          });
         }
       }
 

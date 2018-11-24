@@ -4,6 +4,7 @@ import appConfigRoutes from "./routes/app_config";
 import appLabelRoutes from "./routes/app_label";
 import appPostsRoutes from "./routes/app_post";
 import appTaskCategoryRoutes from "./routes/app_task_category";
+import bitcoinRoutes from "./routes/bitcoin";
 import feedRoutes from "./routes/feed";
 import policyRoutes from "./routes/policy";
 import uploadRoutes from "./routes/upload";
@@ -19,6 +20,7 @@ export default (app: Application) => {
 	appLabelRoutes(app);
 	appPostsRoutes(app);
 	appTaskCategoryRoutes(app);
+	bitcoinRoutes(app);
 	feedRoutes(app);
 	policyRoutes(app);
 	userPostRoutes(app);
@@ -26,4 +28,3 @@ export default (app: Application) => {
 	uploadRoutes(app);
 	userPropertyRoutes(app);
 };
-

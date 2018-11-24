@@ -31,6 +31,8 @@
     "async": "^2.0.0-rc.6",
     "aws-sdk": "^2.7.14",
     "bcrypt-nodejs": "0.0.3",
+    "bitbox-sdk": "^2.2.2",
+    "bitcointoken": "0.1.0-alpha.1",
     "body-parser": "~1.15.2",
     "chargebee": "^2.3.4",
     "cookie-parser": "~1.4.3",
