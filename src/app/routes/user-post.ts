@@ -11,11 +11,30 @@ const getDraft = async (models: IVQModels, userId: number, parentPostId: number)
     const whereAndConditions: any[] = [
         { userId },
         { status: "draft" },
-        { postTypeId: "article" },
-        { parentPostId }
+        { postTypeId: "article" }
     ];
 
-    let draft = await models.userPost.findOne({
+    let parentPost;
+    let draft;
+
+    if (parentPostId) {
+        parentPost = await models.userPost.findOne({
+            include: [
+                { model: models.user }
+            ],
+            where: {
+                id: parentPostId
+            }
+        });
+
+        if (!parentPost) {
+            throw new Error("PARENT_POST_NOT_FOUND");
+        }
+
+        whereAndConditions.push({ parentPostId });
+    }
+
+    draft = await models.userPost.findOne({
         include: [{ all: true }],
         where: {
             $and: whereAndConditions
@@ -23,12 +42,17 @@ const getDraft = async (models: IVQModels, userId: number, parentPostId: number)
     });
 
     if (!draft) {
-        draft = await models.userPost.create({
-            parentPostId,
+        const postBody: { postTypeId: string, status: string, userId: number, parentPostId?: number } = {
             postTypeId: "article",
             status: "draft",
             userId
-        });
+        };
+
+        if (parentPostId) {
+            postBody.parentPostId = parentPostId;
+        }
+
+        draft = await models.userPost.create(postBody);
 
         draft = await models.userPost.findOne({
             include: [{ all: true }],
@@ -39,6 +63,10 @@ const getDraft = async (models: IVQModels, userId: number, parentPostId: number)
             }
         });
     }
+
+    draft = JSON.parse(JSON.stringify(draft));
+
+    draft.parentPost = parentPost;
 
     return draft;
 };
@@ -105,27 +133,13 @@ export default (app: Application) => {
     });
 
     app.get("/api/draft", isLoggedIn, async (req: IVQRequest, res) => {
-        let draftObj;
+        let draft;
 
         try {
-            draftObj = await getDraft(req.models, req.user.id, req.query.parentPostId);
-        } catch (err) {
-            return res.status(400).send(err);
-        }
-
-        const draft = draftObj.dataValues;
-
-        if (draft.parentPostId) {
-            draft.parentPost = await req.models.userPost.findOne({
-                include: [
-                    { model: req.models.user }
-                ],
-                plain: true,
-                where: {
-                    $or: [
-                        { id: draft.parentPostId }
-                    ]
-                }
+            draft = await getDraft(req.models, req.user.id, req.query.parentPostId);
+        } catch (errCode) {
+            return res.status(400).send({
+                code: errCode
             });
         }
 
@@ -141,7 +155,9 @@ export default (app: Application) => {
         }});
 
         if (!draft) {
-            res.status(400).send({ code: "NOT_FOUND" });
+            return res.status(400).send({
+                code: "NOT_FOUND"
+            });
         }
 
         const body = req.body as {
