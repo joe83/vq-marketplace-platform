@@ -34,14 +34,12 @@ const handlerFactory = (emailCode) => (models, task) => {
                 return console.error("USER_NOT_FOUND");
             }
     
-            vqAuth
-                .getEmailsFromUserId(models, user.vqUserId, (err, rUserEmails) => {
+            vqAuth.getEmailsFromUserId(models, user.vqUserId, (err, _emails) => {
                     if (err) {
                         return console.error(err);
                     }
     
-                    const emails = rUserEmails
-                        .map(_ => _.email);
+                    const emails = _emails;
 
                     getDomainName(models, (err, domain) => {
                         if (err) {
@@ -150,11 +148,6 @@ taskEmitter
 
                                         return cb();
                                     }
-                    
-                                    const emails = rUserEmails
-                                        .forEach(_ => {
-                                            userEmails.push(_.email);
-                                        });
 
                                     cb();
                                 })

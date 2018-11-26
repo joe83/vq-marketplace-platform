@@ -1,12 +1,12 @@
 const async = require("async");
 const randomToken = require("random-token");
-const AuthService = require("./services/AuthService");
 
 const LoginCtrl = require("./controllers/LoginCtrl");
 
 import { IVQModels } from "../interfaces";
 import * as AuthCtrl from "./controllers/AuthCtrl";
 import * as SignupCtrl from "./controllers/SignupCtrl";
+import * as AuthService from "./services/AuthService";
 
 const timeout = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -88,12 +88,24 @@ export const resetPassword = (models: IVQModels, resetCode: string, newPassword:
         cb(err);
     });
 };
+interface IUserEmail {
+    email: string;
+}
 
-export const getEmailsFromUserId = (models, userId, cb) => {
-    return AuthService
-        .getEmailsFromUserId(models, userId, (err, vqUser) => {
-            return cb(err, vqUser);	
-        });
+export const getEmailsFromUserId = async (models: any, userId: number, cb: (err: any, emails?: string[]) => void) => {
+    const userEmails: IUserEmail[] = await models.userEmail.findAll({
+        where: {
+            userId
+        }
+    });
+
+    const emails = userEmails.map(_ => _.email);
+
+    if (cb) {
+        cb(undefined, emails);
+    }
+
+    return emails;
 };
 
 export const getAuthUserIdFromEmail = (models, email, cb) => {

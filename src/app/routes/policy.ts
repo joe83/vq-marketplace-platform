@@ -174,13 +174,13 @@ export default (app: Application) => {
 				}
 
 				vqAuth
-				.getEmailsFromUserId(req.models, vqUserId, (err, rUserEmails) => {
+				.getEmailsFromUserId(req.models, vqUserId, (err, _emails) => {
 					if (err) {
 						return cb(err);
 					}
 
 					vqUserId = rUserEmails[0].userId;
-					emails = rUserEmails.map(_ => _.email);
+					emails = _emails;
 
 					req.models.user
 						.findOne({

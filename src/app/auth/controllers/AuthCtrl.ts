@@ -1,7 +1,8 @@
 const async = require("async");
-const AuthService = require("../services/AuthService.js");
 
-const checkToken = (models, token, callback) => {
+import * as AuthService from "../services/AuthService";
+
+const checkToken = (models, token: String, callback) => {
 	if (!token) {
 		return callback({
       status: 400,
@@ -9,7 +10,7 @@ const checkToken = (models, token, callback) => {
       message: "Token is missing."
     });
 	}
-  
+
   async.waterfall([
         callback => AuthService.checkToken(models, token, (err, rUserToken) => {
           if (err) {
@@ -44,8 +45,6 @@ const changePassword = (models, userId, newPassword) => {
     AuthService.createNewPassword(models, userId, newPassword, () => {});
   });
 };
-
-
 
 module.exports = {
   changePassword,

@@ -71,26 +71,24 @@ const getRequestOwnerEmails = (models, requestId, cb) => {
 			});
 		},
         cb => vqAuth
-            .getEmailsFromUserId(models, request.fromUser.vqUserId, (err, rUserEmails) => {
+            .getEmailsFromUserId(models, request.fromUser.vqUserId, (err, _emails) => {
                 if (err) {
                     return cb(err);
                 }
 
-				const emails = rUserEmails
-                    .map(_ => _.email);
+				const emails = _emails;
 
 				setEmails(request.fromUser, emails);
 
                 cb();
 			}),
 		cb => vqAuth
-            .getEmailsFromUserId(models, request.toUser.vqUserId, (err, rUserEmails) => {
+            .getEmailsFromUserId(models, request.toUser.vqUserId, (err, _emails) => {
                 if (err) {
                     return cb(err);
                 }
 
-                const emails = rUserEmails
-                    .map(_ => _.email);
+                const emails = _emails;
 
 				setEmails(request.toUser, emails);
 
@@ -230,13 +228,12 @@ requestEmitter
 				}, cb),
 				cb => {
 					vqAuth
-					.getEmailsFromUserId(models, message.toUser.vqUserId, (err, rUserEmails) => {
+					.getEmailsFromUserId(models, message.toUser.vqUserId, (err, _emails) => {
 						if (err) {
 							return cb(err);
 						}
 		
-						const emails = rUserEmails
-							.map(_ => _.email);
+						const emails = _emails;
 		
 							models
 							.appConfig
@@ -346,25 +343,23 @@ requestEmitter
 					return cb();
 				}, cb),
 			cb => vqAuth
-				.getEmailsFromUserId(models, request.fromUser.vqUserId, (err, rUserEmails) => {
+				.getEmailsFromUserId(models, request.fromUser.vqUserId, (err, _requestSentEmails) => {
 					if (err) {
 						return cb(err);
 					}
 
-					requestSentEmails = rUserEmails
-						.map(_ => _.email);
+					requestSentEmails = _requestSentEmails;
 
 					cb();
 				}),
 			cb => vqAuth
-				.getEmailsFromUserId(models, request.toUser.vqUserId, (err, rUserEmails) => {
+				.getEmailsFromUserId(models, request.toUser.vqUserId, (err, _requestReceivedEmails) => {
 					if (err) {
 						return cb(err);
 					}
 
-					requestReceivedEmails = rUserEmails
-						.map(_ => _.email);
-					
+					requestReceivedEmails = _requestReceivedEmails;
+
 					cb();
 				}),
 			cb => models

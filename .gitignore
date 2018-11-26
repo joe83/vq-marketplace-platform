@@ -1,5 +1,6 @@
 .elasticbeanstalk
 scripts/transport-tw-users-to-vq.js
+scripts/save-post.js
 build/
 node_modules/
 .env

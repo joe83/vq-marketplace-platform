@@ -31,24 +31,22 @@ const getReviewOwnerEmails = (models, reviewId, cb) => {
                 return cb();
             }, cb),
         cb => vqAuth
-            .getEmailsFromUserId(models, review.fromUser.vqUserId, (err, rUserEmails) => {
+            .getEmailsFromUserId(models, review.fromUser.vqUserId, (err, _fromUserEmails) => {
                 if (err) {
                     return cb(err);
                 }
 
-                fromUserEmails = rUserEmails
-                    .map(_ => _.email);
+                fromUserEmails = _fromUserEmails;
 
                 cb();
             }),
         cb => vqAuth
-            .getEmailsFromUserId(models, review.toUser.vqUserId, (err, rUserEmails) => {
+            .getEmailsFromUserId(models, review.toUser.vqUserId, (err, _toUserEmails) => {
                 if (err) {
                     return cb(err);
                 }
 
-                toUserEmails = rUserEmails
-                    .map(_ => _.email);
+                toUserEmails = _toUserEmails;
 
                 cb();
             })

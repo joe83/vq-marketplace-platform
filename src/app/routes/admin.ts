@@ -17,6 +17,8 @@ const subscriptionService = require("../services/subscriptionService");
 require('dotenv').config();
 
 import { Application } from "express";
+
+import activateUser from "./admin/user/activateUser";
 import deleteUser from "./admin/user/deleteUser";
 
 const superadmins: { [superadminName: string]: string } = {};
@@ -131,14 +133,13 @@ export default (app: Application) => {
 				}
 
 				vqAuth
-					.getEmailsFromUserId(req.models, user.vqUserId, (err, rUserEmails) => {
+					.getEmailsFromUserId(req.models, user.vqUserId, (err, _emails) => {
 						if (err) {
 							return res.status(400).send(err);
 						}
-			
-						const emails = rUserEmails
-							.map(_ => _.email);
-			
+
+						const emails = _emails;
+
 						res.status(200).send(emails);
 					});
 			}, err => res.status(500).send(err));
@@ -244,6 +245,7 @@ export default (app: Application) => {
 			);
 		});
 
+	app.delete("/api/admin/user/:userId/activate", isLoggedIn, isAdmin, hasValidSubscription, activateUser);
 	app.delete("/api/admin/user/:userId/delete", isLoggedIn, isAdmin, hasValidSubscription, deleteUser);
 
 	// app.put("/api/admin/user/:userId/activate", isLoggedIn, isAdmin, hasValidSubscription, activateUser);

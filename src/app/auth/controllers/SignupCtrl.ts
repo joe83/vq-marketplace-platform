@@ -1,7 +1,8 @@
 var async = require("async");
-var AuthService = require("../services/AuthService.js");
+
 import * as Sequelize from "sequelize";
 import { VQ } from "../../../core/interfaces";
+import * as AuthService from "../services/AuthService";
 
 export const createLocalAccount = (models: Sequelize.Models, email: string, password: string, callback: VQ.StandardCallback) => {
   if (!email) {

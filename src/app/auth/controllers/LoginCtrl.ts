@@ -1,7 +1,7 @@
 var async = require("async");
-var AuthService = require("../services/AuthService.js");
 
 import { VQ } from "../../../core/interfaces";
+import * as AuthService from "../services/AuthService";
 
 const loginWithPassword = (models: any, email: string, password: string, callback: VQ.StandardCallback) => {
 	if (!email || !password) {

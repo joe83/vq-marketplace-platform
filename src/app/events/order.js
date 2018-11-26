@@ -51,13 +51,12 @@ const getOrderOwnerEmails = (models, orderId, cb) => {
 
         // get demand user emails
         cb => vqAuth
-            .getEmailsFromUserId(models, order.user.vqUserId, (err, rUserEmails) => {
+            .getEmailsFromUserId(models, order.user.vqUserId, (err, _emails) => {
                 if (err) {
                     return cb(err);
                 }
 
-                emails = rUserEmails
-                    .map(_ => _.email);
+                emails = _emails;
 
                 return cb();
             }),
@@ -69,14 +68,12 @@ const getOrderOwnerEmails = (models, orderId, cb) => {
                     request.fromUser.vqUserId;
 
             vqAuth
-            .getEmailsFromUserId(models, vqSupplyUserId,
-                (err, rUserEmails) => {
+            .getEmailsFromUserId(models, vqSupplyUserId, (err, _supplyEmails) => {
                     if (err) {
                         return cb(err);
                     }
 
-                    supplyEmails = rUserEmails
-                        .map(_ => _.email);
+                    supplyEmails = _supplyEmails;
 
                     return cb();
             });

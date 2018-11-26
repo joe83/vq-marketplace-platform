@@ -8,26 +8,27 @@ import { IVQModels } from "../interfaces";
 
 const mandrill_client = new mandrill.Mandrill(process.env.MANDRILL);
 
-type TEmailCode = "welcome" | "password-reset";
+type TEmailCode = "welcome" | "password-reset" | "user-activated";
 
 export const EMAILS: { [emailCode: string]: TEmailCode } = {
 	PASSWORD_RESET: "password-reset",
+	USER_ACTIVATED: "user-activated",
 	WELCOME: "welcome"
 };
 
 export const getRawMessagePrototype = (fromName: string, supportEmail: string, domain: string) => ({
-	from_email: "noreply@vq-labs.com",
+	from_email: process.env.EMAIL_FROM || "noreply@vq-labs.com",
 	from_name: fromName,
-	to: [ ],
+	global_merge_vars: [],
 	headers: {
 		"Reply-To": supportEmail
 	},
 	important: false,
-	global_merge_vars: [],
 	metadata: {
 		website: domain
 	},
 	recipient_metadata: [{}],
+	to: [ ],
 });
 
 export const getMessagePrototype = models => new Promise((resolve, reject) => {
@@ -199,9 +200,15 @@ export const getEmailAndSend = async (
 ) => {
 	const config = await custProvider.getConfig(models);
 
+	const allowedEmails = [
+		EMAILS.WELCOME,
+		EMAILS.PASSWORD_RESET,
+		EMAILS.USER_ACTIVATED
+	]
+
 	// in case emails are disabled... only the welcome and password reset email can be sent.
-	if (emailCode !== EMAILS.WELCOME && emailCode !== EMAILS.PASSWORD_RESET && config.EMAILS_ENABLED !== "1") {
-		return;
+	if (allowedEmails.indexOf(emailCode) === -1 && config.EMAILS_ENABLED !== "1") {
+		return console.log(`Email ${emailCode} not allowed, so not sending!`);
 	}
 
 	const emailBody = await getEmailBody(models, emailCode);

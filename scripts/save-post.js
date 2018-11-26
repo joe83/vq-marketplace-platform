@@ -6,7 +6,7 @@ const BitcoinToken = bitcointoken.Token
 
 const bitcoinWallet = new BitcoinWallet();
 
-const privk = "sdasd";
+const privk = "";
 
 const db = BitcoinDb.fromHdPrivateKey(privk);
 

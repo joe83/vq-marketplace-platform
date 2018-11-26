@@ -3,9 +3,9 @@ const async = require("async");
 const randomToken = require("random-token");
 const logIndex = "[AuthService]";
 
-const generateHashSync = password => bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
+export const generateHashSync = (password: string) => bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
 
-const validPasswordSync = (password, encryptedPassword) => {
+export const validPasswordSync = (password, encryptedPassword) => {
 	if (!password || !encryptedPassword) {
 		console.error(logIndex, "validPasswordSync", "initial arguments");
 
@@ -15,13 +15,13 @@ const validPasswordSync = (password, encryptedPassword) => {
 	return bcrypt.compareSync(password, encryptedPassword);
 };
 
-const createNewUser = (models, callback) => {
+export const createNewUser = (models, callback) => {
 	return models.userAuth
 		.create({})
 		.then(instance => callback(null, instance), err => callback(err));
 };
 
-const createNewPassword = (models, userId, password, cb) => {
+export const createNewPassword = (models, userId, password, cb) => {
 	cb = cb || function() {};
 
 	if (!userId || !password) {
@@ -48,7 +48,7 @@ const createNewPassword = (models, userId, password, cb) => {
 	}, cb);
 };
 
-const createNewEmail = (models, userId, email, callback) => async.series([
+export const createNewEmail = (models, userId, email, callback) => async.series([
 	cb => models.userEmail
 		.findOne({
 			where: {
@@ -76,51 +76,7 @@ const createNewEmail = (models, userId, email, callback) => async.series([
 	}
 ], err => callback(err));
 
-
-
-const getUserIdFromNetwork = (models, network, networkId, callback) => {
-	var sql = "SELECT user.id AS userId FROM user AS user";
-
-	sql += " INNER JOIN userNetwork AS network";
-	sql += " ON network.userId = user.id";
-	sql += ` WHERE network.networkId = ${networkId} AND network.network = '${network}'`;
-
-	models.seq.query(sql)
-	.then(result => {
-		if (result.length) {
-			return callback(null, result[0]);
-		}
-
-		return callback(null, false);
-	}, callback);
-};
-
-const updateNetworkToken = (models, userId, network, networkId, token) =>
-	models.userToken
-		.update({
-			token: token
-		}, {
-			where: {
-				$and: [ 
-					 { networkId },
-					 { userId }
-				]
-			}
-		})
-		.then(() => {}, err => console.error(err));
-
-const createNewNetwork = (models, userId, network, networkId, token, refreshToken, callback) =>
-	models.userNetwork
-		.create({
-			userId: userId,
-			network: network,
-			networkId: networkId,
-			token: token,
-			refreshToken: refreshToken
-		})
-		.then(instance => callback(), err => callback(err));
-
-const createNewToken = (models, userId, cb) => {
+export const createNewToken = (models, userId, cb) => {
 	console.log(`[${models.tenantId}]: Creating new user token for vqUserId ${userId}`);
 
 	models
@@ -136,7 +92,7 @@ const createNewToken = (models, userId, cb) => {
 	}, cb);
 };
 
-const checkToken = (models, token, callback) => {
+export const checkToken = (models, token, callback) => {
 	models.userToken
 		.findOne({
 			where: [
@@ -150,7 +106,7 @@ const checkToken = (models, token, callback) => {
 		}, err => callback(err));
 };
 
-const checkPassword = (models, userId, password, callback) => {
+export const checkPassword = (models, userId, password, callback) => {
 	models.userPassword
 		.findOne({
 			where: {
@@ -170,22 +126,17 @@ const checkPassword = (models, userId, password, callback) => {
 		}, err => callback(err));
 };
 
-const getEmailsFromUserId = (models, userId, callback) => {
-	return models.userEmail
-		.findAll({
+export const getEmailsFromUserId = (models: any, vqUserId: number, callback) => {
+	return models.userEmail.findAll({
 			where: {
-				$and: [
-					{ userId }
-				]	
+				userId: vqUserId
 			}
-		})
-		.then(instances =>
-			callback(null, instances || false),
-			err => callback(err)
-		);
+		}).then(instances => {
+			callback(null, instances || false)
+		}, err => callback(err));
 };
 
-const getUserIdFromEmail = (models, email, callback) => {
+export const getUserIdFromEmail = (models, email, callback) => {
 	return models.userEmail
 		.findOne({
 			where: {
@@ -200,7 +151,7 @@ const getUserIdFromEmail = (models, email, callback) => {
 		);
 };
 
-const addUserProp = (models, userId, propKey, propValue, callback) => {
+export const addUserProp = (models, userId, propKey, propValue, callback) => {
 	if (!userId || !propKey) {
 		return callback({
 			status: 400,
@@ -248,25 +199,8 @@ const addUserProp = (models, userId, propKey, propValue, callback) => {
 				]
 			});
 		}
-		
+
 		promise
 		.then(() => callback(), callback);
 	});
-};
-
-module.exports = {
-	createNewUser,
-	createNewPassword,
-	createNewEmail,
-	createNewToken,
-	createNewNetwork,
-	addUserProp,
-	checkPassword,
-	checkToken,
-	getUserIdFromEmail,
-	getEmailsFromUserId,
-	getUserIdFromNetwork,
-	updateNetworkToken,
-	generateHashSync,
-	validPasswordSync
 };
