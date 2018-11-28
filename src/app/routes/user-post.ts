@@ -140,7 +140,7 @@ export default (app: Application) => {
         res.status(200).send(post);
     });
 
-    app.post("/api/post/:postId/upvote", async (req: IVQRequest, res) => {
+    app.post("/api/post/:postId/upvote", isLoggedIn, async (req: IVQRequest, res) => {
         const body: { txId: string, postId: number } = req.body;
 
         const post = await req.models.userPost.findById(body.postId);
