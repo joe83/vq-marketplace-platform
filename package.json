@@ -9,6 +9,7 @@
   },
   "scripts": {
     "start": "node build/app.js",
+    "docs": "apidoc -i src/ -o docs/",
     "start:forever": "./node_modules/forever/bin/forever start build/app.js",
     "create:vqbackend": "node ./build/cli/create-vqbackend.js blank vqbackend en",
     "lint": "node ./node_modules/.bin/eslint src",
@@ -88,7 +89,6 @@
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.5",
     "babel-preset-env": "^1.7.0",
-    "bitcointoken": "0.1.0-alpha.1",
     "bson": "^1.0.4",
     "eslint": "^4.9.0",
     "forever": "^0.15.3",
@@ -106,9 +106,6 @@
     "tslint": "^5.8.0",
     "typescript": "^2.7.2",
     "uglifyjs-webpack-plugin": "^2.0.1",
-    "webpack": "^4.20.2",
-    "webpack-cli": "^3.1.2",
-    "webpack-node-externals": "^1.7.2",
     "yargs": "^7.1.0"
   },
   "engines": {

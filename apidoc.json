@@ -1,0 +1,9 @@
+{
+    "name": "vq-marketplace-platform",
+    "version": "0.1.0",
+    "description": "Docs for VQ Marketplace Platform",
+    "apidoc": {
+      "title": "Docs for VQ Marketplace Platform",
+      "url" : "https://github.com/vq-labs/vq-marketplace-platform"
+    }
+  }
