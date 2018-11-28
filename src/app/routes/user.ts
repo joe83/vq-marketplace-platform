@@ -220,7 +220,7 @@ export default (app: Application) => {
       }
     });
 
-    const user = await req.models.user.findById(req.params.userid);
+    const user = await req.models.user.findById(req.params.userId);
 
     if (!user) {
       return res.status(400).send({ code: "NOT_FOUND" });
