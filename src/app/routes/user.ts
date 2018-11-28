@@ -227,10 +227,16 @@ export default (app: Application) => {
     }
 
     if (!followRow) {
-      await req.models.userFollower.create({
-        userId: req.user.id,
-        followingId: req.params.userid
-      });
+      try {
+        await req.models.userFollower.create({
+          followingId: req.params.userId,
+          userId: req.user.id
+        });
+      } catch (err) {
+        return res.status(400).send({
+          code: "COULD_NOT_CREATE"
+        });
+      }
     }
 
     return res.status(200).send({ code: "FOLLOWED" });
