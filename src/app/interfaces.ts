@@ -12,13 +12,14 @@ export interface IVQModels {
     // auth
     userEmail: any;
     userNetwork: any;
+    userFollower: any;
     userPaymentAccount: any;
     userPassword: any;
     userToken: any;
     userResetCode: any;
     userAuth: any;
     userPostHashtag: any;
-
+    userPostUpvote: any;
     // App
     appConfig: any;
 }

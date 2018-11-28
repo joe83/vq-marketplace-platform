@@ -89,6 +89,13 @@ const addHashtagsToPost = async (models: IVQModels, userPostId: number, hashtags
 };
 
 export default (app: Application) => {
+    /**
+     * @api {get} /api/post/:idOrAlias Post identifier
+     * @apiVersion 0.0.2
+     * @apiGroup Post
+     *
+     * @apiParam {idOrAlias} ID of the post or an identifier
+     */
     app.get("/api/post/:idOrAlias", async (req: IVQRequest, res) => {
         const idOrAlias = req.params.idOrAlias.toLowerCase();
 
@@ -101,6 +108,7 @@ export default (app: Application) => {
                     where: { status: "published" }
                 },
                 { model: req.models.userPostHashtag },
+                { model: req.models.userPostUpvote },
                 { model: req.models.user }
             ],
             plain: true,
@@ -130,6 +138,27 @@ export default (app: Application) => {
         }
 
         res.status(200).send(post);
+    });
+
+    app.post("/api/post/:postId/upvote", async (req: IVQRequest, res) => {
+        const idOrAlias = req.params.idOrAlias.toLowerCase();
+
+        const body: { txId: string, postId: number } = req.body;
+
+        const post = await req.models.userPost.findById(body.postId);
+
+        if (!post) {
+            return res.status(400).send({ code: "POST_NOT_FOUND" });
+        }
+
+        await req.models.userPostUpvote.create({
+            blockchain: "bch",
+            txId: body.txId,
+            userId: req.user.id,
+            userPostId: body.postId
+        });
+
+        res.status(200).send({ ok: true });
     });
 
     app.get("/api/draft", isLoggedIn, async (req: IVQRequest, res) => {

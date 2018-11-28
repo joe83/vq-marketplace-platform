@@ -48,6 +48,7 @@ export default (sequelize: Sequelize, dataTypes: DataTypes) => {
         foreignKey: "parentPostId"
     });
     UserPost.hasMany(models.userPostHashtag);
+    UserPost.hasMany(models.userPostUpvote);
     UserPost.belongsTo(models.user);
   };
 

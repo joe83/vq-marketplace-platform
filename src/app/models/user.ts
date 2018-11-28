@@ -90,6 +90,7 @@ module.exports = (sequelize: Sequelize, dataTypes: DataTypes) => {
       foreignKey: "toUserId"
     });
 
+    User.hasMany(models.userPostUpvote);
     User.hasMany(models.userFollower);
   };
 
