@@ -108,7 +108,7 @@ export default (app: Application) => {
                     where: { status: "published" }
                 },
                 { model: req.models.userPostHashtag },
-                { model: req.models.userPostUpvote, require: false },
+                { model: req.models.userPostUpvote, required: false },
                 { model: req.models.user }
             ],
             plain: true,
