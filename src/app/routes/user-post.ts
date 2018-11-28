@@ -108,7 +108,7 @@ export default (app: Application) => {
                     where: { status: "published" }
                 },
                 { model: req.models.userPostHashtag },
-                { model: req.models.userPostUpvote },
+                { model: req.models.userPostUpvote, require: false },
                 { model: req.models.user }
             ],
             plain: true,
@@ -119,6 +119,10 @@ export default (app: Application) => {
                 ]
             }
         });
+
+        if (!postObj) {
+            return res.status(404).send({ code: "NOT_FOUND" });
+        }
 
         const post = postObj.dataValues;
 

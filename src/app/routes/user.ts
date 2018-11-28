@@ -20,17 +20,15 @@ export default (app: Application) => {
 
   app.get("/api/user/:userId", (req, res) => {
     req.models.user.findOne({
-      where:
-        { 
+      where: { 
           id: req.params.userId 
-        },
-        include: [
-          { model: req.models.userProperty },
-          { model: req.models.userPreference },
-          { model: req.models.userFollower }
-        ]
-    })
-    .then(
+      },
+      include: [
+        { model: req.models.userProperty },
+        { model: req.models.userPreference },
+        { model: req.models.userFollower }
+      ]
+    }).then(
       user => {
         user = JSON.parse(JSON.stringify(user));
 

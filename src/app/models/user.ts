@@ -1,17 +1,11 @@
 import { Sequelize, DataTypes } from "sequelize";
 
 module.exports = (sequelize: Sequelize, dataTypes: DataTypes) => {
-  const USER_TYPES = {
-    ANY: 0,
-    DEMAND: 1,
-    SUPPLY: 2
-  };
-
   const USER_STATUS = {
-    UNVERIFIED: "0",
-    VERIFIED: "10",
+    BLOCKED: "20",
     DISABLED: "15",
-    BLOCKED: "20"
+    UNVERIFIED: "0",
+    VERIFIED: "10"
   };
 
   const User = sequelize.define("user", {
