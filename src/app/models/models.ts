@@ -108,12 +108,12 @@ export const create = (tenantId: string, marketplaceType: "services" | "blank", 
 
       cb();
     },
-    cb => {
+    async (cb) => {
       const models = tenantConnections[tenantId];
 
-      models.seq.sync().then(() => {
-        cb();
-      }, cb);
+      await models.seq.sync();
+
+      cb();
     },
     cb => {
       if (!isNewDatabase) {

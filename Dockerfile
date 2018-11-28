@@ -18,4 +18,4 @@ CMD [ "npm", "run" , "build:nolint" ]
 RUN mkdir -p /usr/uploads
 
 #CMD [ "npm", "create:vqbackend" ]
-CMD [ "npm", "start" ]
+CMD [ "npm", "start:forever" ]

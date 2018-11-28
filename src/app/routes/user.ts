@@ -26,7 +26,8 @@ export default (app: Application) => {
         },
         include: [
           { model: req.models.userProperty },
-          { model: req.models.userPreference }
+          { model: req.models.userPreference },
+          { model: req.models.userFollower }
         ]
     })
     .then(
@@ -51,20 +52,20 @@ export default (app: Application) => {
     return username;
   };
 
-   /**
-     * @api {put} /api/user/:userId Updates user data
-     * @apiVersion 0.0.2
-     * @apiGroup User
-     *
-     * @apiParam {String} email Users unique email.
-     * @apiParam {String} firstName First name of the User.
-     * @apiParam {String} lastName Last name of the User.
-     * @apiParam {String} username Username.
-     * @apiParam {String="0", "1", "2"} userType User type (any, customer, supplier).
-     * @apiParam {Object} props User properties, fully extensible, [key: string]: string
-     *
-     * @apiSuccess {id} id user ID (is not the same as the account ID of the user)
-     */
+  /**
+   * @api {put} /api/user/:userId Updates user data
+   * @apiVersion 0.0.2
+   * @apiGroup User
+   *
+   * @apiParam {String} email Users unique email.
+   * @apiParam {String} firstName First name of the User.
+   * @apiParam {String} lastName Last name of the User.
+   * @apiParam {String} username Username.
+   * @apiParam {String="0", "1", "2"} userType User type (any, customer, supplier).
+   * @apiParam {Object} props User properties, fully extensible, [key: string]: string
+   *
+   * @apiSuccess {id} id user ID (is not the same as the account ID of the user)
+   */
   app.put("/api/user/:userId", isLoggedIn, async (req, res) => {
       const mutableFields = [
         "firstName",
@@ -176,6 +177,7 @@ export default (app: Application) => {
         );
     });
   });
+
   /**
    * Deactivates user account
    */
@@ -201,5 +203,118 @@ export default (app: Application) => {
       }, 
       (err: any) => sendResponse(res, err)
       );
+  });
+
+/**
+ * @api {post} /api/user/:userId/follow Follows user
+ * @apiVersion 0.0.2
+ * @apiGroup User
+ *
+ * @apiParam {userId} email Users ID
+ */
+  app.post("/api/user/:userId/follow", isLoggedIn, async (req, res) => {
+    const followRow = await req.models.userFollower.findOne({
+      where: {
+        $and: [
+          { userId: req.user.id },
+          { followingId: req.params.userId }
+        ]
+      }
+    });
+
+    const user = await req.models.user.findById(req.params.userid);
+
+    if (!user) {
+      return res.status(400).send({ code: "NOT_FOUND" });
+    }
+
+    if (!followRow) {
+      await req.models.userFollower.create({
+        userId: req.user.id,
+        followingId: req.params.userid
+      });
+    }
+
+    return res.status(200).send({ code: "FOLLOWED" });
+  });
+
+/**
+ * @api {post} /api/user/:userId/unfollow Unfollows user
+ * @apiVersion 0.0.2
+ * @apiGroup User
+ *
+ * @apiParam {userId} email Users ID
+ */
+  app.post("/api/user/:userId/unfollow", isLoggedIn, async (req, res) => {
+    await req.models.userFollower.destroy({
+      where: {
+        $and: [
+          { userId: req.user.id },
+          { followingId: req.params.userId }
+        ]
+      }
+    });
+
+    return res.send({ code: "UNFOLLOWED" });
+  });
+
+/**
+ * @api {get} /api/user/:userId/followers Gets user followers
+ * @apiVersion 0.0.2
+ * @apiGroup User
+ *
+ * @apiParam {userId} Users ID
+ */
+  app.get("/api/user/:userId/followers", async (req, res) => {
+    const followerData = await req.models.userFollower.findAll({
+      where: {
+        $and: [
+          { followingId: req.params.userId }
+        ]
+      }
+    });
+
+    const ids = followerData.map(_ => {
+      return {
+        id: _.userId
+      };
+    });
+
+    const users = await req.models.user.findAll({
+      where: {
+        $or: ids
+      }
+    });
+
+    return res.status(200).send(users);
+  });
+
+/**
+ * @api {get} /api/user/:userId/following Gets following users
+ * @apiVersion 0.0.2
+ * @apiGroup User
+ *
+ * @apiParam {userId} Users ID
+ */
+  app.get("/api/user/:userId/following", async (req, res) => {
+    const followingUsers = await req.models.userFollower.findAll({
+      where: {
+        $and: [
+          { userId: req.params.userId },
+        ]
+      }
+    });
+
+    const ids = followingUsers.map(_ => {
+      return { id: _.followingId };
+    });
+
+    const users = await req.models.user.findAll({
+      where: {
+          $or: ids
+      }
+    });
+
+    return res.status(200).send(users);
   });
 };

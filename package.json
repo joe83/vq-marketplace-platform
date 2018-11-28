@@ -1,6 +1,6 @@
 {
   "name": "vq-marketplace-api",
-  "version": "3.0.1",
+  "version": "4.0.0",
   "description": "VQ Web Services",
   "main": "build/app.js",
   "repository": {

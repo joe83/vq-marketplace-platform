@@ -44,7 +44,7 @@ STRIPE_TEST_SECRET=
 ### Docker
 ```bash
 # this will display the command that needs to be run in order to authenticate
-aws ecr get-login --no-include-email
+aws ecr get-login
 
 ## run the command that is displayed by get-login and then:
 docker pull 481877795925.dkr.ecr.us-east-1.amazonaws.com/vqmarketplaceplatform:latest
@@ -105,8 +105,8 @@ TENANT_ID=vqbackend npm run start
 ## Docker registry
 ```bash
 aws ecr create-repository --repository-name vqmarketplaceplatform
-docker build -t alphateamhackers/vqmarketplaceplatform .
-docker tag vqmarketplaceplatform:latest 481877795925.dkr.ecr.us-east-1.amazonaws.com/vqmarketplaceplatform:latest
+docker build -t vqlabs/vqmarketplaceplatform .
+docker tag vqlabs/vqmarketplaceplatform:latest 481877795925.dkr.ecr.us-east-1.amazonaws.com/vqmarketplaceplatform:latest
 docker push 481877795925.dkr.ecr.us-east-1.amazonaws.com/vqmarketplaceplatform:latest
 ```
 

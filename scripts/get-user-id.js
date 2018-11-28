@@ -8,7 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 require('dotenv').config();
 const async = require("async");
-const db = require('../app/models/models.js');
+const db = require('../build/app/models/models.js');
 const USECASE = "honestcash";
 const TENANT_ID = "honestcash";
 if (!TENANT_ID) {

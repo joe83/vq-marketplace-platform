@@ -89,6 +89,8 @@ module.exports = (sequelize: Sequelize, dataTypes: DataTypes) => {
     User.hasMany(models.review, {
       foreignKey: "toUserId"
     });
+
+    User.hasMany(models.userFollower);
   };
 
   (User as any).USER_STATUS = USER_STATUS;

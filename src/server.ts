@@ -1,7 +1,7 @@
 require('dotenv').config();
 
 import routes from "./app/routes";
-
+const pckg = require("../package.json")
 const async = require("async");
 const db = require("./app/models/models");
 const tenantService = require("./app-tenant");
@@ -15,6 +15,8 @@ const tenantApp = express();
 
 let TENANT_ID;
 
+console.log("Version: " + pckg.version)
+
 const setTenantIdForTesting = (tenantId) => {
     TENANT_ID = tenantId;
 };
@@ -24,7 +26,7 @@ const startServer = cb => {
         cb => {
             const appServer = app.listen(process.env.PORT, () => {
                 const port = appServer.address().port;
-        
+
                 console.log(`VQ-Marketplace API listening at port ${port}. Supporting ${db.getTenantIds().length} tenants.`);
 
                 cb();
@@ -48,25 +50,24 @@ const startServerDeamons = () => {
         .filter(tenantId => db.tenantConnections[tenantId])
         .forEach(tenantId => {
           const secsPassedSinceNotUsed =  (Date.now() / 1000) - db.tenantRegister[tenantId].established;
-          
+
           console.log(`Tenant ${tenantId} not active since ${secsPassedSinceNotUsed}s`);
-    
-          // is 15 sec ok?
-          if (secsPassedSinceNotUsed > 15) {
+
+          if (secsPassedSinceNotUsed > 30) {
             console.log(`Closing tenant connection ${tenantId}`);
-    
+
             db.tenantConnections[tenantId].seq.close();
-      
+
             delete db.tenantConnections[tenantId];
          }
         });
-    }, 1 * 5000);
-    
+    }, 10 * 1000);
+
     if (process.env.SHOW_MEMORY_USAGE) {
         setInterval(() => {
             const usedMemory = process.memoryUsage().heapUsed / 1024 / 1024;
         
-            console.log(`[VQ-MARKETPLACE-API] ${Math.round(usedMemory * 100) / 100} MB usage | ${Object.keys(db.tenantConnections).length} tenants`);
+            console.log(`[VQ-MARKETPLACE-PLATFORM] ${Math.round(usedMemory * 100) / 100} MB usage | ${Object.keys(db.tenantConnections).length} tenants`);
         }, 1 * 60 * 1000);
     }
 };
@@ -74,24 +75,27 @@ const startServerDeamons = () => {
 const initTenants = cb => {
     async.waterfall([
         cb => {
-            tenantService.getModels((err, tenantModels) => {
+            tenantService.getModels(async (err, tenantModels) => {
                 if (err) {
                     return cb(err);
                 }
-    
-                tenantModels
-                .tenant
-                .findAll({
-                    where: {
-                        $and: [
-                            { status: 3 },
-                            { emailVerified: true }
-                        ]
-                    }
-                })
-                .then(rTenants => {
-                    cb(null, rTenants);
-                }, cb);
+
+                let rTenants;
+
+                try {
+                    rTenants = await tenantModels.tenant.findAll({
+                        where: {
+                            $and: [
+                                { status: 3 },
+                                { emailVerified: true }
+                            ]
+                        }
+                    });
+                } catch (err) {
+                    return cb(err);
+                }
+                
+                cb(null, rTenants);
             });
         },
         (tenants, cb) => {
@@ -99,13 +103,19 @@ const initTenants = cb => {
                 tenants,
                 3,
                 // we register it here, they are then lazy loaded when needed.
-                (tenant, cb) => {
+                async (tenant, cb) => {
                     console.log(`Registering tenant ${tenant.tenantId}`);
     
                     db.refreshTenantRegister(tenant.tenantId);
       
                     workers.registerWorkers(tenant.tenantId);
     
+                    const models = db.get(tenant.tenantId);
+
+                    console.log(`Synchronizing DB models for tenant: ${tenant.tenantId}`);
+
+                    await models.seq.sync();
+
                     cb();
                         /**
                              db.create(tenant.dataValues.tenantId, tenant.dataValues.marketplaceType, (err) => {
@@ -128,7 +138,7 @@ const initTenants = cb => {
 
 const tenantConfigs = {};
 
-const setupApp = cb => {
+const setupApp = async cb => {
 	const initApp = app => {
 		app.set("view engine", "ejs");
 		app.set("json spaces", 2);
@@ -145,7 +155,7 @@ const setupApp = cb => {
 	// app.use(morgan("combined"));
 	tenantApp.use(morgan("combined"));
 
-	app.use((req, res, next) => {
+	app.use(async (req, res, next) => {
 		req.auth = {
 			token: req.headers["x-auth-token"]
 		};
@@ -179,33 +189,32 @@ const setupApp = cb => {
             }
         }
 
-        req
-        .models
-        .appConfig
-        .findAll()
-        .then(configArr => {
-            const configObj = {};
+        let configArr;
+        let configObj;
 
-            configArr.forEach(configItem => {
-                configObj[configItem.fieldKey] = configItem.fieldValue;
-            });
+        try {
+            configArr = await req.models.appConfig.findAll();
 
-            tenantConfigs[tenantId] = {
-                refreshed: Date.now(),
-                data: configObj
-            };
-
-            req.tenantConfig = configObj;
-
-            console.log(req.tenantConfig);
-
-            return next();
-        }, err => {
-            res.status(500).send({
+            configObj = {};
+        } catch (err) {
+            return res.status(500).send({
                 code: "DB_ERROR",
                 err
             });
+        }
+
+        configArr.forEach(configItem => {
+            configObj[configItem.fieldKey] = configItem.fieldValue;
         });
+
+        tenantConfigs[tenantId] = {
+            refreshed: Date.now(),
+            data: configObj
+        };
+
+        req.tenantConfig = configObj;
+
+        return next();
 	});
 
     console.log("-------------------------------------------------");
