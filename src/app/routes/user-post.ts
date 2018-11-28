@@ -248,8 +248,10 @@ export default (app: Application) => {
             return res.status(400).send({ code: "POST_NOT_FOUND" });
         }
 
-        post.alias = `${slug(post.title).toLowerCase()}-${post.id}`;
-        post.status = "published";
+        if (post.status === "published") {
+            post.alias = `${slug(post.title).toLowerCase()}-${post.id}`;
+            post.status = "published";
+        }
 
         await post.save();
 
