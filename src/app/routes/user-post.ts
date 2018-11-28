@@ -141,8 +141,6 @@ export default (app: Application) => {
     });
 
     app.post("/api/post/:postId/upvote", async (req: IVQRequest, res) => {
-        const idOrAlias = req.params.idOrAlias.toLowerCase();
-
         const body: { txId: string, postId: number } = req.body;
 
         const post = await req.models.userPost.findById(body.postId);
