@@ -1,6 +1,6 @@
 
 import { Application } from "express";
-import { isLoggedIn } from "../controllers/responseController";
+import { identifyUser, isLoggedIn } from "../controllers/responseController";
 import { IVQModels, IVQRequest } from "../interfaces";
 import { prepareHashtags } from "../utils";
 
@@ -144,19 +144,21 @@ export default (app: Application) => {
         res.status(200).send(post);
     });
 
-    app.post("/api/post/:postId/upvote", isLoggedIn, async (req: IVQRequest, res) => {
+    app.post("/api/post/:postId/upvote", identifyUser, async (req: IVQRequest, res) => {
         const body: { txId: string, postId: number } = req.body;
 
         const post = await req.models.userPost.findById(body.postId);
 
         if (!post) {
-            return res.status(400).send({ code: "POST_NOT_FOUND" });
+            return res.status(400).send({
+                code: "POST_NOT_FOUND"
+            });
         }
 
         await req.models.userPostUpvote.create({
             blockchain: "bch",
             txId: body.txId,
-            userId: req.user.id,
+            userId: req.user ? req.user.id : undefined,
             userPostId: body.postId
         });
 

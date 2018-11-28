@@ -1,7 +1,6 @@
 const jwt = require("jsonwebtoken");
 const cust = require("../config/customizing");
 const randomstring = require("randomstring");
-const models = require("../models/models");
 const vqAuth = require("../auth");
 
 export const isAuth = (req) => {
@@ -21,7 +20,7 @@ export const isAuth = (req) => {
 	}
 };
 
-function parseUserFactory (loginRequired: boolean, adminRequired: boolean, requiredStatus: "10") {
+function parseUserFactory (loginRequired: boolean, adminRequired: boolean, requiredStatus?: "10") {
 	return (req, res, next) => {
 			const authToken = req.headers["x-auth-token"];
 
@@ -91,7 +90,7 @@ function parseUserFactory (loginRequired: boolean, adminRequired: boolean, requi
 
 export const isLoggedIn = parseUserFactory(true, false);
 export const isLoggedInAndVerified = parseUserFactory(true, false, "10");
-export const isLoggedInAndActivated = parseUserFactory(true, false, "10");
+export const isLoggedInAndActivated = parseUserFactory(true, false, "11");
 export const isAdmin = parseUserFactory(true, true);
 export const identifyUser = parseUserFactory(false, false);
 
