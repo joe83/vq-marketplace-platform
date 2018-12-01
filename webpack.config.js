@@ -1,6 +1,5 @@
 const path = require('path');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
-const nodeExternals = require('webpack-node-externals');
 
 module.exports = {
     mode: 'development',
@@ -10,7 +9,6 @@ module.exports = {
         filename: 'vqmarketplace.js',
         path: path.resolve(__dirname, 'dist')
     },
-    externals: [nodeExternals()],
     module: {
         rules: [
             {

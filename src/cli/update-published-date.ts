@@ -15,16 +15,18 @@ if (!USECASE) {
 }
 
 db.create(TENANT_ID, USECASE, async () => {
-
     const models = db.get(TENANT_ID);
 
-    const users = await models.user.findAll({ where: { status: "10" }});
+    const userpost = await models.userPost.findById(211);
 
-    for (user of users) {
-        const userEmails = await models.userEmail.findAll({ where: { userId: user.vqUserId }});
-
-        for (user of userEmails) {
-            userEmail.forEach(_ => console.log(_.email))
-        }
+    userpost.updatedAt = new Date();
+    try {
+        await userpost.save();
+    } catch (err) {
+        throw err;
     }
+
+    const up = await models.userPost.findById(211);
+
+    console.log(up.updatedAt, up.createdAt, up.publishedAt);
 });

@@ -26,6 +26,10 @@ export default (sequelize: Sequelize, dataTypes: DataTypes) => {
         type:   dataTypes.ENUM,
         values: [ "article" ]
     },
+    publishedAt: {
+        allowNull: true,
+        type: dataTypes.DATE
+    },
     readTime: {
         allowNull: true,
         type: dataTypes.STRING

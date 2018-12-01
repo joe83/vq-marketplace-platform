@@ -30,7 +30,7 @@ export default (app: Application) => {
             ],
             limit,
             offset,
-            order: [[ "createdAt", "DESC" ]],
+            order: [[ "publishedAt", "DESC" ]],
             where: {
                 $and: [
                     { status: "published" }

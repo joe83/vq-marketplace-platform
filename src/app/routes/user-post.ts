@@ -252,6 +252,7 @@ export default (app: Application) => {
 
         if (post.status !== "published") {
             post.alias = `${slug(post.title).toLowerCase()}-${post.id}`;
+            post.publishedAt = new Date();
             post.status = "published";
         }
 

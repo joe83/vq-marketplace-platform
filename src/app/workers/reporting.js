@@ -20,9 +20,10 @@ const runReporting = tenantId => {
             });
     });
 
-    analyzeEntityNo("user", "# Users");
-    analyzeEntityNo("userPost", "# Published posts", { status: "published" });
+    analyzeEntityNo("user", "# users");
+    analyzeEntityNo("userPost", "# published posts", { status: "published" });
     analyzeEntityNo("userPost", "# draft posts", { status: "draft" });
+    analyzeEntityNo("userPostUpvote", "# upvotes");
 };
 
 module.exports = runReporting;

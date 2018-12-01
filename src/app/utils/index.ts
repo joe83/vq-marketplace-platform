@@ -4,6 +4,8 @@ import { IAPIError } from "../interfaces";
 export const cleanHashtag = (hashtag: string): string => {
     let cleanedHashtag = hashtag.split("#").join("");
 
+    cleanedHashtag = hashtag.split("-").join("");
+
     cleanedHashtag = slug(cleanedHashtag);
 
     return cleanedHashtag;
@@ -29,7 +31,7 @@ export const prepareHashtags = (hashtags: string[] | string): string[] => {
 
     // tslint:disable-next-line:align
 	if (typeof hashtags === "object") {
-        hashtags = hashtags.filter((item) => item.length > 2);
+        hashtags = hashtags.filter((item) => item.length > 2 && item.length < 16);
     }
 
     hashtags = removeDuplicates(hashtags);
