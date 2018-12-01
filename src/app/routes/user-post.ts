@@ -98,7 +98,7 @@ export default (app: Application) => {
      *
      * @apiParam {idOrAlias} ID of the post or an identifier
      */
-    app.get("/api/post/:idOrAlias", async (req: IVQRequest, res) => {
+    app.get("/api/post/:idOrAlias", identifyUser, async (req: IVQRequest, res) => {
         const idOrAlias = req.params.idOrAlias.toLowerCase();
 
         const postObj = await req.models.userPost.findOne({
@@ -126,7 +126,7 @@ export default (app: Application) => {
             return res.status(404).send({ code: "NOT_FOUND" });
         }
 
-        const post = postObj.dataValues;
+        const post = JSON.parse(JSON.stringify(postObj));
 
         if (post.parentPostId) {
             const parentPostObj = await req.models.userPost.findOne({
@@ -141,6 +141,22 @@ export default (app: Application) => {
             });
 
             post.parentPost = parentPostObj.dataValues;
+        }
+
+        /**
+         * Extending the user object for the context of the logged in user.
+         */
+        if (req.user) {
+            const userFollower = await req.models.userFollower.findOne({
+                where: {
+                    $and: [
+                        { userId: req.user.id },
+                        { followingId: post.userId }
+                    ]
+                }
+            });
+
+            post.user.alreadyFollowing = !!userFollower;
         }
 
         res.status(200).send(post);
