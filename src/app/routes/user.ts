@@ -1,49 +1,56 @@
-const responseController = require("../controllers/responseController.js");
 
 import * as async from "async";
+import * as userCtrl from "../controllers/userCtrl";
 
 import { Application } from "express";
 import { VQ } from "../../core/interfaces";
 import { checkUserName } from "../utils";
-import * as userCtrl from "../controllers/userCtrl";
 
 const BITBOXSDK = require("bitbox-sdk/lib/bitbox-sdk").default;
 const BITBOX = new BITBOXSDK();
 
-const isLoggedIn = responseController.isLoggedIn;
-const sendResponse = responseController.sendResponse;
+import { identifyUser, isLoggedIn, sendResponse } from "../controllers/responseController";
+import { IVQModels, IVQRequest } from "../interfaces";
 
 export default (app: Application) => {
-  app.get("/api/me", isLoggedIn, (req, res) => {
+  app.get("/api/me", isLoggedIn, (req: IVQRequest, res) => {
       return sendResponse(res, null, req.user);
   });
 
-  app.get("/api/user/:userId", (req, res) => {
-    req.models.user.findOne({
-      where: { 
-          id: req.params.userId 
-      },
+  app.get("/api/user/:userId", identifyUser, async (req: IVQRequest, res) => {
+    const userId = req.params.userId;
+
+    const userObj = await req.models.user.findOne({
       include: [
         { model: req.models.userProperty },
         { model: req.models.userPreference },
         { model: req.models.userFollower }
-      ]
-    }).then(
-      user => {
-        user = JSON.parse(JSON.stringify(user));
+      ],
+      where: {
+        id: userId
+      }
+    });
 
-        if (req.user && !req.user.isAdmin && req.query.adminView) {
-          user.userProperties.forEach(_ => {
-              const prop = _;
+    if (!userObj) {
+      return sendResponse(res, { httpCode: 404, code: "NOT_FOUND" }, null);
+    }
 
-              prop.propValue = Boolean(prop.propValue);
-          });
+    const user = userObj.dataValues;
+
+    if (req.user && req.user.id) {
+      const alreadyFollowing = await req.models.userFollower.findOne({
+        where: {
+          $and: [
+            { userId: req.user.id },
+            { followingId: user.id }
+          ]
         }
+      });
 
-        return sendResponse(res, null, user);
-      }, 
-      err => sendResponse(res, err)
-    );
+      user.alreadyFollowing = !!alreadyFollowing;
+    }
+
+    return sendResponse(res, null, user);
   });
 
   const prepareUsername = (username: string) => {

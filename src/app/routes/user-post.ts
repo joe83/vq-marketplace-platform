@@ -32,6 +32,8 @@ const getDraft = async (models: IVQModels, userId: number, parentPostId: number)
         }
 
         whereAndConditions.push({ parentPostId });
+    } else {
+        whereAndConditions.push({ parentPostId: null });
     }
 
     draft = await models.userPost.findOne({
