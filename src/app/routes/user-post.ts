@@ -3,9 +3,9 @@ import { Application } from "express";
 import { identifyUser, isLoggedIn } from "../controllers/responseController";
 import { IVQModels, IVQRequest } from "../interfaces";
 import { prepareHashtags } from "../utils";
-
 const slug = require("slug");
 const striptags = require("striptags");
+import userPostEmitter from "../events/userPost";
 
 const getDraft = async (models: IVQModels, userId: number, parentPostId: number) => {
     const whereAndConditions: any[] = [
@@ -256,6 +256,8 @@ export default (app: Application) => {
             post.alias = `${slug(post.title).toLowerCase()}-${post.id}`;
             post.publishedAt = new Date();
             post.status = "published";
+
+            userPostEmitter.emit("new-user-post", req.models, post);
         }
 
         await post.save();

@@ -217,7 +217,7 @@ export default (app: Application) => {
  *
  * @apiParam {userId} email Users ID
  */
-  app.post("/api/user/:userId/follow", isLoggedIn, async (req, res) => {
+  app.post("/api/user/:userId/follow", isLoggedIn, async (req: IVQRequest, res) => {
     const followRow = await req.models.userFollower.findOne({
       where: {
         $and: [

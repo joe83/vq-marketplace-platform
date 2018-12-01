@@ -6,11 +6,12 @@ const _ = require("underscore");
 
 import { IVQModels } from "../interfaces";
 
-const mandrill_client = new mandrill.Mandrill(process.env.MANDRILL);
+const mandrillClient = new mandrill.Mandrill(process.env.MANDRILL);
 
-type TEmailCode = "welcome" | "password-reset" | "user-activated";
+type TEmailCode = "welcome" | "password-reset" | "user-activated" | "new-user-post";
 
 export const EMAILS: { [emailCode: string]: TEmailCode } = {
+	NEW_USER_POST: "new-user-post",
 	PASSWORD_RESET: "password-reset",
 	USER_ACTIVATED: "user-activated",
 	WELCOME: "welcome"
@@ -31,15 +32,13 @@ export const getRawMessagePrototype = (fromName: string, supportEmail: string, d
 	to: [ ],
 });
 
-export const getMessagePrototype = models => new Promise((resolve, reject) => {
-	custProvider
-	.getConfig(models)
-	.then(config => {
-		return resolve(getRawMessagePrototype(config.NAME || "VQ LABS", config.SUPPORT_EMAIL, config.DOMAIN));
-	}, reject);
-});
+export const getMessagePrototype = async (models) => {
+	const config = await custProvider.getConfig(models);
 
-export const sendEmail = (models, html, tEmails, params, callback) => {
+	return getRawMessagePrototype(config.NAME || "VQ LABS", config.SUPPORT_EMAIL, config.DOMAIN);
+};
+
+export const sendEmail = (models, html, tEmails: string[], params, callback) => {
 	getMessagePrototype(models)
 	.then(message => {
 		message.subject = params.subject;
@@ -55,7 +54,7 @@ export const sendEmail = (models, html, tEmails, params, callback) => {
 		var lAsync = false;
 		var ip_pool = "Main Pool";
 
-		mandrill_client
+		mandrillClient
 		.messages
 		.send({
 			"message": message,
@@ -103,11 +102,11 @@ export const checkIfShouldSendEmail = (models, emailCode, userId, cb, shouldNotC
 	});
 
 export const getEmailBody = (models, code) => models.post
-	.findOne({ 
+	.findOne({
 		where: {
 			$and: [
 				{
-					type: "email",
+					type: "email"
 				}, {
 					code
 				}
@@ -133,11 +132,11 @@ export const sendEmailsOnEvent = (models, eventTrigger, demandUserEmails, supply
 		if (typeof emailData === "string") {
 			emailData = {
 				ACTION_URL: emailData,
+				EMAIL_SETTINGS_URL: `${config.DOMAIN}/app/account/notifications`,
 				LISTING_TITLE: "<LISTING_TITLE NOT SPECIFIED>",
-				SENDER_FIRST_NAME: "<SENDER_FIRST_NAME NOT SPECIFIED>",
-				SENDER_LAST_NAME: "<SENDER_LAST_NAME NOT SPECIFIED>",
 				MESSAGE_BODY: "<MESSAGE_BODY NOT SPECIFIED>",
-				EMAIL_SETTINGS_URL: `${config.DOMAIN}/app/account/notifications`
+				SENDER_FIRST_NAME: "<SENDER_FIRST_NAME NOT SPECIFIED>",
+				SENDER_LAST_NAME: "<SENDER_LAST_NAME NOT SPECIFIED>"
 			};
 		} else {
 			emailData.ACTION_URL = emailData.ACTION_URL || "<ACTION_URL NOT SPECIFIED>";
@@ -190,7 +189,15 @@ interface IEmailData {
 	SENDER_FIRST_NAME?: string;
 	SENDER_LAST_NAME?: string;
 	CONFIG?: { [configKey: string]: string };
+	USER_POST?: { title: string };
 }
+
+const allowedEmails = [
+	EMAILS.WELCOME,
+	EMAILS.PASSWORD_RESET,
+	EMAILS.USER_ACTIVATED,
+	EMAILS.NEW_USER_POST
+];
 
 export const getEmailAndSend = async (
 	models: IVQModels,
@@ -200,14 +207,9 @@ export const getEmailAndSend = async (
 ) => {
 	const config = await custProvider.getConfig(models);
 
-	const allowedEmails = [
-		EMAILS.WELCOME,
-		EMAILS.PASSWORD_RESET,
-		EMAILS.USER_ACTIVATED
-	]
-
 	// in case emails are disabled... only the welcome and password reset email can be sent.
 	if (allowedEmails.indexOf(emailCode) === -1 && config.EMAILS_ENABLED !== "1") {
+		// tslint:disable-next-line:no-console
 		return console.log(`Email ${emailCode} not allowed, so not sending!`);
 	}
 
@@ -253,7 +255,7 @@ export const getEmailAndSend = async (
 		return console.error(err);
 	}
 
-	params.subject = emailBody.title;
+	params.subject = ejs.compile(emailBody.title)(emailData);
 
 	sendEmail(models, compiledEmail, typeof email === "string" ? [
 		email
@@ -291,7 +293,7 @@ export const sendNewTenant = (email, VERIFICATION_LINK) => {
 	var lAsync = false;
 	var ip_pool = "Main Pool";
 
-	mandrill_client
+	mandrillClient
 	.messages
 	.send({ 
 		"message": message,
@@ -304,7 +306,7 @@ export const sendNewTenant = (email, VERIFICATION_LINK) => {
 	});	
 };
 
-export const sendTemplateEmail = (email, subject, body) => {
+export const sendTemplateEmail = (email, subject: string, body) => {
 	const message = getRawMessagePrototype();
 
 	message.subject = subject;
@@ -318,7 +320,7 @@ export const sendTemplateEmail = (email, subject, body) => {
 	var lAsync = false;
 	var ip_pool = "Main Pool";
 
-	mandrill_client
+	mandrillClient
 	.messages
 	.send({
 		"message": message,
