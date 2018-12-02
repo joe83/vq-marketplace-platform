@@ -99,7 +99,15 @@ export default (app: Application) => {
      * @apiParam {idOrAlias} ID of the post or an identifier
      */
     app.get("/api/post/:idOrAlias", identifyUser, async (req: IVQRequest, res) => {
-        const idOrAlias = req.params.idOrAlias.toLowerCase();
+        let idOrAlias = req.params.idOrAlias;
+
+        const isAlias = isNaN(idOrAlias);
+
+        idOrAlias = isNaN(req.params.idOrAlias) ? idOrAlias.toLowerCase() : Number(idOrAlias);
+
+        const whereContraint: any = {};
+
+        whereContraint[isAlias ? "alias" : "id"] = idOrAlias;
 
         const postObj = await req.models.userPost.findOne({
             include: [
@@ -114,12 +122,7 @@ export default (app: Application) => {
                 { model: req.models.user }
             ],
             plain: true,
-            where: {
-                $or: [
-                    { id: idOrAlias },
-                    { alias: idOrAlias }
-                ]
-            }
+            where: whereContraint
         });
 
         if (!postObj) {
