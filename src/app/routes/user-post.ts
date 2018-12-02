@@ -162,6 +162,8 @@ export default (app: Application) => {
             post.user.alreadyFollowing = !!userFollower;
         }
 
+        post.plain = striptags(post.body);
+
         res.status(200).send(post);
     });
 
